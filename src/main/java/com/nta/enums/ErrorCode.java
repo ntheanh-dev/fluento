@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatusCode;
 public enum ErrorCode {
     ERROR_KEY_INVALID(1001, "Không tìm thấy errorcode tương ứng", HttpStatus.INTERNAL_SERVER_ERROR),
     USERNAME_EXISTED(1002, "This username has already existed", HttpStatus.CONFLICT),
+    USER_NOT_EXISTED(1006, "User not existed", HttpStatus.NOT_FOUND),
     PASSWORD_INVALID(1003, "password phải ít nhất 8 kí tự", HttpStatus.BAD_REQUEST),
     INVALID_TOKEN(1008, "Invalid token", HttpStatus.BAD_REQUEST),
     INCORRECT_PASSWORD(1009, "Invalid password", HttpStatus.BAD_REQUEST),

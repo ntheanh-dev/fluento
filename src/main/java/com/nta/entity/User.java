@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "users")
@@ -22,6 +23,9 @@ public class User {
     @Column(nullable = false, unique = true, length = 50)
     private String username;
 
+    @Column(name = "password", nullable = false)
+    private String password;
+
     @Column(nullable = false, unique = true, length = 100)
     private String email;
 
@@ -33,4 +37,7 @@ public class User {
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Vocabulary> vocabularyLibrary;
+
+    @ManyToMany
+    Set<Role> roles;
 }
