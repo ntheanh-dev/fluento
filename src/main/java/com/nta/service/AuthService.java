@@ -1,21 +1,5 @@
 package com.nta.service;
 
-import java.text.ParseException;
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.StringJoiner;
-
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
-
 import com.nimbusds.jose.*;
 import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jose.crypto.MACVerifier;
@@ -36,12 +20,26 @@ import com.nta.exception.AppException;
 import com.nta.mapper.UserMapper;
 import com.nta.repository.RoleRepository;
 import com.nta.repository.UserRepository;
-
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.NonFinal;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
+
+import java.text.ParseException;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.StringJoiner;
 
 @Service
 @RequiredArgsConstructor
@@ -83,6 +81,7 @@ public class AuthService {
                 .build();
     }
 
+
     public void createAccount(CreateAccountRequest request) {
         PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
         User u = userMapper.toUser(request);
@@ -97,11 +96,11 @@ public class AuthService {
         JWSHeader header = new JWSHeader(JWSAlgorithm.HS256);
         Date expirationTime = TokenType.ACCESS_TOKEN.equals(type)
                 ? new Date(Instant.now()
-                        .plus(ACCESS_TOKEN_VALID_DURATION, ChronoUnit.HOURS)
-                        .toEpochMilli())
+                .plus(ACCESS_TOKEN_VALID_DURATION, ChronoUnit.HOURS)
+                .toEpochMilli())
                 : new Date(Instant.now()
-                        .plus(REFRESH_TOKEN_VALID_DURATION, ChronoUnit.DAYS)
-                        .toEpochMilli());
+                .plus(REFRESH_TOKEN_VALID_DURATION, ChronoUnit.DAYS)
+                .toEpochMilli());
         JWTClaimsSet jwtClaimsSet = new JWTClaimsSet.Builder()
                 .subject(user.getUsername())
                 .issuer("nta.com") // chỉ định token đợc issue từ ai

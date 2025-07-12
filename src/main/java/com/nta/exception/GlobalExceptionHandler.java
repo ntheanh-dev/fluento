@@ -1,5 +1,9 @@
 package com.nta.exception;
 
+import com.nta.dto.response.ApiResponse;
+import com.nta.enums.ErrorCode;
+import com.nta.enums.ValidationErrorCode;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AuthenticationServiceException;
@@ -7,11 +11,6 @@ import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-
-import com.nta.dto.response.ApiResponse;
-import com.nta.enums.ErrorCode;
-
-import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @ControllerAdvice
@@ -48,9 +47,9 @@ public class GlobalExceptionHandler {
         // getFieldErro() còn có thể xác định lỗi ở filed nào, dữ liệu đầu vào là gi....
         String enumKey = e.getFieldError().getDefaultMessage();
 
-        ErrorCode errorCode = ErrorCode.ERROR_KEY_INVALID;
+        ValidationErrorCode errorCode = ValidationErrorCode.ERROR_KEY_INVALID;
         try {
-            errorCode = ErrorCode.valueOf(enumKey); // Lấy ra enum Errorcode bằng tên mà đã được truyền khi validate
+            errorCode = ValidationErrorCode.valueOf(enumKey); // Lấy ra enum Errorcode bằng tên mà đã được truyền khi validate
         } catch (IllegalArgumentException iae) {
             // Trong trường hợp validate mà truyền sai enum name
         }
