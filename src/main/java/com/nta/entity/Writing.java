@@ -1,12 +1,13 @@
 package com.nta.entity;
 
+import java.time.LocalDateTime;
+import java.util.List;
 
 import jakarta.persistence.*;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import java.time.LocalDateTime;
-import java.util.List;
 
 @Entity
 @Table(name = "writings")
@@ -15,7 +16,8 @@ import java.util.List;
 @AllArgsConstructor
 public class Writing {
 
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -40,4 +42,3 @@ public class Writing {
     @OneToMany(mappedBy = "writing", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<WritingSentence> sentences;
 }
-

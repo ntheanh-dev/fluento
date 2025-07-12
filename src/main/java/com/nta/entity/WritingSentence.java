@@ -1,10 +1,12 @@
 package com.nta.entity;
 
+import java.util.List;
+
 import jakarta.persistence.*;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import java.util.List;
 
 @Entity
 @Table(name = "writing_sentences")
@@ -13,7 +15,8 @@ import java.util.List;
 @AllArgsConstructor
 public class WritingSentence {
 
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne

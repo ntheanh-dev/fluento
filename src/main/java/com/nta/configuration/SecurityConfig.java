@@ -28,91 +28,63 @@ import java.util.Collections;
 @EnableMethodSecurity
 public class SecurityConfig {
 
-  @NonFinal
-  @Value("${spring.security.oauth2.resourceserver.jwt.signer-key}")
-  protected String SIGNER_KEY;
+    private final String[] PUBLIC_POST_ENDPOINTS = {
+            "/auth/token", "/auth/introspect", "/auth/register", "/auth/logout", "/roles",
+    };
+    private final String[] PUBLIC_GET_ENDPOINTS = {};
+    @NonFinal
+    @Value("${spring.security.oauth2.resourceserver.jwt.signer-key}")
+    protected String SIGNER_KEY;
+    @Autowired
+    private CustomJwtDecoder customNimbusJwtDecoder;
 
-  @Autowired private CustomJwtDecoder customNimbusJwtDecoder;
-  private final String[] PUBLIC_POST_ENDPOINTS = {
-    "/users",
-    "/users/check-account",
-    "/auth/token",
-    "/auth/introspect",
-    "/auth/logout",
-    "/roles",
-    "/shippers",
-    "/sent-otp",
-    "/verify-register-otp"
-  };
-
-  private final String[] PUBLIC_GET_ENDPOINTS = {
-    "/vehicles",
-    "/products/categories",
-    "/payment/methods",
-    "/location/duration",
-    "payment/vn-pay-callback"
-  };
-
-  @Bean
-  public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
-    httpSecurity.headers(
-        headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin));
-    httpSecurity.authorizeHttpRequests(
-        request ->
-            request
-                .requestMatchers(HttpMethod.POST, PUBLIC_POST_ENDPOINTS)
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
+        httpSecurity.headers(headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin));
+        httpSecurity.authorizeHttpRequests(request -> request.requestMatchers(HttpMethod.POST, PUBLIC_POST_ENDPOINTS)
                 .permitAll()
                 .requestMatchers(HttpMethod.GET, PUBLIC_GET_ENDPOINTS)
-                .permitAll()
-                .requestMatchers("/ws/**")
                 .permitAll()
                 .requestMatchers(HttpMethod.GET, "/users")
                 .hasRole(PredefinedRole.ADMIN_ROLE)
                 .anyRequest()
                 .authenticated());
-    httpSecurity.oauth2ResourceServer(
-        oauth2 ->
-            oauth2
-                .jwt(
-                    jwtConfigurer ->
-                        jwtConfigurer
-                            .decoder(customNimbusJwtDecoder)
-                            .jwtAuthenticationConverter(jwtAuthenticationConverter()))
+        httpSecurity.oauth2ResourceServer(oauth2 -> oauth2.jwt(jwtConfigurer -> jwtConfigurer
+                        .decoder(customNimbusJwtDecoder)
+                        .jwtAuthenticationConverter(jwtAuthenticationConverter()))
                 .authenticationEntryPoint(new JwtAuthenticationEntryPoint()));
-    httpSecurity.csrf(AbstractHttpConfigurer::disable);
-    return httpSecurity.build();
-  }
+        httpSecurity.csrf(AbstractHttpConfigurer::disable);
+        return httpSecurity.build();
+    }
 
-  @Bean
-  public CorsFilter corsFilter() {
-    CorsConfiguration corsConfiguration = new CorsConfiguration();
+    @Bean
+    public CorsFilter corsFilter() {
+        CorsConfiguration corsConfiguration = new CorsConfiguration();
 
-    corsConfiguration.setAllowCredentials(true);
-    corsConfiguration.setAllowedOriginPatterns(Collections.singletonList("*"));
-    corsConfiguration.addAllowedMethod("*");
-    corsConfiguration.addAllowedHeader("*");
+        corsConfiguration.setAllowCredentials(true);
+        corsConfiguration.setAllowedOriginPatterns(Collections.singletonList("*"));
+        corsConfiguration.addAllowedMethod("*");
+        corsConfiguration.addAllowedHeader("*");
 
-    UrlBasedCorsConfigurationSource urlBasedCorsConfigurationSource =
-        new UrlBasedCorsConfigurationSource();
-    urlBasedCorsConfigurationSource.registerCorsConfiguration("/**", corsConfiguration);
+        UrlBasedCorsConfigurationSource urlBasedCorsConfigurationSource = new UrlBasedCorsConfigurationSource();
+        urlBasedCorsConfigurationSource.registerCorsConfiguration("/**", corsConfiguration);
 
-    return new CorsFilter(urlBasedCorsConfigurationSource);
-  }
+        return new CorsFilter(urlBasedCorsConfigurationSource);
+    }
 
-  @Bean
-  JwtAuthenticationConverter jwtAuthenticationConverter() {
-    JwtGrantedAuthoritiesConverter jwtGrantedAuthoritiesConverter =
-        new JwtGrantedAuthoritiesConverter();
-    jwtGrantedAuthoritiesConverter.setAuthorityPrefix("");
+    @Bean
+    JwtAuthenticationConverter jwtAuthenticationConverter() {
+        JwtGrantedAuthoritiesConverter jwtGrantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
+        jwtGrantedAuthoritiesConverter.setAuthorityPrefix("");
 
-    JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
-    jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(jwtGrantedAuthoritiesConverter);
+        JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
+        jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(jwtGrantedAuthoritiesConverter);
 
-    return jwtAuthenticationConverter;
-  }
+        return jwtAuthenticationConverter;
+    }
 
-  @Bean
-  PasswordEncoder passwordEncoder() {
-    return new BCryptPasswordEncoder(10);
-  }
+    @Bean
+    PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder(10);
+    }
 }

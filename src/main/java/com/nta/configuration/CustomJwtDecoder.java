@@ -1,9 +1,9 @@
 package com.nta.configuration;
 
-import com.nimbusds.jose.JOSEException;
-import com.nta.dto.request.IntrospectRequest;
-import com.nta.service.AuthenticationService;
-import lombok.experimental.NonFinal;
+import java.text.ParseException;
+import java.util.Objects;
+import javax.crypto.spec.SecretKeySpec;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
@@ -13,9 +13,11 @@ import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.stereotype.Component;
 
-import javax.crypto.spec.SecretKeySpec;
-import java.text.ParseException;
-import java.util.Objects;
+import com.nimbusds.jose.JOSEException;
+import com.nta.dto.request.IntrospectRequest;
+import com.nta.service.AuthService;
+
+import lombok.experimental.NonFinal;
 
 @Component
 public class CustomJwtDecoder implements JwtDecoder {
@@ -25,7 +27,7 @@ public class CustomJwtDecoder implements JwtDecoder {
     private String signerKey;
 
     @Autowired
-    private AuthenticationService authenticationService;
+    private AuthService authService;
 
     private NimbusJwtDecoder nimbusJwtDecoder = null;
 
@@ -33,7 +35,7 @@ public class CustomJwtDecoder implements JwtDecoder {
     public Jwt decode(String token) throws JwtException {
 
         try {
-            var response = authenticationService.introspect(
+            var response = authService.introspect(
                     IntrospectRequest.builder().token(token).build());
 
             if (!response.isValid()) throw new JwtException("Token invalid");

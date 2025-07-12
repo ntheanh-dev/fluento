@@ -1,10 +1,12 @@
 package com.nta.entity;
 
+import java.time.LocalDateTime;
+
 import jakarta.persistence.*;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "vocabulary_library")
@@ -13,7 +15,8 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class Vocabulary {
 
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)

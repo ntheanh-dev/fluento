@@ -1,8 +1,5 @@
 package com.nta.exception;
 
-import com.nta.dto.response.ApiResponse;
-import com.nta.enums.ErrorCode;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AuthenticationServiceException;
@@ -11,35 +8,38 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
+import com.nta.dto.response.ApiResponse;
+import com.nta.enums.ErrorCode;
+
+import lombok.extern.slf4j.Slf4j;
+
 @Slf4j
 @ControllerAdvice
 public class GlobalExceptionHandler {
     // Bắt exception trung trung
-//    @ExceptionHandler(Exception.class)
-//    ResponseEntity<ApiResponse<Object>> runtimeExceptionHandler(Exception e) {
-//        ApiResponse<Object> apiResponse = new ApiResponse<>();
-//        apiResponse.setMessage(e.getMessage());
-//        apiResponse.setCode(999);
-//
-//        log.error(e.getMessage());
-//        return ResponseEntity.internalServerError().body(apiResponse);
-//    }
+    //    @ExceptionHandler(Exception.class)
+    //    ResponseEntity<ApiResponse<Object>> runtimeExceptionHandler(Exception e) {
+    //        ApiResponse<Object> apiResponse = new ApiResponse<>();
+    //        apiResponse.setMessage(e.getMessage());
+    //        apiResponse.setCode(999);
+    //
+    //        log.error(e.getMessage());
+    //        return ResponseEntity.internalServerError().body(apiResponse);
+    //    }
 
     // Exception tự tạo
     @ExceptionHandler(AppException.class)
     ResponseEntity<ApiResponse<Object>> appExceptionHandler(AppException e) {
-      // Lấy errorcode đường truyền vào khi thor new AppException
-      ErrorCode errorCode = e.getErrorCode();
+        // Lấy errorcode đường truyền vào khi thor new AppException
+        ErrorCode errorCode = e.getErrorCode();
 
-      ApiResponse<Object> apiResponse = new ApiResponse<>();
-      apiResponse.setMessage(errorCode.getMessage());
-      apiResponse.setCode(errorCode.getCode());
+        ApiResponse<Object> apiResponse = new ApiResponse<>();
+        apiResponse.setMessage(errorCode.getMessage());
+        apiResponse.setCode(errorCode.getCode());
 
-      log.error(errorCode.getMessage());
+        log.error(errorCode.getMessage());
 
-      return ResponseEntity
-              .status(errorCode.getStatusCode())
-              .body(apiResponse);
+        return ResponseEntity.status(errorCode.getStatusCode()).body(apiResponse);
     }
 
     // Exception khi validate cac filed
@@ -50,7 +50,7 @@ public class GlobalExceptionHandler {
 
         ErrorCode errorCode = ErrorCode.ERROR_KEY_INVALID;
         try {
-            errorCode = ErrorCode.valueOf(enumKey);// Lấy ra enum Errorcode bằng tên mà đã được truyền khi validate
+            errorCode = ErrorCode.valueOf(enumKey); // Lấy ra enum Errorcode bằng tên mà đã được truyền khi validate
         } catch (IllegalArgumentException iae) {
             // Trong trường hợp validate mà truyền sai enum name
         }
@@ -62,6 +62,7 @@ public class GlobalExceptionHandler {
         log.error(errorCode.getMessage());
         return ResponseEntity.badRequest().body(apiResponse);
     }
+
     @ExceptionHandler(JwtException.class)
     ResponseEntity<ApiResponse<Object>> jwtExceptionHandler(JwtException e) {
         log.error(e.getMessage());

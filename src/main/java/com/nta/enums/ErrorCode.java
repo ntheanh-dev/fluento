@@ -1,8 +1,9 @@
 package com.nta.enums;
 
-import lombok.Getter;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
+
+import lombok.Getter;
 
 @Getter
 public enum ErrorCode {
@@ -13,8 +14,7 @@ public enum ErrorCode {
     INVALID_TOKEN(1008, "Invalid token", HttpStatus.BAD_REQUEST),
     INCORRECT_PASSWORD(1009, "Invalid password", HttpStatus.BAD_REQUEST),
     UNAUTHENTICATED(1012, "unauthenticated", HttpStatus.UNAUTHORIZED),
-    UNAUTHORIZED(1007, "You do not have permission", HttpStatus.FORBIDDEN)
-    ;
+    UNAUTHORIZED(1007, "You do not have permission", HttpStatus.FORBIDDEN);
 
     ErrorCode(int code, String message, HttpStatusCode statusCode) {
         this.code = code;

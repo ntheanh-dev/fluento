@@ -1,6 +1,7 @@
 package com.nta.exception;
 
 import com.nta.enums.ErrorCode;
+
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
