@@ -3,6 +3,7 @@ package com.nta.exception;
 import com.nta.dto.response.ApiResponse;
 import com.nta.enums.ErrorCode;
 import com.nta.enums.ValidationErrorCode;
+import feign.FeignException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
@@ -84,6 +85,13 @@ public class GlobalExceptionHandler {
         apiResponse.setMessage(ErrorCode.INVALID_TOKEN.getMessage());
 
         return ResponseEntity.badRequest().body(apiResponse);
+    }
+
+    @ExceptionHandler(FeignException.FeignClientException.class)
+    ResponseEntity<ApiResponse<Object>> feignClientExeption(FeignException e) {
+        log.error(e.getMessage());
+
+        return null;
     }
 
     @ExceptionHandler(value = AccessDeniedException.class)

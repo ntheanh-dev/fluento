@@ -49,7 +49,6 @@ public class AuthService {
     UserRepository userRepository;
     UserMapper userMapper;
     RoleRepository roleRepository;
-
     @NonFinal
     @Value("${spring.security.oauth2.resourceserver.jwt.signer-key}")
     protected String SIGNER_KEY;
@@ -92,7 +91,7 @@ public class AuthService {
         userRepository.save(u);
     }
 
-    String generateToken(User user, TokenType type) throws JOSEException {
+    public String generateToken(User user, TokenType type) throws JOSEException {
         JWSHeader header = new JWSHeader(JWSAlgorithm.HS256);
         Date expirationTime = TokenType.ACCESS_TOKEN.equals(type)
                 ? new Date(Instant.now()
@@ -179,4 +178,5 @@ public class AuthService {
         //            redisService.set(request.getToken(), "1");
         //        }
     }
+
 }

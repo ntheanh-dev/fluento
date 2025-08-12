@@ -9,6 +9,7 @@ import com.nta.dto.response.ApiResponse;
 import com.nta.dto.response.AuthenticationResponse;
 import com.nta.dto.response.IntrospectResponse;
 import com.nta.service.AuthService;
+import com.nta.service.SocialAuthService;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +25,13 @@ import java.text.ParseException;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class AuthController {
     AuthService authService;
+    SocialAuthService socialAuthService;
+
+    @PostMapping("/outbound/authentication")
+    ApiResponse<AuthenticationResponse> authenticateGoogle(@RequestParam String code) {
+        final var res = socialAuthService.authenticateGoogle(code);
+        return ApiResponse.<AuthenticationResponse>builder().result(res).build();
+    }
 
     @PostMapping("/token")
     ApiResponse<AuthenticationResponse> authenticate(@RequestBody AuthenticationRequest authenticationRequest)

@@ -30,6 +30,7 @@ public class SecurityConfig {
 
     private final String[] PUBLIC_POST_ENDPOINTS = {
             "/auth/token", "/auth/introspect", "/auth/register", "/auth/logout", "/roles",
+            "/auth/outbound/authentication"
     };
     private final String[] PUBLIC_GET_ENDPOINTS = {};
     @NonFinal
