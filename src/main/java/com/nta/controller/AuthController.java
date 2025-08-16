@@ -28,7 +28,7 @@ public class AuthController {
     SocialAuthService socialAuthService;
 
     @PostMapping("/outbound/authentication")
-    ApiResponse<AuthenticationResponse> authenticateGoogle(@RequestParam String code) {
+    ApiResponse<AuthenticationResponse> authenticateGoogle(@RequestParam String code) throws JOSEException {
         final var res = socialAuthService.authenticateGoogle(code);
         return ApiResponse.<AuthenticationResponse>builder().result(res).build();
     }
