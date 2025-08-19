@@ -2,10 +2,7 @@ package com.nta.controller;
 
 import com.nta.dto.request.GenerateParagraphRequest;
 import com.nta.dto.request.SentenceTranslationRequest;
-import com.nta.dto.response.ApiResponse;
-import com.nta.dto.response.GenerateParagraphResponse;
-import com.nta.dto.response.HintTranslationResponse;
-import com.nta.dto.response.SentenceTranslationResponse;
+import com.nta.dto.response.*;
 import com.nta.service.WritingService;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -33,5 +30,10 @@ public class WritingController {
     public ApiResponse<SentenceTranslationResponse> translate(@RequestBody SentenceTranslationRequest request, @PathVariable String conversationId) {
         final SentenceTranslationResponse response = writingService.translateSentence(request, conversationId);
         return ApiResponse.<SentenceTranslationResponse>builder().result(response).build();
+    }
+
+    @GetMapping("/{conversationId}")
+    public ApiResponse<ConversationResponse> getConversation(@PathVariable String conversationId) {
+        return ApiResponse.<ConversationResponse>builder().result(writingService.getConversation(conversationId)).build();
     }
 }

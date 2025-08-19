@@ -2,23 +2,28 @@ package com.nta.service;
 
 import com.nta.dto.request.GenerateParagraphRequest;
 import com.nta.dto.request.SentenceTranslationRequest;
+import com.nta.dto.response.ConversationResponse;
 import com.nta.dto.response.GenerateParagraphResponse;
 import com.nta.dto.response.HintTranslationResponse;
 import com.nta.dto.response.SentenceTranslationResponse;
+import com.nta.repository.ChatMemoryRepository;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.UUID;
 
 @Service
 public class WritingService {
     private final ChatClient chatClient;
     private final AIChatService aiChatService;
+    private final ChatMemoryRepository chatMemoryRepository;
 
-    public WritingService(ChatClient chatClient, AIChatService aiChatService) {
+    public WritingService(ChatClient chatClient, AIChatService aiChatService, ChatMemoryRepository chatMemoryRepository) {
         this.chatClient = chatClient;
         this.aiChatService = aiChatService;
+        this.chatMemoryRepository = chatMemoryRepository;
     }
 
 //    public List<String> generateParagraph(final GenerateParagraphRequest request) {
@@ -163,4 +168,31 @@ public class WritingService {
                 SentenceTranslationResponse.class
         );
     }
+
+    public ConversationResponse getConversation(String conversationId) {
+        final var firstAssistantMessage = chatMemoryRepository.findFirstAssistantMessage(conversationId, "ASSISTANT");
+        final String content = reformatSentence(firstAssistantMessage.getContent());
+
+        // Tách theo dấu ., !, ? (giữ nguyên dấu câu)
+        String[] sentences = content.split("(?<=[.!?])\\s+");
+
+        return ConversationResponse.builder()
+                .sentences(Arrays.stream(sentences).toList())
+                .englishTranslations(List.of())
+                .build();
+    }
+
+    //TODO fix hard code
+    private String reformatSentence(String sentence) {
+        String cleaned = sentence
+                .replaceAll("```json\n\"", "")
+                .replaceAll("\\n```", "")
+                .trim();
+
+        if (cleaned.endsWith("\"")) {
+            cleaned = cleaned.substring(0, cleaned.length() - 1).trim();
+        }
+        return cleaned;
+    }
+
 }

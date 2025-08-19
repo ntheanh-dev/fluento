@@ -32,7 +32,7 @@ public class SecurityConfig {
             "/auth/token", "/auth/introspect", "/auth/register", "/auth/logout", "/roles",
             "/auth/outbound/authentication", "/writings/**"
     };
-    private final String[] PUBLIC_GET_ENDPOINTS = {};
+    private final String[] PUBLIC_GET_ENDPOINTS = {"/writings/**"};
     @NonFinal
     @Value("${spring.security.oauth2.resourceserver.jwt.signer-key}")
     protected String SIGNER_KEY;
