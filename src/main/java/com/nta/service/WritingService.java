@@ -1,8 +1,10 @@
 package com.nta.service;
 
 import com.nta.dto.request.GenerateParagraphRequest;
+import com.nta.dto.request.SentenceTranslationRequest;
 import com.nta.dto.response.GenerateParagraphResponse;
 import com.nta.dto.response.HintTranslationResponse;
+import com.nta.dto.response.SentenceTranslationResponse;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.stereotype.Service;
 
@@ -76,46 +78,6 @@ public class WritingService {
             String conversationId,
             String vietnameseSentence
     ) {
-//        final String SYSTEM_MESSAGE_TEXT =
-//                "You are an English learning assistant. " +
-//                        "Your job is to help Vietnamese learners translate Vietnamese sentences into English. " +
-//                        "For each input, you MUST return a JSON object with this structure:\n\n" +
-//                        "{\n" +
-//                        "  \"vocabularyHints\": [\n" +
-//                        "    {\n" +
-//                        "      \"vietnamese\": \"...\",\n" +
-//                        "      \"english\": [\"...\"]\n" +
-//                        "    }, ...\n" +
-//                        "  ],\n" +
-//                        "  \"structureHints\": {\n" +
-//                        "    \"kinds of sentences according to structure\": {\n" +
-//                        "      \"vietnamese\": \"...\",\n" +
-//                        "      \"english\": \"...\"\n" +
-//                        "    },\n" +
-//                        "    \"tenses\": {\n" +
-//                        "      \"vietnamese\": \"...\",\n" +
-//                        "      \"english\": \"...\",\n" +
-//                        "      \"form\": \"...\"\n" +
-//                        "    }\n" +
-//                        "  },\n" +
-//                        "  \"sampleTranslation\": \"...\"\n" +
-//                        "}\n\n" +
-//                        "Rules:\n" +
-//                        "- \"vocabularyHints\" = a list of important Vietnamese phrases mapped to one or more correct English translations.\n" +
-//                        "- \"structureHints\" = explain grammar (sentence type, tense, form).\n" +
-//                        "- \"sampleTranslation\" = one full natural English translation of the input sentence.\n" +
-//                        "- Return **ONLY valid JSON**, no extra text.";
-//
-//        String promptText = String.format(
-//                "Vietnamese sentence: \"%s\"\n" +
-//                        "Please analyze and output the result strictly in the required JSON format. " +
-//                        "Ensure that:\n" +
-//                        "- Vocabulary hints contain pairs of Vietnamese phrase and possible English equivalents.\n" +
-//                        "- Structure hints identify sentence type and tense (with form).\n" +
-//                        "- Provide one full English sample translation.",
-//                vietnameseSentence
-//        );
-
         final String SYSTEM_MESSAGE_TEXT =
                 "You are an English learning assistant for Vietnamese learners. " +
                         "Return ONLY valid JSON (no prose, no markdown). " +
@@ -144,14 +106,61 @@ public class WritingService {
                 vietnameseSentence
         );
 
-
         return aiChatService.sendMessage(
                 conversationId,
                 SYSTEM_MESSAGE_TEXT,
                 promptText,
                 HintTranslationResponse.class
         );
-
     }
 
+    public SentenceTranslationResponse translateSentence(final SentenceTranslationRequest request, final String conversationId) {
+        final String SYSTEM_MESSAGE_TEXT = """
+                You are an assistant helping Vietnamese learners improve English translation.
+                
+                Instructions:
+                1. Evaluate the learner’s English translation of a given Vietnamese sentence.
+                2. Respond strictly in valid JSON only, matching the schema below.
+                3. If no issues in a category, return an empty array [].
+                4. Feedback.strengths and feedback.weaknesses fields must be written in clear Vietnamese.
+                5. Do not output anything outside the JSON.
+                
+                JSON Schema:
+                {
+                  "originalVietnamese": "string",
+                  "learnerEnglish": "string",
+                  "corrections": {
+                    "spellingMistakes": [
+                      { "word": "string", "suggestion": "string" }
+                    ],
+                    "vocabularyIssues": [
+                      { "word": "string", "suggestion": ["string"] }
+                    ],
+                    "grammarErrors": [
+                      { "issue": "string", "example": "wrong → correct" }
+                    ],
+                    "sentenceStructure": [
+                      { "problem": "string", "suggestion": "string" }
+                    ]
+                  },
+                  "feedback": {
+                    "strengths": ["string (Vietnamese)"],
+                    "weaknesses": ["string (Vietnamese)"]
+                  },
+                  "improvedTranslation": "string"
+                }
+                """;
+
+        final String promptText = String.format(
+                "Original Vietnamese sentence: %s%nLearner English sentence: %s",
+                request.getVietnameseSentence(),
+                request.getEnglishSentence()
+        );
+        return aiChatService.sendMessage(
+                conversationId,
+                SYSTEM_MESSAGE_TEXT,
+                promptText,
+                SentenceTranslationResponse.class
+        );
+    }
 }
