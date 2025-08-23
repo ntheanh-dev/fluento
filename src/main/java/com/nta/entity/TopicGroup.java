@@ -9,21 +9,17 @@ import lombok.NoArgsConstructor;
 import java.util.Set;
 
 @Entity
-@Table(name = "levels")
+@Table(name = "topic_group")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Level {
-
+public class TopicGroup {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true, length = 10)
-    private String name; // A1, A2, B1, etc.
+    private String name;
 
-    private String description;
-
-    @OneToMany(mappedBy = "level", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private Set<Writing> writings;
+    @OneToMany(mappedBy = "topicGroup", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    private Set<Topic> topics;
 }

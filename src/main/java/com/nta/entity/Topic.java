@@ -6,6 +6,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Set;
+
 @Entity
 @Table(name = "topics")
 @Data
@@ -19,9 +21,10 @@ public class Topic {
 
     private String name; // "life", "health", etc.
 
-    @Column(columnDefinition = "TEXT")
-    private String description;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "topic_group_id", nullable = false)
+    private TopicGroup topicGroup;
 
-    @Column(name = "prompt_template", columnDefinition = "TEXT")
-    private String promptTemplate;
+    @OneToMany(mappedBy = "topic", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private Set<Writing> writing;
 }

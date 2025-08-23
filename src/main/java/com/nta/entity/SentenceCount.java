@@ -9,21 +9,18 @@ import lombok.NoArgsConstructor;
 import java.util.Set;
 
 @Entity
-@Table(name = "levels")
+@Table(name = "sentence_count")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Level {
+public class SentenceCount {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true, length = 10)
-    private String name; // A1, A2, B1, etc.
+    private int size;
 
-    private String description;
-
-    @OneToMany(mappedBy = "level", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "sentenceCount", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<Writing> writings;
 }

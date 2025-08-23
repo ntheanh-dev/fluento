@@ -1,13 +1,12 @@
 package com.nta.entity;
 
-import java.time.LocalDateTime;
-import java.util.List;
-
 import jakarta.persistence.*;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "writings")
@@ -24,11 +23,17 @@ public class Writing {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    private String topic;
+    @ManyToOne
+    @JoinColumn(name = "topic_id")
+    private Topic topic;
 
     @ManyToOne
-    @JoinColumn(name = "level_id", nullable = false)
+    @JoinColumn(name = "level_id")
     private Level level;
+
+    @ManyToOne
+    @JoinColumn(name = "sentence_count_id")
+    private SentenceCount sentenceCount;
 
     @Column(name = "vietnamese_paragraph", columnDefinition = "TEXT")
     private String vietnameseParagraph;
@@ -38,7 +43,4 @@ public class Writing {
 
     @Column(name = "updated_at")
     private LocalDateTime updatedAt = LocalDateTime.now();
-
-    @OneToMany(mappedBy = "writing", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<WritingSentence> sentences;
 }
