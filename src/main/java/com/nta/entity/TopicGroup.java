@@ -19,6 +19,7 @@ public class TopicGroup {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false, unique = true)
     private String name;
 
     @OneToMany(mappedBy = "topicGroup", cascade = CascadeType.ALL, fetch = FetchType.EAGER)

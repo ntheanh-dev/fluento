@@ -21,6 +21,7 @@ public class SentenceCount {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false, unique = true)
     private int size;
 
     @OneToMany(mappedBy = "sentenceCount", cascade = CascadeType.ALL, fetch = FetchType.LAZY)

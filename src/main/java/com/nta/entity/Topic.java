@@ -20,7 +20,9 @@ public class Topic {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false, unique = true)
     private String name; // "life", "health", etc.
+
     private String description;
 
     @ManyToOne(fetch = FetchType.LAZY)

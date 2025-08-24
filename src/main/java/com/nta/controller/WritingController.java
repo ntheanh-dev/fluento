@@ -42,9 +42,9 @@ public class WritingController {
     }
 
     @GetMapping("/{conversationId}")
-    public ApiResponse<ConversationResponse> getConversation(@PathVariable String conversationId) {
-        return ApiResponse.<ConversationResponse>builder()
-                .result(writingService.getConversation(conversationId))
+    public ApiResponse<WritingResponse> getConversation(@PathVariable String conversationId) {
+        return ApiResponse.<WritingResponse>builder()
+                .result(writingService.getConversationById(conversationId))
                 .build();
     }
 }

@@ -2,76 +2,73 @@ package com.nta.service;
 
 import com.nta.dto.request.GenerateParagraphRequest;
 import com.nta.dto.request.SentenceTranslationRequest;
-import com.nta.dto.response.ConversationResponse;
 import com.nta.dto.response.GenerateParagraphResponse;
 import com.nta.dto.response.HintTranslationResponse;
 import com.nta.dto.response.SentenceTranslationResponse;
-import com.nta.repository.ChatMemoryRepository;
+import com.nta.dto.response.WritingResponse;
+import com.nta.entity.Writing;
+import com.nta.mapper.WritingMapper;
+import com.nta.repository.*;
+
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
+
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
 @Service
+@FieldDefaults(makeFinal = true, level = lombok.AccessLevel.PRIVATE)
+@RequiredArgsConstructor
 public class WritingService {
-    private final ChatClient chatClient;
-    private final AIChatService aiChatService;
-    private final ChatMemoryRepository chatMemoryRepository;
+    ChatClient chatClient;
+    AIChatService aiChatService;
+    ChatMemoryRepository chatMemoryRepository;
 
-    public WritingService(ChatClient chatClient, AIChatService aiChatService, ChatMemoryRepository chatMemoryRepository) {
-        this.chatClient = chatClient;
-        this.aiChatService = aiChatService;
-        this.chatMemoryRepository = chatMemoryRepository;
-    }
+    TopicRepository topicRepository;
+    LevelRepository levelRepository;
+    SentenceCountRepository sentenceCountRepository;
+    WritingRepository writingRepository;
 
-//    public List<String> generateParagraph(final GenerateParagraphRequest request) {
-//
-//        final String paragraphId = UUID.randomUUID().toString();
-//
-//        final SystemMessage systemMessage = new SystemMessage("""
-//                You are a writing assistant that generates paragraphs based on user requests.
-//                You should respond with a formal voice and provide well-structured paragraphs.
-//                Your responses should be coherent, relevant, and tailored to the user's request.
-//                Ensure that each paragraph is well-formed and contains the specified number of sentences.
-//                """);
-//
-//        final String promptText = String.format(
-//                "Write a paragraph with %d sentences about '%s' in %s language, with words in level %s.",
-//                request.getSentenceCount(),
-//                request.getTopic(),
-//                request.getLanguage(),
-//                request.getLevel()
-//        );
-//
-//        UserMessage userMessage = new UserMessage(promptText);
-//        Prompt prompt = new Prompt(systemMessage, userMessage);
-//
-//        return Objects.requireNonNull(chatClient
-//                        .prompt(prompt)
-//                        .advisors(a -> a.param(ChatMemory.CONVERSATION_ID, paragraphId))
-//                        .call()
-//                        .content())
-//                .lines()
-//                .toList();
-//    }
+    WritingMapper writingMapper;
 
     public GenerateParagraphResponse generateParagraph(final GenerateParagraphRequest request) {
 
-        final String systemMessage = "You are a writing assistant that generates paragraphs based on user requests. You should respond with a formal voice and provide well-structured paragraphs. Your responses should be coherent, relevant, and tailored to the user's request. Ensure that each paragraph is well-formed and contains the specified number of sentences.";
+        final String systemMessage =
+                "You are a writing assistant that generates paragraphs based on user requests. You should respond with a formal voice and provide well-structured paragraphs. Your responses should be coherent, relevant, and tailored to the user's request. Ensure that each paragraph is well-formed and contains the specified number of sentences.";
 
-        final String promptText = String.format(
-                "Write a paragraph with %d sentences about '%s' in %s language, with words in level %s.",
-                request.getSentenceCount(),
-                request.getTopic(),
-                request.getLanguage(),
-                request.getLevel()
-        );
+        final String promptText =
+                String.format(
+                        "Write a paragraph with %d sentences about '%s' in %s language, with words in level %s.",
+                        request.getSentenceCount(),
+                        request.getTopic(),
+                        request.getLanguage(),
+                        request.getLevel());
 
         final String conversationId = UUID.randomUUID().toString();
 
-        final String pharagraph = aiChatService.sendMessage(conversationId, systemMessage, promptText, String.class);
+        final String pharagraph =
+                aiChatService.sendMessage(conversationId, systemMessage, promptText, String.class);
+
+        // TODO add User to Writing
+        final Writing writing =
+                Writing.builder()
+                        .conversationId(conversationId)
+                        .topic(topicRepository.findByName(request.getTopic()).orElse(null))
+                        .level(levelRepository.findByName(request.getLevel()).orElse(null))
+                        .sentenceCount(
+                                sentenceCountRepository
+                                        .findBySize(request.getSentenceCount())
+                                        .orElse(null))
+                        .vietnameseParagraph(pharagraph)
+                        .createdAt(LocalDateTime.now())
+                        .build();
+
+        writingRepository.save(writing);
 
         return GenerateParagraphResponse.builder()
                 .conversationId(conversationId)
@@ -79,57 +76,52 @@ public class WritingService {
                 .build();
     }
 
-    public HintTranslationResponse generateHints(
-            String conversationId,
-            String vietnameseSentence
-    ) {
+    public HintTranslationResponse generateHints(String conversationId, String vietnameseSentence) {
         final String SYSTEM_MESSAGE_TEXT =
-                "You are an English learning assistant for Vietnamese learners. " +
-                        "Return ONLY valid JSON (no prose, no markdown). " +
-                        "Use EXACTLY these property names in camelCase:\n" +
-                        "{\n" +
-                        "  \"vocabularyHints\": [\n" +
-                        "    { \"vietnamese\": \"...\", \"english\": [\"...\"] }\n" +
-                        "  ],\n" +
-                        "  \"structureHints\": {\n" +
-                        "    \"kindsOfSentencesAccordingToStructure\": { \"vietnamese\": \"...\", \"english\": \"...\" },\n" +
-                        "    \"tenses\": { \"vietnamese\": \"...\", \"english\": \"...\", \"form\": \"...\" }\n" +
-                        "  }\n" +
-                        "}\n" +
-                        "Rules:\n" +
-                        "- vocabularyHints: list all Vietnamese phrases mapped to one or more correct English equivalents.\n" +
-                        "- structureHints.kindsOfSentencesAccordingToStructure: sentence type in Vietnamese and English (e.g., \"Câu phức\" / \"complex sentence\").\n" +
-                        "- structureHints.tenses: tense in Vietnamese and English and its form (e.g., \"Thì hiện tại đơn\" / \"simple present\" / \"S + V + O\").\n" +
-                        "- Do not change property names. Do not add or omit properties. " +
-                        "If unsure about a value, provide your best estimate.";
+                "You are an English learning assistant for Vietnamese learners. "
+                        + "Return ONLY valid JSON (no prose, no markdown). "
+                        + "Use EXACTLY these property names in camelCase:\n"
+                        + "{\n"
+                        + "  \"vocabularyHints\": [\n"
+                        + "    { \"vietnamese\": \"...\", \"english\": [\"...\"] }\n"
+                        + "  ],\n"
+                        + "  \"structureHints\": {\n"
+                        + "    \"kindsOfSentencesAccordingToStructure\": { \"vietnamese\": \"...\", \"english\": \"...\" },\n"
+                        + "    \"tenses\": { \"vietnamese\": \"...\", \"english\": \"...\", \"form\": \"...\" }\n"
+                        + "  }\n"
+                        + "}\n"
+                        + "Rules:\n"
+                        + "- vocabularyHints: list all Vietnamese phrases mapped to one or more correct English equivalents.\n"
+                        + "- structureHints.kindsOfSentencesAccordingToStructure: sentence type in Vietnamese and English (e.g., \"Câu phức\" / \"complex sentence\").\n"
+                        + "- structureHints.tenses: tense in Vietnamese and English and its form (e.g., \"Thì hiện tại đơn\" / \"simple present\" / \"S + V + O\").\n"
+                        + "- Do not change property names. Do not add or omit properties. "
+                        + "If unsure about a value, provide your best estimate.";
 
-        String promptText = String.format(
-                "Vietnamese sentence: \"%s\"\n" +
-                        "Analyze this sentence and produce JSON EXACTLY with the keys: " +
-                        "vocabularyHints, structureHints.kindsOfSentencesAccordingToStructure, structureHints.tenses. " +
-                        "The output must be valid JSON and use camelCase keys exactly as specified.",
-                vietnameseSentence
-        );
+        String promptText =
+                String.format(
+                        "Vietnamese sentence: \"%s\"\n"
+                                + "Analyze this sentence and produce JSON EXACTLY with the keys: "
+                                + "vocabularyHints, structureHints.kindsOfSentencesAccordingToStructure, structureHints.tenses. "
+                                + "The output must be valid JSON and use camelCase keys exactly as specified.",
+                        vietnameseSentence);
 
         return aiChatService.sendMessage(
-                conversationId,
-                SYSTEM_MESSAGE_TEXT,
-                promptText,
-                HintTranslationResponse.class
-        );
+                conversationId, SYSTEM_MESSAGE_TEXT, promptText, HintTranslationResponse.class);
     }
 
-    public SentenceTranslationResponse translateSentence(final SentenceTranslationRequest request, final String conversationId) {
-        final String SYSTEM_MESSAGE_TEXT = """
+    public SentenceTranslationResponse translateSentence(
+            final SentenceTranslationRequest request, final String conversationId) {
+        final String SYSTEM_MESSAGE_TEXT =
+                """
                 You are an assistant helping Vietnamese learners improve English translation.
-                
+
                 Instructions:
                 1. Evaluate the learner’s English translation of a given Vietnamese sentence.
                 2. Respond strictly in valid JSON only, matching the schema below.
                 3. If no issues in a category, return an empty array [].
                 4. Feedback.strengths and feedback.weaknesses fields must be written in clear Vietnamese.
                 5. Do not output anything outside the JSON.
-                
+
                 JSON Schema:
                 {
                   "originalVietnamese": "string",
@@ -156,43 +148,33 @@ public class WritingService {
                 }
                 """;
 
-        final String promptText = String.format(
-                "Original Vietnamese sentence: %s%nLearner English sentence: %s",
-                request.getVietnameseSentence(),
-                request.getEnglishSentence()
-        );
+        final String promptText =
+                String.format(
+                        "Original Vietnamese sentence: %s%nLearner English sentence: %s",
+                        request.getVietnameseSentence(), request.getEnglishSentence());
         return aiChatService.sendMessage(
-                conversationId,
-                SYSTEM_MESSAGE_TEXT,
-                promptText,
-                SentenceTranslationResponse.class
-        );
+                conversationId, SYSTEM_MESSAGE_TEXT, promptText, SentenceTranslationResponse.class);
     }
 
-    public ConversationResponse getConversation(String conversationId) {
-        final var firstAssistantMessage = chatMemoryRepository.findFirstAssistantMessage(conversationId, "ASSISTANT");
-        final String content = reformatSentence(firstAssistantMessage.getContent());
+    public WritingResponse getConversationById(String conversationId) {
+        final Writing writing = writingRepository.findByConversationId(conversationId);
+        final WritingResponse response = writingMapper.toWritingResponse(writing);
 
-        // Tách theo dấu ., !, ? (giữ nguyên dấu câu)
-        String[] sentences = content.split("(?<=[.!?])\\s+");
-
-        return ConversationResponse.builder()
-                .sentences(Arrays.stream(sentences).toList())
-                .englishTranslations(List.of())
-                .build();
-    }
-
-    //TODO fix hard code
-    private String reformatSentence(String sentence) {
-        String cleaned = sentence
-                .replaceAll("```json\n\"", "")
-                .replaceAll("\\n```", "")
-                .trim();
-
-        if (cleaned.endsWith("\"")) {
-            cleaned = cleaned.substring(0, cleaned.length() - 1).trim();
+        response.setSentences(List.of(writing.getVietnameseParagraph().split("(?<=[.!?])\\s+")));
+        if (writing.getTranslatedParagraph() == null) {
+            response.setEnglishTranslations(List.of());
+        } else {
+            response.setEnglishTranslations(
+                    List.of(writing.getTranslatedParagraph().split("(?<=[.!?])\\s+")));
         }
-        return cleaned;
+        return response;
+        //
+        //        // Tách theo dấu ., !, ? (giữ nguyên dấu câu)
+        //        String[] sentences = content.split("(?<=[.!?])\\s+");
+        //
+        //        return ConversationResponse.builder()
+        //                .sentences(Arrays.stream(sentences).toList())
+        //                .englishTranslations(List.of())
+        //                .build();
     }
-
 }
