@@ -4,7 +4,9 @@ import com.nta.dto.request.GenerateParagraphRequest;
 import com.nta.dto.request.SentenceTranslationRequest;
 import com.nta.dto.response.*;
 import com.nta.service.WritingService;
+
 import lombok.AllArgsConstructor;
+
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -14,26 +16,35 @@ public class WritingController {
     final WritingService writingService;
 
     @PostMapping("/generate")
-    public ApiResponse<GenerateParagraphResponse> generateParagraph(@RequestBody GenerateParagraphRequest request) {
+    public ApiResponse<GenerateParagraphResponse> generateParagraph(
+            @RequestBody GenerateParagraphRequest request) {
         // Compose prompt using topic, language, tone, style, paragraphCount, sentenceCount
         // For now, use topic name and paragraphCount as in WritingService
-        return ApiResponse.<GenerateParagraphResponse>builder().result(writingService.generateParagraph(request)).build();
+        return ApiResponse.<GenerateParagraphResponse>builder()
+                .result(writingService.generateParagraph(request))
+                .build();
     }
 
     @PostMapping("/{conversationId}/translation-hints")
-    public ApiResponse<HintTranslationResponse> getTranslationHints(@RequestBody String vietnameseSentence, @PathVariable String conversationId) {
-        final HintTranslationResponse response = writingService.generateHints(conversationId, vietnameseSentence);
+    public ApiResponse<HintTranslationResponse> getTranslationHints(
+            @RequestBody String vietnameseSentence, @PathVariable String conversationId) {
+        final HintTranslationResponse response =
+                writingService.generateHints(conversationId, vietnameseSentence);
         return ApiResponse.<HintTranslationResponse>builder().result(response).build();
     }
 
     @PostMapping("/{conversationId}/translate")
-    public ApiResponse<SentenceTranslationResponse> translate(@RequestBody SentenceTranslationRequest request, @PathVariable String conversationId) {
-        final SentenceTranslationResponse response = writingService.translateSentence(request, conversationId);
+    public ApiResponse<SentenceTranslationResponse> translate(
+            @RequestBody SentenceTranslationRequest request, @PathVariable String conversationId) {
+        final SentenceTranslationResponse response =
+                writingService.translateSentence(request, conversationId);
         return ApiResponse.<SentenceTranslationResponse>builder().result(response).build();
     }
 
     @GetMapping("/{conversationId}")
     public ApiResponse<ConversationResponse> getConversation(@PathVariable String conversationId) {
-        return ApiResponse.<ConversationResponse>builder().result(writingService.getConversation(conversationId)).build();
+        return ApiResponse.<ConversationResponse>builder()
+                .result(writingService.getConversation(conversationId))
+                .build();
     }
 }
