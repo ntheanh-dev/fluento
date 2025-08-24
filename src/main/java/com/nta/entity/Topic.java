@@ -1,10 +1,10 @@
 package com.nta.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import jakarta.persistence.*;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.Set;
 
@@ -13,6 +13,7 @@ import java.util.Set;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class Topic {
 
     @Id
@@ -20,8 +21,11 @@ public class Topic {
     private Long id;
 
     private String name; // "life", "health", etc.
+    private String description;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @EqualsAndHashCode.Exclude
+    @JsonBackReference
     @JoinColumn(name = "topic_group_id", nullable = false)
     private TopicGroup topicGroup;
 
