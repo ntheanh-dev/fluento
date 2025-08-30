@@ -2,6 +2,7 @@ package com.nta.controller;
 
 import com.nta.dto.request.GenerateParagraphRequest;
 import com.nta.dto.request.SentenceTranslationRequest;
+import com.nta.dto.request.WriteSentenceRequest;
 import com.nta.dto.response.*;
 import com.nta.service.WritingService;
 
@@ -51,8 +52,8 @@ public class WritingController {
 
     @PostMapping("/{conversationId}/write")
     public ApiResponse<?> write(
-            @PathVariable String conversationId, @RequestBody String englishSentence) {
-        writingService.write(conversationId, englishSentence);
+            @PathVariable String conversationId, @RequestBody WriteSentenceRequest request) {
+        writingService.write(conversationId, request.getEnglishSentence());
         return ApiResponse.builder().build();
     }
 
