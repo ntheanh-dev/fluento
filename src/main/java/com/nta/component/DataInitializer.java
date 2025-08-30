@@ -1,11 +1,9 @@
 package com.nta.component;
 
+import com.nta.constant.PredefinedRole;
 import com.nta.entity.Topic;
 import com.nta.entity.TopicGroup;
-import com.nta.repository.LevelRepository;
-import com.nta.repository.SentenceCountRepository;
-import com.nta.repository.TopicGroupRepository;
-import com.nta.repository.TopicRepository;
+import com.nta.repository.*;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -33,7 +31,9 @@ public class DataInitializer {
             TopicRepository topicRepository,
             LevelRepository levelRepository,
             SentenceCountRepository sentenceCountRepository,
-            TopicGroupRepository topicGroupRepository) {
+            TopicGroupRepository topicGroupRepository,
+            RoleRepository repository,
+            RoleRepository roleRepository) {
         return args -> {
             // Initialization logic here
             System.out.println(
@@ -155,6 +155,11 @@ public class DataInitializer {
                                 com.nta.entity.SentenceCount.builder().size(10).build(),
                                 com.nta.entity.SentenceCount.builder().size(15).build(),
                                 com.nta.entity.SentenceCount.builder().size(20).build()));
+            }
+
+            if (roleRepository.findByName(PredefinedRole.USER_ROLE) == null) {
+                repository.save(
+                        com.nta.entity.Role.builder().name(PredefinedRole.USER_ROLE).build());
             }
         };
     }

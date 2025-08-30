@@ -1,6 +1,7 @@
 package com.nta.entity;
 
 import jakarta.persistence.*;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -18,21 +19,30 @@ import java.util.Set;
 @Builder
 public class User {
 
-    @ManyToMany
-    Set<Role> roles;
+    @ManyToMany Set<Role> roles;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     @Column(nullable = false, unique = true, length = 50)
     private String username;
-    @Column(name = "password", nullable = false)
+
+    @Column(name = "password")
     private String password;
+
     @Column(nullable = false, unique = true, length = 100)
     private String email;
+
+    @Column(name = "url_avatar", columnDefinition = "TEXT")
+    private String urlAvatar;
+
     @Column(name = "created_at")
     private LocalDateTime createdAt = LocalDateTime.now();
+
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Writing> writings;
+
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Vocabulary> vocabularyLibrary;
 }

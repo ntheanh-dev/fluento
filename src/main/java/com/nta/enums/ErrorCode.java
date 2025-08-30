@@ -1,6 +1,7 @@
 package com.nta.enums;
 
 import lombok.Getter;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 
@@ -15,6 +16,7 @@ public enum ErrorCode {
     UNAUTHENTICATED(1012, "unauthenticated", HttpStatus.UNAUTHORIZED),
     UNAUTHORIZED(1007, "You do not have permission", HttpStatus.FORBIDDEN),
     UNSUPPORTED_SOCIAL_LOGIN(1013, "Unsupported social login", HttpStatus.BAD_REQUEST),
+    PASSWORD_EXISTED(1014, "Password already created", HttpStatus.BAD_REQUEST)
     ;
 
     private int code;
