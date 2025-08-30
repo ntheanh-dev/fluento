@@ -14,6 +14,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -187,5 +191,57 @@ public class WritingService {
 
         writing.setUpdatedAt(LocalDateTime.now());
         writingRepository.save(writing);
+    }
+
+    public Page<WritingResponse> getAllWritings(
+            final int page,
+            final int size,
+            final String direction,
+            final String sortBy,
+            final String keyword) {
+
+        final Sort sort =
+                "desc".equalsIgnoreCase(direction)
+                        ? Sort.by(sortBy).descending()
+                        : Sort.by(sortBy).ascending();
+
+        final Pageable pageable = PageRequest.of(page, size, sort);
+
+        final Page<Writing> writingsPage =
+                keyword == null || keyword.isEmpty()
+                        ? writingRepository.findAll(pageable)
+                        : writingRepository.searchByTopicName(keyword, pageable);
+
+        return writingsPage.map(this::toResponse);
+    }
+
+    private WritingResponse toResponse(Writing writing) {
+        WritingResponse response = new WritingResponse();
+
+        response.setId(writing.getId());
+        response.setConversationId(writing.getConversationId());
+        response.setUser(writing.getUser());
+        response.setTopic(writing.getTopic());
+        response.setLevel(writing.getLevel());
+        response.setSentenceCount(writing.getSentenceCount());
+        response.setCreatedAt(writing.getCreatedAt());
+        response.setUpdatedAt(writing.getUpdatedAt());
+
+        // Split paragraphs into sentences
+        if (writing.getVietnameseParagraph() != null) {
+            response.setSentences(
+                    List.of(writing.getVietnameseParagraph().split("(?<=[.!?])\\s+")));
+        } else {
+            response.setSentences(List.of());
+        }
+
+        if (writing.getTranslatedParagraph() != null) {
+            response.setEnglishTranslations(
+                    List.of(writing.getTranslatedParagraph().split("(?<=[.!?])\\s+")));
+        } else {
+            response.setEnglishTranslations(List.of());
+        }
+
+        return response;
     }
 }

@@ -7,6 +7,7 @@ import com.nta.service.WritingService;
 
 import lombok.AllArgsConstructor;
 
+import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -53,5 +54,19 @@ public class WritingController {
             @PathVariable String conversationId, @RequestBody String englishSentence) {
         writingService.write(conversationId, englishSentence);
         return ApiResponse.builder().build();
+    }
+
+    @GetMapping
+    public ApiResponse<Page<WritingResponse>> getAllWritings(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "asc") String direction,
+            @RequestParam(defaultValue = "id") String sortBy,
+            @RequestParam(defaultValue = "") String keyword) {
+
+        final Page<WritingResponse> writings =
+                writingService.getAllWritings(page, size, direction, sortBy, keyword);
+
+        return ApiResponse.<Page<WritingResponse>>builder().result(writings).build();
     }
 }

@@ -40,7 +40,7 @@ public class SecurityConfig {
         "/writings/**"
     };
     private final String[] PUBLIC_GET_ENDPOINTS = {
-        "/writings/**", "/topicGroups/**", "/levels/**", "/sentenceCounts/**"
+        "/writings/**", "/topicGroups/**", "/levels/**", "/sentenceCounts/**", "/writings"
     };
 
     @NonFinal

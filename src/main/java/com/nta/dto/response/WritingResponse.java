@@ -5,14 +5,18 @@ import com.nta.entity.SentenceCount;
 import com.nta.entity.Topic;
 import com.nta.entity.User;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class WritingResponse {
     private List<String> sentences; // vietnamese sentences
     private List<String> englishTranslations;
