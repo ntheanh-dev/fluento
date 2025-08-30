@@ -8,6 +8,7 @@ import com.nta.dto.response.GoogleExchangeTokenRp;
 import com.nta.entity.Role;
 import com.nta.entity.User;
 import com.nta.enums.TokenType;
+import com.nta.repository.RoleRepository;
 import com.nta.repository.UserRepository;
 import com.nta.repository.client.OutboundIdentityClient;
 import com.nta.repository.client.OutboundUserClient;
@@ -33,6 +34,7 @@ public class SocialAuthService {
     OutboundUserClient outboundUserClient;
     UserRepository userRepository;
     AuthService authService;
+    RoleRepository roleRepository;
 
     @NonFinal
     @Value("${spring.security.client.registration.google.client-id}")
@@ -60,11 +62,13 @@ public class SocialAuthService {
                                 .grantType(GOOGLE_GRANT_TYPE)
                                 .build());
 
+        log.info("Google token response: {}", response);
+
         // get user info from google
         var userInfo = outboundUserClient.getUserInfo(response.getAccessToken());
 
         Set<Role> roles = new HashSet<>();
-        roles.add(Role.builder().name(PredefinedRole.USER_ROLE).build());
+        roles.add(roleRepository.findByName(PredefinedRole.USER_ROLE));
 
         // Check if user already exists, if not create a new user
         // Onboard user
@@ -76,7 +80,6 @@ public class SocialAuthService {
                                         userRepository.save(
                                                 User.builder()
                                                         .username(userInfo.getEmail())
-                                                        .email(userInfo.getEmail())
                                                         .urlAvatar(userInfo.getPicture())
                                                         .roles(roles)
                                                         .build()));

@@ -13,10 +13,9 @@ import java.util.Set;
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class UserResponse {
-    String id;
+    Long id;
     String username;
-    String firstName;
-    String lastName;
+    String urlAvatar;
     Boolean noPassword;
     Set<Role> roles;
 }

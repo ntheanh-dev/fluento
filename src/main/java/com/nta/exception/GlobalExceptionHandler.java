@@ -3,8 +3,11 @@ package com.nta.exception;
 import com.nta.dto.response.ApiResponse;
 import com.nta.enums.ErrorCode;
 import com.nta.enums.ValidationErrorCode;
+
 import feign.FeignException;
+
 import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AuthenticationServiceException;
@@ -17,15 +20,15 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 @ControllerAdvice
 public class GlobalExceptionHandler {
     // Bắt exception trung trung
-    //    @ExceptionHandler(Exception.class)
-    //    ResponseEntity<ApiResponse<Object>> runtimeExceptionHandler(Exception e) {
-    //        ApiResponse<Object> apiResponse = new ApiResponse<>();
-    //        apiResponse.setMessage(e.getMessage());
-    //        apiResponse.setCode(999);
-    //
-    //        log.error(e.getMessage());
-    //        return ResponseEntity.internalServerError().body(apiResponse);
-    //    }
+        @ExceptionHandler(Exception.class)
+        ResponseEntity<ApiResponse<Object>> runtimeExceptionHandler(Exception e) {
+            ApiResponse<Object> apiResponse = new ApiResponse<>();
+            apiResponse.setMessage(e.getMessage());
+            apiResponse.setCode(999);
+
+            log.error(e.getMessage());
+            return ResponseEntity.internalServerError().body(apiResponse);
+        }
 
     // Exception tự tạo
     @ExceptionHandler(AppException.class)

@@ -31,9 +31,6 @@ public class User {
     @Column(name = "password")
     private String password;
 
-    @Column(nullable = false, unique = true, length = 100)
-    private String email;
-
     @Column(name = "url_avatar", columnDefinition = "TEXT")
     private String urlAvatar;
 
