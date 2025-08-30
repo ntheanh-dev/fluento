@@ -47,4 +47,11 @@ public class WritingController {
                 .result(writingService.getConversationById(conversationId))
                 .build();
     }
+
+    @PostMapping("/{conversationId}/write")
+    public ApiResponse<?> write(
+            @PathVariable String conversationId, @RequestBody String englishSentence) {
+        writingService.write(conversationId, englishSentence);
+        return ApiResponse.builder().build();
+    }
 }

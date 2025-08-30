@@ -168,13 +168,24 @@ public class WritingService {
                     List.of(writing.getTranslatedParagraph().split("(?<=[.!?])\\s+")));
         }
         return response;
-        //
-        //        // Tách theo dấu ., !, ? (giữ nguyên dấu câu)
-        //        String[] sentences = content.split("(?<=[.!?])\\s+");
-        //
-        //        return ConversationResponse.builder()
-        //                .sentences(Arrays.stream(sentences).toList())
-        //                .englishTranslations(List.of())
-        //                .build();
+    }
+
+    public void write(final String conversationId, String englishSentence) {
+        final Writing writing = writingRepository.findByConversationId(conversationId);
+
+        if (!englishSentence.endsWith("(?<=[.!?])\\s+")) {
+            englishSentence += ".";
+        }
+
+        if (writing.getTranslatedParagraph() == null
+                || writing.getTranslatedParagraph().isEmpty()) {
+            writing.setTranslatedParagraph(englishSentence);
+        } else {
+            writing.setTranslatedParagraph(
+                    writing.getTranslatedParagraph() + " " + englishSentence);
+        }
+
+        writing.setUpdatedAt(LocalDateTime.now());
+        writingRepository.save(writing);
     }
 }
