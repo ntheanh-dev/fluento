@@ -17,19 +17,23 @@ import com.nta.enums.ErrorCode;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
+// Xử lý khi người dùng chưa xác thực mà truy cập vào tài nguyên yêu cầu xác thực
 public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
     @Override
     public void commence(
-            HttpServletRequest request, HttpServletResponse response, AuthenticationException authException)
+            HttpServletRequest request,
+            HttpServletResponse response,
+            AuthenticationException authException)
             throws IOException, ServletException {
         ErrorCode errorCode = ErrorCode.UNAUTHENTICATED;
         response.setStatus(errorCode.getStatusCode().value());
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
 
-        ApiResponse<?> apiResponse = ApiResponse.builder()
-                .code(errorCode.getCode())
-                .message(errorCode.getMessage())
-                .build();
+        ApiResponse<?> apiResponse =
+                ApiResponse.builder()
+                        .code(errorCode.getCode())
+                        .message(errorCode.getMessage())
+                        .build();
 
         ObjectMapper objectMapper = new ObjectMapper();
 

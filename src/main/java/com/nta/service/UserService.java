@@ -29,7 +29,7 @@ public class UserService {
     public void createPassword(final PasswordCreationRequest passwordCreationRequest) {
         final User user = this.getUserFromContext();
 
-        if (StringUtils.hasText(passwordCreationRequest.getPassword())) {
+        if (StringUtils.hasText(user.getPassword())) {
             throw new AppException(ErrorCode.PASSWORD_EXISTED);
         }
 
