@@ -1,0 +1,31 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Hide scrollbar for Chrome, Safari and Opera */
+::-webkit-scrollbar {
+  display: none;
+}
+
+/* Hide scrollbar for IE, Edge and Firefox */
+* {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+/* Ensure body and html don't have default margins/padding */
+html, body {
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
+
+/* Prevent horizontal scroll on all elements */
+* {
+  box-sizing: border-box;
+}
+
+/* Ensure smooth scrolling behavior */
+html {
+  scroll-behavior: smooth;
+}
