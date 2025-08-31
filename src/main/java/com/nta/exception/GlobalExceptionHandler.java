@@ -20,15 +20,15 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 @ControllerAdvice
 public class GlobalExceptionHandler {
     // Bắt exception trung trung
-        @ExceptionHandler(Exception.class)
-        ResponseEntity<ApiResponse<Object>> runtimeExceptionHandler(Exception e) {
-            ApiResponse<Object> apiResponse = new ApiResponse<>();
-            apiResponse.setMessage(e.getMessage());
-            apiResponse.setCode(999);
+    @ExceptionHandler(Exception.class)
+    ResponseEntity<ApiResponse<Object>> runtimeExceptionHandler(Exception e) {
+        ApiResponse<Object> apiResponse = new ApiResponse<>();
+        apiResponse.setMessage(e.getMessage());
+        apiResponse.setCode(999);
 
-            log.error(e.getMessage());
-            return ResponseEntity.internalServerError().body(apiResponse);
-        }
+        log.error(e.getMessage());
+        return ResponseEntity.internalServerError().body(apiResponse);
+    }
 
     // Exception tự tạo
     @ExceptionHandler(AppException.class)
@@ -47,13 +47,17 @@ public class GlobalExceptionHandler {
 
     // Exception khi validate cac filed
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    ResponseEntity<ApiResponse<Object>> methodArgumentNotValidExceptionHandler(MethodArgumentNotValidException e) {
+    ResponseEntity<ApiResponse<Object>> methodArgumentNotValidExceptionHandler(
+            MethodArgumentNotValidException e) {
         // getFieldErro() còn có thể xác định lỗi ở filed nào, dữ liệu đầu vào là gi....
         String enumKey = e.getFieldError().getDefaultMessage();
 
         ValidationErrorCode errorCode = ValidationErrorCode.ERROR_KEY_INVALID;
         try {
-            errorCode = ValidationErrorCode.valueOf(enumKey); // Lấy ra enum Errorcode bằng tên mà đã được truyền khi validate
+            errorCode =
+                    ValidationErrorCode.valueOf(
+                            enumKey); // Lấy ra enum Errorcode bằng tên mà đã được truyền khi
+                                      // validate
         } catch (IllegalArgumentException iae) {
             // Trong trường hợp validate mà truyền sai enum name
         }
@@ -79,7 +83,8 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(AuthenticationServiceException.class)
-    ResponseEntity<ApiResponse<Object>> authenticationServiceHandler(AuthenticationServiceException e) {
+    ResponseEntity<ApiResponse<Object>> authenticationServiceHandler(
+            AuthenticationServiceException e) {
         log.error(e.getMessage());
 
         ApiResponse<Object> apiResponse = new ApiResponse<>();
@@ -102,9 +107,10 @@ public class GlobalExceptionHandler {
         ErrorCode errorCode = ErrorCode.UNAUTHORIZED;
 
         return ResponseEntity.status(errorCode.getStatusCode())
-                .body(ApiResponse.builder()
-                        .code(errorCode.getCode())
-                        .message(errorCode.getMessage())
-                        .build());
+                .body(
+                        ApiResponse.builder()
+                                .code(errorCode.getCode())
+                                .message(errorCode.getMessage())
+                                .build());
     }
 }

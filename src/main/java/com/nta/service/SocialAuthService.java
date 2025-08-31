@@ -62,8 +62,6 @@ public class SocialAuthService {
                                 .grantType(GOOGLE_GRANT_TYPE)
                                 .build());
 
-        log.info("Google token response: {}", response);
-
         // get user info from google
         var userInfo = outboundUserClient.getUserInfo(response.getAccessToken());
 

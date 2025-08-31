@@ -7,11 +7,13 @@ import com.nta.dto.response.AuthenticationResponse;
 import com.nta.dto.response.IntrospectResponse;
 import com.nta.service.AuthService;
 import com.nta.service.SocialAuthService;
+
 import jakarta.validation.Valid;
+
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import org.springframework.http.MediaType;
+
 import org.springframework.web.bind.annotation.*;
 
 import java.text.ParseException;
@@ -44,27 +46,22 @@ public class AuthController {
         return ApiResponse.<AuthenticationResponse>builder().build();
     }
 
-    @PostMapping(
-            value = "/introspect",
-            consumes = {
-                MediaType.MULTIPART_FORM_DATA_VALUE,
-            })
-    ApiResponse<IntrospectResponse> authenticate(
-            @ModelAttribute IntrospectRequest introspectRequest)
+    @PostMapping(value = "/introspect")
+    ApiResponse<IntrospectResponse> authenticate(@RequestBody IntrospectRequest introspectRequest)
             throws ParseException, JOSEException {
         var result = authService.introspect(introspectRequest);
         return ApiResponse.<IntrospectResponse>builder().result(result).build();
     }
 
     @PostMapping("/refresh")
-    ApiResponse<AuthenticationResponse> refrest(@RequestBody RefreshTokenRequest request)
+    ApiResponse<AuthenticationResponse> refresh(@RequestBody RefreshTokenRequest request)
             throws ParseException, JOSEException {
         var result = authService.refreshToken(request);
         return ApiResponse.<AuthenticationResponse>builder().result(result).build();
     }
 
     @PostMapping("/logout")
-    ApiResponse<Void> authenticate(@RequestBody LogoutRequest logoutRequest)
+    ApiResponse<Void> logout(@RequestBody LogoutRequest logoutRequest)
             throws ParseException, JOSEException {
         authService.logout(logoutRequest);
         return ApiResponse.<Void>builder().build();
