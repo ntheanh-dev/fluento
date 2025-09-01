@@ -2,7 +2,6 @@ import { useState } from "react";
 import {
   Box,
   Typography,
-  Button,
   TextField,
   Link,
   Snackbar,
@@ -10,10 +9,10 @@ import {
 } from "@mui/material";
 import { Google } from "@mui/icons-material";
 import { useNavigate, useLocation } from "react-router-dom";
-import axios from "axios";
 import logo from "../assets/image/logo4.png";
 import { oauthConfig } from "../configs/oauthConfig";
 import { useAuth } from "../contexts/AuthContext";
+import { authAPI, userAPI } from "../configs/API";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -98,9 +97,9 @@ const Login = () => {
     setLoading(true);
 
     try {
-      const response = await axios.post("http://localhost:8080/auth/signin", {
-        email,
-        password,
+      const response = await authAPI.signIn({
+        username: email,
+        password: password,
       });
 
       // Login successful
@@ -110,26 +109,33 @@ const Login = () => {
         severity: "success",
       });
 
-      // Store token and user data using AuthContext
-      if (response.data.token) {
-        const userData = {
-          id: response.data.user?.id || 'unknown',
-          username: response.data.user?.username || email.split('@')[0],
-          urlAvatar: response.data.user?.urlAvatar || '',
-          noPassword: response.data.user?.noPassword || false,
-        };
+      const { accessToken, refreshToken } = response.data.result;
 
-        login(response.data.token, response.data.refreshToken, userData);
+      // Step 2: Get user info
+      const userResponse = await userAPI.getUserInfo(accessToken);
+
+      if (!userResponse.data?.result) {
+        throw new Error("Không nhận được thông tin người dùng");
       }
 
-      // Redirect to the page user was trying to access
+      // Step 3: Login user
+      const user = {
+        id: userResponse.data.result.id,
+        username: userResponse.data.result.username,
+        urlAvatar: userResponse.data.result.urlAvatar,
+        noPassword: userResponse.data.result.noPassword,
+      };
+
+      login(accessToken, refreshToken, user);
+
+      // Success - redirect after a short delay
       setTimeout(() => {
         navigate(from, { replace: true });
       }, 1000);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Login error:", error);
 
-      if (axios.isAxiosError(error)) {
+      if (error?.response) {
         // Handle axios error
         const errorMessage =
           error.response?.data?.message ||
@@ -271,15 +277,14 @@ const Login = () => {
           </Box>
 
           {/* Sign in button */}
-          <Button
-            fullWidth
-            variant="contained"
+          <button
             onClick={handleSignIn}
             disabled={loading}
-            className="bg-gradient-to-r from-blue-500 to-blue-700 rounded-lg py-3 normal-case font-semibold text-base mb-6 hover:from-blue-600 hover:to-blue-800 hover:-translate-y-0.5 hover:shadow-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="bg-gradient-to-r w-full text-center from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white px-12 py-4 rounded-xl font-semibold text-lg transition-all duration-300 shadow-lg hover:shadow-xl"
           >
             {loading ? "Đang đăng nhập..." : "Đăng nhập"}
-          </Button>
+          </button>
+
 
           {/* Divider */}
           <Box className="flex items-center my-4">
@@ -291,16 +296,16 @@ const Login = () => {
           </Box>
 
           {/* Google sign in button */}
-          <Button
-            fullWidth
-            variant="outlined"
-            startIcon={<Google />}
+
+
+          <button
             onClick={handleLoginWithGoogle}
             disabled={loading}
-            className="border-gray-300 rounded-lg py-3 normal-case font-medium text-base text-gray-700 hover:border-gray-400 hover:bg-gray-50 transition-all duration-200 disabled:opacity-50"
+            className="w-full bg-white border-2 border-gray-300 hover:border-gray-400 text-gray-700 px-8 py-3 rounded-lg font-medium text-base transition-all duration-200 shadow-sm hover:shadow-md flex justify-center items-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed"
           >
+            <Google className="text-xl" />
             Tiếp tục với Google
-          </Button>
+          </button>
         </Box>
       </Box>
 

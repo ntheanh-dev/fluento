@@ -59,7 +59,7 @@ export const authAPI = {
   
   // Sign in
   signIn: (credentials) => 
-    oauthAPI.post('/auth/signin', credentials),
+    oauthAPI.post('/auth/token', credentials),
   
   // Get current user info
   getCurrentUser: () => 

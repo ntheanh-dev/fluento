@@ -13,6 +13,7 @@ import { CiLogout } from "react-icons/ci";
 import Container from "@mui/material/Container";
 import logo from "../assets/image/logo3.png";
 import { useAuth } from "../contexts/AuthContext";
+import { notify } from "../utils/notify";
 
 const menuItems = [
   { label: "Trang chủ", path: "/" },
@@ -50,6 +51,7 @@ const Header = () => {
   const handleLogout = async () => {
     try {
       await logout();
+      notify("Đăng xuất thành công!", "success");
       navigate('/');
     } catch (error) {
       console.error('Logout failed:', error);
