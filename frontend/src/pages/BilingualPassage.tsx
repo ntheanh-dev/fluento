@@ -4,8 +4,8 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { api } from '../configs/API';
 import { showOverlay, hideOverlay } from '../utils/overlay';
 import { notify } from '../utils/notify';
-import { FaPen, FaClock, FaLightbulb, FaCheck, FaComment, FaThumbsUp, FaSpinner } from 'react-icons/fa';
-import type { TranslationHintsResponse, TranslationCheckResponse } from '../types/api';
+import { FaPen, FaLightbulb, FaCheck, FaComment, FaThumbsUp } from 'react-icons/fa';
+import type { TranslationHintsResponse, TranslationCheckResponse, ApiResponse } from '../types/api';
 
 const BilingualPassage = () => {
   const [translation, setTranslation] = useState('');
@@ -74,6 +74,26 @@ const BilingualPassage = () => {
     }
   };
 
+  // Function to clean and format translation text
+  const formatTranslationText = (text: string): string => {
+    let cleaned = text.trim();
+
+    // Remove multiple spaces between words
+    cleaned = cleaned.replace(/\s+/g, ' ');
+
+    // Add punctuation if missing
+    if (cleaned && !/[.!?]$/.test(cleaned)) {
+      cleaned = cleaned + ".";
+    }
+
+    // Capitalize first letter of each sentence
+    cleaned = cleaned.replace(/(^|\.\s+)([a-z])/g, (match, p1, p2) => {
+      return p1 + p2.toUpperCase();
+    });
+
+    return cleaned;
+  };
+
   // Function to call translation check API
   const handleCheckTranslation = async () => {
     if (!translation.trim()) {
@@ -82,10 +102,15 @@ const BilingualPassage = () => {
 
     showOverlay({ message: 'Đang kiểm tra bản dịch...' });
     try {
-      const response = await api.post(`/writings/${conversationId}/translate`, {
+      // Clean and format the translation text
+      const cleanedTranslation = formatTranslationText(translation);
+
+      const response = await api.post<ApiResponse<TranslationCheckResponse>>(`/writings/${conversationId}/translate`, {
         vietnameseSentence: sentences[englishTranslations.length],
-        englishSentence: translation
+        englishSentence: cleanedTranslation
       });
+
+      console.log(response.data.result);
 
       if (response.data?.code === 1000) {
         setTranslationCheck(response.data.result);
@@ -109,20 +134,17 @@ const BilingualPassage = () => {
 
     try {
 
-      // Remove trailing punctuation
-      let trimmed = translation.trim();
-      if (trimmed && !/[.!?]$/.test(trimmed)) {
-        trimmed = trimmed + ".";
-      }
+      // Clean and format the translation text
+      const cleanedTranslation = formatTranslationText(translation);
 
       await api.post(`/writings/${conversationId}/write`, {
-        englishSentence: trimmed
+        englishSentence: cleanedTranslation
       });
 
 
       setShowCheck(false);
       setShowHints(false);
-      setEnglishTranslations(sentences => [...sentences, trimmed]);
+      setEnglishTranslations(sentences => [...sentences, cleanedTranslation]);
       setTranslation('');
 
       // Check if this was the last sentence
@@ -194,7 +216,7 @@ const BilingualPassage = () => {
                         // Completed sentences - show English translation
                         <span key={index} className="relative inline">
                           <span className="text-black py-1 font-bold">
-                            {englishTranslations[index] + " "}
+                            {" " + englishTranslations[index]}
                           </span>
                         </span>
                       ) : (
@@ -202,15 +224,15 @@ const BilingualPassage = () => {
                         index === englishTranslations.length ? (
                           // Current sentence to translate
                           <span key={index} className="relative inline">
-                            <span className="px-2 py-1 text-blue-600 font-bold">
-                              {sentence}
+                            <span className="py-2 text-blue-600 font-bold">
+                              {" " + sentence}
                             </span>
                           </span>
                         ) : (
                           // Upcoming sentences
                           <span key={index} className="relative inline">
                             <span className="text-gray-600 opacity-60">
-                              {sentence + " "}
+                              {" " + sentence}
                             </span>
                           </span>
                         )
@@ -271,7 +293,7 @@ const BilingualPassage = () => {
                       className="w-52 py-3.5 px-6 bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 text-base border-0"
                       onClick={handleNextSentence}
                     >
-                      Tiếp tục
+                      ✓ Tiếp tục
                     </button>
                   ) : (
                     // Has errors - show "Viết lại" button
@@ -279,7 +301,7 @@ const BilingualPassage = () => {
                       className="w-52 py-3.5 px-6 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 text-base border-0"
                       onClick={handleCheckTranslation}
                     >
-                      Viết lại
+                      ✏️ Viết lại
                     </button>
                   )
                 ) : (
@@ -288,7 +310,7 @@ const BilingualPassage = () => {
                     className="w-52 py-3.5 px-6 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 text-base border-0"
                     onClick={handleCheckTranslation}
                   >
-                    ✓ Kiểm tra
+                    🔍  Kiểm tra
                   </button>
                 )}
               </div>
@@ -335,8 +357,16 @@ const BilingualPassage = () => {
                           AI đã đánh giá và đưa ra gợi ý cải thiện
                         </Typography>
                       </div>
+                      {translationCheck.score && (
+                        <div className="rounded-xl text-center">
+                          <Typography variant="h6" className="font-bold text-white">
+                            {translationCheck.score} điểm
+                          </Typography>
+                        </div>
+                      )}
                     </div>
                   </div>
+
 
                   {/* Corrections */}
                   <div className="space-y-3">
@@ -348,9 +378,8 @@ const BilingualPassage = () => {
                     </div>
 
                     {/* Spelling Mistakes */}
-                    {translationCheck.corrections.spellingMistakes.length > 0 && (
-                      <div className="group relative overflow-hidden rounded-lg border border-red-200 bg-white p-3 shadow-sm transition-all duration-200 hover:shadow-md hover:border-red-300">
-                        <div className="absolute inset-0 bg-gradient-to-r from-red-50 to-pink-50 opacity-0 transition-opacity duration-200 group-hover:opacity-100"></div>
+                    {translationCheck?.corrections.spellingMistakes.length > 0 && (
+                      <div className="relative rounded-lg border border-red-200 bg-white p-3 shadow-sm">
                         <div className="relative">
                           <div className="flex items-center gap-2 mb-2">
                             <div className="h-1.5 w-1.5 rounded-full bg-red-500"></div>
@@ -359,8 +388,8 @@ const BilingualPassage = () => {
                             </Typography>
                           </div>
                           <div className="space-y-1.5">
-                            {translationCheck.corrections.spellingMistakes.map((mistake, index) => (
-                              <div key={index} className="flex items-center gap-2 p-1.5 bg-white rounded-md border border-red-100 transition-all duration-200 hover:bg-red-50 hover:border-red-200">
+                            {translationCheck?.corrections.spellingMistakes.map((mistake, index) => (
+                              <div key={index} className="flex items-center gap-2 p-1.5 bg-white rounded-md border border-red-100">
                                 <span className="text-red-600 font-semibold text-xs px-1.5 py-0.5 bg-red-100 rounded">{mistake.word}</span>
                                 <span className="text-gray-400 text-sm">→</span>
                                 <span className="text-green-600 font-semibold text-xs px-1.5 py-0.5 bg-green-100 rounded">{mistake.suggestion}</span>
@@ -372,9 +401,8 @@ const BilingualPassage = () => {
                     )}
 
                     {/* Grammar Errors */}
-                    {translationCheck.corrections.grammarErrors.length > 0 && (
-                      <div className="group relative overflow-hidden rounded-lg border border-orange-200 bg-white p-3 shadow-sm transition-all duration-200 hover:shadow-md hover:border-orange-300">
-                        <div className="absolute inset-0 bg-gradient-to-r from-orange-50 to-amber-50 opacity-0 transition-opacity duration-200 group-hover:opacity-100"></div>
+                    {translationCheck?.corrections.grammarErrors.length > 0 && (
+                      <div className="relative rounded-lg border border-orange-200 bg-white p-3 shadow-sm">
                         <div className="relative">
                           <div className="flex items-center gap-2 mb-2">
                             <div className="h-1.5 w-1.5 rounded-full bg-orange-500"></div>
@@ -384,7 +412,7 @@ const BilingualPassage = () => {
                           </div>
                           <div className="space-y-1.5">
                             {translationCheck.corrections.grammarErrors.map((error, index) => (
-                              <div key={index} className="p-2 bg-white rounded-md border border-orange-100 transition-all duration-200 hover:bg-orange-50 hover:border-orange-200">
+                              <div key={index} className="p-2 bg-white rounded-md border border-orange-100">
                                 <div className="text-orange-700 font-semibold text-xs mb-1">{error.issue}</div>
                                 <div className="text-orange-600 text-xs bg-orange-50 px-1.5 py-0.5 rounded border border-orange-200 font-mono">{error.example}</div>
                               </div>
@@ -396,8 +424,7 @@ const BilingualPassage = () => {
 
                     {/* Sentence Structure */}
                     {translationCheck.corrections.sentenceStructure.length > 0 && (
-                      <div className="group relative overflow-hidden rounded-lg border border-yellow-200 bg-white p-3 shadow-sm transition-all duration-200 hover:shadow-md hover:border-yellow-300">
-                        <div className="absolute inset-0 bg-gradient-to-r from-yellow-50 to-amber-50 opacity-0 transition-opacity duration-200 group-hover:opacity-100"></div>
+                      <div className="relative rounded-lg border border-yellow-200 bg-white p-3 shadow-sm">
                         <div className="relative">
                           <div className="flex items-center gap-2 mb-2">
                             <div className="h-1.5 w-1.5 rounded-full bg-yellow-500"></div>
@@ -406,8 +433,8 @@ const BilingualPassage = () => {
                             </Typography>
                           </div>
                           <div className="space-y-1.5">
-                            {translationCheck.corrections.sentenceStructure.map((structure, index) => (
-                              <div key={index} className="p-2 bg-white rounded-md border border-yellow-100 transition-all duration-200 hover:bg-yellow-50 hover:border-yellow-200">
+                            {translationCheck?.corrections?.sentenceStructure.map((structure, index) => (
+                              <div key={index} className="p-2 bg-white rounded-md border border-yellow-100">
                                 <div className="text-yellow-700 font-semibold text-xs mb-1">{structure.problem}</div>
                                 <div className="text-yellow-600 text-xs bg-yellow-50 px-1.5 py-0.5 rounded border border-yellow-200">{structure.suggestion}</div>
                               </div>
@@ -419,19 +446,19 @@ const BilingualPassage = () => {
                   </div>
 
                   {/* Feedback */}
-                  {translationCheck.feedback.strengths.length > 0 || translationCheck.feedback.weaknesses.length > 0 && (
+                  {(translationCheck?.feedback?.strengths.length > 0 || translationCheck?.feedback?.weaknesses.length > 0) && (
                     <div className="space-y-3">
+
                       <div className="flex items-center gap-2">
                         <div className="h-0.5 w-6 rounded-full bg-gradient-to-r from-green-500 to-blue-500"></div>
                         <Typography variant="h6" className="font-bold text-gray-800 text-sm">
-                          Đánh giá
+                          Chi tiết đánh giá
                         </Typography>
                       </div>
 
                       {/* Strengths */}
-                      {translationCheck.feedback.strengths.length > 0 && (
-                        <div className="group relative overflow-hidden rounded-lg border border-green-200 bg-white p-3 shadow-sm transition-all duration-200 hover:shadow-md hover:border-green-300">
-                          <div className="absolute inset-0 bg-gradient-to-r from-green-50 to-emerald-50 opacity-0 transition-opacity duration-200 group-hover:opacity-100"></div>
+                      {translationCheck?.feedback.strengths?.length > 0 && (
+                        <div className="relative rounded-lg border border-green-200 bg-white p-3 shadow-sm">
                           <div className="relative">
                             <div className="flex items-center gap-2 mb-2">
                               <div className="h-1.5 w-1.5 rounded-full bg-green-500"></div>
@@ -440,8 +467,8 @@ const BilingualPassage = () => {
                               </Typography>
                             </div>
                             <ul className="space-y-1.5">
-                              {translationCheck.feedback.strengths.map((strength, index) => (
-                                <li key={index} className="text-green-700 text-xs flex items-start gap-2 p-1.5 bg-white rounded-md border border-green-100 transition-all duration-200 hover:bg-green-50 hover:border-green-200">
+                              {translationCheck?.feedback?.strengths.map((strength, index) => (
+                                <li key={index} className="text-green-700 text-xs flex items-start gap-2 p-1.5 bg-white rounded-md border border-green-100">
                                   <span className="text-green-500 mt-0.5 text-sm">✓</span>
                                   <span className="flex-1">{strength}</span>
                                 </li>
@@ -452,9 +479,8 @@ const BilingualPassage = () => {
                       )}
 
                       {/* Weaknesses */}
-                      {translationCheck.feedback.weaknesses.length > 0 && (
-                        <div className="group relative overflow-hidden rounded-lg border border-red-200 bg-white p-3 shadow-sm transition-all duration-200 hover:shadow-md hover:border-red-300">
-                          <div className="absolute inset-0 bg-gradient-to-r from-red-50 to-pink-50 opacity-0 transition-opacity duration-200 group-hover:opacity-100"></div>
+                      {translationCheck?.feedback.weaknesses.length > 0 && (
+                        <div className="relative rounded-lg border border-red-200 bg-white p-3 shadow-sm">
                           <div className="relative">
                             <div className="flex items-center gap-2 mb-2">
                               <div className="h-1.5 w-1.5 rounded-full bg-red-500"></div>
@@ -463,8 +489,8 @@ const BilingualPassage = () => {
                               </Typography>
                             </div>
                             <ul className="space-y-1.5">
-                              {translationCheck.feedback.weaknesses.map((weakness, index) => (
-                                <li key={index} className="text-red-700 text-xs flex items-start gap-2 p-1.5 bg-white rounded-md border border-red-100 transition-all duration-200 hover:bg-red-50 hover:border-red-200">
+                              {translationCheck?.feedback.weaknesses.map((weakness, index) => (
+                                <li key={index} className="text-red-700 text-xs flex items-start gap-2 p-1.5 bg-white rounded-md border border-red-100">
                                   <span className="text-red-500 mt-0.5 text-sm">⚠</span>
                                   <span className="flex-1">{weakness}</span>
                                 </li>
@@ -485,18 +511,13 @@ const BilingualPassage = () => {
                         Bản dịch cải thiện
                       </Typography>
                     </div>
-                    <div className="group relative overflow-hidden rounded-lg border border-emerald-200 bg-white p-3 shadow-sm transition-all duration-200 hover:shadow-md hover:border-emerald-300">
-                      <div className="absolute inset-0 bg-gradient-to-r from-emerald-50 to-teal-50 opacity-0 transition-opacity duration-200 group-hover:opacity-100"></div>
+                    <div className="relative rounded-lg border border-emerald-200 bg-white p-3 shadow-sm">
                       <div className="relative">
                         <div className="flex items-center gap-2 mb-2">
-                          <div className="h-1.5 w-1.5 rounded-full bg-emerald-500"></div>
-                          <Typography variant="body2" className="font-semibold text-emerald-800 text-sm">
-                            Bản dịch hoàn chỉnh
+                          <Typography variant="body2" className="text-emerald-800 text-sm font-medium leading-relaxed">
+                            {translationCheck?.improvedTranslation}
                           </Typography>
                         </div>
-                        <Typography variant="body2" className="text-emerald-800 text-sm font-medium leading-relaxed">
-                          {translationCheck.improvedTranslation}
-                        </Typography>
                       </div>
                     </div>
                   </div>

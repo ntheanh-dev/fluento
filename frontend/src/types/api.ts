@@ -84,5 +84,6 @@ export interface TranslationCheckResponse {
     sentenceStructure: SentenceStructure[];
   };
   feedback: TranslationFeedback;
+  score: number;
   improvedTranslation: string;
 }
