@@ -20,12 +20,14 @@
           <entry name="$MAVEN_REPOSITORY$/org/mapstruct/mapstruct-processor/1.5.5.Final/mapstruct-processor-1.5.5.Final.jar" />
           <entry name="$MAVEN_REPOSITORY$/org/mapstruct/mapstruct/1.5.5.Final/mapstruct-1.5.5.Final.jar" />
         </processorPath>
+        <module name="identity-service" />
         <module name="writing-app" />
       </profile>
     </annotationProcessing>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="identity-service" options="-parameters -Amapstruct.suppressGeneratorTimestamp=true -Amapstruct.defaultComponentModel=spring -Amapstruct.verbose=true" />
       <module name="writing-app" options="-parameters -Amapstruct.suppressGeneratorTimestamp=true -Amapstruct.defaultComponentModel=spring -Amapstruct.verbose=true" />
     </option>
   </component>
