@@ -6,6 +6,7 @@ import {
   TextField,
   MenuItem,
   ListSubheader,
+  CircularProgress,
 } from "@mui/material";
 import { Flag, Layers } from "@mui/icons-material";
 import { useState, useEffect } from "react";
@@ -33,7 +34,7 @@ const Writing = () => {
 
   const [selectedLevel, setSelectedLevel] = useState<string>("");
   const [selectedTopic, setSelectedTopic] = useState<string>("");
-  const [sentenceCount, setSentenceCount] = useState<number>(0);
+  const [sentenceCount, setSentenceCount] = useState<number>(5);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity: "success" | "error" }>({ open: false, message: "", severity: "success" });
 
@@ -225,7 +226,7 @@ const Writing = () => {
 
   // Render sentence count options from API data
   const renderSentenceCountOptions = () => {
-    return sentenceCounts.map((count) => (
+    return sentenceCounts.sort((a, b) => a.size - b.size).map((count) => (
       <MenuItem key={count.id} value={count.size}>
         <Box className="flex items-center justify-between w-full">
           <Box className="flex items-center gap-2">
@@ -352,24 +353,14 @@ const Writing = () => {
       </Box>
 
       {/* Nút bắt đầu luyện viết */}
-      <Box className="flex justify-center">
-        <Button
-          variant="contained"
-          style={{
-            background: `linear-gradient(90deg, ${COLOR_ORANGE} 0%, ${COLOR_NAVY} 100%)`,
-            color: COLOR_WHITE,
-            borderRadius: 8,
-            paddingLeft: 40,
-            paddingRight: 40,
-            fontWeight: 700,
-            fontSize: 18,
-            boxShadow: "none",
-          }}
+      <Box className="flex justify-center mt-4">
+        <button
+          className="bg-purple-600 hover:bg-purple-700 text-white px-8 py-3 rounded-lg font-medium text-lg transition-colors duration-200"
           onClick={handleStartWriting}
           disabled={isSubmitting || (!selectedTopic || !selectedLevel || !sentenceCount)}
         >
           Bắt đầu luyện viết
-        </Button>
+        </button>
       </Box>
 
       {/* global overlay handled via App-level Backdrop */}

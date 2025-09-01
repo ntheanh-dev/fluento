@@ -106,13 +106,21 @@ const BilingualPassage = () => {
     showOverlay({ message: '' });
 
     try {
+
+      // Remove trailing punctuation
+      let trimmed = translation.trim();
+      if (trimmed && !/[.!?]$/.test(trimmed)) {
+        trimmed = trimmed + ".";
+      }
+
       await api.post(`/writings/${conversationId}/write`, {
-        englishSentence: translation
+        englishSentence: trimmed
       });
+
 
       setShowCheck(false);
       setShowHints(false);
-      setEnglishTranslations(sentences => [...sentences, translation]);
+      setEnglishTranslations(sentences => [...sentences, trimmed]);
       setTranslation('');
 
       // Check if this was the last sentence
@@ -244,14 +252,12 @@ const BilingualPassage = () => {
             {/* Action Buttons */}
             <div className="px-4 pb-4">
               <div className="flex gap-4 justify-center">
-                <Button
-                  variant="contained"
+                <button
                   className="w-52 py-3.5 px-6 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 text-base border-0"
-                  startIcon={<div className="w-2 h-2 bg-white rounded-full" />}
                   onClick={handleGetTranslationHints}
                 >
-                  Xem gợi ý
-                </Button>
+                  💡 Xem gợi ý
+                </button>
 
                 {showCheck && translationCheck ? (
                   // Check if there are no errors in corrections
@@ -259,35 +265,29 @@ const BilingualPassage = () => {
                     translationCheck.corrections.grammarErrors.length === 0 &&
                     translationCheck.corrections.sentenceStructure.length === 0) ? (
                     // No errors - show "Tiếp tục" button
-                    <Button
-                      variant="contained"
+                    <button
                       className="w-52 py-3.5 px-6 bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 text-base border-0"
-                      startIcon={<FaCheck className="text-white" />}
                       onClick={handleNextSentence}
                     >
                       Tiếp tục
-                    </Button>
+                    </button>
                   ) : (
                     // Has errors - show "Viết lại" button
-                    <Button
-                      variant="contained"
+                    <button
                       className="w-52 py-3.5 px-6 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 text-base border-0"
-                      startIcon={<FaPen className="text-white" />}
                       onClick={handleCheckTranslation}
                     >
                       Viết lại
-                    </Button>
+                    </button>
                   )
                 ) : (
                   // Default state - show "Kiểm tra" button
-                  <Button
-                    variant="contained"
+                  <button
                     className="w-52 py-3.5 px-6 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 text-base border-0"
-                    startIcon={<FaCheck className="text-white" />}
                     onClick={handleCheckTranslation}
                   >
-                    Kiểm tra
-                  </Button>
+                    ✓ Kiểm tra
+                  </button>
                 )}
               </div>
             </div>
@@ -305,6 +305,9 @@ const BilingualPassage = () => {
                 size="small"
                 className="text-gray-600 border-gray-300 hover:border-gray-400 hover:bg-gray-50 px-3 py-1 rounded-lg text-sm font-medium"
                 startIcon={<FaComment className="text-sm" />}
+                onClick={() => {
+                  window.open('https://www.facebook.com/share/g/1PMDRoCfK7/?mibextid=wwXIfr', '_blank');
+                }}
               >
                 Góp ý
               </Button>
@@ -631,7 +634,7 @@ const BilingualPassage = () => {
                     <div className="flex items-start gap-4 p-4 bg-blue-50 rounded-xl border border-blue-200 shadow-sm hover:shadow-md transition-all duration-200">
                       <FaLightbulb className="text-blue-500 mt-1 flex-shrink-0 text-lg" />
                       <Typography variant="body2" className="text-gray-700 leading-6">
-                        Các câu đã dịch sẽ hiển thị bản dịch tiếng Anh với viền xanh lá
+                        Các câu đã dịch sẽ hiển thị bản dịch tiếng Anh với font đậm
                       </Typography>
                     </div>
 
