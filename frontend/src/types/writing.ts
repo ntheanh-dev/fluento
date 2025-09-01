@@ -25,6 +25,13 @@ export interface SentenceCount {
   writings: any[];
 }
 
+export interface Tone {
+  id: number;
+  name: string;
+  description: string;
+  writings: any[];
+}
+
 // Writing practice session interface
 export interface WritingSession {
   id: string;
@@ -44,6 +51,7 @@ export interface WritingGenerationRequest {
   topic: string;
   language: string;
   sentenceCount: number;
+  tone: string;
 }
 
 // Writing generation response interface

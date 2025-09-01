@@ -20,6 +20,7 @@ import type {
   TopicGroup,
   Level,
   SentenceCount,
+  Tone,
   WritingGenerationRequest,
   WritingGenerationResponse
 } from "../types";
@@ -36,8 +37,7 @@ const Writing = () => {
   const [selectedLevel, setSelectedLevel] = useState<string>("Trung bình");
   const [selectedTopic, setSelectedTopic] = useState<string>("");
   const [sentenceCount, setSentenceCount] = useState<number>(5);
-  const [selectedTone, setSelectedTone] = useState<string>("Hội thoại");
-  const [selectedTextType, setSelectedTextType] = useState<string>("Tự sự");
+  const [selectedTone, setSelectedTone] = useState<string>("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity: "success" | "error" }>({ open: false, message: "", severity: "success" });
 
@@ -55,6 +55,11 @@ const Writing = () => {
   const [sentenceCounts, setSentenceCounts] = useState<SentenceCount[]>([]);
   const [isLoadingSentenceCounts, setIsLoadingSentenceCounts] = useState(true);
   const [sentenceCountsError, setSentenceCountsError] = useState<string | null>(null);
+
+  // New state for tones API data
+  const [tones, setTones] = useState<Tone[]>([]);
+  const [isLoadingTones, setIsLoadingTones] = useState(true);
+  const [tonesError, setTonesError] = useState<string | null>(null);
 
   // Fetch topic groups from API
   useEffect(() => {
@@ -146,6 +151,36 @@ const Writing = () => {
     fetchSentenceCounts();
   }, []);
 
+  // Fetch tones from API
+  useEffect(() => {
+    const fetchTones = async () => {
+      try {
+        setIsLoadingTones(true);
+        setTonesError(null);
+
+        const response = await api.get<ApiResponse<Tone[]>>("/tones");
+
+        if (response.data.code === 1000 && response.data.result) {
+          setTones(response.data.result);
+
+          // Set default selected tone if available
+          if (response.data.result.length > 0) {
+            setSelectedTone(response.data.result[0].name);
+          }
+        } else {
+          setTonesError("Dữ liệu không hợp lệ từ API");
+        }
+      } catch (error: any) {
+        console.error("Error fetching tones:", error);
+        setTonesError(error?.response?.data?.message || "Không thể tải danh sách ngữ điệu");
+      } finally {
+        setIsLoadingTones(false);
+      }
+    };
+
+    fetchTones();
+  }, []);
+
   // Topic-only flow: no custom input
 
   const handleStartWriting = async () => {
@@ -157,7 +192,8 @@ const Writing = () => {
         level: selectedLevel,
         topic: selectedTopic,
         language: "vietnamese",
-        sentenceCount: sentenceCount
+        sentenceCount: sentenceCount,
+        tone: selectedTone
       };
 
       const response = await api.post<ApiResponse<WritingGenerationResponse>>("/writings/generate", payload);
@@ -368,63 +404,50 @@ const Writing = () => {
                 <Typography variant="h6" className="font-semibold text-gray-800 mb-3">
                   Ngữ điệu
                 </Typography>
-                <TextField
-                  select
-                  fullWidth
-                  value={selectedTone}
-                  onChange={(e) => setSelectedTone(e.target.value)}
-                  className="bg-gray-50 rounded-xl"
-                  InputProps={{
-                    style: { borderRadius: 12 }
-                  }}
-                >
-                  {["Hội thoại", "Trang trọng", "Thân thiện", "Chuyên nghiệp"].map((tone) => (
-                    <MenuItem key={tone} value={tone}>
-                      {tone}
-                    </MenuItem>
-                  ))}
-                </TextField>
+                {isLoadingTones ? (
+                  <Box className="flex justify-center py-8">
+                    <CircularProgress size={24} />
+                  </Box>
+                ) : tonesError ? (
+                  <Typography variant="body2" className="text-red-500 text-center py-4">
+                    {tonesError}
+                  </Typography>
+                ) : tones.length > 0 ? (
+                  <TextField
+                    select
+                    fullWidth
+                    value={selectedTone}
+                    onChange={(e) => setSelectedTone(e.target.value)}
+                    className="bg-gray-50 rounded-xl"
+                    InputProps={{
+                      style: { borderRadius: 12 }
+                    }}
+                  >
+                    {tones.map((tone) => (
+                      <MenuItem key={tone.id} value={tone.name}>
+                        <Typography variant="body2" className="font-medium text-gray-800">
+                          {tone.description}
+                        </Typography>
+                      </MenuItem>
+                    ))}
+                  </TextField>
+                ) : (
+                  <Typography variant="body2" className="text-gray-500 text-center py-4">
+                    Không có dữ liệu ngữ điệu
+                  </Typography>
+                )}
               </Box>
             </Box>
           </Box>
 
-          {/* Text Type Selection - Full Width */}
-          <Box className="mt-8">
-            <Typography variant="h6" className="font-semibold text-gray-800 mb-4">
-              Loại văn bản
-            </Typography>
-            <Box className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              {[
-                { value: "Tự sự", label: "Tự sự", subtitle: "Kể chuyện, tường thuật" },
-                { value: "Mô tả", label: "Mô tả", subtitle: "Miêu tả sự vật, hiện tượng" },
-                { value: "Nghị luận", label: "Nghị luận", subtitle: "Tranh luận, thuyết phục" },
-                { value: "Thông tin", label: "Thông tin", subtitle: "Cung cấp thông tin" }
-              ].map((type) => (
-                <button
-                  key={type.value}
-                  onClick={() => setSelectedTextType(type.value)}
-                  className={`p-4 rounded-xl border-2 transition-all duration-200 ${selectedTextType === type.value
-                    ? 'border-blue-500 bg-blue-50'
-                    : 'border-gray-200 bg-white hover:border-gray-300'
-                    }`}
-                >
-                  <Typography variant="body2" className="font-semibold text-gray-800 mb-1">
-                    {type.label}
-                  </Typography>
-                  <Typography variant="caption" className="text-gray-600">
-                    {type.subtitle}
-                  </Typography>
-                </button>
-              ))}
-            </Box>
-          </Box>
+
 
           {/* Action Button */}
           <Box className="flex justify-center mt-10">
             <button
               className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white px-12 py-4 rounded-xl font-semibold text-lg transition-all duration-300 shadow-lg hover:shadow-xl flex items-center gap-3"
               onClick={handleStartWriting}
-              disabled={isSubmitting || (!selectedTopic || !selectedLevel || !sentenceCount)}
+              disabled={isSubmitting || (!selectedTopic || !selectedLevel || !sentenceCount || !selectedTone)}
             >
               <PlayArrow className="text-xl" />
               Bắt đầu luyện tập
