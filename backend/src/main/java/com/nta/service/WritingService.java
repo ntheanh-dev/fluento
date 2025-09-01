@@ -36,6 +36,7 @@ public class WritingService {
     TopicRepository topicRepository;
     LevelRepository levelRepository;
     SentenceCountRepository sentenceCountRepository;
+    ToneRepository toneRepository;
     WritingRepository writingRepository;
 
     WritingMapper writingMapper;
@@ -47,11 +48,12 @@ public class WritingService {
 
         final String promptText =
                 String.format(
-                        "Write a paragraph with %d sentences about '%s' in %s language, with words in level %s.",
+                        "Write a paragraph with %d sentences about '%s' in %s language, with words in level %s and tone %s.",
                         request.getSentenceCount(),
                         request.getTopic(),
                         request.getLanguage(),
-                        request.getLevel());
+                        request.getLevel(),
+                        request.getTone());
 
         final String conversationId = UUID.randomUUID().toString();
 
@@ -68,6 +70,7 @@ public class WritingService {
                                 sentenceCountRepository
                                         .findBySize(request.getSentenceCount())
                                         .orElse(null))
+                        .tone(toneRepository.findByName(request.getTone()).orElse(null))
                         .vietnameseParagraph(pharagraph)
                         .createdAt(LocalDateTime.now())
                         .build();
@@ -223,6 +226,7 @@ public class WritingService {
         response.setUser(writing.getUser());
         response.setTopic(writing.getTopic());
         response.setLevel(writing.getLevel());
+        response.setTone(writing.getTone());
         response.setSentenceCount(writing.getSentenceCount());
         response.setCreatedAt(writing.getCreatedAt());
         response.setUpdatedAt(writing.getUpdatedAt());

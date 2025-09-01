@@ -11,4 +11,5 @@ public class GenerateParagraphRequest {
     String language;
     String level;
     Integer sentenceCount;
+    String tone;
 }

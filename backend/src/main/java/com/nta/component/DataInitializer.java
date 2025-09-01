@@ -3,6 +3,7 @@ package com.nta.component;
 import com.nta.constant.PredefinedRole;
 import com.nta.entity.Topic;
 import com.nta.entity.TopicGroup;
+import com.nta.entity.Tone;
 import com.nta.repository.*;
 
 import lombok.AccessLevel;
@@ -33,7 +34,8 @@ public class DataInitializer {
             SentenceCountRepository sentenceCountRepository,
             TopicGroupRepository topicGroupRepository,
             RoleRepository repository,
-            RoleRepository roleRepository) {
+            RoleRepository roleRepository,
+            ToneRepository toneRepository) {
         return args -> {
             // Initialization logic here
             System.out.println(
@@ -160,6 +162,15 @@ public class DataInitializer {
             if (roleRepository.findByName(PredefinedRole.USER_ROLE) == null) {
                 repository.save(
                         com.nta.entity.Role.builder().name(PredefinedRole.USER_ROLE).build());
+            }
+
+            if (toneRepository.count() == 0) {
+                toneRepository.saveAll(
+                        List.of(
+                                Tone.builder().name("Formal").description("Trang trọng, lịch sự").build(),
+                                Tone.builder().name("Informal").description("Thân mật, đời thường").build(),
+                                Tone.builder().name("Friendly").description("Thân thiện, ấm áp").build(),
+                                Tone.builder().name("Professional").description("Chuyên nghiệp, chuẩn mực").build()));
             }
         };
     }

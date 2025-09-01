@@ -4,6 +4,7 @@ import com.nta.entity.Level;
 import com.nta.entity.SentenceCount;
 import com.nta.entity.Topic;
 import com.nta.entity.User;
+import com.nta.entity.Tone;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -26,6 +27,7 @@ public class WritingResponse {
     private User user;
     private Topic topic;
     private Level level;
+    private Tone tone;
 
     private SentenceCount sentenceCount;
 

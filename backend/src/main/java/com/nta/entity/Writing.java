@@ -29,6 +29,10 @@ public class Writing {
     private User user;
 
     @ManyToOne
+    @JoinColumn(name = "tone_id")
+    private Tone tone;
+
+    @ManyToOne
     @JoinColumn(name = "topic_id")
     private Topic topic;
 

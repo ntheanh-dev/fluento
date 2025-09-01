@@ -25,6 +25,7 @@ public class WritingMapperImpl implements WritingMapper {
         writingResponse.user( writing.getUser() );
         writingResponse.topic( writing.getTopic() );
         writingResponse.level( writing.getLevel() );
+        writingResponse.tone( writing.getTone() );
         writingResponse.sentenceCount( writing.getSentenceCount() );
         writingResponse.createdAt( writing.getCreatedAt() );
         writingResponse.updatedAt( writing.getUpdatedAt() );
