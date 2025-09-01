@@ -173,10 +173,11 @@ public class WritingService {
                     ]
                   },
                   "feedback": {
-                    "strengths": ["positive aspects in Vietnamese"],
-                    "weaknesses": ["areas for improvement in Vietnamese"]
+                    "strengths": ["positive aspects in Vietnamese (use Vietnamese for explanations, keep English words/phrases as examples)"],
+                    "weaknesses": ["areas for improvement in Vietnamese (use Vietnamese for explanations, keep English words/phrases as examples)"]
                   },
-                  "improvedTranslation": "polished, natural English translation"
+                  "improvedTranslation": "polished, natural English translation",
+                  "score": "number (1-10 scale)"
                 }
                 
                 Evaluation Criteria:
@@ -186,10 +187,20 @@ public class WritingService {
                 - Structure: Evaluate sentence flow, word order, and natural English patterns
                 - Overall fluency: Consider how natural and idiomatic the translation sounds
                 
+                Scoring System (1-10 scale):
+                - 9-10: Excellent translation with minimal errors, natural English flow
+                - 7-8: Good translation with minor issues, mostly accurate
+                - 5-6: Adequate translation with some errors but understandable
+                - 3-4: Poor translation with significant errors affecting comprehension
+                - 1-2: Very poor translation with major errors and poor understanding
+                
                 Feedback Guidelines:
-                - Strengths: Acknowledge correct usage, good word choices, proper grammar
-                - Weaknesses: Identify specific areas needing improvement with gentle, educational tone
-                - Use clear Vietnamese explanations that Vietnamese learners can easily understand
+                - Strengths: Acknowledge correct usage, good word choices, proper grammar in Vietnamese
+                - Weaknesses: Identify specific areas needing improvement with gentle, educational tone in Vietnamese
+                - Use Vietnamese for all explanations and comments to be user-friendly
+                - Keep English words/phrases only as examples when necessary
+                - Make feedback warm and encouraging while being constructive
+                - Score: Provide fair assessment based on overall quality and error frequency
                 """;
 
         final String promptText =
@@ -206,11 +217,12 @@ public class WritingService {
                         3. Evaluate vocabulary choices and suggest improvements where needed
                         4. Check grammar accuracy and highlight specific errors with examples
                         5. Assess sentence structure and suggest improvements for natural English flow
-                        6. Provide encouraging feedback highlighting what the learner did well
-                        7. Identify specific areas for improvement with constructive guidance
+                        6. Provide encouraging feedback highlighting what the learner did well (in Vietnamese)
+                        7. Identify specific areas for improvement with constructive guidance (in Vietnamese)
                         8. Create an improved version that maintains the original meaning while sounding natural in English
+                        9. Assign a score from 1-10 based on overall translation quality
                         
-                        Return your analysis in the specified JSON format with detailed, educational feedback.
+                        Return your analysis in the specified JSON format with detailed, educational feedback including score.
                         """,
                         request.getVietnameseSentence(), request.getEnglishSentence());
         return aiChatService.sendMessage(

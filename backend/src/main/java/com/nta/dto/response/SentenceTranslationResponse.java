@@ -15,6 +15,7 @@ public class SentenceTranslationResponse {
     private Corrections corrections;
     private Feedback feedback;
     private String improvedTranslation;
+    private int score;
 
     @Data
     @NoArgsConstructor
