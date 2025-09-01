@@ -16,6 +16,7 @@ const BilingualPassage = () => {
   const [englishTranslations, setEnglishTranslations] = useState<string[]>([]);
   const [currentLevel, setCurrentLevel] = useState<string>('');
   const [currentTopic, setCurrentTopic] = useState<string>('');
+  const [currentTone, setCurrentTone] = useState<string>('');
 
   // New state for translation hints
   const [translationHints, setTranslationHints] = useState<TranslationHintsResponse | null>(null);
@@ -39,6 +40,7 @@ const BilingualPassage = () => {
         setEnglishTranslations(data.englishTranslations || []);
         setCurrentLevel(data.level?.name || '');
         setCurrentTopic(data.topic?.description || '');
+        setCurrentTone(data.tone?.name || '');
       } catch (error: any) {
         const message = error?.response?.data?.message || 'Không thể tải dữ liệu. Vui lòng thử lại.';
         notify(message, 'error');
@@ -152,7 +154,7 @@ const BilingualPassage = () => {
                     {currentTopic || 'Loading topic...'}
                   </h1>
                   <div className="text-lg font-medium text-blue-600/80 mt-1">
-                    Level: {currentLevel || 'Loading level...'}
+                    Level: {currentLevel || 'Loading level...'} - Tone: {currentTone || 'Loading tone...'}
                   </div>
                 </div>
 
@@ -192,7 +194,7 @@ const BilingualPassage = () => {
                         // Completed sentences - show English translation
                         <span key={index} className="relative inline">
                           <span className="text-black py-1 font-bold">
-                            {englishTranslations[index]}
+                            {englishTranslations[index] + " "}
                           </span>
                         </span>
                       ) : (
@@ -208,7 +210,7 @@ const BilingualPassage = () => {
                           // Upcoming sentences
                           <span key={index} className="relative inline">
                             <span className="text-gray-600 opacity-60">
-                              {sentence}
+                              {sentence + " "}
                             </span>
                           </span>
                         )
