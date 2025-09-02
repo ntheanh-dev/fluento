@@ -44,22 +44,22 @@ public class WritingService {
     public GenerateParagraphResponse generateParagraph(final GenerateParagraphRequest request) {
 
         final String systemMessage =
-                "You are an expert language learning assistant specializing in creating educational content for Vietnamese learners studying English. " +
-                "Your task is to generate well-structured, coherent paragraphs that help learners practice reading and translation skills. " +
-                "Always ensure the content is culturally appropriate, engaging, and educational. " +
-                "The paragraphs should flow naturally and contain vocabulary appropriate for the specified language proficiency level.";
+                "You are an expert language learning assistant specializing in creating educational content for Vietnamese learners studying English. "
+                        + "Your task is to generate well-structured, coherent paragraphs that help learners practice reading and translation skills. "
+                        + "Always ensure the content is culturally appropriate, engaging, and educational. "
+                        + "The paragraphs should flow naturally and contain vocabulary appropriate for the specified language proficiency level.";
 
         final String promptText =
                 String.format(
-                        "Create a well-structured paragraph in %s with exactly %d sentences about the topic '%s'. " +
-                        "Requirements:\n" +
-                        "- Use vocabulary and grammar appropriate for %s proficiency level\n" +
-                        "- Maintain a %s tone throughout the text\n" +
-                        "- Ensure sentences are connected logically with appropriate transitions\n" +
-                        "- Make the content engaging and educational for Vietnamese learners\n" +
-                        "- Focus on practical, real-world applications of the topic\n" +
-                        "- Use varied sentence structures to enhance learning value\n\n" +
-                        "Topic: %s\nLanguage: %s\nLevel: %s\nTone: %s\nSentences: %d",
+                        "Create a well-structured paragraph in %s with exactly %d sentences about the topic '%s'. "
+                                + "Requirements:\n"
+                                + "- Use vocabulary and grammar appropriate for %s proficiency level\n"
+                                + "- Maintain a %s tone throughout the text\n"
+                                + "- Ensure sentences are connected logically with appropriate transitions\n"
+                                + "- Make the content engaging and educational for Vietnamese learners\n"
+                                + "- Focus on practical, real-world applications of the topic\n"
+                                + "- Use varied sentence structures to enhance learning value\n\n"
+                                + "Topic: %s\nLanguage: %s\nLevel: %s\nTone: %s\nSentences: %d",
                         request.getLanguage(),
                         request.getSentenceCount(),
                         request.getTopic(),
@@ -101,37 +101,37 @@ public class WritingService {
 
     public HintTranslationResponse generateHints(String conversationId, String vietnameseSentence) {
         final String SYSTEM_MESSAGE_TEXT =
-                "You are an expert English learning assistant specializing in helping Vietnamese learners understand sentence structure and vocabulary. " +
-                "Your role is to provide comprehensive, educational hints that help learners translate Vietnamese sentences to English effectively. " +
-                "You must return ONLY valid JSON with no additional text, markdown, or explanations outside the JSON structure. " +
-                "Be precise, educational, and focus on practical learning insights.\n\n" +
-                "JSON Schema (use EXACTLY these property names in camelCase):\n" +
-                "{\n" +
-                "  \"vocabularyHints\": [\n" +
-                "    { \"vietnamese\": \"word/phrase\", \"english\": [\"translation1\", \"translation2\"] }\n" +
-                "  ],\n" +
-                "  \"structureHints\": {\n" +
-                "    \"kindsOfSentencesAccordingToStructure\": { \"vietnamese\": \"loại câu\", \"english\": \"sentence type\" },\n" +
-                "    \"tenses\": { \"vietnamese\": \"thì trong tiếng Việt\", \"english\": \"English tense\", \"form\": \"grammar pattern\" }\n" +
-                "  }\n" +
-                "}\n\n" +
-                "Detailed Requirements:\n" +
-                "- vocabularyHints: Extract ALL key words/phrases with their most appropriate English translations. Include multiple translations when relevant.\n" +
-                "- kindsOfSentencesAccordingToStructure: Identify sentence type (simple/compound/complex) in both languages with proper Vietnamese terminology.\n" +
-                "- tenses: Identify the main tense/aspect with Vietnamese name, English equivalent, and grammatical pattern (e.g., 'S + V + O', 'S + have/has + V3').\n" +
-                "- Provide educational value by choosing translations that help learners understand context and usage.\n" +
-                "- Maintain JSON validity - no trailing commas, proper escaping, exact property names.";
+                "You are an expert English learning assistant specializing in helping Vietnamese learners understand sentence structure and vocabulary. "
+                        + "Your role is to provide comprehensive, educational hints that help learners translate Vietnamese sentences to English effectively. "
+                        + "You must return ONLY valid JSON with no additional text, markdown, or explanations outside the JSON structure. "
+                        + "Be precise, educational, and focus on practical learning insights.\n\n"
+                        + "JSON Schema (use EXACTLY these property names in camelCase):\n"
+                        + "{\n"
+                        + "  \"vocabularyHints\": [\n"
+                        + "    { \"vietnamese\": \"word/phrase\", \"english\": [\"translation1\", \"translation2\"] }\n"
+                        + "  ],\n"
+                        + "  \"structureHints\": {\n"
+                        + "    \"kindsOfSentencesAccordingToStructure\": { \"vietnamese\": \"loại câu\", \"english\": \"sentence type\" },\n"
+                        + "    \"tenses\": { \"vietnamese\": \"thì trong tiếng Việt\", \"english\": \"English tense\", \"form\": \"grammar pattern\" }\n"
+                        + "  }\n"
+                        + "}\n\n"
+                        + "Detailed Requirements:\n"
+                        + "- vocabularyHints: Extract ALL key words/phrases with their most appropriate English translations. Include multiple translations when relevant.\n"
+                        + "- kindsOfSentencesAccordingToStructure: Identify sentence type (simple/compound/complex) in both languages with proper Vietnamese terminology.\n"
+                        + "- tenses: Identify the main tense/aspect with Vietnamese name, English equivalent, and grammatical pattern (e.g., 'S + V + O', 'S + have/has + V3').\n"
+                        + "- Provide educational value by choosing translations that help learners understand context and usage.\n"
+                        + "- Maintain JSON validity - no trailing commas, proper escaping, exact property names.";
 
         String promptText =
                 String.format(
-                        "Analyze the Vietnamese sentence below and provide comprehensive learning hints in the specified JSON format.\n\n" +
-                        "Vietnamese sentence: \"%s\"\n\n" +
-                        "Tasks:\n" +
-                        "1. Extract key vocabulary with appropriate English translations\n" +
-                        "2. Identify the sentence structure type in both languages\n" +
-                        "3. Determine the main tense/aspect with grammatical pattern\n" +
-                        "4. Ensure all hints support effective Vietnamese-to-English translation learning\n\n" +
-                        "Return only the JSON response with exact property names as specified.",
+                        "Analyze the Vietnamese sentence below and provide comprehensive learning hints in the specified JSON format.\n\n"
+                                + "Vietnamese sentence: \"%s\"\n\n"
+                                + "Tasks:\n"
+                                + "1. Extract key vocabulary with appropriate English translations\n"
+                                + "2. Identify the sentence structure type in both languages\n"
+                                + "3. Determine the main tense/aspect with grammatical pattern\n"
+                                + "4. Ensure all hints support effective Vietnamese-to-English translation learning\n\n"
+                                + "Return only the JSON response with exact property names as specified.",
                         vietnameseSentence);
 
         return aiChatService.sendMessage(
@@ -144,16 +144,16 @@ public class WritingService {
                 """
                 You are an expert English language instructor specializing in helping Vietnamese learners improve their translation skills.
                 Your role is to provide comprehensive, constructive feedback that helps learners understand their mistakes and improve their English proficiency.
-                
+
                 Core Principles:
                 - Be encouraging and supportive while being thorough in corrections
                 - Focus on educational value and practical learning outcomes
                 - Provide specific, actionable feedback that learners can apply immediately
                 - Consider Vietnamese language patterns that may influence translation choices
                 - Recognize cultural and linguistic differences between Vietnamese and English
-                
+
                 Response Format: Return ONLY valid JSON with no additional text or markdown.
-                
+
                 JSON Schema (use exact property names):
                 {
                   "originalVietnamese": "string",
@@ -179,21 +179,21 @@ public class WritingService {
                   "improvedTranslation": "polished, natural English translation",
                   "score": "number (1-10 scale)"
                 }
-                
+
                 Evaluation Criteria:
                 - Spelling: Check for typos and incorrect word forms
                 - Vocabulary: Assess word choice, collocation, and appropriateness
                 - Grammar: Review tense usage, subject-verb agreement, article usage, prepositions
                 - Structure: Evaluate sentence flow, word order, and natural English patterns
                 - Overall fluency: Consider how natural and idiomatic the translation sounds
-                
+
                 Scoring System (1-10 scale):
                 - 9-10: Excellent translation with minimal errors, natural English flow
                 - 7-8: Good translation with minor issues, mostly accurate
                 - 5-6: Adequate translation with some errors but understandable
                 - 3-4: Poor translation with significant errors affecting comprehension
                 - 1-2: Very poor translation with major errors and poor understanding
-                
+
                 Feedback Guidelines:
                 - Strengths: Acknowledge correct usage, good word choices, proper grammar in Vietnamese
                 - Weaknesses: Identify specific areas needing improvement with gentle, educational tone in Vietnamese
@@ -207,10 +207,10 @@ public class WritingService {
                 String.format(
                         """
                         Please evaluate the following Vietnamese-to-English translation attempt:
-                        
+
                         Original Vietnamese: "%s"
                         Learner's English Translation: "%s"
-                        
+
                         Analysis Tasks:
                         1. Compare the learner's translation with the original Vietnamese meaning
                         2. Identify any spelling errors and provide corrections
@@ -221,7 +221,7 @@ public class WritingService {
                         7. Identify specific areas for improvement with constructive guidance (in Vietnamese)
                         8. Create an improved version that maintains the original meaning while sounding natural in English
                         9. Assign a score from 1-10 based on overall translation quality
-                        
+
                         Return your analysis in the specified JSON format with detailed, educational feedback including score.
                         """,
                         request.getVietnameseSentence(), request.getEnglishSentence());
@@ -241,25 +241,6 @@ public class WritingService {
                     List.of(writing.getTranslatedParagraph().split("(?<=[.!?])\\s+")));
         }
         return response;
-    }
-
-    public void write(final String conversationId, String englishSentence) {
-        final Writing writing = writingRepository.findByConversationId(conversationId);
-
-        if (!englishSentence.endsWith("(?<=[.!?])\\s+")) {
-            englishSentence += ".";
-        }
-
-        if (writing.getTranslatedParagraph() == null
-                || writing.getTranslatedParagraph().isEmpty()) {
-            writing.setTranslatedParagraph(englishSentence);
-        } else {
-            writing.setTranslatedParagraph(
-                    writing.getTranslatedParagraph() + " " + englishSentence);
-        }
-
-        writing.setUpdatedAt(LocalDateTime.now());
-        writingRepository.save(writing);
     }
 
     public Page<WritingResponse> getAllWritings(
