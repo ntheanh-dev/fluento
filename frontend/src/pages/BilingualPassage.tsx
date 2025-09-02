@@ -5,7 +5,7 @@ import { api } from '../configs/API';
 import { showOverlay, hideOverlay } from '../utils/overlay';
 import { notify } from '../utils/notify';
 import { FaPen, FaLightbulb, FaCheck, FaComment, FaThumbsUp } from 'react-icons/fa';
-import type { TranslationHintsResponse, TranslationCheckResponse, ApiResponse } from '../types/api';
+import type { TranslationHintsResponse, TranslationCheckResponse, ApiResponse, SentenceCreationResponse } from '../types/api';
 
 const BilingualPassage = () => {
   const [translation, setTranslation] = useState('');
@@ -133,14 +133,26 @@ const BilingualPassage = () => {
     showOverlay({ message: '' });
 
     try {
-
       // Clean and format the translation text
       const cleanedTranslation = formatTranslationText(translation);
 
-      await api.post(`/writings/${conversationId}/write`, {
-        englishSentence: cleanedTranslation
-      });
+      // Get feedback and score
+      const strengths = translationCheck?.feedback?.strengths ?? [];
+      const weaknesses = translationCheck?.feedback?.weaknesses ?? [];
+      const feedback = [...strengths, ...weaknesses].join(' ');
+      const score = translationCheck?.score || 0;
 
+      const payload: SentenceCreationResponse = {
+        englishTranslation: cleanedTranslation,
+        vietnamese: sentences[englishTranslations.length],
+        conversationId: conversationId || '',
+        score: score,
+        feedback: feedback,
+        orderIndex: englishTranslations.length
+      };
+
+
+      await api.post("/sentences", payload);
 
       setShowCheck(false);
       setShowHints(false);

@@ -198,7 +198,7 @@ const Writing = () => {
 
       const response = await api.post<ApiResponse<WritingGenerationResponse>>("/writings/generate", payload);
 
-      const conversationId = response.data.result?.conversationId;
+      const conversationId = response.data.result?.writingId;
       if (conversationId) {
         navigate(`/sentence-writing/${conversationId}`);
       } else {

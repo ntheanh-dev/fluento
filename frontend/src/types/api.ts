@@ -87,3 +87,12 @@ export interface TranslationCheckResponse {
   score: number;
   improvedTranslation: string;
 }
+
+export interface SentenceCreationResponse {
+  vietnamese : string;
+  englishTranslation : string;
+  orderIndex: number;
+  score: number;
+  feedback: string
+  conversationId: string;
+}
