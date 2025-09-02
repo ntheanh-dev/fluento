@@ -8,6 +8,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.Set;
 
 @Entity
 @Table(name = "writings")
@@ -49,6 +50,9 @@ public class Writing {
 
     @Column(name = "translated_paragraph", columnDefinition = "TEXT")
     private String translatedParagraph;
+
+    @OneToMany(mappedBy = "writing", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<Sentence> sentences;
 
     @Column(name = "created_at")
     private LocalDateTime createdAt = LocalDateTime.now();

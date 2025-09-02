@@ -37,7 +37,8 @@ public class SecurityConfig {
         "/auth/logout",
         "/roles",
         "/auth/outbound/authentication",
-        "/writings/**"
+        "/writings/**",
+        "/sentences/**",
     };
     private final String[] PUBLIC_GET_ENDPOINTS = {
         "/writings/**", "/topicGroups/**", "/levels/**", "/sentenceCounts/**", "/writings", "/tones"

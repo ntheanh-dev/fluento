@@ -1,8 +1,12 @@
 package com.nta.configuration;
 
-import java.text.ParseException;
-import java.util.Objects;
-import javax.crypto.spec.SecretKeySpec;
+import com.nimbusds.jose.JOSEException;
+import com.nta.dto.request.IntrospectRequest;
+import com.nta.enums.ErrorCode;
+import com.nta.exception.AppException;
+import com.nta.service.AuthService;
+
+import lombok.experimental.NonFinal;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -13,11 +17,10 @@ import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.stereotype.Component;
 
-import com.nimbusds.jose.JOSEException;
-import com.nta.dto.request.IntrospectRequest;
-import com.nta.service.AuthService;
+import java.text.ParseException;
+import java.util.Objects;
 
-import lombok.experimental.NonFinal;
+import javax.crypto.spec.SecretKeySpec;
 
 @Component
 public class CustomJwtDecoder implements JwtDecoder {
@@ -38,7 +41,7 @@ public class CustomJwtDecoder implements JwtDecoder {
             var response = authService.introspect(
                     IntrospectRequest.builder().token(token).build());
 
-            if (!response.isValid()) throw new JwtException("Token invalid");
+            if (!response.isValid()) throw new AppException(ErrorCode.INVALID_TOKEN);
         } catch (JOSEException | ParseException e) {
             throw new JwtException(e.getMessage());
         }
