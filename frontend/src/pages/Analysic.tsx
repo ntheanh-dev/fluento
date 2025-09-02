@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   Box,
   Typography,
@@ -94,10 +94,30 @@ interface WritingHistoryResponse {
   empty: boolean;
 }
 
+// Custom hook for debouncing
+const useDebounce = (value: string, delay: number) => {
+  const [debouncedValue, setDebouncedValue] = useState(value);
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedValue(value);
+    }, delay);
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [value, delay]);
+
+  return debouncedValue;
+};
+
 const Analytic = () => {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(0); // API uses 0-based indexing
+
+  // Debounce search query with 500ms delay
+  const debouncedSearchQuery = useDebounce(searchQuery, 500);
   const [sortColumn, setSortColumn] = useState('createdAt');
   const [sortDirection, setSortDirection] = useState('desc');
   const [rowsPerPage, setRowsPerPage] = useState(10);
@@ -169,7 +189,8 @@ const Analytic = () => {
           page: currentPage,
           size: rowsPerPage,
           sortBy: sortColumn,
-          direction: sortDirection
+          direction: sortDirection,
+          search: debouncedSearchQuery // Add search parameter
         }
       });
 
@@ -194,6 +215,12 @@ const Analytic = () => {
     fetchWritingHistory();
   }, [currentPage, rowsPerPage, sortColumn, sortDirection]);
 
+  // Trigger search when debounced search query changes
+  useEffect(() => {
+    setCurrentPage(0); // Reset to first page when searching
+    fetchWritingHistory();
+  }, [debouncedSearchQuery]);
+
   const handleSort = (column: string) => {
     if (sortColumn === column) {
       setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
@@ -212,6 +239,10 @@ const Analytic = () => {
     const newRowsPerPage = parseInt(event.target.value, 10);
     setRowsPerPage(newRowsPerPage);
     setCurrentPage(0); // Reset to first page when changing rows per page
+  };
+
+  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(event.target.value);
   };
 
   const handleRowClick = (conversationId: string) => {
@@ -253,10 +284,10 @@ const Analytic = () => {
     });
   };
 
-  // Filter data based on search query
+  // Filter data based on debounced search query (for client-side filtering if needed)
   const filteredData = writingHistory.filter(item =>
-    item.topic.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    item.topic.name.toLowerCase().includes(searchQuery.toLowerCase())
+    item.topic.description.toLowerCase().includes(debouncedSearchQuery.toLowerCase()) ||
+    item.topic.name.toLowerCase().includes(debouncedSearchQuery.toLowerCase())
   );
 
   // Calculate statistics
@@ -537,7 +568,7 @@ const Analytic = () => {
               <TextField
                 placeholder="Tìm theo chủ đề..."
                 value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                onChange={handleSearchChange}
                 className="w-96"
                 size="small"
                 sx={{
