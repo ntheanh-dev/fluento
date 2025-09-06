@@ -96,3 +96,10 @@ export interface SentenceCreationResponse {
   feedback: string
   conversationId: string;
 }
+
+export interface Sentence {
+  englishTranslation: string;
+  vietnamese: string;
+  score: number;
+  feedback: string;
+}

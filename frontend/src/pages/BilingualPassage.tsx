@@ -5,15 +5,15 @@ import { api } from '../configs/API';
 import { showOverlay, hideOverlay } from '../utils/overlay';
 import { notify } from '../utils/notify';
 import { FaPen, FaLightbulb, FaCheck, FaComment, FaThumbsUp } from 'react-icons/fa';
-import type { TranslationHintsResponse, TranslationCheckResponse, ApiResponse, SentenceCreationResponse } from '../types/api';
+import type { TranslationHintsResponse, TranslationCheckResponse, ApiResponse, SentenceCreationResponse, Sentence } from '../types/api';
 
 const BilingualPassage = () => {
   const [translation, setTranslation] = useState('');
   const { conversationId } = useParams();
   const navigate = useNavigate();
 
-  const [sentences, setSentences] = useState<string[]>([]);
-  const [englishTranslations, setEnglishTranslations] = useState<string[]>([]);
+  const [vietNameseSentences, setVietNameseSentences] = useState<string[]>([]);
+  const [englishTranslations, setEnglishTranslations] = useState<Sentence[]>([]);
   const [currentLevel, setCurrentLevel] = useState<string>('');
   const [currentTopic, setCurrentTopic] = useState<string>('');
   const [currentTone, setCurrentTone] = useState<string>('');
@@ -27,6 +27,14 @@ const BilingualPassage = () => {
   const [showCheck, setShowCheck] = useState(false);
   const [showCompletionOverlay, setShowCompletionOverlay] = useState(false);
 
+  // Calculate average score from englishTranslations
+  const calculateAverageScore = () => {
+    if (englishTranslations.length === 0) return 0;
+    const totalScore = englishTranslations.reduce((sum, sentence) => sum + sentence.score, 0);
+    return Math.round(totalScore / englishTranslations.length);
+  };
+
+  console.log("englishTranslations", englishTranslations);
 
   useEffect(() => {
     const fetchConversation = async () => {
@@ -36,11 +44,16 @@ const BilingualPassage = () => {
         const response = await api.get(`/writings/${conversationId}`);
         const data = response.data?.result || {};
 
-        setSentences(data.sentences || []);
-        setEnglishTranslations(data.englishTranslations || []);
+        setVietNameseSentences(data.vietNamesesentences || []);
+        setEnglishTranslations(data.englishSentences || []);
         setCurrentLevel(data.level?.name || '');
         setCurrentTopic(data.topic?.description || '');
         setCurrentTone(data.tone?.name || '');
+
+        if (data.englishSentences.length === data.vietNamesesentences.length) {
+          setShowCompletionOverlay(true);
+        }
+
       } catch (error: any) {
         const message = error?.response?.data?.message || 'Không thể tải dữ liệu. Vui lòng thử lại.';
         notify(message, 'error');
@@ -56,7 +69,7 @@ const BilingualPassage = () => {
     showOverlay({ message: 'Đang tải gợi ý dịch thuật...' });
     try {
       const response = await api.post(`/writings/${conversationId}/translation-hints`, {
-        vietnameseSentence: sentences[englishTranslations.length]
+        vietnameseSentence: vietNameseSentences[englishTranslations.length]
       });
 
       if (response.data?.code === 1000) {
@@ -106,7 +119,7 @@ const BilingualPassage = () => {
       const cleanedTranslation = formatTranslationText(translation);
 
       const response = await api.post<ApiResponse<TranslationCheckResponse>>(`/writings/${conversationId}/translate`, {
-        vietnameseSentence: sentences[englishTranslations.length],
+        vietnameseSentence: vietNameseSentences[englishTranslations.length],
         englishSentence: cleanedTranslation
       });
 
@@ -144,23 +157,22 @@ const BilingualPassage = () => {
 
       const payload: SentenceCreationResponse = {
         englishTranslation: cleanedTranslation,
-        vietnamese: sentences[englishTranslations.length],
+        vietnamese: vietNameseSentences[englishTranslations.length],
         conversationId: conversationId || '',
         score: score,
         feedback: feedback,
         orderIndex: englishTranslations.length
       };
 
-
       await api.post("/sentences", payload);
 
       setShowCheck(false);
       setShowHints(false);
-      setEnglishTranslations(sentences => [...sentences, cleanedTranslation]);
+      setEnglishTranslations(sentences => [...sentences, { englishTranslation: cleanedTranslation, vietnamese: vietNameseSentences[englishTranslations.length], score: score, feedback: feedback }]);
       setTranslation('');
 
       // Check if this was the last sentence
-      if (englishTranslations.length + 1 >= sentences.length) {
+      if (englishTranslations.length + 1 >= vietNameseSentences.length) {
         setShowCompletionOverlay(true);
       }
 
@@ -199,7 +211,7 @@ const BilingualPassage = () => {
                   {/* Progress */}
                   <div className="text-right">
                     <div className="text-gray-700 text-sm font-medium">
-                      Tiến độ: {englishTranslations.length}/{sentences.length} câu
+                      Tiến độ: {englishTranslations.length}/{vietNameseSentences.length} câu
                     </div>
                   </div>
                 </div>
@@ -210,7 +222,7 @@ const BilingualPassage = () => {
                 <div
                   className="h-full bg-gradient-to-r from-blue-500 to-purple-600 transition-all duration-700 ease-out rounded-full shadow-sm relative"
                   style={{
-                    width: `${sentences.length > 0 ? ((englishTranslations.length / sentences.length) * 100) : 0}%`
+                    width: `${vietNameseSentences.length > 0 ? ((englishTranslations.length / vietNameseSentences.length) * 100) : 0}%`
                   }}
                 >
                   <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent"></div>
@@ -222,13 +234,13 @@ const BilingualPassage = () => {
             <div className="p-4 flex-1 overflow-hidden">
               <div className=" p-4 h-full overflow-y-auto relative">
                 <div className="leading-7 text-base text-gray-800">
-                  {sentences.map((sentence, index) => (
+                  {vietNameseSentences.map((sentence, index) => (
                     <React.Fragment key={index}>
                       {index <= englishTranslations.length - 1 ? (
                         // Completed sentences - show English translation
                         <span key={index} className="relative inline">
                           <span className="text-black py-1 font-bold">
-                            {" " + englishTranslations[index]}
+                            {" " + englishTranslations[index]?.englishTranslation}
                           </span>
                         </span>
                       ) : (
@@ -739,7 +751,7 @@ const BilingualPassage = () => {
                   {/* Achievement cards */}
                   <div className="bg-green-50 rounded-xl p-4 border border-green-200">
                     <div className="text-3xl font-bold text-green-600 mb-1">
-                      {sentences.length}
+                      {vietNameseSentences.length}
                     </div>
                     <div className="text-sm text-green-700 font-medium">
                       Câu đã dịch
@@ -748,10 +760,10 @@ const BilingualPassage = () => {
 
                   <div className="bg-blue-50 rounded-xl p-4 border border-blue-200">
                     <div className="text-3xl font-bold text-blue-600 mb-1">
-                      A+
+                      {calculateAverageScore()}/10
                     </div>
                     <div className="text-sm text-blue-700 font-medium">
-                      Điểm số
+                      Điểm trung bình
                     </div>
                   </div>
                 </div>
