@@ -17,7 +17,11 @@ public class AIChatService {
     }
 
     // For simple response types (e.g., String, Integer)
-    public <T> T sendMessage(final String conversationId, final String systemMessageText, final String userMessageText, Class<T> responseType) {
+    public <T> T sendMessage(
+            final String conversationId,
+            final String systemMessageText,
+            final String userMessageText,
+            Class<T> responseType) {
         return chatClient
                 .prompt(this.buildPrompt(systemMessageText, userMessageText))
                 .advisors(a -> a.param(ChatMemory.CONVERSATION_ID, conversationId))
@@ -26,10 +30,11 @@ public class AIChatService {
     }
 
     // For custom response class
-    public <T> T sendMessage(final String conversationId,
-                             final String systemMessageText,
-                             final String userMessageText,
-                             ParameterizedTypeReference<T> responseType) {
+    public <T> T sendMessage(
+            final String conversationId,
+            final String systemMessageText,
+            final String userMessageText,
+            ParameterizedTypeReference<T> responseType) {
 
         return chatClient
                 .prompt(this.buildPrompt(systemMessageText, userMessageText))
@@ -43,5 +48,4 @@ public class AIChatService {
         UserMessage userMessage = new UserMessage(userMessageText);
         return new Prompt(systemMessage, userMessage);
     }
-
 }

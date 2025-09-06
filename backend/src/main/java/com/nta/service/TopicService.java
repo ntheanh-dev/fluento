@@ -1,15 +1,15 @@
 package com.nta.service;
 
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+
 import com.nta.entity.TopicGroup;
 import com.nta.repository.TopicGroupRepository;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.experimental.FieldDefaults;
-
-import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 @AllArgsConstructor

@@ -1,10 +1,10 @@
 package com.nta.dto.response;
 
+import java.util.List;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -47,59 +47,59 @@ public class HintTranslationResponse {
         private String form;
     }
 }
-//example
+// example
 /*
 {
-  // Danh sách gợi ý từ vựng
-  "vocabularyHints": [
-    {
-      "vietnamese": "cuộc sống đại học",   // tiếng Việt
-      "english": ["university life"]       // các cách dịch sang tiếng Anh
-    },
-    {
-      "vietnamese": "mặc dù",
-      "english": ["although"]
-    },
-    {
-      "vietnamese": "đầy thử thách",
-      "english": ["full of challenges", "challenging"]
-    },
-    {
-      "vietnamese": "mang đến",
-      "english": ["offers", "provides"]
-    },
-    {
-      "vietnamese": "vô giá",
-      "english": ["invaluable"]
-    },
-    {
-      "vietnamese": "cơ hội",
-      "english": ["opportunities"]
-    },
-    {
-      "vietnamese": "phát triển bản thân",
-      "english": ["self-development", "personal growth"]
-    },
-    {
-      "vietnamese": "cho sinh viên",
-      "english": ["for students"]
-    }
-  ],
+// Danh sách gợi ý từ vựng
+"vocabularyHints": [
+	{
+	"vietnamese": "cuộc sống đại học",   // tiếng Việt
+	"english": ["university life"]       // các cách dịch sang tiếng Anh
+	},
+	{
+	"vietnamese": "mặc dù",
+	"english": ["although"]
+	},
+	{
+	"vietnamese": "đầy thử thách",
+	"english": ["full of challenges", "challenging"]
+	},
+	{
+	"vietnamese": "mang đến",
+	"english": ["offers", "provides"]
+	},
+	{
+	"vietnamese": "vô giá",
+	"english": ["invaluable"]
+	},
+	{
+	"vietnamese": "cơ hội",
+	"english": ["opportunities"]
+	},
+	{
+	"vietnamese": "phát triển bản thân",
+	"english": ["self-development", "personal growth"]
+	},
+	{
+	"vietnamese": "cho sinh viên",
+	"english": ["for students"]
+	}
+],
 
-  // Gợi ý về cấu trúc ngữ pháp
-  "structureHints": {
-    // Loại câu theo cấu trúc
-    "kindsOfSentencesAccordingToStructure": {
-      "vietnamese": "Câu phức",
-      "english": "complex sentences"
-    },
+// Gợi ý về cấu trúc ngữ pháp
+"structureHints": {
+	// Loại câu theo cấu trúc
+	"kindsOfSentencesAccordingToStructure": {
+	"vietnamese": "Câu phức",
+	"english": "complex sentences"
+	},
 
-    // Thì được dùng
-    "tenses": {
-      "vietnamese": "Thì hiện tại đơn",
-      "english": "simple present",
-      "form": "S + V + O"   // công thức câu
-    }
-  }
+	// Thì được dùng
+	"tenses": {
+	"vietnamese": "Thì hiện tại đơn",
+	"english": "simple present",
+	"form": "S + V + O"   // công thức câu
+	}
+}
 }
 */

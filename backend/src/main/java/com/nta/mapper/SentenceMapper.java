@@ -1,9 +1,9 @@
 package com.nta.mapper;
 
+import org.mapstruct.Mapper;
+
 import com.nta.dto.request.SentenceCreationRequest;
 import com.nta.entity.Sentence;
-
-import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring")
 public interface SentenceMapper {

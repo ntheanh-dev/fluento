@@ -1,12 +1,12 @@
 package com.nta.entity;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
+import java.util.Set;
 
 import jakarta.persistence.*;
 
-import lombok.*;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 
-import java.util.Set;
+import lombok.*;
 
 @Entity
 @Table(name = "topics")

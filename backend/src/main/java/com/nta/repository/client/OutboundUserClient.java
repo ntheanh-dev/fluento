@@ -1,10 +1,11 @@
 package com.nta.repository.client;
 
-import com.nta.dto.response.OutboundUserResponse;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+
+import com.nta.dto.response.OutboundUserResponse;
 
 @FeignClient(name = "outboundUserClient", url = "https://www.googleapis.com")
 public interface OutboundUserClient {

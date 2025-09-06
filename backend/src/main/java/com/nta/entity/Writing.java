@@ -1,14 +1,17 @@
 package com.nta.entity;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
 import jakarta.persistence.*;
+
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.time.LocalDateTime;
-import java.util.Set;
 
 @Entity
 @Table(name = "writings")
@@ -51,8 +54,10 @@ public class Writing {
     @Column(name = "translated_paragraph", columnDefinition = "TEXT")
     private String translatedParagraph;
 
-    @OneToMany(mappedBy = "writing", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<Sentence> sentences;
+    @OneToMany(mappedBy = "writing", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    @Column(name = "english_sentences", columnDefinition = "TEXT")
+    @JsonManagedReference
+    private List<Sentence> englishSentences = new ArrayList<>();
 
     @Column(name = "created_at")
     private LocalDateTime createdAt = LocalDateTime.now();

@@ -1,11 +1,11 @@
 package com.nta.dto.response;
 
+import java.util.Set;
+
 import com.nta.entity.Role;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-
-import java.util.Set;
 
 @Data
 @NoArgsConstructor

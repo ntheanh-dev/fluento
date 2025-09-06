@@ -1,15 +1,15 @@
 package com.nta.entity;
 
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Set;
+
 import jakarta.persistence.*;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Set;
 
 @Entity
 @Table(name = "users")
@@ -19,7 +19,8 @@ import java.util.Set;
 @Builder
 public class User {
 
-    @ManyToMany Set<Role> roles;
+    @ManyToMany
+    Set<Role> roles;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -13,8 +13,8 @@ public class ChatClientConfig {
 
     @Bean
     public ChatClient chatClient(ChatClient.Builder builder, ChatMemory chatMemory) {
-        return builder
-                .defaultAdvisors(MessageChatMemoryAdvisor.builder(chatMemory).build())
+        return builder.defaultAdvisors(
+                        MessageChatMemoryAdvisor.builder(chatMemory).build())
                 .build();
     }
 
@@ -25,5 +25,4 @@ public class ChatClientConfig {
                 .maxMessages(30)
                 .build();
     }
-
 }

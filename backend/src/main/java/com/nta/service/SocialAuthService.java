@@ -1,5 +1,11 @@
 package com.nta.service;
 
+import java.util.HashSet;
+import java.util.Set;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
 import com.nimbusds.jose.JOSEException;
 import com.nta.constant.PredefinedRole;
 import com.nta.dto.request.GoogleExchangeTokenRq;
@@ -18,12 +24,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.NonFinal;
 import lombok.extern.slf4j.Slf4j;
-
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-
-import java.util.HashSet;
-import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -48,19 +48,18 @@ public class SocialAuthService {
     @Value("${spring.security.client.registration.google.redirect-uri}")
     protected String GOOGLE_REDIRECT_URI;
 
-    @NonFinal protected String GOOGLE_GRANT_TYPE = "authorization_code";
+    @NonFinal
+    protected String GOOGLE_GRANT_TYPE = "authorization_code";
 
     public AuthenticationResponse authenticateGoogle(String code) throws JOSEException {
         // exchange code for access token
-        GoogleExchangeTokenRp response =
-                outboundIdentityClient.googleExchangeToken(
-                        GoogleExchangeTokenRq.builder()
-                                .code(code)
-                                .clientId(GOOGLE_CLIENT_ID)
-                                .clientSecret(GOOGLE_CLIENT_SECRET)
-                                .redirectUri(GOOGLE_REDIRECT_URI)
-                                .grantType(GOOGLE_GRANT_TYPE)
-                                .build());
+        GoogleExchangeTokenRp response = outboundIdentityClient.googleExchangeToken(GoogleExchangeTokenRq.builder()
+                .code(code)
+                .clientId(GOOGLE_CLIENT_ID)
+                .clientSecret(GOOGLE_CLIENT_SECRET)
+                .redirectUri(GOOGLE_REDIRECT_URI)
+                .grantType(GOOGLE_GRANT_TYPE)
+                .build());
 
         // get user info from google
         var userInfo = outboundUserClient.getUserInfo(response.getAccessToken());
@@ -70,17 +69,13 @@ public class SocialAuthService {
 
         // Check if user already exists, if not create a new user
         // Onboard user
-        var user =
-                userRepository
-                        .findByUsername(userInfo.getEmail())
-                        .orElseGet(
-                                () ->
-                                        userRepository.save(
-                                                User.builder()
-                                                        .username(userInfo.getEmail())
-                                                        .urlAvatar(userInfo.getPicture())
-                                                        .roles(roles)
-                                                        .build()));
+        var user = userRepository
+                .findByUsername(userInfo.getEmail())
+                .orElseGet(() -> userRepository.save(User.builder()
+                        .username(userInfo.getEmail())
+                        .urlAvatar(userInfo.getPicture())
+                        .roles(roles)
+                        .build()));
 
         // Convert google token to system token
         var token = authService.generateToken(user, TokenType.ACCESS_TOKEN);

@@ -1,12 +1,8 @@
 package com.nta.configuration;
 
-import com.nimbusds.jose.JOSEException;
-import com.nta.dto.request.IntrospectRequest;
-import com.nta.enums.ErrorCode;
-import com.nta.exception.AppException;
-import com.nta.service.AuthService;
-
-import lombok.experimental.NonFinal;
+import java.text.ParseException;
+import java.util.Objects;
+import javax.crypto.spec.SecretKeySpec;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -17,10 +13,13 @@ import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.stereotype.Component;
 
-import java.text.ParseException;
-import java.util.Objects;
+import com.nimbusds.jose.JOSEException;
+import com.nta.dto.request.IntrospectRequest;
+import com.nta.enums.ErrorCode;
+import com.nta.exception.AppException;
+import com.nta.service.AuthService;
 
-import javax.crypto.spec.SecretKeySpec;
+import lombok.experimental.NonFinal;
 
 @Component
 public class CustomJwtDecoder implements JwtDecoder {

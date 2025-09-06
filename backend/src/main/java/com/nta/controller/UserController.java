@@ -1,17 +1,17 @@
 package com.nta.controller;
 
+import jakarta.validation.Valid;
+
+import org.springframework.web.bind.annotation.*;
+
 import com.nta.dto.request.PasswordCreationRequest;
 import com.nta.dto.response.ApiResponse;
-
 import com.nta.dto.response.UserResponse;
 import com.nta.service.UserService;
-import jakarta.validation.Valid;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-
-import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/users")
@@ -31,6 +31,8 @@ public class UserController {
 
     @GetMapping("/my-info")
     ApiResponse<UserResponse> getMyInfo() {
-        return ApiResponse.<UserResponse>builder().result(userService.getMyInfo()).build();
+        return ApiResponse.<UserResponse>builder()
+                .result(userService.getMyInfo())
+                .build();
     }
 }

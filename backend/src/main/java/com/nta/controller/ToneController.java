@@ -1,16 +1,16 @@
 package com.nta.controller;
 
-import com.nta.dto.response.ApiResponse;
-import com.nta.entity.Tone;
-import com.nta.service.ToneService;
-
-import lombok.RequiredArgsConstructor;
+import java.util.List;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
+import com.nta.dto.response.ApiResponse;
+import com.nta.entity.Tone;
+import com.nta.service.ToneService;
+
+import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/tones")
@@ -23,5 +23,3 @@ public class ToneController {
         return ApiResponse.<List<Tone>>builder().result(toneService.findAll()).build();
     }
 }
-
-

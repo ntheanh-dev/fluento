@@ -1,7 +1,10 @@
 package com.nta.mapper;
 
 import com.nta.dto.response.WritingResponse;
+import com.nta.entity.Sentence;
 import com.nta.entity.Writing;
+import java.util.ArrayList;
+import java.util.List;
 import javax.annotation.processing.Generated;
 import org.springframework.stereotype.Component;
 
@@ -20,9 +23,12 @@ public class WritingMapperImpl implements WritingMapper {
 
         WritingResponse.WritingResponseBuilder writingResponse = WritingResponse.builder();
 
+        List<Sentence> list = writing.getEnglishSentences();
+        if ( list != null ) {
+            writingResponse.englishSentences( new ArrayList<Sentence>( list ) );
+        }
         writingResponse.id( writing.getId() );
         writingResponse.conversationId( writing.getConversationId() );
-        writingResponse.user( writing.getUser() );
         writingResponse.topic( writing.getTopic() );
         writingResponse.level( writing.getLevel() );
         writingResponse.tone( writing.getTone() );

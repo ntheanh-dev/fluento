@@ -1,9 +1,9 @@
 package com.nta.mapper;
 
-import com.nta.dto.response.UserResponse;
 import org.mapstruct.Mapper;
 
 import com.nta.dto.request.CreateAccountRequest;
+import com.nta.dto.response.UserResponse;
 import com.nta.entity.User;
 
 @Mapper(componentModel = "spring")

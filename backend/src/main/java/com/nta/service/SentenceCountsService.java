@@ -1,13 +1,13 @@
 package com.nta.service;
 
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+
 import com.nta.entity.SentenceCount;
 import com.nta.repository.SentenceCountRepository;
 
 import lombok.RequiredArgsConstructor;
-
-import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor

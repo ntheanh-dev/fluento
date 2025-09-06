@@ -1,13 +1,5 @@
 package com.nta.exception;
 
-import com.nta.dto.response.ApiResponse;
-import com.nta.enums.ErrorCode;
-import com.nta.enums.ValidationErrorCode;
-
-import feign.FeignException;
-
-import lombok.extern.slf4j.Slf4j;
-
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AuthenticationServiceException;
@@ -15,6 +7,13 @@ import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+
+import com.nta.dto.response.ApiResponse;
+import com.nta.enums.ErrorCode;
+import com.nta.enums.ValidationErrorCode;
+
+import feign.FeignException;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @ControllerAdvice
@@ -47,17 +46,14 @@ public class GlobalExceptionHandler {
 
     // Exception khi validate cac filed
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    ResponseEntity<ApiResponse<Object>> methodArgumentNotValidExceptionHandler(
-            MethodArgumentNotValidException e) {
+    ResponseEntity<ApiResponse<Object>> methodArgumentNotValidExceptionHandler(MethodArgumentNotValidException e) {
         // getFieldErro() còn có thể xác định lỗi ở filed nào, dữ liệu đầu vào là gi....
         String enumKey = e.getFieldError().getDefaultMessage();
 
         ValidationErrorCode errorCode = ValidationErrorCode.ERROR_KEY_INVALID;
         try {
-            errorCode =
-                    ValidationErrorCode.valueOf(
-                            enumKey); // Lấy ra enum Errorcode bằng tên mà đã được truyền khi
-                                      // validate
+            errorCode = ValidationErrorCode.valueOf(enumKey); // Lấy ra enum Errorcode bằng tên mà đã được truyền khi
+            // validate
         } catch (IllegalArgumentException iae) {
             // Trong trường hợp validate mà truyền sai enum name
         }
@@ -83,8 +79,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(AuthenticationServiceException.class)
-    ResponseEntity<ApiResponse<Object>> authenticationServiceHandler(
-            AuthenticationServiceException e) {
+    ResponseEntity<ApiResponse<Object>> authenticationServiceHandler(AuthenticationServiceException e) {
         log.error(e.getMessage());
 
         ApiResponse<Object> apiResponse = new ApiResponse<>();
@@ -107,10 +102,9 @@ public class GlobalExceptionHandler {
         ErrorCode errorCode = ErrorCode.UNAUTHORIZED;
 
         return ResponseEntity.status(errorCode.getStatusCode())
-                .body(
-                        ApiResponse.builder()
-                                .code(errorCode.getCode())
-                                .message(errorCode.getMessage())
-                                .build());
+                .body(ApiResponse.builder()
+                        .code(errorCode.getCode())
+                        .message(errorCode.getMessage())
+                        .build());
     }
 }

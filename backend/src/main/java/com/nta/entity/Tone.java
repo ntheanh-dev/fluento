@@ -1,13 +1,13 @@
 package com.nta.entity;
 
+import java.util.Set;
+
 import jakarta.persistence.*;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.util.Set;
 
 @Entity
 @Table(name = "tones")
@@ -29,5 +29,3 @@ public class Tone {
     @OneToMany(mappedBy = "tone", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<Writing> writings;
 }
-
-
