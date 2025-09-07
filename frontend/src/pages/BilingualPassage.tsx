@@ -63,6 +63,52 @@ const BilingualPassage = () => {
     fetchConversation();
   }, [conversationId]);
 
+  // Handle Enter key events for buttons
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      // Only handle Enter key
+      if (event.key !== 'Enter') return;
+
+      // Don't trigger if user is typing in the translation input
+      const activeElement = document.activeElement;
+      if (activeElement && activeElement.tagName === 'TEXTAREA') {
+        return;
+      }
+
+      // Don't trigger if modals are open
+      if (showCompletionOverlay || showDetailModal) {
+        return;
+      }
+
+      // Determine which button should be triggered based on current state
+      if (showCheck && translationCheck) {
+        // Check if there are no errors in corrections
+        const hasErrors = translationCheck.corrections.spellingMistakes.length > 0 ||
+          translationCheck.corrections.grammarErrors.length > 0 ||
+          translationCheck.corrections.sentenceStructure.length > 0;
+
+        if (hasErrors) {
+          // Has errors - trigger "Viết lại" button
+          handleCheckTranslation();
+        } else {
+          // No errors - trigger "Câu tiếp" button
+          handleNextSentence();
+        }
+      } else {
+        // Default state - trigger "Kiểm tra" button
+        handleCheckTranslation();
+      }
+    };
+
+    // Add event listener
+    document.addEventListener('keydown', handleKeyDown);
+
+    // Cleanup
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [showCheck, translationCheck, showCompletionOverlay, showDetailModal]);
+
   // Function to call translation hints API
   const handleGetTranslationHints = async () => {
     showOverlay({ message: 'Đang tải gợi ý dịch thuật...' });
@@ -99,7 +145,7 @@ const BilingualPassage = () => {
     }
 
     // Capitalize first letter of each sentence
-    cleaned = cleaned.replace(/(^|\.\s+)([a-z])/g, (match, p1, p2) => {
+    cleaned = cleaned.replace(/(^|\.\s+)([a-z])/g, (_, p1, p2) => {
       return p1 + p2.toUpperCase();
     });
 
