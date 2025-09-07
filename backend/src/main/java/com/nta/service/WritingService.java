@@ -6,6 +6,7 @@ import com.nta.dto.response.GenerateParagraphResponse;
 import com.nta.dto.response.HintTranslationResponse;
 import com.nta.dto.response.SentenceTranslationResponse;
 import com.nta.dto.response.WritingResponse;
+import com.nta.entity.User;
 import com.nta.entity.Writing;
 import com.nta.mapper.WritingMapper;
 import com.nta.repository.*;
@@ -13,7 +14,6 @@ import com.nta.repository.*;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 
-import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -29,9 +29,8 @@ import java.util.UUID;
 @FieldDefaults(makeFinal = true, level = lombok.AccessLevel.PRIVATE)
 @RequiredArgsConstructor
 public class WritingService {
-    ChatClient chatClient;
     AIChatService aiChatService;
-    ChatMemoryRepository chatMemoryRepository;
+	UserService userService;
 
     TopicRepository topicRepository;
     LevelRepository levelRepository;
@@ -76,12 +75,14 @@ public class WritingService {
         final String pharagraph =
                 aiChatService.sendMessage(conversationId, systemMessage, promptText, String.class);
 
-        // TODO add User to Writing
+        final User user = userService.getUserFromContext();
+
         final Writing writing =
                 Writing.builder()
                         .conversationId(conversationId)
                         .topic(topicRepository.findByName(request.getTopic()).orElse(null))
                         .level(levelRepository.findByName(request.getLevel()).orElse(null))
+						.user(user)
                         .sentenceCount(
                                 sentenceCountRepository
                                         .findBySize(request.getSentenceCount())
