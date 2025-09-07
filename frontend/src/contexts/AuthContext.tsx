@@ -20,6 +20,7 @@ interface AuthContextType {
     logout: () => Promise<void>;
     checkAuth: () => Promise<void>;
     closeCreatePasswordModal: () => void;
+    updateTokens: (accessToken: string, refreshToken?: string) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -47,6 +48,20 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         checkAuth();
     }, []);
 
+    // Listen for token refresh events from API interceptor
+    useEffect(() => {
+        const handleTokenRefresh = (event) => {
+            const { accessToken, refreshToken } = event.detail;
+            updateTokens(accessToken, refreshToken);
+        };
+
+        window.addEventListener('tokenRefreshed', handleTokenRefresh);
+
+        return () => {
+            window.removeEventListener('tokenRefreshed', handleTokenRefresh);
+        };
+    }, []);
+
     const checkAuth = async () => {
         try {
             const token = Cookies.get('auth_token');
@@ -57,63 +72,20 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
                 return;
             }
 
-            // First, try to verify the current token
+            // Set the token in API headers for automatic refresh handling
+            api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+
+            // Try to get user info - this will trigger token refresh if needed
             try {
-                const tokenResponse = await api.post('/auth/introspect', {
-                    token: token
-                });
-
-                if (tokenResponse.data?.result?.valid) {
-                    // Token is valid, get user info if not already loaded
-                    if (!user) {
-                        await fetchUserInfo(token);
-                    }
-                    setIsAuthenticated(true);
-                    api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-                    return;
-                }
+                await fetchUserInfo(token);
+                setIsAuthenticated(true);
             } catch (error) {
-                console.log('Token validation failed, trying refresh...');
-            }
-
-            // Token is invalid, try to refresh
-            if (refreshToken) {
-                try {
-                    const refreshResponse = await api.post('/auth/refresh', {
-                        body: { token: refreshToken }
-                    });
-
-                    const { accessToken, refreshToken: newRefreshToken } = refreshResponse.data.result;
-
-                    if (accessToken) {
-                        // Update cookies with new tokens
-                        Cookies.set('auth_token', accessToken, {
-                            expires: 7,
-                            secure: true,
-                            sameSite: 'strict',
-                            path: '/',
-                        });
-
-                        Cookies.set('refresh_token', newRefreshToken, {
-                            expires: 7,
-                            secure: true,
-                            sameSite: 'strict',
-                            path: '/',
-                        });
-
-                        // Fetch user info with new token
-                        await fetchUserInfo(accessToken);
-                        setIsAuthenticated(true);
-                        api.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
-                        return;
-                    }
-                } catch (refreshError) {
-                    console.error('Token refresh failed:', refreshError);
+                // If fetchUserInfo fails, the API interceptor will handle refresh
+                // If refresh also fails, clear auth data
+                if (!refreshToken) {
+                    clearAuthData();
                 }
             }
-
-            // Both token validation and refresh failed, clear everything
-            clearAuthData();
 
         } catch (error) {
             console.error('Auth check failed:', error);
@@ -218,6 +190,28 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         setShowCreatePasswordModal(false);
     };
 
+    const updateTokens = (accessToken: string, refreshToken?: string) => {
+        // Update cookies with new tokens
+        Cookies.set('auth_token', accessToken, {
+            expires: 7,
+            secure: true,
+            sameSite: 'strict',
+            path: '/',
+        });
+
+        if (refreshToken) {
+            Cookies.set('refresh_token', refreshToken, {
+                expires: 7,
+                secure: true,
+                sameSite: 'strict',
+                path: '/',
+            });
+        }
+
+        // Update API headers
+        api.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
+    };
+
     const value: AuthContextType = {
         user,
         isAuthenticated,
@@ -227,6 +221,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         logout,
         checkAuth,
         closeCreatePasswordModal,
+        updateTokens,
     };
 
     return (

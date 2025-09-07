@@ -304,28 +304,6 @@ const Analytic = () => {
 
   return (
     <Container maxWidth="lg" className="h-full py-8 bg-gradient-to-br from-gray-50 via-blue-50 to-purple-50">
-      {/* Header */}
-      <Typography
-        variant="h4"
-        component="h1"
-        align="center"
-        className="font-bold mb-8 text-3xl"
-        sx={{
-          textShadow: '0 2px 4px rgba(0,0,0,0.1)',
-          background: 'linear-gradient(135deg, #1E40AF 0%, #3B82F6 50%, #8B5CF6 100%)',
-          WebkitBackgroundClip: 'text',
-          WebkitTextFillColor: 'transparent',
-          backgroundClip: 'text',
-          animation: 'gradientShift 3s ease-in-out infinite alternate',
-          '@keyframes gradientShift': {
-            '0%': { filter: 'hue-rotate(0deg)' },
-            '100%': { filter: 'hue-rotate(10deg)' }
-          }
-        }}
-      >
-        Lịch sử luyện viết
-      </Typography>
-
       {/* Progress Statistics Section */}
       <Box
         className="mb-8 p-6 rounded-2xl shadow-2xl"
