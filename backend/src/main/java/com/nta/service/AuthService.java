@@ -81,7 +81,7 @@ public class AuthService {
                 TokenType.ACCESS_TOKEN.equals(type)
                         ? new Date(
                                 Instant.now()
-                                        .plus(ACCESS_TOKEN_VALID_DURATION, ChronoUnit.HOURS)
+                                        .plus(ACCESS_TOKEN_VALID_DURATION, ChronoUnit.MINUTES)
                                         .toEpochMilli())
                         : new Date(
                                 Instant.now()
@@ -139,7 +139,7 @@ public class AuthService {
                         .getJWTClaimsSet()
                         .getStringClaim("type")
                         .equals(TokenType.ACCESS_TOKEN.name()))
-            throw new AppException(ErrorCode.UNAUTHENTICATED);
+            throw new AppException(ErrorCode.UNABLE_TO_USE_REFRESH_TOKEN_TO_ACCESS_RESOURCE);
 
         Date expiryTime =
                 isRefreshToken

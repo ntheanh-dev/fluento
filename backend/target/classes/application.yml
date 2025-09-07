@@ -5,7 +5,7 @@ server:
 
 spring:
   datasource:
-    url: "jdbc:mysql://${mysqldb:localhost}:3306/writing-app"
+    url: "jdbc:mysql://${mysqldb:localhost}:3306/fluento"
     username: "root"
     password: "Admin@123"
     driverClassName: com.mysql.cj.jdbc.Driver
@@ -24,7 +24,7 @@ spring:
       resourceserver:
         jwt:
           signer-key: 29A1E019A311440FF025957809748C9D
-          access-token-valid-duration: 1 # in hour
+          access-token-valid-duration: 10 # in minutes
           refresh-token-valid-duration: 3 # in day
     client:
       registration:
