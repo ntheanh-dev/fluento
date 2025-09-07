@@ -167,8 +167,6 @@ const Analytic = () => {
         }
       });
 
-      console.log(response.data.result.content);
-
       if (response.data.code === 1000 && response.data.result) {
         const data = response.data.result;
         setWritingHistory(data.content);
