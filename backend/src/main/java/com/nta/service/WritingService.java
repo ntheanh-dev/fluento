@@ -256,7 +256,8 @@ public class WritingService {
             final int size,
             final String direction,
             final String sortBy,
-            final String keyword) {
+            final String keyword,
+            final Long userId) {
 
         final Sort sort =
                 "desc".equalsIgnoreCase(direction)
@@ -267,8 +268,8 @@ public class WritingService {
 
         final Page<Writing> writingsPage =
                 keyword == null || keyword.isEmpty()
-                        ? writingRepository.findAll(pageable)
-                        : writingRepository.searchByTopicName(keyword, pageable);
+                        ? writingRepository.findByUserId(userId, pageable)
+                        : writingRepository.searchByTopicNameAndUserId(keyword, userId, pageable);
 
         return writingsPage.map(this::toResponse);
     }

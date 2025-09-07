@@ -23,6 +23,12 @@ public interface WritingRepository extends JpaRepository<Writing, Long> {
     @Query("SELECT w FROM Writing w JOIN w.topic t WHERE LOWER(t.name) LIKE LOWER(CONCAT('%', :keyword, '%'))")
     Page<Writing> searchByTopicName(@Param("keyword") String keyword, Pageable pageable);
     
+    @Query("SELECT w FROM Writing w WHERE w.user.id = :userId")
+    Page<Writing> findByUserId(@Param("userId") Long userId, Pageable pageable);
+    
+    @Query("SELECT w FROM Writing w JOIN w.topic t WHERE LOWER(t.name) LIKE LOWER(CONCAT('%', :keyword, '%')) AND w.user.id = :userId")
+    Page<Writing> searchByTopicNameAndUserId(@Param("keyword") String keyword, @Param("userId") Long userId, Pageable pageable);
+    
     // Statistics queries
     @Query("SELECT COUNT(w) FROM Writing w WHERE w.user.id = :userId")
     int countByUserId(@Param("userId") Long userId);

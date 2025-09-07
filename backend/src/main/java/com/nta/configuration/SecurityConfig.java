@@ -39,7 +39,7 @@ public class SecurityConfig {
         "/auth/outbound/authentication",
     };
     private final String[] PUBLIC_GET_ENDPOINTS = {
-        "/writings/**", "/topicGroups/**", "/levels/**", "/sentenceCounts/**", "/writings", "/tones"
+        "/topicGroups/**", "/levels/**", "/sentenceCounts/**", "/tones"
     };
 
     @NonFinal
