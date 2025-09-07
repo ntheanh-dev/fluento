@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Box,
   Typography,
@@ -8,7 +8,6 @@ import {
   CardContent,
   TextField,
   Button,
-  IconButton,
   Chip,
   Table,
   TableBody,
@@ -23,7 +22,6 @@ import {
   Alert
 } from '@mui/material';
 import {
-  BookmarkBorder,
   Description,
   Star,
   TrendingUp,
@@ -41,9 +39,8 @@ import type { ApiResponse } from '../types';
 interface WritingHistory {
   id: number;
   conversationId: string;
-  user: any;
-  sentences: string[]; // Array of Vietnamese sentences
-  englishTranslations: Array<{ englishSentence: string }>; // Array of objects with stringified JSON
+  vietNamesesentences: string[]; // Array of Vietnamese sentences
+  englishSentences: Array<{ englishSentence: string; score: number }>; // Array of objects with stringified JSON
   topic: {
     id: number;
     name: string;
@@ -94,6 +91,26 @@ interface WritingHistoryResponse {
   empty: boolean;
 }
 
+// Interface for writing statistics API response
+interface WritingStatistics {
+  totalWritingExercises: number;
+  averageSentences: number;
+  highestSentences: number;
+  practiceFrequency: Array<{
+    dayOfWeek: string;
+    count: number;
+  }>;
+  scoreProgress: Array<{
+    date: string;
+    score: number;
+  }>;
+}
+
+interface WritingStatisticsResponse {
+  code: number;
+  result: WritingStatistics;
+}
+
 // Custom hook for debouncing
 const useDebounce = (value: string, delay: number) => {
   const [debouncedValue, setDebouncedValue] = useState(value);
@@ -129,54 +146,10 @@ const Analytic = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Mock data for statistics (will be replaced with API data later)
-  const writingSessionsData = [
-    {
-      id: 1,
-      topic: 'Nhà hàng và đặt món',
-      difficulty: 'Trung bình',
-      questionCount: 15,
-      score: 7.6,
-      time: '41 phút 29 giây',
-      date: '22/6/2025'
-    },
-    {
-      id: 2,
-      topic: 'Giao tiếp trong công việc',
-      difficulty: 'Khó',
-      questionCount: 20,
-      score: 8.2,
-      time: '35 phút 15 giây',
-      date: '21/6/2025'
-    },
-    {
-      id: 3,
-      topic: 'Du lịch và khám phá',
-      difficulty: 'Dễ',
-      questionCount: 12,
-      score: 7.8,
-      time: '28 phút 42 giây',
-      date: '20/6/2025'
-    },
-    {
-      id: 4,
-      topic: 'Học tập và nghiên cứu',
-      difficulty: 'Khó',
-      questionCount: 25,
-      score: 8.5,
-      time: '52 phút 18 giây',
-      date: '19/6/2025'
-    },
-    {
-      id: 5,
-      topic: 'Thể thao và giải trí',
-      difficulty: 'Trung bình',
-      questionCount: 18,
-      score: 7.2,
-      time: '38 phút 55 giây',
-      date: '18/6/2025'
-    }
-  ];
+  // Statistics data state
+  const [statisticsData, setStatisticsData] = useState<WritingStatistics | null>(null);
+  const [isStatisticsLoading, setIsStatisticsLoading] = useState(true);
+
 
   // Fetch writing history data
   const fetchWritingHistory = async () => {
@@ -194,6 +167,8 @@ const Analytic = () => {
         }
       });
 
+      console.log(response.data.result.content);
+
       if (response.data.code === 1000 && response.data.result) {
         const data = response.data.result;
         setWritingHistory(data.content);
@@ -210,9 +185,29 @@ const Analytic = () => {
     }
   };
 
+
+  // Fetch statistics data from dedicated API endpoint
+  const fetchStatisticsData = async () => {
+    try {
+      setIsStatisticsLoading(true);
+      const response = await api.get<WritingStatisticsResponse>('/writing-statistics');
+
+      if (response.data.code === 1000 && response.data.result) {
+        setStatisticsData(response.data.result);
+      } else {
+        console.error('Invalid statistics data from API');
+      }
+    } catch (error: any) {
+      console.error('Error fetching statistics data:', error);
+    } finally {
+      setIsStatisticsLoading(false);
+    }
+  };
+
   // Fetch data when component mounts or parameters change
   useEffect(() => {
     fetchWritingHistory();
+    fetchStatisticsData(); // Also fetch statistics data
   }, [currentPage, rowsPerPage, sortColumn, sortDirection]);
 
   // Trigger search when debounced search query changes
@@ -276,13 +271,6 @@ const Analytic = () => {
     });
   };
 
-  const formatTime = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleTimeString('vi-VN', {
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-  };
 
   // Filter data based on debounced search query (for client-side filtering if needed)
   const filteredData = writingHistory.filter(item =>
@@ -290,29 +278,11 @@ const Analytic = () => {
     item.topic.name.toLowerCase().includes(debouncedSearchQuery.toLowerCase())
   );
 
-  // Calculate statistics
-  const totalSessions = totalElements;
-  const averageScore = writingHistory.length > 0
-    ? (writingHistory.reduce((sum, item) => sum + (item.sentences.length || 0), 0) / writingHistory.length).toFixed(1)
-    : 0;
-  const maxScore = writingHistory.length > 0
-    ? Math.max(...writingHistory.map(item => item.sentences.length || 0))
-    : 0;
+  // Calculate statistics from API data
+  const totalSessions = statisticsData?.totalWritingExercises || 0;
+  const averageScore = statisticsData?.averageSentences || 0;
+  const maxScore = statisticsData?.highestSentences || 0;
 
-  // Mock data for charts (will be replaced with API data later)
-  const practiceFrequencyData = [
-    { day: 'CN', value: 1 },
-    { day: 'T2', value: 0 },
-    { day: 'T3', value: 0 },
-    { day: 'T4', value: 0 },
-    { day: 'T5', value: 0 },
-    { day: 'T6', value: 0 },
-    { day: 'T7', value: 0 }
-  ];
-
-  const scoreProgressData = [
-    { date: '22-06', score: 7.6 }
-  ];
 
   if (error) {
     return (
@@ -322,7 +292,10 @@ const Analytic = () => {
         </Alert>
         <Button
           variant="contained"
-          onClick={fetchWritingHistory}
+          onClick={() => {
+            fetchWritingHistory();
+            fetchStatisticsData();
+          }}
           startIcon={<Refresh />}
         >
           Thử lại
@@ -503,20 +476,29 @@ const Analytic = () => {
               Tần suất luyện tập
             </Typography>
             <div className="flex items-end justify-between h-36 px-4">
-              {practiceFrequencyData.map((item, index) => (
-                <div key={index} className="flex flex-col items-center group">
-                  <div
-                    className="w-10 bg-gradient-to-t from-white to-purple-100 rounded-t-xl transition-all duration-700 hover:bg-gradient-to-t hover:from-purple-200 hover:to-white cursor-pointer"
-                    style={{
-                      height: `${Math.max(item.value * 100, 8)}px`,
-                      minHeight: '8px'
-                    }}
-                  />
-                  <Typography variant="body2" className="mt-3 font-medium group-hover:text-purple-200 transition-colors duration-300">
-                    {item.day}
-                  </Typography>
-                </div>
-              ))}
+              {statisticsData?.practiceFrequency ? (
+                statisticsData.practiceFrequency.map((item, index) => (
+                  <div key={index} className="flex flex-col items-center group">
+                    <div
+                      className="w-10 bg-gradient-to-t from-white to-purple-100 rounded-t-xl transition-all duration-700 hover:bg-gradient-to-t hover:from-purple-200 hover:to-white cursor-pointer"
+                      style={{
+                        height: `${Math.max(item.count * 20, 8)}px`,
+                        minHeight: '8px'
+                      }}
+                    />
+                    <Typography variant="body2" className="mt-3 font-medium group-hover:text-purple-200 transition-colors duration-300">
+                      {item.dayOfWeek}
+                    </Typography>
+                    <Typography variant="caption" className="text-xs opacity-75">
+                      {item.count}
+                    </Typography>
+                  </div>
+                ))
+              ) : (
+                <Typography variant="body2" className="text-center opacity-75">
+                  {isStatisticsLoading ? 'Đang tải dữ liệu...' : 'Chưa có dữ liệu tần suất luyện tập'}
+                </Typography>
+              )}
             </div>
           </Paper>
 
@@ -539,14 +521,29 @@ const Analytic = () => {
               Tiến bộ điểm số
             </Typography>
             <div className="flex items-end justify-center h-36 px-4">
-              {scoreProgressData.map((item, index) => (
-                <div key={index} className="flex flex-col items-center">
-                  <div className="w-6 h-6 bg-gradient-to-br from-white to-purple-200 rounded-full mb-3 shadow-lg animate-pulse" />
-                  <Typography variant="body2" className="font-medium">
-                    {item.date}
-                  </Typography>
-                </div>
-              ))}
+              {statisticsData?.scoreProgress && statisticsData.scoreProgress.length > 0 ? (
+                statisticsData.scoreProgress.map((item, index) => (
+                  <div key={index} className="flex flex-col items-center mx-1">
+                    <div
+                      className="w-6 bg-gradient-to-t from-white to-purple-200 rounded-t-full mb-3 shadow-lg transition-all duration-500"
+                      style={{
+                        height: `${Math.max(item.score * 8, 8)}px`,
+                        minHeight: '8px'
+                      }}
+                    />
+                    <Typography variant="body2" className="font-medium text-xs">
+                      {item.date}
+                    </Typography>
+                    <Typography variant="caption" className="text-xs opacity-75">
+                      {item.score}
+                    </Typography>
+                  </div>
+                ))
+              ) : (
+                <Typography variant="body2" className="text-center opacity-75">
+                  {isStatisticsLoading ? 'Đang tải dữ liệu...' : 'Chưa có dữ liệu điểm số'}
+                </Typography>
+              )}
             </div>
           </Paper>
         </div>
@@ -589,9 +586,12 @@ const Analytic = () => {
               {/* Refresh Button */}
               <Button
                 variant="outlined"
-                onClick={fetchWritingHistory}
-                disabled={isLoading}
-                startIcon={isLoading ? <CircularProgress size={16} /> : <Refresh />}
+                onClick={() => {
+                  fetchWritingHistory();
+                  fetchStatisticsData();
+                }}
+                disabled={isLoading || isStatisticsLoading}
+                startIcon={(isLoading || isStatisticsLoading) ? <CircularProgress size={16} /> : <Refresh />}
                 sx={{
                   borderRadius: '8px',
                   textTransform: 'none',
@@ -603,7 +603,7 @@ const Analytic = () => {
                   }
                 }}
               >
-                {isLoading ? 'Đang tải...' : 'Làm mới'}
+                {(isLoading || isStatisticsLoading) ? 'Đang tải...' : 'Làm mới'}
               </Button>
             </div>
           </div>
@@ -634,19 +634,18 @@ const Analytic = () => {
                   </div>
                 </TableCell>
 
-                <TableCell
-                  className="font-semibold cursor-pointer hover:bg-gray-100 transition-colors"
-                  onClick={() => handleSort('sentenceCount')}
-                >
-                  <div className="flex items-center gap-2">
-                    <span>Số câu</span>
-                    {getSortIcon('sentenceCount')}
-                  </div>
-                </TableCell>
-
                 <TableCell className="font-semibold">
                   <div className="flex items-center gap-2">
                     <span>Tiến độ</span>
+                  </div>
+                </TableCell>
+
+                <TableCell
+                  className="font-semibold cursor-pointer hover:bg-gray-100 transition-colors"
+                >
+                  <div className="flex items-center gap-2">
+                    <span>Điểm trung bình</span>
+                    {getSortIcon('sentenceCount')}
                   </div>
                 </TableCell>
 
@@ -680,6 +679,8 @@ const Analytic = () => {
               ) : (
                 filteredData.map((row) => {
                   const difficultyColors = getDifficultyColor(row.level.name);
+                  const averageScore = row.englishSentences.length > 0 ? row.englishSentences.reduce((sum, sentence) => sum + sentence.score, 0) / row.englishSentences.length : 0;
+
                   return (
                     <TableRow
                       key={row.id}
@@ -718,23 +719,19 @@ const Analytic = () => {
                         />
                       </TableCell>
 
-                      <TableCell className="font-semibold text-center">
-                        {row.sentenceCount.size}
-                      </TableCell>
-
                       <TableCell className="px-4">
                         <Box className="flex flex-col gap-2">
                           <Box className="flex justify-between items-center text-xs text-gray-600">
-                            <span>Tiếng Việt: {row.sentences.length}</span>
-                            <span>Tiếng Anh: {row.englishTranslations.length}</span>
+                            <span>Tiếng Việt: {row?.vietNamesesentences?.length}</span>
+                            <span>Tiếng Anh: {row?.englishSentences?.length}</span>
                           </Box>
                           <Box className="w-full bg-gray-200 rounded-full h-2">
                             <Box
                               className="h-2 rounded-full transition-all duration-300"
                               sx={{
-                                width: `${Math.min((row.englishTranslations.length / row.sentences.length) * 100, 100)}%`,
+                                width: `${Math.min((row?.englishSentences?.length / row?.vietNamesesentences?.length) * 100, 100)}%`,
                                 background: (() => {
-                                  const progress = (row.englishTranslations.length / row.sentences.length) * 100;
+                                  const progress = (row?.englishSentences?.length / row?.vietNamesesentences?.length) * 100;
                                   if (progress >= 80) return 'linear-gradient(90deg, #10B981 0%, #059669 100%)';
                                   if (progress >= 60) return 'linear-gradient(90deg, #F59E0B 0%, #D97706 100%)';
                                   if (progress >= 40) return 'linear-gradient(90deg, #F97316 0%, #EA580C 100%)';
@@ -749,7 +746,7 @@ const Analytic = () => {
                             className="text-center font-medium"
                             sx={{
                               color: (() => {
-                                const progress = (row.englishTranslations.length / row.sentences.length) * 100;
+                                const progress = (row?.englishSentences?.length / row?.vietNamesesentences?.length) * 100;
                                 if (progress >= 80) return '#059669';
                                 if (progress >= 60) return '#D97706';
                                 if (progress >= 40) return '#EA580C';
@@ -757,15 +754,18 @@ const Analytic = () => {
                               })()
                             }}
                           >
-                            {Math.round((row.englishTranslations.length / row.sentences.length) * 100)}% Hoàn thành
+                            {Math.round((row?.englishSentences?.length / row?.vietNamesesentences?.length) * 100)}% Hoàn thành
                           </Typography>
                         </Box>
                       </TableCell>
 
+                      <TableCell className="font-semibold text-center">
+                        {averageScore}
+                      </TableCell>
+
                       <TableCell className="text-sm">
                         <div>
-                          <div>{formatDate(row.createdAt)}</div>
-                          <div className="text-gray-500">{formatTime(row.createdAt)}</div>
+                          <div>{formatDate(row?.createdAt)}</div>
                         </div>
                       </TableCell>
                     </TableRow>

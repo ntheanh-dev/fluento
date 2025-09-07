@@ -122,8 +122,6 @@ const BilingualPassage = () => {
         englishSentence: cleanedTranslation
       });
 
-      console.log(response.data.result);
-
       if (response.data?.code === 1000) {
         setTranslationCheck(response.data.result);
         setShowCheck(true);
