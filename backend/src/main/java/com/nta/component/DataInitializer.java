@@ -1,13 +1,5 @@
 package com.nta.component;
 
-import java.util.List;
-import java.util.Set;
-
-import org.springframework.boot.ApplicationRunner;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-
 import com.nta.constant.PredefinedRole;
 import com.nta.entity.Tone;
 import com.nta.entity.Topic;
@@ -17,6 +9,14 @@ import com.nta.repository.*;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+
+import org.springframework.boot.ApplicationRunner;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+import java.util.List;
+import java.util.Set;
 
 @Configuration
 @RequiredArgsConstructor
@@ -150,6 +150,7 @@ public class DataInitializer {
 
             if (sentenceCountRepository.count() == 0) {
                 sentenceCountRepository.saveAll(List.of(
+                        com.nta.entity.SentenceCount.builder().size(5).build(),
                         com.nta.entity.SentenceCount.builder().size(10).build(),
                         com.nta.entity.SentenceCount.builder().size(15).build(),
                         com.nta.entity.SentenceCount.builder().size(20).build()));

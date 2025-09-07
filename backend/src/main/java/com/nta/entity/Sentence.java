@@ -1,15 +1,15 @@
 package com.nta.entity;
 
-import java.time.LocalDateTime;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 
 import jakarta.persistence.*;
-
-import com.fasterxml.jackson.annotation.JsonBackReference;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "sentences")
@@ -39,6 +39,7 @@ public class Sentence {
     @Column(nullable = false)
     private Integer score;
 
+    @Column(columnDefinition = "TEXT")
     private String feedback;
 
     @Column(name = "created_at")

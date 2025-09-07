@@ -167,15 +167,15 @@ public class WritingService {
 					{ "word": "problematic word/phrase", "suggestion": ["better option 1", "better option 2"] }
 					],
 					"grammarErrors": [
-					{ "issue": "specific grammar problem", "example": "incorrect form → correct form" }
+					{ "issue": "specific grammar problem in Vietnamese", "example": "incorrect form → correct form" }
 					],
 					"sentenceStructure": [
-					{ "problem": "structural issue description", "suggestion": "how to improve structure" }
+					{ "problem": "structural issue description in Vietnamese", "suggestion": "how to improve structure in Vietnamese" }
 					]
 				},
 				"feedback": {
-					"strengths": ["positive aspects in Vietnamese (use Vietnamese for explanations, keep English words/phrases as examples)"],
-					"weaknesses": ["areas for improvement in Vietnamese (use Vietnamese for explanations, keep English words/phrases as examples)"]
+					"strengths": ["positive aspects in Vietnamese"],
+					"weaknesses": ["areas for improvement in Vietnamese"]
 				},
 				"improvedTranslation": "polished, natural English translation",
 				"score": "number (1-10 scale)"
@@ -187,6 +187,12 @@ public class WritingService {
 				- Grammar: Review tense usage, subject-verb agreement, article usage, prepositions
 				- Structure: Evaluate sentence flow, word order, and natural English patterns
 				- Overall fluency: Consider how natural and idiomatic the translation sounds
+				
+				Corrections Language Requirements:
+				- grammarErrors.issue: Describe the grammar problem in Vietnamese (e.g., "Sử dụng sai giới từ")
+				- grammarErrors.example: Show correction in format "wrong → correct" (English examples)
+				- sentenceStructure.problem: Describe structural issue in Vietnamese (e.g., "Câu hơi cứng nhắc và có thể cải thiện")
+				- sentenceStructure.suggestion: Provide improvement suggestion in Vietnamese (e.g., "Viết lại để có luồng tiếng Anh tự nhiên hơn")
 
 				Scoring System (1-10 scale):
 				- 9-10: Excellent translation with minimal errors, natural English flow
@@ -216,12 +222,17 @@ public class WritingService {
 						1. Compare the learner's translation with the original Vietnamese meaning
 						2. Identify any spelling errors and provide corrections
 						3. Evaluate vocabulary choices and suggest improvements where needed
-						4. Check grammar accuracy and highlight specific errors with examples
-						5. Assess sentence structure and suggest improvements for natural English flow
-						6. Provide encouraging feedback highlighting what the learner did well (in Vietnamese)
-						7. Identify specific areas for improvement with constructive guidance (in Vietnamese)
+						4. Check grammar accuracy and highlight specific errors with examples (describe issues in Vietnamese, show corrections in English)
+						5. Assess sentence structure and suggest improvements for natural English flow (describe problems in Vietnamese, show corrections in English)
+						6. Provide encouraging feedback highlighting what the learner did well (write in Vietnamese, use English only for specific word/phrase examples)
+						7. Identify specific areas for improvement with constructive guidance (write in Vietnamese, use English only for specific word/phrase examples)
 						8. Create an improved version that maintains the original meaning while sounding natural in English
 						9. Assign a score from 1-10 based on overall translation quality
+
+						LANGUAGE GUIDELINES:
+						- Corrections descriptions: Use Vietnamese (e.g., "Sử dụng sai giới từ", "Câu hơi cứng nhắc")
+						- Correction examples: Use English format "wrong → correct"
+						- Feedback: Use Vietnamese explanations with English word/phrase examples in quotes
 
 						Return your analysis in the specified JSON format with detailed, educational feedback including score.
 						""",
