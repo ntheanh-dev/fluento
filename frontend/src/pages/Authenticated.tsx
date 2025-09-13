@@ -8,7 +8,6 @@ export default function Authenticate() {
   const navigate = useNavigate();
   const { login } = useAuth();
   const location = useLocation();
-  const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   // Get the page user was trying to access
@@ -32,7 +31,6 @@ export default function Authenticate() {
 
         if (!isMatch) {
           setError("Không tìm thấy mã xác thực");
-          setIsLoading(false);
           return;
         }
 
@@ -105,7 +103,6 @@ export default function Authenticate() {
         }
 
         setError(errorMessage);
-        setIsLoading(false);
       } finally {
         // Reset the flag when done
         authInProgress.current = false;
@@ -117,7 +114,6 @@ export default function Authenticate() {
 
   const handleRetry = () => {
     setError(null);
-    setIsLoading(true);
     window.location.reload();
   };
 

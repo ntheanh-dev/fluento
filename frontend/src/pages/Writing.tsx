@@ -1,7 +1,6 @@
 import {
   Box,
   Typography,
-  Button,
   Container,
   TextField,
   MenuItem,
@@ -9,7 +8,7 @@ import {
   CircularProgress,
   Slider,
 } from "@mui/material";
-import { Flag, Layers, Settings, PlayArrow, MenuBook } from "@mui/icons-material";
+import { Settings, PlayArrow, MenuBook } from "@mui/icons-material";
 import { useState, useEffect } from "react";
 import { Snackbar, Alert } from "@mui/material";
 import { api } from "../configs/API";
@@ -27,9 +26,7 @@ import type {
 
 const COLOR_BLACK = "#000000";
 const COLOR_NAVY = "#131f38";
-const COLOR_ORANGE = "#ffaa13";
 const COLOR_GRAY = "#e7e7e7";
-const COLOR_WHITE = "#ffffff";
 
 const Writing = () => {
   const navigate = useNavigate();
@@ -43,8 +40,6 @@ const Writing = () => {
 
   // New state for API data
   const [topicGroups, setTopicGroups] = useState<TopicGroup[]>([]);
-  const [isLoadingTopics, setIsLoadingTopics] = useState(true);
-  const [topicsError, setTopicsError] = useState<string | null>(null);
 
   // New state for levels API data
   const [levels, setLevels] = useState<Level[]>([]);
@@ -65,9 +60,6 @@ const Writing = () => {
   useEffect(() => {
     const fetchTopicGroups = async () => {
       try {
-        setIsLoadingTopics(true);
-        setTopicsError(null);
-
         const response = await api.get<ApiResponse<TopicGroup[]>>("/topicGroups");
 
         if (response.data.code === 1000 && response.data.result) {
@@ -77,14 +69,9 @@ const Writing = () => {
           if (response.data.result.length > 0 && response.data.result[0].topics.length > 0) {
             setSelectedTopic(response.data.result[0].topics[0].name);
           }
-        } else {
-          setTopicsError("Dữ liệu không hợp lệ từ API");
         }
       } catch (error: any) {
         console.error("Error fetching topic groups:", error);
-        setTopicsError(error?.response?.data?.message || "Không thể tải danh sách chủ đề");
-      } finally {
-        setIsLoadingTopics(false);
       }
     };
 
