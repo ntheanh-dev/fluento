@@ -4,7 +4,7 @@
 services:
   # MySQL Database from Docker Hub
   mysql:
-    image: theanhn28/fluento-mysql:1.0
+    image: theanhn28/fluento-mysql:1.1
     container_name: fluento-mysql-hub
     restart: unless-stopped
     environment:
@@ -21,7 +21,7 @@ services:
 
   # Backend Spring Boot from Docker Hub
   backend:
-    image: theanhn28/fluento-backend:1.0
+    image: theanhn28/fluento-backend:1.1
     container_name: fluento-backend-hub
     restart: unless-stopped
     ports:
@@ -36,6 +36,12 @@ services:
       - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
       - GOOGLE_REDIRECT_URI=${GOOGLE_REDIRECT_URI}
       - GEMINI_API_KEY=${GEMINI_API_KEY}
+      # CORS Configuration
+      - CORS_ALLOWED_ORIGINS=${CORS_ALLOWED_ORIGINS}
+      - CORS_ALLOWED_METHODS=${CORS_ALLOWED_METHODS}
+      - CORS_ALLOWED_HEADERS=${CORS_ALLOWED_HEADERS}
+      - CORS_ALLOW_CREDENTIALS=${CORS_ALLOW_CREDENTIALS}
+      - CORS_MAX_AGE=${CORS_MAX_AGE}
     depends_on:
       - mysql
     networks:
