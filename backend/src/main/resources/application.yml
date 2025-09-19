@@ -41,7 +41,7 @@ spring:
           user-info-uri: https://www.googleapis.com/oauth2/v3/userinfo # fixed
   ai:
     openai:
-      api-key: AIzaSyCp7ISJg72yQGRagJkK1mFw3OM7ssTloVk
+      api-key: AIzaSyA1G8wrDoHLWVOTLM0wkUbO1-U7cC2A7RE
       chat:
         base-url: https://generativelanguage.googleapis.com
         completions-path: /v1beta/openai/chat/completions

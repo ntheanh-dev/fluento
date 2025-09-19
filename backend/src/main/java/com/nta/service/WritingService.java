@@ -50,7 +50,7 @@ public class WritingService {
 
         final String promptText =
                 String.format(
-                        "Create a well-structured paragraph in %s with exactly %d sentences about the topic '%s'. "
+                        "Create a well-structured paragraph in %s with around %d (±1) sentences about the topic '%s'. "
                                 + "Requirements:\n"
                                 + "- Use vocabulary and grammar appropriate for %s proficiency level\n"
                                 + "- Maintain a %s tone throughout the text\n"
