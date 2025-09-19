@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FaRocket, FaBook, FaPen, FaHeadphones, FaMicrophone } from 'react-icons/fa';
+import { FaRocket, FaBook, FaPen } from 'react-icons/fa';
 
 interface FeatureCardProps {
   isFree: boolean;
@@ -113,16 +113,6 @@ const FeaturesSection: React.FC = () => {
   const features = [
     {
       isFree: true,
-      isAIPowered: false,
-      icon: <FaBook />,
-      title: "🧠 Luyện từ vựng",
-      description: "Ghi nhớ từ vựng với phương pháp spaced repetition",
-      buttonText: "Bắt đầu luyện tập",
-      buttonColor: "bg-purple-600 hover:bg-purple-700",
-      route: "/vocabulary-practice"
-    },
-    {
-      isFree: true,
       isAIPowered: true,
       icon: <FaPen />,
       title: "📝 Luyện viết câu",
@@ -135,23 +125,12 @@ const FeaturesSection: React.FC = () => {
       isFree: true,
       isAIPowered: false,
       isComingSoon: true,
-      icon: <FaHeadphones />,
-      title: "🎧 Luyện nghe",
-      description: "Phát triển kỹ năng nghe hiểu với audio clips và transcript",
-      buttonText: "Luyện nghe ngay",
-      buttonColor: "bg-red-600 hover:bg-red-700",
-      route: "/listening-practice"
-    },
-    {
-      isFree: true,
-      isAIPowered: false,
-      isComingSoon: true,
-      icon: <FaMicrophone />,
-      title: "🎤 Luyện nói Shadowing",
-      description: "Luyện phát âm và nói tự nhiên với kỹ thuật shadowing",
-      buttonText: "Luyện nói ngay",
-      buttonColor: "bg-red-600 hover:bg-red-700",
-      route: "/speaking-practice"
+      icon: <FaBook />,
+      title: "🧠 Luyện từ vựng",
+      description: "Ghi nhớ từ vựng với phương pháp spaced repetition",
+      buttonText: "Bắt đầu luyện tập",
+      buttonColor: "bg-purple-600 hover:bg-purple-700",
+      route: "/vocabulary-practice"
     }
   ];
 
@@ -167,7 +146,7 @@ const FeaturesSection: React.FC = () => {
         </div>
 
         {/* Features Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 items-stretch">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch max-w-4xl mx-auto">
           {features.map((feature, index) => (
             <div
               key={index}

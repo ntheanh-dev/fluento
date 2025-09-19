@@ -12,11 +12,8 @@ const Home = () => {
               Học tiếng Anh thông minh
             </h1>
             <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
-              Nền tảng học tiếng Anh toàn diện với AI hỗ trợ, giúp bạn phát triển đầy đủ 4 kỹ năng: Nghe, Nói, Đọc, Viết
+              Nền tảng luyện viết tiếng Anh thông minh ứng dụng AI, đồng hành cùng bạn chinh phục kỹ năng ngôn ngữ một cách toàn diện và hiệu quả.
             </p>
-            <button className="bg-purple-600 hover:bg-purple-700 text-white px-8 py-3 rounded-lg font-medium text-lg transition-colors duration-200">
-              Bắt đầu học ngay
-            </button>
           </div>
         </Container>
       </section>

@@ -195,3 +195,12 @@ export const userAPI = {
   updateProfile: (userData) => 
     oauthAPI.put('/users/profile', userData),
 };
+
+export const apiKeyAPI = {
+  // Save or update API key
+  upsertApiKey: (provider, apiKey) => 
+    api.post('/ai/keys', {
+      provider: provider,
+      apiKey: apiKey
+    }),
+};
