@@ -4,7 +4,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { api } from '../configs/API';
 import { showOverlay, hideOverlay } from '../utils/overlay';
 import { notify } from '../utils/notify';
-import { FaPen, FaLightbulb, FaCheck, FaComment, FaThumbsUp, FaHome, FaChartBar, FaHeadphones } from 'react-icons/fa';
+import { FaPen, FaLightbulb, FaCheck, FaComment, FaThumbsUp, FaHome, FaHeadphones } from 'react-icons/fa';
 import type { TranslationHintsResponse, TranslationCheckResponse, ApiResponse, SentenceCreationResponse, Sentence } from '../types/api';
 
 const BilingualPassage = () => {
@@ -25,7 +25,6 @@ const BilingualPassage = () => {
   // New state for translation check
   const [translationCheck, setTranslationCheck] = useState<TranslationCheckResponse | null>(null);
   const [showCheck, setShowCheck] = useState(false);
-  const [showCompletionOverlay, setShowCompletionOverlay] = useState(false);
   const [showDetailModal, setShowDetailModal] = useState(false);
 
   // Calculate average score from englishTranslations
@@ -49,8 +48,8 @@ const BilingualPassage = () => {
         setCurrentTopic(data.topic?.description || '');
         setCurrentTone(data.tone?.name || '');
 
-        if (data.englishSentences.length === data.vietNamesesentences.length) {
-          setShowCompletionOverlay(true);
+        if (data.englishSentences.length === data.vietNamesesentences.length && data.vietNamesesentences.length > 0) {
+          setShowDetailModal(true);
         }
 
       } catch (error: any) {
@@ -76,7 +75,7 @@ const BilingualPassage = () => {
       }
 
       // Don't trigger if modals are open
-      if (showCompletionOverlay || showDetailModal) {
+      if (showDetailModal) {
         return;
       }
 
@@ -107,20 +106,43 @@ const BilingualPassage = () => {
     return () => {
       document.removeEventListener('keydown', handleKeyDown);
     };
-  }, [showCheck, translationCheck, showCompletionOverlay, showDetailModal]);
+  }, [showCheck, translationCheck, showDetailModal]);
 
   // Function to call translation hints API
   const handleGetTranslationHints = async () => {
+    // Try cached hints first (cache key based on conversation and current sentence index)
+    const currentIndex = englishTranslations.length;
+    const cacheKey = `translationHints:${conversationId}:${currentIndex}`;
+    try {
+      const cached = localStorage.getItem(cacheKey);
+      if (cached) {
+        const parsed = JSON.parse(cached) as TranslationHintsResponse;
+        setTranslationHints(parsed);
+        setShowHints(true);
+        setShowCheck(false);
+        return;
+      }
+    } catch (_) {
+      // ignore cache parse errors and proceed to fetch
+    }
+
     showOverlay({ message: 'Đang tải gợi ý dịch thuật...' });
     try {
       const response = await api.post(`/writings/${conversationId}/translation-hints`, {
-        vietnameseSentence: vietNameseSentences[englishTranslations.length]
+        vietnameseSentence: vietNameseSentences[currentIndex]
       });
 
       if (response.data?.code === 1000) {
-        setTranslationHints(response.data.result);
+        const result = response.data.result as TranslationHintsResponse;
+        setTranslationHints(result);
         setShowHints(true);
         setShowCheck(false); // Hide check results when showing hints
+        // Save to cache
+        try {
+          localStorage.setItem(cacheKey, JSON.stringify(result));
+        } catch (_) {
+          // ignore storage quota errors
+        }
       } else {
         notify('Không thể tải gợi ý dịch thuật. Vui lòng thử lại.', 'error');
       }
@@ -169,6 +191,9 @@ const BilingualPassage = () => {
       });
 
       if (response.data?.code === 1000) {
+
+        console.log("translation check", response.data.result);
+
         setTranslationCheck(response.data.result);
         setShowCheck(true);
         setShowHints(false); // Hide hints when showing check results
@@ -193,9 +218,8 @@ const BilingualPassage = () => {
       const cleanedTranslation = formatTranslationText(translation);
 
       // Get feedback and score
-      const strengths = translationCheck?.feedback?.strengths ?? [];
       const weaknesses = translationCheck?.feedback?.weaknesses ?? [];
-      const feedback = [...strengths, ...weaknesses].join(' ');
+      const feedback = [...weaknesses].join(' ');
       const score = translationCheck?.score || 0;
 
       const payload: SentenceCreationResponse = {
@@ -216,7 +240,8 @@ const BilingualPassage = () => {
 
       // Check if this was the last sentence
       if (englishTranslations.length + 1 >= vietNameseSentences.length) {
-        setShowCompletionOverlay(true);
+        notify('Hoàn thành bài luyện dịch!', 'success');
+        setShowDetailModal(true);
       }
 
     } catch (error: any) {
@@ -351,35 +376,36 @@ const BilingualPassage = () => {
                 </button>
 
                 {showCheck && translationCheck ? (
-                  // Check if there are no errors in corrections
-                  (translationCheck.corrections.spellingMistakes.length === 0 &&
-                    translationCheck.corrections.grammarErrors.length === 0 &&
-                    translationCheck.corrections.sentenceStructure.length === 0) ? (
-                    // No errors - show "Tiếp tục" button
-                    <button
-                      className="w-52 py-3.5 px-6 bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 text-base border-0"
-                      onClick={handleNextSentence}
-                    >
-                      ✓ Tiếp tục
-                    </button>
-                  ) : (
-                    // Has errors - show "Viết lại" button
-                    <button
-                      className="w-52 py-3.5 px-6 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 text-base border-0"
-                      onClick={handleCheckTranslation}
-                    >
-                      ✏️ Viết lại
-                    </button>
-                  )
+                  <>
+                    {
+                      translationCheck.score <= 9 && (
+                        <button
+                          className="w-52 py-3.5 px-6 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 text-base border-0"
+                          onClick={handleCheckTranslation}
+                        >
+                          ✏️ Viết lại
+                        </button>
+                      )
+                    }
+                    {translationCheck.score >= 7 && (
+                      <button
+                        className="w-52 py-3.5 px-6 bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 text-base border-0"
+                        onClick={handleNextSentence}
+                      >
+                        ✓ Tiếp tục
+                      </button>
+                    )}
+                  </>
                 ) : (
                   // Default state - show "Kiểm tra" button
                   <button
                     className="w-52 py-3.5 px-6 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 text-base border-0"
                     onClick={handleCheckTranslation}
                   >
-                    🔍  Kiểm tra
+                    🔍 Kiểm tra
                   </button>
                 )}
+
               </div>
             </div>
           </div>
@@ -635,7 +661,7 @@ const BilingualPassage = () => {
                                 {hint.english.map((eng, engIndex) => (
                                   <span
                                     key={engIndex}
-                                    className="inline-flex items-center px-2 py-1 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 text-white text-xs font-medium shadow-sm transition-all duration-200 hover:scale-105 whitespace-nowrap"
+                                    className="inline-flex items-center px-2 py-1 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 text-white text-sm font-medium shadow-sm transition-all duration-200 hover:scale-105 whitespace-nowrap"
                                   >
                                     {eng}
                                   </span>
@@ -757,216 +783,72 @@ const BilingualPassage = () => {
         </div>
       </div>
 
-      {/* Completion Overlay */}
-      {showCompletionOverlay && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-6">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden">
-            {/* Header with gradient */}
-            <div className="bg-gradient-to-r from-blue-500 to-emerald-500 p-6 text-white text-center">
-              <div className="mb-4">
-                <div className="w-16 h-16 mx-auto bg-white/20 rounded-full flex items-center justify-center border border-white/30">
-                  <span className="text-3xl">🎉</span>
-                </div>
-              </div>
-
-              <Typography variant="h4" className="font-bold text-white text-2xl mb-2">
-                Chúc mừng!
-              </Typography>
-              <Typography variant="body1" className="text-white/90 text-lg">
-                Bạn đã hoàn thành bài tập dịch thuật
-              </Typography>
-
-              {/* Success indicator */}
-              <div className="mt-4 inline-flex items-center gap-2 bg-white/20 px-3 py-1.5 rounded-full border border-white/30">
-                <div className="w-2 h-2 bg-green-400 rounded-full"></div>
-                <span className="text-white/90 text-sm font-medium">Hoàn thành xuất sắc!</span>
-              </div>
-            </div>
-
-            {/* Content section */}
-            <div className="p-6 text-center">
-              <div className="mb-6">
-                <Typography variant="h5" className="font-bold text-gray-800 text-xl mb-4">
-                  Thành tích của bạn
-                </Typography>
-
-                <div className="grid grid-cols-2 gap-4">
-                  {/* Achievement cards */}
-                  <div className="bg-white rounded-xl p-4 border border-gray-200 shadow-sm">
-                    <div className="text-4xl font-bold text-blue-600 mb-1">
-                      {vietNameseSentences.length}
-                    </div>
-                    <div className="text-sm text-gray-800 font-medium">
-                      Câu đã dịch
-                    </div>
-                  </div>
-
-                  <div className="bg-white rounded-xl p-4 border border-gray-200 shadow-sm">
-                    <div className="text-4xl font-bold text-emerald-600 mb-1">
-                      {calculateAverageScore()}/10
-                    </div>
-                    <div className="text-sm text-gray-800 font-medium">
-                      Điểm trung bình
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Action buttons */}
-              <div className="space-y-4">
-                <button
-                  className="w-full py-4 px-6 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-lg border-0 cursor-pointer transition-colors duration-200"
-                  onClick={() => {
-                    navigate('/');
-                  }}
-                >
-                  <span className="flex items-center justify-center gap-3">
-                    <FaHome className="text-xl" />
-                    <span>VỀ TRANG CHỦ</span>
-                  </span>
-                </button>
-
-                <button
-                  className="w-full py-4 px-6 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-lg border-0 cursor-pointer transition-colors duration-200"
-                  onClick={() => {
-                    setShowDetailModal(true);
-                  }}
-                >
-                  <span className="flex items-center justify-center gap-3">
-                    <FaChartBar className="text-xl" />
-                    <span>XEM CHI TIẾT</span>
-                  </span>
-                </button>
-
-                <button
-                  className="w-full py-4 px-6 border-2 border-gray-300 hover:border-gray-400 hover:bg-gray-50 text-gray-700 font-bold rounded-xl text-lg bg-white cursor-pointer transition-colors duration-200"
-                  onClick={() => {
-                    navigate('/listening-practice');
-                  }}
-                >
-                  <span className="flex items-center justify-center gap-3">
-                    <FaHeadphones className="text-xl" />
-                    <span>LUYỆN TẬP KHÁC</span>
-                  </span>
-                </button>
-              </div>
-
-              {/* Additional text */}
-              <div className="mt-4 pt-4 border-t border-gray-200">
-                <Typography variant="body2" className="text-gray-500 font-medium">
-                  🎯 Tiếp tục phát triển kỹ năng của bạn!
-                </Typography>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Completion Overlay removed */}
 
       {/* Detail Modal */}
       {showDetailModal && (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-md z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl shadow-2xl max-w-5xl w-full max-h-[95vh] overflow-hidden">
+        <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-5xl w-full max-h-[95vh] overflow-hidden">
             {/* Header */}
-            <div className="relative bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600 p-8 text-white overflow-hidden">
-              {/* Background decoration */}
-              <div className="absolute inset-0 bg-gradient-to-r from-white/10 to-transparent"></div>
-              <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-full -translate-y-16 translate-x-16"></div>
-              <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/5 rounded-full translate-y-12 -translate-x-12"></div>
-
-              <div className="relative flex items-center justify-between">
-                <div>
-                  <div className="flex items-center gap-3 mb-3">
-                    <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm border border-white/30">
-                      <span className="text-xl">📊</span>
-                    </div>
-                    <Typography variant="h4" className="font-bold text-white text-3xl">
-                      Chi tiết lịch sử luyện tập
-                    </Typography>
+            <div className="relative bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600 px-4 py-3 text-white">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 bg-white/15 rounded-lg flex items-center justify-center border border-white/20">
+                    <span className="text-base">📊</span>
                   </div>
+                  <Typography variant="h6" className="font-bold text-white text-xl">
+                    Chi tiết lịch sử luyện tập
+                  </Typography>
                 </div>
-                <button
-                  className="text-white border border-white hover:border-white hover:bg-white/20 px-4 py-3 rounded-full text-sm font-bold shadow-2xl hover:shadow-2xl bg-white/10 backdrop-blur-sm cursor-pointer transition-colors duration-200"
-                  onClick={() => setShowDetailModal(false)}
-                >
-                  <span className="text-2xl font-black">✕</span>
-                </button>
               </div>
 
               {/* Summary */}
-              <div className="relative mt-6 flex flex-wrap items-center gap-6">
-                <div className="flex items-center gap-2 bg-white/10 px-4 py-2 rounded-xl backdrop-blur-sm border border-white/20">
-                  <span className="text-lg">🎯</span>
-                  <span className="text-white/90 font-medium">Topic: {currentTopic}</span>
-                </div>
-                <div className="flex items-center gap-2 bg-white/10 px-4 py-2 rounded-xl backdrop-blur-sm border border-white/20">
-                  <span className="text-lg">📚</span>
-                  <span className="text-white/90 font-medium">Level: {currentLevel}</span>
-                </div>
-                <div className="flex items-center gap-2 bg-white/10 px-4 py-2 rounded-xl backdrop-blur-sm border border-white/20">
-                  <span className="text-lg">🎭</span>
-                  <span className="text-white/90 font-medium">Tone: {currentTone}</span>
-                </div>
-                <div className="flex items-center gap-2 bg-white/10 px-4 py-2 rounded-xl backdrop-blur-sm border border-white/20">
-                  <span className="text-lg">⭐</span>
-                  <span className="text-white/90 font-medium">{calculateAverageScore()}/10</span>
-                </div>
-                <div className="flex items-center gap-2 bg-white/10 px-4 py-2 rounded-xl backdrop-blur-sm border border-white/20">
-                  <span className="text-lg">📅</span>
-                  <span className="text-white/90 font-medium">{new Date().toLocaleDateString('vi-VN')}</span>
-                </div>
+              <div className="mt-2 flex flex-wrap items-center gap-2 text-sm">
+                <div className="px-2 py-1 rounded-md bg-white/10 border border-white/20">Topic: {currentTopic}</div>
+                <div className="px-2 py-1 rounded-md bg-white/10 border border-white/20">Level: {currentLevel}</div>
+                <div className="px-2 py-1 rounded-md bg-white/10 border border-white/20">Tone: {currentTone}</div>
+                <div className="px-2 py-1 rounded-md bg-white/10 border border-white/20">{calculateAverageScore()}/10</div>
+                <div className="px-2 py-1 rounded-md bg-white/10 border border-white/20">{new Date().toLocaleDateString('vi-VN')}</div>
               </div>
             </div>
 
             {/* Content */}
-            <div className="p-8 overflow-y-auto max-h-[65vh] bg-gradient-to-b from-gray-50 to-white">
-              <div className="space-y-8">
+            <div className="p-4 overflow-y-auto max-h-[70vh] bg-white">
+              <div className="space-y-3">
                 {englishTranslations.map((sentence, index) => (
-                  <div key={index} className="group relative bg-white rounded-2xl p-8 border border-gray-100 shadow-lg">
-                    {/* Decorative gradient */}
-                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 rounded-t-2xl"></div>
-
+                  <div key={index} className="relative bg-white rounded-lg p-4 border border-gray-200">
                     {/* Header with score */}
-                    <div className="flex items-center justify-between mb-6">
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg flex items-center justify-center text-white font-bold text-sm">
-                          {index + 1}
-                        </div>
-                      </div>
-                      <div className={`px-4 py-2 rounded-xl text-sm font-bold ${sentence.score >= 9
-                        ? 'bg-gradient-to-r from-emerald-100 to-green-100 text-emerald-800 border border-emerald-200'
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="text-xs text-gray-500">#{index + 1}</div>
+                      <div className={`px-2 py-0.5 rounded-md text-xs font-medium border ${sentence.score >= 9
+                        ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
                         : sentence.score >= 7
-                          ? 'bg-gradient-to-r from-yellow-100 to-orange-100 text-orange-800 border border-orange-200'
-                          : 'bg-gradient-to-r from-red-100 to-pink-100 text-red-800 border border-red-200'
+                          ? 'bg-yellow-50 text-yellow-700 border-yellow-200'
+                          : 'bg-red-50 text-red-700 border-red-200'
                         }`}>
                         {sentence.score}/10
                       </div>
                     </div>
 
                     {/* Original Vietnamese sentence */}
-                    <div className="mb-6">
-                      <div className="flex items-center gap-2 mb-3">
-
-                        <Typography variant="body2" className="font-bold text-gray-700 text-lg">
-                          CÂU GỐC
-                        </Typography>
-                      </div>
-                      <div className="bg-gradient-to-r from-indigo-50 to-purple-50 p-6 rounded-xl border border-indigo-100 shadow-sm">
-                        <Typography variant="body1" className="text-gray-800 leading-relaxed text-lg font-medium">
+                    <div className="mb-3">
+                      <Typography variant="body2" className="font-semibold text-gray-700 text-sm mb-1">
+                        Câu gốc
+                      </Typography>
+                      <div className="p-3 rounded-md border border-indigo-100 bg-indigo-50">
+                        <Typography variant="body2" className="text-gray-800 leading-relaxed text-sm">
                           {sentence.vietnamese}
                         </Typography>
                       </div>
                     </div>
 
                     {/* User's translation */}
-                    <div className="mb-6">
-                      <div className="flex items-center gap-2 mb-3">
-
-                        <Typography variant="body2" className="font-bold text-gray-700 text-lg">
-                          BẢN DỊCH CỦA BẠN
-                        </Typography>
-                      </div>
-                      <div className="bg-gradient-to-r from-blue-50 to-cyan-50 p-6 rounded-xl border border-blue-100 shadow-sm">
-                        <Typography variant="body1" className="text-gray-800 leading-relaxed text-lg font-medium">
+                    <div>
+                      <Typography variant="body2" className="font-semibold text-gray-700 text-sm mb-1">
+                        Bản dịch của bạn
+                      </Typography>
+                      <div className="p-3 rounded-md border border-blue-100 bg-blue-50">
+                        <Typography variant="body2" className="text-gray-800 leading-relaxed text-sm">
                           {sentence.englishTranslation}
                         </Typography>
                       </div>
@@ -974,17 +856,12 @@ const BilingualPassage = () => {
 
                     {/* Feedback */}
                     {sentence.feedback && sentence.score < 9 && (
-                      <div>
-                        <div className="flex items-center gap-2 mb-3">
-                          <div className="w-6 h-6 bg-gradient-to-r from-amber-500 to-orange-500 rounded-lg flex items-center justify-center">
-                            <span className="text-white text-xs">💡</span>
-                          </div>
-                          <Typography variant="body2" className="font-bold text-gray-700 text-lg">
-                            NHẬN XÉT
-                          </Typography>
-                        </div>
-                        <div className="bg-gradient-to-r from-amber-50 to-orange-50 p-6 rounded-xl border border-amber-200 shadow-sm">
-                          <Typography variant="body1" className="text-gray-800 leading-relaxed text-lg">
+                      <div className="mt-3">
+                        <Typography variant="body2" className="font-semibold text-gray-700 text-sm mb-1">
+                          Nhận xét
+                        </Typography>
+                        <div className="p-3 rounded-md border border-amber-200 bg-amber-50">
+                          <Typography variant="body2" className="text-gray-800 leading-relaxed text-sm">
                             {sentence.feedback}
                           </Typography>
                         </div>
@@ -996,33 +873,33 @@ const BilingualPassage = () => {
             </div>
 
             {/* Footer */}
-            <div className="px-8 py-6 bg-gradient-to-r from-gray-50 to-gray-100 border-t border-gray-200">
+            <div className="px-4 py-3 bg-white border-t">
               <div className="flex justify-between items-center">
                 <div className="text-gray-600 text-sm">
                   <span className="font-medium">Tổng cộng:</span> {englishTranslations.length} câu đã dịch
                 </div>
-                <div className="flex gap-4">
+                <div className="flex gap-2">
                   <button
-                    className="px-6 py-3 border-2 border-gray-300 hover:border-gray-400 hover:bg-gray-50 text-gray-700 font-bold rounded-xl cursor-pointer transition-colors duration-200"
+                    className="px-4 py-2 border border-gray-300 hover:bg-gray-50 text-gray-700 font-medium rounded-md text-sm cursor-pointer"
                     onClick={() => {
                       setShowDetailModal(false);
                       navigate('/');
                     }}
                   >
                     <span className="flex items-center gap-2">
-                      <FaHome className="text-lg" />
+                      <FaHome className="text-base" />
                       <span>Về Trang Chủ</span>
                     </span>
                   </button>
                   <button
-                    className="px-6 py-3 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white font-bold rounded-xl shadow-lg hover:shadow-xl cursor-pointer transition-colors duration-200"
+                    className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-md text-sm cursor-pointer"
                     onClick={() => {
                       setShowDetailModal(false);
-                      navigate('/listening-practice');
+                      navigate('/writing');
                     }}
                   >
                     <span className="flex items-center gap-2">
-                      <FaHeadphones className="text-lg" />
+                      <FaHeadphones className="text-base" />
                       <span>Luyện Tập Khác</span>
                     </span>
                   </button>
