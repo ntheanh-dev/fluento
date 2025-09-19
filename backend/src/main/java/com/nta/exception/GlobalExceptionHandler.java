@@ -1,5 +1,6 @@
 package com.nta.exception;
 
+import com.fasterxml.jackson.core.io.JsonEOFException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AuthenticationServiceException;
@@ -107,4 +108,17 @@ public class GlobalExceptionHandler {
                         .message(errorCode.getMessage())
                         .build());
     }
+
+    @ExceptionHandler(value = JsonEOFException.class)
+    ResponseEntity<ApiResponse> jsonEOFExceptionHandler(JsonEOFException e) {
+        log.error(e.getMessage());
+
+        ApiResponse<Object> apiResponse = new ApiResponse<>();
+
+        apiResponse.setCode(ErrorCode.JSON_PARSE_ERROR.getCode());
+        apiResponse.setMessage(ErrorCode.JSON_PARSE_ERROR.getMessage());
+
+        return ResponseEntity.badRequest().body(apiResponse);
+    }
+
 }
