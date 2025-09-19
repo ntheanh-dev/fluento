@@ -3,9 +3,11 @@ package com.nta.service;
 import com.nta.dto.request.PasswordCreationRequest;
 import com.nta.dto.response.UserResponse;
 import com.nta.entity.User;
+import com.nta.entity.UserApiKey;
 import com.nta.enums.ErrorCode;
 import com.nta.exception.AppException;
 import com.nta.mapper.UserMapper;
+import com.nta.repository.UserApiKeyRepository;
 import com.nta.repository.UserRepository;
 
 import lombok.AccessLevel;
@@ -24,10 +26,9 @@ import org.springframework.util.StringUtils;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Slf4j
 public class UserService {
-
     UserRepository userRepository;
     UserMapper userMapper;
-
+    UserApiKeyRepository userApiKeyRepository;
     public void createPassword(final PasswordCreationRequest passwordCreationRequest) {
         final User user = this.getUserFromContext();
 
@@ -46,6 +47,9 @@ public class UserService {
 
         final UserResponse userResponse = userMapper.toUserResponse(user);
         userResponse.setNoPassword(!StringUtils.hasText(user.getPassword()));
+
+        final String apiKey = this.getRequiredApiKey();
+        userResponse.setHasApiKey(StringUtils.hasText(apiKey));
         return userResponse;
     }
 
@@ -54,5 +58,13 @@ public class UserService {
         final String name = context.getAuthentication().getName();
 
         return userRepository.findByUsername(name).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+    }
+
+    public String getRequiredApiKey() {
+        final User user = this.getUserFromContext();
+        final UserApiKey key =
+                userApiKeyRepository
+                        .findByUserId(user.getId()).orElse(null);
+        return key != null ? key.getApiKey() : null;
     }
 }

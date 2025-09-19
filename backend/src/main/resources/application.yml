@@ -1,18 +1,18 @@
 server:
-  port: ${BACKEND_PORT}
+  port: 8080
   servlet:
     context-path: /api
 
 spring:
   datasource:
-    url: "${SPRING_DATASOURCE_URL}"
-    username: "${SPRING_DATASOURCE_USERNAME}"
-    password: "${SPRING_DATASOURCE_PASSWORD}"
+    url: "jdbc:mysql://${mysqldb:localhost}:3306/fluento"
+    username: "root"
+    password: "Admin@123"
     driverClassName: com.mysql.cj.jdbc.Driver
   jpa:
     show-sql: false
     hibernate:
-      ddl-auto: validate
+      ddl-auto: update
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MySQL8Dialect
@@ -30,10 +30,10 @@ spring:
     client:
       registration:
         google:
-          client-id: "${GOOGLE_CLIENT_ID}"
-          client-secret: "${GOOGLE_CLIENT_SECRET}"
-          redirect-uri: "${GOOGLE_REDIRECT_URI}"
-          scope: openid,profile,email
+          client-id: 940316326175-8jma9br9b2j1cjgqu992v3a693euvr6c.apps.googleusercontent.com # fixed
+          client-secret: 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 # fixed
+          redirect-uri: http://localhost:5173/oauth/authenticate # modify as needed
+          scope: openid, profile, email
       provider:
         google:
           authorization-uri: https://accounts.google.com/o/oauth2/v2/auth # fixed
@@ -41,7 +41,7 @@ spring:
           user-info-uri: https://www.googleapis.com/oauth2/v3/userinfo # fixed
   ai:
     openai:
-      api-key: "${GEMINI_API_KEY}"
+      api-key: AIzaSyA1G8wrDoHLWVOTLM0wkUbO1-U7cC2A7RE
       chat:
         base-url: https://generativelanguage.googleapis.com
         completions-path: /v1beta/openai/chat/completions
@@ -51,8 +51,8 @@ spring:
 # CORS Configuration
 app:
   cors:
-    allowed-origins: ${CORS_ALLOWED_ORIGINS}
-    allowed-methods: ${CORS_ALLOWED_METHODS}
-    allowed-headers: ${CORS_ALLOWED_HEADERS}
-    allow-credentials: ${CORS_ALLOW_CREDENTIALS}
-    max-age: ${CORS_MAX_AGE}
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:5173}
+    allowed-methods: ${CORS_ALLOWED_METHODS:GET,POST,PUT,DELETE,OPTIONS}
+    allowed-headers: ${CORS_ALLOWED_HEADERS:Authorization,Content-Type}
+    allow-credentials: ${CORS_ALLOW_CREDENTIALS:true}
+    max-age: ${CORS_MAX_AGE:3600}

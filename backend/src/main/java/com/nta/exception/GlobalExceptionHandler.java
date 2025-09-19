@@ -1,6 +1,7 @@
 package com.nta.exception;
 
 import com.fasterxml.jackson.core.io.JsonEOFException;
+import org.springframework.ai.retry.NonTransientAiException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AuthenticationServiceException;
@@ -117,6 +118,18 @@ public class GlobalExceptionHandler {
 
         apiResponse.setCode(ErrorCode.JSON_PARSE_ERROR.getCode());
         apiResponse.setMessage(ErrorCode.JSON_PARSE_ERROR.getMessage());
+
+        return ResponseEntity.badRequest().body(apiResponse);
+    }
+
+    @ExceptionHandler(value = NonTransientAiException.class)
+    ResponseEntity<ApiResponse> nonTransientAiException(NonTransientAiException e) {
+        log.error(e.getMessage());
+
+        ApiResponse<Object> apiResponse = new ApiResponse<>();
+
+        apiResponse.setCode(ErrorCode.AI_API_KEY_INVALID.getCode());
+        apiResponse.setMessage(ErrorCode.AI_API_KEY_INVALID.getMessage());
 
         return ResponseEntity.badRequest().body(apiResponse);
     }

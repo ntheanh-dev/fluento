@@ -2,12 +2,14 @@ package com.nta.repository;
 
 import org.springframework.ai.chat.memory.ChatMemoryRepository;
 import org.springframework.ai.chat.messages.*;
+import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
 @Repository
+@Primary
 public class CustomJdbcChatMemoryRepository implements ChatMemoryRepository {
 
     private final JdbcTemplate jdbc;
