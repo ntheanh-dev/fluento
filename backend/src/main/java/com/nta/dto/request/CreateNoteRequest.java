@@ -16,5 +16,5 @@ public class CreateNoteRequest {
     private Long deckId;
 
     @NotNull(message = "Field values are required")
-    private Map<String, String> fieldValues;
+    private Map<String, Object> fieldValues;
 }

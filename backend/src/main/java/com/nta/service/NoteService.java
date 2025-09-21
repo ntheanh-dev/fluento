@@ -1,5 +1,6 @@
 package com.nta.service;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
@@ -8,7 +9,10 @@ import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nta.dto.request.CreateNoteRequest;
 import com.nta.dto.response.NoteResponse;
 import com.nta.entity.*;
@@ -17,9 +21,11 @@ import com.nta.exception.AppException;
 import com.nta.repository.*;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 @Transactional
 public class NoteService {
 
@@ -30,6 +36,8 @@ public class NoteService {
     private final NoteTypeRepository noteTypeRepository;
     private final CardRepository cardRepository;
     private final CardStatsRepository cardStatsRepository;
+    private final FileUploadService fileUploadService;
+    private final ObjectMapper objectMapper;
 
     public NoteResponse createNote(Long userId, CreateNoteRequest request) {
         // Verify deck exists and user has access
@@ -57,12 +65,30 @@ public class NoteService {
         // Create note fields
         List<Field> fields = fieldRepository.findByNoteTypeIdOrderByFieldOrder(request.getNoteTypeId());
         for (Field field : fields) {
-            String content = request.getFieldValues().get(field.getName());
+            Object fieldValue = request.getFieldValues().get(field.getName());
 
             NoteField noteField = new NoteField();
             noteField.setNoteId(savedNote.getId());
             noteField.setFieldId(field.getId());
-            noteField.setContent(content);
+
+            // Handle different types of field values
+            if (fieldValue instanceof String) {
+                noteField.setContent((String) fieldValue);
+            } else if (fieldValue instanceof MultipartFile) {
+                // Handle file upload - save URL to content field
+                MultipartFile file = (MultipartFile) fieldValue;
+                try {
+                    Map<String, Object> uploadResult = fileUploadService.uploadFile(file, "notes");
+                    String imageUrl = (String) uploadResult.get("secure_url");
+                    noteField.setContent(imageUrl);
+                } catch (IOException e) {
+                    throw new AppException(ErrorCode.ERROR_KEY_INVALID);
+                }
+            } else {
+                // Handle other types or null
+                noteField.setContent(fieldValue != null ? fieldValue.toString() : null);
+            }
+
             noteFieldRepository.save(noteField);
         }
 
@@ -102,8 +128,42 @@ public class NoteService {
             Field field = fieldRepository
                     .findById(noteField.getFieldId())
                     .orElseThrow(() -> new AppException(ErrorCode.NOTE_NOT_FOUND));
-            String content = request.getFieldValues().get(field.getName());
-            noteField.setContent(content);
+
+            Object fieldValue = request.getFieldValues().get(field.getName());
+
+            // Handle different types of field values
+            if (fieldValue instanceof String) {
+                noteField.setContent((String) fieldValue);
+            } else if (fieldValue instanceof MultipartFile) {
+                // Handle file upload - save URL to content field
+                MultipartFile file = (MultipartFile) fieldValue;
+
+                // Delete old file if exists
+                String oldContent = noteField.getContent();
+                if (oldContent != null && isCloudinaryUrl(oldContent)) {
+                    String oldPublicId = extractPublicIdFromUrl(oldContent);
+                    if (oldPublicId != null) {
+                        try {
+                            fileUploadService.deleteFile(oldPublicId);
+                        } catch (IOException e) {
+                            // Log error but continue with new upload
+                            log.warn("Failed to delete old file from Cloudinary: {}", oldPublicId, e);
+                        }
+                    }
+                }
+
+                try {
+                    Map<String, Object> uploadResult = fileUploadService.uploadFile(file, "notes");
+                    String imageUrl = (String) uploadResult.get("secure_url");
+                    noteField.setContent(imageUrl);
+                } catch (IOException e) {
+                    throw new AppException(ErrorCode.ERROR_KEY_INVALID);
+                }
+            } else {
+                // Handle other types or null
+                noteField.setContent(fieldValue != null ? fieldValue.toString() : null);
+            }
+
             noteFieldRepository.save(noteField);
         }
 
@@ -117,6 +177,9 @@ public class NoteService {
         if (!note.getUserId().equals(userId)) {
             throw new AppException(ErrorCode.ACCESS_DENIED);
         }
+
+        // Delete files from Cloudinary before deleting the note
+        deleteNoteFilesFromCloud(noteId);
 
         noteRepository.delete(note);
     }
@@ -146,15 +209,21 @@ public class NoteService {
         response.setCreatedAt(note.getCreatedAt());
         response.setUpdatedAt(note.getUpdatedAt());
 
-        // Get field values
+        // Get field values (includes both text and image URLs)
         List<NoteField> noteFields = noteFieldRepository.findByNoteIdOrderedByFieldOrder(note.getId());
         Map<String, String> fieldValues = new HashMap<>();
+
         for (NoteField noteField : noteFields) {
             Field field = fieldRepository
                     .findById(noteField.getFieldId())
                     .orElseThrow(() -> new AppException(ErrorCode.NOTE_NOT_FOUND));
-            fieldValues.put(field.getName(), noteField.getContent());
+
+            // Add content (can be text or image URL)
+            if (noteField.getContent() != null) {
+                fieldValues.put(field.getName(), noteField.getContent());
+            }
         }
+
         response.setFieldValues(fieldValues);
 
         // Get cards
@@ -186,5 +255,218 @@ public class NoteService {
         stats.setLastReviewedAt(null);
 
         cardStatsRepository.save(stats);
+    }
+
+    /**
+     * Creates a note with support for file uploads.
+     * Handles both text fields and image files.
+     *
+     * @param userId the user ID
+     * @param noteTypeId the note type ID
+     * @param deckId the deck ID
+     * @param fieldValuesJson JSON string containing field values for text fields
+     * @param fileFieldsJson JSON string containing field names that have files
+     * @param files the uploaded files
+     * @return created note response
+     */
+    public NoteResponse createNoteWithFiles(
+            Long userId,
+            Long noteTypeId,
+            Long deckId,
+            String fieldValuesJson,
+            String fileFieldsJson,
+            MultipartFile[] files) {
+
+        try {
+            // Parse JSON strings to maps
+            Map<String, String> fieldValues = new HashMap<>();
+            Map<String, String> fileFields = new HashMap<>();
+
+            if (fieldValuesJson != null && !fieldValuesJson.trim().isEmpty()) {
+                fieldValues = objectMapper.readValue(fieldValuesJson, new TypeReference<Map<String, String>>() {});
+            }
+
+            if (fileFieldsJson != null && !fileFieldsJson.trim().isEmpty()) {
+                fileFields = objectMapper.readValue(fileFieldsJson, new TypeReference<Map<String, String>>() {});
+            }
+
+            // Verify deck exists and user has access
+            Deck deck = deckRepository.findById(deckId).orElseThrow(() -> new AppException(ErrorCode.DECK_NOT_FOUND));
+
+            if (!deck.getUserId().equals(userId)) {
+                throw new AppException(ErrorCode.ACCESS_DENIED);
+            }
+
+            // Verify note type exists and user has access
+            NoteType noteType = noteTypeRepository
+                    .findById(noteTypeId)
+                    .orElseThrow(() -> new AppException(ErrorCode.NOTE_TYPE_NOT_FOUND));
+
+            // Create note
+            Note note = new Note();
+            note.setNoteTypeId(noteTypeId);
+            note.setDeckId(deckId);
+            note.setUserId(userId);
+
+            Note savedNote = noteRepository.save(note);
+
+            // Create note fields
+            List<Field> fields = fieldRepository.findByNoteTypeIdOrderByFieldOrder(noteTypeId);
+            Map<String, MultipartFile> fileMap = createFileMap(files, fileFields);
+
+            for (Field field : fields) {
+                NoteField noteField = new NoteField();
+                noteField.setNoteId(savedNote.getId());
+                noteField.setFieldId(field.getId());
+
+                // Check if this field has a file
+                if (fileMap.containsKey(field.getName())) {
+                    MultipartFile file = fileMap.get(field.getName());
+                    // Upload file and store URL
+                    try {
+                        Map<String, Object> uploadResult = fileUploadService.uploadFile(file, "notes");
+                        String imageUrl = (String) uploadResult.get("secure_url");
+                        noteField.setContent(imageUrl);
+                    } catch (IOException e) {
+                        throw new AppException(ErrorCode.ERROR_KEY_INVALID);
+                    }
+                } else {
+                    // Handle text field
+                    String content = fieldValues.get(field.getName());
+                    noteField.setContent(content);
+                }
+
+                noteFieldRepository.save(noteField);
+            }
+
+            // Create default card
+            createDefaultCard(savedNote, noteType);
+
+            return convertToResponse(savedNote);
+
+        } catch (IOException e) {
+            throw new AppException(ErrorCode.ERROR_KEY_INVALID);
+        }
+    }
+
+    /**
+     * Creates a map of field names to MultipartFile objects.
+     *
+     * @param files the uploaded files
+     * @param fileFields map of field names to file names
+     * @return map of field names to MultipartFile objects
+     */
+    private Map<String, MultipartFile> createFileMap(MultipartFile[] files, Map<String, String> fileFields) {
+        Map<String, MultipartFile> fileMap = new HashMap<>();
+
+        if (files == null || fileFields == null) {
+            return fileMap;
+        }
+
+        // Create a map of file names to MultipartFile objects
+        Map<String, MultipartFile> fileNameToFile = new HashMap<>();
+        for (MultipartFile file : files) {
+            fileNameToFile.put(file.getOriginalFilename(), file);
+        }
+
+        // Map field names to their corresponding files
+        for (Map.Entry<String, String> entry : fileFields.entrySet()) {
+            String fieldName = entry.getKey();
+            String fileName = entry.getValue();
+            MultipartFile file = fileNameToFile.get(fileName);
+            if (file != null) {
+                fileMap.put(fieldName, file);
+            }
+        }
+
+        return fileMap;
+    }
+
+    /**
+     * Deletes all files associated with a note from Cloudinary.
+     *
+     * @param noteId the note ID
+     */
+    private void deleteNoteFilesFromCloud(Long noteId) {
+        try {
+            List<NoteField> noteFields = noteFieldRepository.findByNoteId(noteId);
+
+            for (NoteField noteField : noteFields) {
+                String content = noteField.getContent();
+                if (content != null && isCloudinaryUrl(content)) {
+                    String publicId = extractPublicIdFromUrl(content);
+                    if (publicId != null) {
+                        try {
+                            fileUploadService.deleteFile(publicId);
+                        } catch (IOException e) {
+                            // Log error but don't fail the note deletion
+                            log.warn("Failed to delete file from Cloudinary: {}", publicId, e);
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            // Log error but don't fail the note deletion
+            log.error("Error deleting note files from Cloudinary", e);
+        }
+    }
+
+    /**
+     * Checks if a URL is a Cloudinary URL.
+     *
+     * @param url the URL to check
+     * @return true if it's a Cloudinary URL
+     */
+    private boolean isCloudinaryUrl(String url) {
+        return url != null && url.contains("res.cloudinary.com");
+    }
+
+    /**
+     * Extracts the public ID from a Cloudinary URL.
+     *
+     * @param url the Cloudinary URL
+     * @return the public ID or null if extraction fails
+     */
+    private String extractPublicIdFromUrl(String url) {
+        try {
+            // Cloudinary URL format:
+            // https://res.cloudinary.com/{cloud_name}/image/upload/{version}/{public_id}.{format}
+            // We need to extract only the public_id part (without version)
+
+            if (url == null || !url.contains("res.cloudinary.com")) {
+                log.debug("Invalid Cloudinary URL: {}", url);
+                return null;
+            }
+
+            // Find the part after "/upload/"
+            int uploadIndex = url.indexOf("/upload/");
+            if (uploadIndex == -1) {
+                log.debug("No '/upload/' found in URL: {}", url);
+                return null;
+            }
+
+            // Extract everything after "/upload/"
+            String afterUpload = url.substring(uploadIndex + 8); // 8 = length of "/upload/"
+
+            // Remove file extension if present
+            if (afterUpload.contains(".")) {
+                afterUpload = afterUpload.substring(0, afterUpload.lastIndexOf("."));
+            }
+
+            // The public ID is everything after the version (if present)
+            // Version format: v{timestamp} or just the public_id
+            String publicId = afterUpload;
+
+            // If it starts with 'v' followed by digits, remove the version part
+            if (afterUpload.matches("^v\\d+/.+")) {
+                publicId = afterUpload.substring(afterUpload.indexOf('/') + 1);
+            }
+
+            return publicId.isEmpty() ? null : publicId;
+
+        } catch (Exception e) {
+            log.error("Error extracting public ID from URL: {}", url, e);
+            return null;
+        }
     }
 }

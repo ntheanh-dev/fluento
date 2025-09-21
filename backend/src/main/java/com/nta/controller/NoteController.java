@@ -40,6 +40,39 @@ public class NoteController {
                         .build());
     }
 
+    /**
+     * Creates a note with support for file uploads.
+     * This endpoint accepts multipart form data with both text fields and image files.
+     *
+     * @param noteTypeId the note type ID
+     * @param deckId the deck ID
+     * @param fieldValues JSON string containing field values for text fields
+     * @param fileFields JSON string containing field names that have files
+     * @param files the uploaded files
+     * @return created note response
+     */
+    @PostMapping("/with-files")
+    public ResponseEntity<ApiResponse<NoteResponse>> createNoteWithFiles(
+            @RequestParam("noteTypeId") Long noteTypeId,
+            @RequestParam("deckId") Long deckId,
+            @RequestParam(value = "fieldValues", required = false) String fieldValues,
+            @RequestParam(value = "fileFields", required = false) String fileFields,
+            @RequestParam(value = "files", required = false) org.springframework.web.multipart.MultipartFile[] files) {
+
+        User user = userService.getUserFromContext();
+        Long userId = user.getId();
+
+        NoteResponse response =
+                noteService.createNoteWithFiles(userId, noteTypeId, deckId, fieldValues, fileFields, files);
+
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(ApiResponse.<NoteResponse>builder()
+                        .code(1000)
+                        .message("Note with files created successfully")
+                        .result(response)
+                        .build());
+    }
+
     @GetMapping("/deck/{deckId}")
     public ResponseEntity<ApiResponse<List<NoteResponse>>> getNotesByDeck(@PathVariable Long deckId) {
 

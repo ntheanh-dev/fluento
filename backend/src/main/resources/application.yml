@@ -17,6 +17,11 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.MySQL8Dialect
         format_sql: true
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+      enabled: true
   reactor:
     debug-agent:
       enabled: true
@@ -56,3 +61,11 @@ app:
     allowed-headers: ${CORS_ALLOWED_HEADERS:Authorization,Content-Type}
     allow-credentials: ${CORS_ALLOW_CREDENTIALS:true}
     max-age: ${CORS_MAX_AGE:3600}
+
+# Cloudinary Configuration
+cloudinary:
+  cloud-name: ${CLOUDINARY_CLOUD_NAME:dqpo9h5s2}
+  api-key: ${CLOUDINARY_API_KEY:247473939561997}
+  api-secret: ${CLOUDINARY_API_SECRET:lZZWOntBPCDWEnECsmWIalOtl08}
+  secure: ${CLOUDINARY_SECURE:true}
+  folder: ${CLOUDINARY_FOLDER:fluento}
