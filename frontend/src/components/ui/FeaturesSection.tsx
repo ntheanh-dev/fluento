@@ -123,11 +123,11 @@ const FeaturesSection: React.FC = () => {
     },
     {
       isFree: true,
-      isAIPowered: false,
-      isComingSoon: true,
+      isAIPowered: true,
+      isComingSoon: false,
       icon: <FaBook />,
       title: "🧠 Luyện từ vựng",
-      description: "Ghi nhớ từ vựng với phương pháp spaced repetition",
+      description: "Ghi nhớ từ vựng với phương pháp spaced repetition và flashcard thông minh",
       buttonText: "Bắt đầu luyện tập",
       buttonColor: "bg-purple-600 hover:bg-purple-700",
       route: "/vocabulary-practice"

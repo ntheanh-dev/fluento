@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { api } from '../configs/API';
+import { api } from '../../configs/API';
 
 interface CreatePasswordModalProps {
     isOpen: boolean;

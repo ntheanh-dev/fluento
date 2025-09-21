@@ -6,6 +6,7 @@ import { showOverlay, hideOverlay } from '../utils/overlay';
 import { notify } from '../utils/notify';
 import { FaPen, FaLightbulb, FaCheck, FaComment, FaThumbsUp, FaHome, FaHeadphones } from 'react-icons/fa';
 import type { TranslationHintsResponse, TranslationCheckResponse, ApiResponse, SentenceCreationResponse, Sentence } from '../types/api';
+import { TextHighlighter } from '../components/text-highlighter';
 
 const BilingualPassage = () => {
   const [translation, setTranslation] = useState('');
@@ -307,9 +308,11 @@ const BilingualPassage = () => {
                       {index <= englishTranslations.length - 1 ? (
                         // Completed sentences - show English translation
                         <span key={index} className="relative inline">
-                          <span className="text-black py-1 font-bold">
-                            {" " + englishTranslations[index]?.englishTranslation}
-                          </span>
+                          <TextHighlighter>
+                            <span className="text-black py-1 font-bold">
+                              {" " + englishTranslations[index]?.englishTranslation}
+                            </span>
+                          </TextHighlighter>
                         </span>
                       ) : (
                         // Current and upcoming sentences
@@ -607,9 +610,11 @@ const BilingualPassage = () => {
                     <div className="relative rounded-lg border border-emerald-200 bg-white p-3 shadow-sm">
                       <div className="relative">
                         <div className="flex items-center gap-2 mb-2">
-                          <Typography variant="body2" className="text-emerald-800 text-sm font-medium leading-relaxed">
-                            {translationCheck?.improvedTranslation}
-                          </Typography>
+                          <TextHighlighter>
+                            <Typography variant="body2" className="text-emerald-800 text-sm font-medium leading-relaxed">
+                              {translationCheck?.improvedTranslation}
+                            </Typography>
+                          </TextHighlighter>
                         </div>
                       </div>
                     </div>
@@ -649,24 +654,22 @@ const BilingualPassage = () => {
                       {translationHints.vocabularyHints.map((hint, index) => (
                         <div
                           key={index}
-                          className="group relative overflow-hidden rounded-lg border border-gray-200 bg-white p-3 shadow-sm transition-all duration-200 hover:shadow-md hover:border-blue-300"
+                          className="rounded-lg border border-gray-200 bg-white p-3 shadow-sm"
                         >
-                          <div className="absolute inset-0 bg-gradient-to-r from-blue-50 to-purple-50 opacity-0 transition-opacity duration-200 group-hover:opacity-100"></div>
-                          <div className="relative">
-                            <div className="flex items-start justify-between gap-3">
-                              <Typography variant="body2" className="font-semibold text-gray-800 text-base flex-shrink-0">
-                                {hint.vietnamese}
-                              </Typography>
-                              <div className="flex flex-wrap gap-1.5 justify-end flex-1">
-                                {hint.english.map((eng, engIndex) => (
+                          <div className="flex items-start justify-between gap-3">
+                            <Typography variant="body2" className="font-semibold text-gray-800 text-base flex-shrink-0">
+                              {hint.vietnamese}
+                            </Typography>
+                            <div className="flex flex-wrap gap-1.5 justify-end flex-1">
+                              {hint.english.map((eng, engIndex) => (
+                                <TextHighlighter key={engIndex}>
                                   <span
-                                    key={engIndex}
-                                    className="inline-flex items-center px-2 py-1 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 text-white text-sm font-medium shadow-sm transition-all duration-200 hover:scale-105 whitespace-nowrap"
+                                    className="inline-flex items-center px-2 py-1 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 text-white text-sm font-medium shadow-sm whitespace-nowrap cursor-pointer"
                                   >
                                     {eng}
                                   </span>
-                                ))}
-                              </div>
+                                </TextHighlighter>
+                              ))}
                             </div>
                           </div>
                         </div>
@@ -772,6 +775,13 @@ const BilingualPassage = () => {
                       <FaComment className="text-orange-500 mt-1 flex-shrink-0 text-lg" />
                       <Typography variant="body2" className="text-gray-700 leading-6">
                         Click vào button "Xem gợi ý" để nhận gợi ý dịch thuật từ AI
+                      </Typography>
+                    </div>
+
+                    <div className="flex items-start gap-4 p-4 bg-indigo-50 rounded-xl border border-indigo-200 shadow-sm hover:shadow-md transition-all duration-200">
+                      <span className="text-indigo-500 mt-1 flex-shrink-0 text-lg">📝</span>
+                      <Typography variant="body2" className="text-gray-700 leading-6">
+                        <strong>Mẹo mới:</strong> Highlight từ tiếng Anh bất kỳ để thêm nhanh vào deck từ vựng của bạn!
                       </Typography>
                     </div>
                   </div>

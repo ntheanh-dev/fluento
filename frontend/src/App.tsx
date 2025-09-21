@@ -12,7 +12,12 @@ import VocabularyPractice from "./pages/VocabularyPractice";
 import BilingualPassage from "./pages/BilingualPassage";
 import ListeningPractice from "./pages/ListeningPractice";
 import SpeakingPractice from "./pages/SpeakingPractice";
-import RequiredAuth from "./components/RequiredAuth";
+import DeckManagement from "./components/vocabulary/DeckManagement";
+import NoteTypeManagement from "./components/vocabulary/NoteTypeManagement";
+import NoteManagement from "./components/vocabulary/NoteManagement";
+import StudySessionPage from "./components/vocabulary/StudySession";
+import DictionaryLookup from "./components/vocabulary/DictionaryLookup";
+import { RequiredAuth } from "./components/auth";
 import "./index.css";
 import Authenticate from "./pages/Authenticated";
 import { useEffect, useState } from "react";
@@ -73,6 +78,17 @@ function App() {
           />
 
           <Route
+            path="/dictionary"
+            element={
+              <RequiredAuth>
+                <MainLayout>
+                  <DictionaryLookup />
+                </MainLayout>
+              </RequiredAuth>
+            }
+          />
+
+          <Route
             path="/sentence-writing/:conversationId"
             element={
               <RequiredAuth>
@@ -100,6 +116,48 @@ function App() {
               <RequiredAuth>
                 <MainLayout>
                   <SpeakingPractice />
+                </MainLayout>
+              </RequiredAuth>
+            }
+          />
+
+          {/* Anki System Routes */}
+          <Route
+            path="/anki/decks"
+            element={
+              <RequiredAuth>
+                <MainLayout>
+                  <DeckManagement />
+                </MainLayout>
+              </RequiredAuth>
+            }
+          />
+          <Route
+            path="/anki/note-types"
+            element={
+              <RequiredAuth>
+                <MainLayout>
+                  <NoteTypeManagement />
+                </MainLayout>
+              </RequiredAuth>
+            }
+          />
+          <Route
+            path="/anki/notes"
+            element={
+              <RequiredAuth>
+                <MainLayout>
+                  <NoteManagement />
+                </MainLayout>
+              </RequiredAuth>
+            }
+          />
+          <Route
+            path="/anki/study"
+            element={
+              <RequiredAuth>
+                <MainLayout>
+                  <StudySessionPage />
                 </MainLayout>
               </RequiredAuth>
             }

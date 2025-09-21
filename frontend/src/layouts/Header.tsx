@@ -22,7 +22,8 @@ import { FaKey } from "react-icons/fa";
 import { Modal, Backdrop, Fade, Typography, TextField, Button } from "@mui/material";
 
 const menuItems = [
-  { label: "Flashcards", path: "/vocabulary-practice" },
+  { label: "Luyện từ vựng", path: "/vocabulary-practice" },
+  { label: "Từ điển", path: "/dictionary" },
   { label: "Luyện viết", path: "/writing" },
   { label: "Thống kê học tập", path: "/analytic" },
 ];
@@ -144,6 +145,7 @@ const Header = () => {
                   </Link>
                 );
               })}
+
             </Box>
           </Box>
 
@@ -367,6 +369,7 @@ const Header = () => {
                   </ListItem>
                 );
               })}
+
             </List>
           </div>
 

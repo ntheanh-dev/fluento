@@ -1,5 +1,5 @@
 import { Container } from "@mui/material";
-import FeaturesSection from "../components/FeaturesSection";
+import { FeaturesSection } from "../components/ui";
 
 const Home = () => {
   return (

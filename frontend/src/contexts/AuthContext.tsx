@@ -2,7 +2,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
 import Cookies from 'js-cookie';
 import { api, apiKeyAPI } from '../configs/API';
-import CreatePasswordModal from '../components/CreatePasswordModal';
+import { CreatePasswordModal } from '../components/modals';
 import { notify } from '../utils/notify';
 
 interface User {
