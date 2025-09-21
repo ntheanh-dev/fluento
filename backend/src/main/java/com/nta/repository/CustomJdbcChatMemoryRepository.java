@@ -1,12 +1,12 @@
 package com.nta.repository;
 
+import java.util.List;
+
 import org.springframework.ai.chat.memory.ChatMemoryRepository;
 import org.springframework.ai.chat.messages.*;
 import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
-
-import java.util.List;
 
 @Repository
 @Primary
@@ -20,32 +20,27 @@ public class CustomJdbcChatMemoryRepository implements ChatMemoryRepository {
 
     @Override
     public List<String> findConversationIds() {
-        return jdbc.queryForList(
-                "SELECT DISTINCT conversation_id FROM spring_ai_chat_memory", String.class);
+        return jdbc.queryForList("SELECT DISTINCT conversation_id FROM spring_ai_chat_memory", String.class);
     }
 
     @Override
     public List<Message> findByConversationId(String conversationId) {
-        String sql =
-                """
+        String sql = """
 			SELECT content, role FROM spring_ai_chat_memory
 			WHERE conversation_id = ?
 		""";
 
-        return jdbc.query(
-                sql,
-                new Object[] {conversationId},
-                (rs, rowNum) -> {
-                    String content = rs.getString("content");
-                    String role = rs.getString("role");
+        return jdbc.query(sql, new Object[] {conversationId}, (rs, rowNum) -> {
+            String content = rs.getString("content");
+            String role = rs.getString("role");
 
-                    return switch (role.toLowerCase()) {
-                        case "user" -> new UserMessage(content);
-                        case "assistant" -> new AssistantMessage(content);
-                        case "system" -> new SystemMessage(content);
-                        default -> throw new IllegalArgumentException("Unknown role: " + role);
-                    };
-                });
+            return switch (role.toLowerCase()) {
+                case "user" -> new UserMessage(content);
+                case "assistant" -> new AssistantMessage(content);
+                case "system" -> new SystemMessage(content);
+                default -> throw new IllegalArgumentException("Unknown role: " + role);
+            };
+        });
     }
 
     @Override

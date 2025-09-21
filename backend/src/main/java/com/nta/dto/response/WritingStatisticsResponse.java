@@ -1,11 +1,11 @@
 package com.nta.dto.response;
 
+import java.util.List;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.util.List;
 
 @Data
 @Builder
@@ -17,7 +17,7 @@ public class WritingStatisticsResponse {
     private int highestSentences;
     private List<DailyPracticeData> practiceFrequency;
     private List<ScoreProgressData> scoreProgress;
-    
+
     @Data
     @Builder
     @NoArgsConstructor
@@ -26,7 +26,7 @@ public class WritingStatisticsResponse {
         private String dayOfWeek; // CN, T2, T3, T4, T5, T6, T7
         private int count;
     }
-    
+
     @Data
     @Builder
     @NoArgsConstructor

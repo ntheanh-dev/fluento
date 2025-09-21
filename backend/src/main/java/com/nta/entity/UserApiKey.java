@@ -1,5 +1,7 @@
 package com.nta.entity;
 
+import java.time.Instant;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -9,7 +11,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
-import java.time.Instant;
+
 import lombok.Getter;
 import lombok.Setter;
 
@@ -39,5 +41,3 @@ public class UserApiKey {
     @Column(name = "updated_at")
     private Instant updatedAt;
 }
-
-

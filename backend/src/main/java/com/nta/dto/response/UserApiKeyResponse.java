@@ -9,5 +9,3 @@ public class UserApiKeyResponse {
     private String provider;
     private boolean present;
 }
-
-

@@ -1,14 +1,14 @@
 package com.nta.configuration;
 
+import java.util.Arrays;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
-
-import java.util.Arrays;
-import java.util.List;
 
 @Configuration
 public class CorsConfig {
@@ -31,15 +31,15 @@ public class CorsConfig {
     @Bean
     public CorsFilter corsFilter() {
         CorsConfiguration corsConfiguration = new CorsConfiguration();
-        
+
         // Parse allowed origins
         List<String> origins = Arrays.asList(allowedOrigins.split(","));
         corsConfiguration.setAllowedOrigins(origins);
-        
+
         // Parse allowed methods
         List<String> methods = Arrays.asList(allowedMethods.split(","));
         corsConfiguration.setAllowedMethods(methods);
-        
+
         // Parse allowed headers
         if ("*".equals(allowedHeaders)) {
             corsConfiguration.addAllowedHeader("*");
@@ -47,14 +47,13 @@ public class CorsConfig {
             List<String> headers = Arrays.asList(allowedHeaders.split(","));
             corsConfiguration.setAllowedHeaders(headers);
         }
-        
+
         corsConfiguration.setAllowCredentials(allowCredentials);
         corsConfiguration.setMaxAge(maxAge); // Cache preflight for specified seconds
-        
-        UrlBasedCorsConfigurationSource urlBasedCorsConfigurationSource = 
-            new UrlBasedCorsConfigurationSource();
+
+        UrlBasedCorsConfigurationSource urlBasedCorsConfigurationSource = new UrlBasedCorsConfigurationSource();
         urlBasedCorsConfigurationSource.registerCorsConfiguration("/**", corsConfiguration);
-        
+
         return new CorsFilter(urlBasedCorsConfigurationSource);
     }
 }

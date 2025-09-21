@@ -1,5 +1,11 @@
 package com.nta.controller;
 
+import java.text.ParseException;
+
+import jakarta.validation.Valid;
+
+import org.springframework.web.bind.annotation.*;
+
 import com.nimbusds.jose.JOSEException;
 import com.nta.dto.request.*;
 import com.nta.dto.response.ApiResponse;
@@ -8,15 +14,9 @@ import com.nta.dto.response.IntrospectResponse;
 import com.nta.service.AuthService;
 import com.nta.service.SocialAuthService;
 
-import jakarta.validation.Valid;
-
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-
-import org.springframework.web.bind.annotation.*;
-
-import java.text.ParseException;
 
 @RestController
 @RequestMapping("auth")

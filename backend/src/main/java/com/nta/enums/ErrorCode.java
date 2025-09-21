@@ -1,9 +1,9 @@
 package com.nta.enums;
 
-import lombok.Getter;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
+
+import lombok.Getter;
 
 @Getter
 public enum ErrorCode {
@@ -17,10 +17,18 @@ public enum ErrorCode {
     UNAUTHORIZED(1007, "You do not have permission", HttpStatus.FORBIDDEN),
     UNSUPPORTED_SOCIAL_LOGIN(1013, "Unsupported social login", HttpStatus.BAD_REQUEST),
     PASSWORD_EXISTED(1014, "Password already created", HttpStatus.BAD_REQUEST),
-    UNABLE_TO_USE_REFRESH_TOKEN_TO_ACCESS_RESOURCE(1010, "Unable to use refresh token to access resource", HttpStatus.BAD_REQUEST),
+    UNABLE_TO_USE_REFRESH_TOKEN_TO_ACCESS_RESOURCE(
+            1010, "Unable to use refresh token to access resource", HttpStatus.BAD_REQUEST),
     AI_API_KEY_MISSING(1100, "Thiếu API key AI", HttpStatus.BAD_REQUEST),
     AI_API_KEY_INVALID(1101, "API key không hợp lệ hoặc đã hết hạn", HttpStatus.BAD_REQUEST),
     JSON_PARSE_ERROR(1015, "Lỗi khi parse JSON, hãy thử lại", HttpStatus.INTERNAL_SERVER_ERROR),
+    DECK_NAME_EXISTS(2001, "Deck with this name already exists", HttpStatus.BAD_REQUEST),
+    NOTE_TYPE_NAME_EXISTS(2002, "Note type with this name already exists", HttpStatus.BAD_REQUEST),
+    ACCESS_DENIED(2003, "Access denied", HttpStatus.FORBIDDEN),
+    DECK_NOT_FOUND(2004, "Deck not found", HttpStatus.NOT_FOUND),
+    NOTE_TYPE_NOT_FOUND(2005, "Note type not found", HttpStatus.NOT_FOUND),
+    NOTE_NOT_FOUND(2006, "Note not found", HttpStatus.NOT_FOUND),
+    CARD_NOT_FOUND(2007, "Card not found", HttpStatus.NOT_FOUND),
     ;
     private int code;
     private String message;

@@ -1,5 +1,8 @@
 package com.nta.controller;
 
+import org.springframework.data.domain.Page;
+import org.springframework.web.bind.annotation.*;
+
 import com.nta.dto.request.GenerateParagraphRequest;
 import com.nta.dto.request.SentenceTranslationRequest;
 import com.nta.dto.response.*;
@@ -8,15 +11,13 @@ import com.nta.service.WritingService;
 
 import lombok.AllArgsConstructor;
 
-import org.springframework.data.domain.Page;
-import org.springframework.web.bind.annotation.*;
-
 @RestController
 @RequestMapping("/writings")
 @AllArgsConstructor
 public class WritingController {
     final WritingService writingService;
     final AuthService authService;
+
     @PostMapping("/generate")
     public ApiResponse<GenerateParagraphResponse> generateParagraph(@RequestBody GenerateParagraphRequest request) {
         // Compose prompt using topic, language, tone, style, paragraphCount, sentenceCount
@@ -60,7 +61,8 @@ public class WritingController {
         // Get user ID from JWT token
         final Long userId = authService.getUserIdFromSecurityContext();
 
-        final Page<WritingResponse> writings = writingService.getAllWritings(page, size, direction, sortBy, keyword, userId);
+        final Page<WritingResponse> writings =
+                writingService.getAllWritings(page, size, direction, sortBy, keyword, userId);
 
         return ApiResponse.<Page<WritingResponse>>builder().result(writings).build();
     }

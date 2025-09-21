@@ -1,16 +1,7 @@
 package com.nta.controller;
 
-import com.nta.dto.request.UpsertApiKeyRequest;
-import com.nta.dto.response.ApiResponse;
-import com.nta.dto.response.UserApiKeyResponse;
-import com.nta.enums.ErrorCode;
-import com.nta.exception.AppException;
-import com.nta.service.AIChatService;
-import com.nta.service.UserApiKeyService;
 import jakarta.validation.Valid;
-import lombok.AccessLevel;
-import lombok.RequiredArgsConstructor;
-import lombok.experimental.FieldDefaults;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,6 +9,18 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.nta.dto.request.UpsertApiKeyRequest;
+import com.nta.dto.response.ApiResponse;
+import com.nta.dto.response.UserApiKeyResponse;
+import com.nta.enums.ErrorCode;
+import com.nta.exception.AppException;
+import com.nta.service.AIChatService;
+import com.nta.service.UserApiKeyService;
+
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 
 @RestController
 @RequestMapping("/ai/keys")
@@ -27,6 +30,7 @@ public class UserApiKeyController {
 
     UserApiKeyService userApiKeyService;
     AIChatService aiChatService;
+
     @PostMapping
     public ResponseEntity<ApiResponse<Void>> upsert(@Valid @RequestBody UpsertApiKeyRequest request) {
 
@@ -48,8 +52,7 @@ public class UserApiKeyController {
     @GetMapping
     public ResponseEntity<ApiResponse<UserApiKeyResponse>> get() {
         final var body = userApiKeyService.getMyApiKeyInfo();
-        return ResponseEntity.ok(ApiResponse.<UserApiKeyResponse>builder().result(body).build());
+        return ResponseEntity.ok(
+                ApiResponse.<UserApiKeyResponse>builder().result(body).build());
     }
 }
-
-

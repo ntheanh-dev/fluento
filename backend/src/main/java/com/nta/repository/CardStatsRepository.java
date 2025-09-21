@@ -1,0 +1,40 @@
+package com.nta.repository;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
+
+import com.nta.entity.CardStats;
+
+@Repository
+public interface CardStatsRepository extends JpaRepository<CardStats, Long> {
+
+    Optional<CardStats> findByCardIdAndUserId(Long cardId, Long userId);
+
+    List<CardStats> findByUserId(Long userId);
+
+    @Query(
+            "SELECT cs FROM CardStats cs WHERE cs.userId = :userId AND cs.dueDate <= :currentTime ORDER BY cs.dueDate ASC")
+    List<CardStats> findDueCardsForUser(@Param("userId") Long userId, @Param("currentTime") LocalDateTime currentTime);
+
+    @Query(
+            "SELECT cs FROM CardStats cs WHERE cs.userId = :userId AND cs.dueDate <= :currentTime AND cs.dueDate >= :startOfDay ORDER BY cs.dueDate ASC")
+    List<CardStats> findTodayDueCardsForUser(
+            @Param("userId") Long userId,
+            @Param("currentTime") LocalDateTime currentTime,
+            @Param("startOfDay") LocalDateTime startOfDay);
+
+    @Query("SELECT COUNT(cs) FROM CardStats cs WHERE cs.userId = :userId AND cs.dueDate <= :currentTime")
+    Long countDueCardsForUser(@Param("userId") Long userId, @Param("currentTime") LocalDateTime currentTime);
+
+    @Query("SELECT COUNT(cs) FROM CardStats cs WHERE cs.userId = :userId")
+    Long countTotalCardsForUser(@Param("userId") Long userId);
+
+    @Query("SELECT COUNT(cs) FROM CardStats cs WHERE cs.userId = :userId AND cs.repetitions > 0")
+    Long countLearnedCardsForUser(@Param("userId") Long userId);
+}

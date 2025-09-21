@@ -1,9 +1,5 @@
 package com.nta.service;
 
-import com.nta.enums.ErrorCode;
-import com.nta.exception.AppException;
-
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.ai.chat.messages.SystemMessage;
@@ -11,6 +7,11 @@ import org.springframework.ai.chat.messages.UserMessage;
 import org.springframework.ai.chat.prompt.Prompt;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Service;
+
+import com.nta.enums.ErrorCode;
+import com.nta.exception.AppException;
+
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @Slf4j
@@ -34,7 +35,10 @@ public class AIChatService {
     public boolean isApiKeyValid(final String apiKey) {
         try {
             final ChatClient chatClient = chatClientFactory.buildForApiKey(apiKey);
-            chatClient.prompt(new Prompt(new SystemMessage("Say 'Hello'"), new UserMessage("Hello"))).call().content();
+            chatClient
+                    .prompt(new Prompt(new SystemMessage("Say 'Hello'"), new UserMessage("Hello")))
+                    .call()
+                    .content();
             return true;
         } catch (RuntimeException ex) {
             log.error("Failed to validate API key", ex);

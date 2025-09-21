@@ -1,22 +1,20 @@
 package com.nta.component;
 
-import com.nta.constant.PredefinedRole;
-import com.nta.entity.Tone;
-import com.nta.entity.Topic;
-import com.nta.entity.TopicGroup;
-import com.nta.repository.*;
-
-import lombok.AccessLevel;
-import lombok.RequiredArgsConstructor;
-import lombok.experimental.FieldDefaults;
+import java.util.List;
+import java.util.Set;
 
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import java.util.List;
-import java.util.Set;
+import com.nta.constant.PredefinedRole;
+import com.nta.entity.*;
+import com.nta.repository.*;
+
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 
 @Configuration
 @RequiredArgsConstructor
@@ -35,7 +33,10 @@ public class DataInitializer {
             TopicGroupRepository topicGroupRepository,
             RoleRepository repository,
             RoleRepository roleRepository,
-            ToneRepository toneRepository) {
+            ToneRepository toneRepository,
+            UserRepository userRepository,
+            NoteTypeRepository noteTypeRepository,
+            FieldRepository fieldRepository) {
         return args -> {
             // Initialization logic here
             System.out.println("DataInitializer: Application started, performing initialization...");
@@ -179,6 +180,62 @@ public class DataInitializer {
                         Tone.builder()
                                 .name("Professional")
                                 .description("Chuyên nghiệp, chuẩn mực")
+                                .build()));
+            }
+
+            if (noteTypeRepository.count() == 0) {
+
+                final NoteType nt = noteTypeRepository.save(
+                        NoteType.builder().name("Default").build());
+
+                fieldRepository.saveAll(List.of(
+                        Field.builder()
+                                .name("word")
+                                .noteTypeId(nt.getId())
+                                .fieldOrder(1)
+                                .isRequired(true)
+                                .build(),
+                        Field.builder()
+                                .name("phonetic")
+                                .noteTypeId(nt.getId())
+                                .fieldOrder(2)
+                                .isRequired(true)
+                                .build(),
+                        Field.builder()
+                                .name("meaning")
+                                .noteTypeId(nt.getId())
+                                .fieldOrder(3)
+                                .isRequired(true)
+                                .build(),
+                        Field.builder()
+                                .name("pos")
+                                .noteTypeId(nt.getId())
+                                .fieldOrder(4)
+                                .isRequired(true)
+                                .build(),
+                        Field.builder()
+                                .name("example")
+                                .noteTypeId(nt.getId())
+                                .fieldOrder(5)
+                                .isRequired(true)
+                                .build(),
+                        Field.builder()
+                                .name("translation")
+                                .noteTypeId(nt.getId())
+                                .fieldOrder(6)
+                                .isRequired(true)
+                                .build(),
+                        Field.builder()
+                                .name("audio")
+                                .noteTypeId(nt.getId())
+                                .fieldOrder(7)
+                                .isRequired(false)
+                                .build(),
+                        Field.builder()
+                                .name("image")
+                                .noteTypeId(nt.getId())
+                                .fieldOrder(8)
+                                .isRequired(false)
                                 .build()));
             }
         };

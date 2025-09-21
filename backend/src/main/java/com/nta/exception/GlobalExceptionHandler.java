@@ -1,6 +1,5 @@
 package com.nta.exception;
 
-import com.fasterxml.jackson.core.io.JsonEOFException;
 import org.springframework.ai.retry.NonTransientAiException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
@@ -10,6 +9,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
+import com.fasterxml.jackson.core.io.JsonEOFException;
 import com.nta.dto.response.ApiResponse;
 import com.nta.enums.ErrorCode;
 import com.nta.enums.ValidationErrorCode;
@@ -133,5 +133,4 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity.badRequest().body(apiResponse);
     }
-
 }

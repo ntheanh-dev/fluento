@@ -1,5 +1,11 @@
 package com.nta.service;
 
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
+
 import com.nta.dto.request.PasswordCreationRequest;
 import com.nta.dto.response.UserResponse;
 import com.nta.entity.User;
@@ -15,12 +21,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
-
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -29,6 +29,7 @@ public class UserService {
     UserRepository userRepository;
     UserMapper userMapper;
     UserApiKeyRepository userApiKeyRepository;
+
     public void createPassword(final PasswordCreationRequest passwordCreationRequest) {
         final User user = this.getUserFromContext();
 
@@ -62,9 +63,7 @@ public class UserService {
 
     public String getRequiredApiKey() {
         final User user = this.getUserFromContext();
-        final UserApiKey key =
-                userApiKeyRepository
-                        .findByUserId(user.getId()).orElse(null);
+        final UserApiKey key = userApiKeyRepository.findByUserId(user.getId()).orElse(null);
         return key != null ? key.getApiKey() : null;
     }
 }
