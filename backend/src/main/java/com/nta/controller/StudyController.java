@@ -11,6 +11,7 @@ import com.nta.dto.request.ReviewCardRequest;
 import com.nta.dto.response.ApiResponse;
 import com.nta.dto.response.CardResponse;
 import com.nta.dto.response.StudySessionResponse;
+import com.nta.dto.response.StudyModeStatsResponse;
 import com.nta.entity.User;
 import com.nta.service.StudyService;
 import com.nta.service.UserService;
@@ -26,14 +27,29 @@ public class StudyController {
     private final UserService userService;
 
     @GetMapping("/session")
-    public ResponseEntity<ApiResponse<StudySessionResponse>> getStudySession() {
+    public ResponseEntity<ApiResponse<StudySessionResponse>> getStudySession(
+            @RequestParam(required = false) String mode,
+            @RequestParam(required = false) Long deckId) {
         User user = userService.getUserFromContext();
         Long userId = user.getId();
-        StudySessionResponse response = studyService.getStudySession(userId);
+        StudySessionResponse response = studyService.getStudySession(userId, mode, deckId);
 
         return ResponseEntity.ok(ApiResponse.<StudySessionResponse>builder()
                 .code(1000)
                 .message("Study session retrieved successfully")
+                .result(response)
+                .build());
+    }
+
+    @GetMapping("/decks/{deckId}/mode-stats")
+    public ResponseEntity<ApiResponse<StudyModeStatsResponse>> getStudyModeStats(@PathVariable Long deckId) {
+        User user = userService.getUserFromContext();
+        Long userId = user.getId();
+        StudyModeStatsResponse response = studyService.getStudyModeStats(userId, deckId);
+
+        return ResponseEntity.ok(ApiResponse.<StudyModeStatsResponse>builder()
+                .code(1000)
+                .message("Study mode stats retrieved successfully")
                 .result(response)
                 .build());
     }

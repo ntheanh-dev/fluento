@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.nta.dto.request.ReviewCardRequest;
 import com.nta.dto.response.CardResponse;
 import com.nta.dto.response.StudySessionResponse;
+import com.nta.dto.response.StudyModeStatsResponse;
 import com.nta.entity.Card;
 import com.nta.entity.CardStats;
 import com.nta.entity.Field;
@@ -36,12 +37,22 @@ public class StudyService {
     private final FieldRepository fieldRepository;
 
     @Transactional(readOnly = true)
-    public StudySessionResponse getStudySession(Long userId) {
+    public StudySessionResponse getStudySession(Long userId, String mode, Long deckId) {
         List<CardStats> dueCards = spacedRepetitionService.getDueCards(userId);
         List<CardStats> todayDueCards = spacedRepetitionService.getTodayDueCards(userId);
 
-        Long totalCards = spacedRepetitionService.getTotalCardsCount(userId);
-        Long learnedCards = spacedRepetitionService.getLearnedCardsCount(userId);
+        // Filter by deck if deckId is provided
+        if (deckId != null) {
+            dueCards = dueCards.stream()
+                    .filter(cardStats -> cardStats.getCard().getNote().getDeckId().equals(deckId))
+                    .collect(Collectors.toList());
+            todayDueCards = todayDueCards.stream()
+                    .filter(cardStats -> cardStats.getCard().getNote().getDeckId().equals(deckId))
+                    .collect(Collectors.toList());
+        }
+
+        Long totalCards = spacedRepetitionService.getTotalCardsCount(userId, deckId);
+        Long learnedCards = spacedRepetitionService.getLearnedCardsCount(userId, deckId);
         Long dueToday = (long) todayDueCards.size();
         Long newToday = dueCards.stream()
                 .mapToLong(card -> card.getRepetitions() == 0 ? 1 : 0)
@@ -73,6 +84,67 @@ public class StudyService {
         response.setStats(stats);
 
         return response;
+    }
+
+    @Transactional(readOnly = true)
+    public StudyModeStatsResponse getStudyModeStats(Long userId, Long deckId) {
+        // Get total cards in deck (not just cards with stats)
+        Long totalCards = cardRepository.countByDeckId(deckId);
+        
+        // Get learned cards (cards with stats and repetitions > 0)
+        Long learnedCards = spacedRepetitionService.getLearnedCardsCount(userId, deckId);
+        
+        // Get due cards for review
+        List<CardStats> dueCards = spacedRepetitionService.getDueCards(userId);
+        dueCards = dueCards.stream()
+                .filter(cardStats -> cardStats.getCard().getNote().getDeckId().equals(deckId))
+                .collect(Collectors.toList());
+        
+        Long dueForReview = (long) dueCards.size();
+
+        // Calculate mastery percentage
+        Double masteryPercentage = totalCards > 0 ? (learnedCards.doubleValue() / totalCards.doubleValue()) * 100 : 0.0;
+
+        // Calculate difficulty distribution based on ease factor and repetitions
+        List<CardStats> allCardStats = cardStatsRepository.findByUserId(userId);
+        allCardStats = allCardStats.stream()
+                .filter(cardStats -> cardStats.getCard().getNote().getDeckId().equals(deckId))
+                .collect(Collectors.toList());
+        
+        Long known = allCardStats.stream()
+                .filter(stats -> stats.getRepetitions() >= 5 && stats.getEaseFactor().doubleValue() >= 2.5)
+                .count();
+        
+        Long easy = allCardStats.stream()
+                .filter(stats -> stats.getRepetitions() >= 2 && stats.getEaseFactor().doubleValue() >= 2.3 && stats.getEaseFactor().doubleValue() < 2.5)
+                .count();
+        
+        Long medium = allCardStats.stream()
+                .filter(stats -> stats.getRepetitions() >= 1 && stats.getEaseFactor().doubleValue() >= 2.0 && stats.getEaseFactor().doubleValue() < 2.3)
+                .count();
+        
+        Long hard = allCardStats.stream()
+                .filter(stats -> stats.getRepetitions() >= 1 && stats.getEaseFactor().doubleValue() < 2.0)
+                .count();
+        
+        Long notStarted = totalCards - allCardStats.size();
+
+        StudyModeStatsResponse.DifficultyDistribution difficultyDistribution = 
+                StudyModeStatsResponse.DifficultyDistribution.builder()
+                        .known(known)
+                        .easy(easy)
+                        .medium(medium)
+                        .hard(hard)
+                        .notStarted(notStarted)
+                        .build();
+
+        return StudyModeStatsResponse.builder()
+                .totalVocabulary(totalCards)
+                .mastered(learnedCards)
+                .dueForReview(dueForReview)
+                .masteryPercentage(masteryPercentage)
+                .difficultyDistribution(difficultyDistribution)
+                .build();
     }
 
     public void reviewCard(Long userId, ReviewCardRequest request) {

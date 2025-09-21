@@ -95,8 +95,24 @@ public class SpacedRepetitionService {
     }
 
     @Transactional(readOnly = true)
+    public Long getTotalCardsCount(Long userId, Long deckId) {
+        if (deckId == null) {
+            return getTotalCardsCount(userId);
+        }
+        return cardStatsRepository.countTotalCardsForUserAndDeck(userId, deckId);
+    }
+
+    @Transactional(readOnly = true)
     public Long getLearnedCardsCount(Long userId) {
         return cardStatsRepository.countLearnedCardsForUser(userId);
+    }
+
+    @Transactional(readOnly = true)
+    public Long getLearnedCardsCount(Long userId, Long deckId) {
+        if (deckId == null) {
+            return getLearnedCardsCount(userId);
+        }
+        return cardStatsRepository.countLearnedCardsForUserAndDeck(userId, deckId);
     }
 
     private CardStats createInitialStats(Long cardId, Long userId) {
