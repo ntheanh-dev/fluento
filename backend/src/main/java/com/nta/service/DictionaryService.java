@@ -127,7 +127,7 @@ public class DictionaryService {
                     new ParameterizedTypeReference<DictionaryResponse>() {});
 
             // No audio for misspelled/corrected words
-            response.setAudio(null);
+            response.setAudio(this.getAudioUrl(response.getWord()));
 
             log.info("Handled misspelled word: {} -> {}", misspelledWord, response.getWord());
             return response;
