@@ -13,7 +13,6 @@ import BilingualPassage from "./pages/BilingualPassage";
 import ListeningPractice from "./pages/ListeningPractice";
 import SpeakingPractice from "./pages/SpeakingPractice";
 import DeckManagement from "./components/vocabulary/DeckManagement";
-import NoteTypeManagement from "./components/vocabulary/NoteTypeManagement";
 import NoteManagement from "./components/vocabulary/NoteManagement";
 import StudySessionPage from "./components/vocabulary/StudySession";
 import DictionaryLookup from "./components/vocabulary/DictionaryLookup";
@@ -138,16 +137,6 @@ function App() {
               <RequiredAuth>
                 <MainLayout>
                   <NoteManagement />
-                </MainLayout>
-              </RequiredAuth>
-            }
-          />
-          <Route
-            path="/vocabulary/note-types"
-            element={
-              <RequiredAuth>
-                <MainLayout>
-                  <NoteTypeManagement />
                 </MainLayout>
               </RequiredAuth>
             }

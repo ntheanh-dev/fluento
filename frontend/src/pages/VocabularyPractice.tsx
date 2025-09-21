@@ -31,14 +31,6 @@ const VocabularyPractice = () => {
       route: "/vocabulary/notes",
       color: "from-green-500 to-green-600"
     },
-    {
-      icon: <FaCog className="text-2xl text-orange-600" />,
-      title: "Cấu hình",
-      description: "Tùy chỉnh loại thẻ và cài đặt học tập",
-      buttonText: "Cài đặt",
-      route: "/vocabulary/note-types",
-      color: "from-orange-500 to-orange-600"
-    }
   ];
 
   return (
@@ -65,23 +57,10 @@ const VocabularyPractice = () => {
         </Typography>
       </Breadcrumbs>
 
-      <Box className="text-center mb-8">
-        <div className="flex items-center justify-center gap-3 mb-4">
-          <FaBook className="text-4xl text-purple-600" />
-          <Typography variant="h3" component="h1" className="font-bold text-gray-800">
-            Luyện từ vựng
-          </Typography>
-          <FaBrain className="text-2xl text-purple-600" />
-        </div>
-        <Typography variant="h6" className="text-gray-600 max-w-2xl mx-auto">
-          Ghi nhớ từ vựng thông minh với phương pháp spaced repetition và AI phân tích tiến độ học tập
-        </Typography>
-      </Box>
-
       {/* Quick Actions */}
       <Grid container spacing={3} className="mb-8">
         {features.map((feature, index) => (
-          <Grid size={{ xs: 12, sm: 6, md: 3 }} key={index}>
+          <Grid size={{ xs: 12, sm: 6, md: 4 }} key={index}>
             <Card
               className="h-full transition-all duration-300 hover:shadow-lg hover:scale-105 cursor-pointer"
               onClick={() => navigate(feature.route)}

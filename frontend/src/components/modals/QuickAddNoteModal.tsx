@@ -1,11 +1,10 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     Dialog,
     DialogTitle,
     DialogContent,
     DialogActions,
     Button,
-    TextField,
     FormControl,
     Select,
     MenuItem,
@@ -13,23 +12,16 @@ import {
     Typography,
     CircularProgress,
     IconButton,
-    Paper,
-    Card,
-    CardMedia,
-    CardActions
+    Alert
 } from '@mui/material';
+import { NoteForm } from '../vocabulary/notemanagement/index';
 import {
     Close as CloseIcon,
-    AutoAwesome as AutoAwesomeIcon,
-    VolumeUp as VolumeUpIcon,
-    ExpandMore as ExpandMoreIcon,
-    ExpandLess as ExpandLessIcon,
-    CloudUpload as CloudUploadIcon,
-    Delete as DeleteIcon,
 } from '@mui/icons-material';
 import { vocabularyDeckApi, vocabularyNoteTypeApi, vocabularyNoteApi } from '../vocabulary/vocabularyApi';
 import { dictionaryApi } from '../vocabulary/dictionaryApi';
 import { notify } from '../../utils/notify';
+import { VocabularyCache } from '../../utils/cache';
 import type { Deck, NoteType, CreateNoteRequest } from '../vocabulary/vocabulary';
 
 interface QuickAddNoteModalProps {
@@ -38,116 +30,6 @@ interface QuickAddNoteModalProps {
     selectedWord: string;
 }
 
-interface ImageUploadProps {
-    value: File | null;
-    onChange: (file: File | null) => void;
-    onRemove: () => void;
-}
-
-const ImageUpload: React.FC<ImageUploadProps> = ({ value, onChange, onRemove }) => {
-    const fileInputRef = useRef<HTMLInputElement>(null);
-
-    const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (file) {
-
-            // Check if it's an image file
-            const isImage = file.type && file.type.startsWith('image/') ||
-                file.name.toLowerCase().match(/\.(jpg|jpeg|png|gif|webp|bmp|svg)$/);
-
-            if (!isImage) {
-                notify('Please select an image file (JPG, PNG, GIF, WebP, etc.)', 'error');
-                return;
-            }
-
-            if (file.size > 10 * 1024 * 1024) {
-                notify('File size must be less than 10MB', 'error');
-                return;
-            }
-            onChange(file);
-        }
-    };
-
-    const handleClick = (e: React.MouseEvent) => {
-        e.preventDefault();
-        e.stopPropagation();
-        fileInputRef.current?.click();
-    };
-
-    return (
-        <Box>
-            {value ? (
-                <Card sx={{ maxWidth: 300, margin: '8px 0' }}>
-                    <CardMedia
-                        component="img"
-                        height="200"
-                        image={URL.createObjectURL(value)}
-                        alt="Preview"
-                        sx={{ objectFit: 'cover' }}
-                    />
-                    <CardActions>
-                        <Button
-                            size="small"
-                            color="error"
-                            startIcon={<DeleteIcon />}
-                            onClick={onRemove}
-                        >
-                            Remove
-                        </Button>
-                        <Button
-                            size="small"
-                            color="primary"
-                            startIcon={<CloudUploadIcon />}
-                            onClick={handleClick}
-                        >
-                            Change
-                        </Button>
-                    </CardActions>
-                </Card>
-            ) : (
-                <Paper
-                    sx={{
-                        p: 3,
-                        textAlign: 'center',
-                        border: '2px dashed',
-                        borderColor: 'grey.300',
-                        backgroundColor: 'background.paper',
-                        cursor: 'pointer',
-                        transition: 'all 0.2s ease-in-out',
-                        '&:hover': {
-                            borderColor: 'primary.main',
-                            backgroundColor: 'action.hover'
-                        }
-                    }}
-                    onClick={handleClick}
-                >
-                    <CloudUploadIcon sx={{ fontSize: 48, color: 'grey.400', mb: 2 }} />
-                    <Typography variant="h6" gutterBottom>
-                        Click to upload image
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary">
-                        Supports: JPG, PNG, GIF, WebP (Max 10MB)
-                    </Typography>
-                    <Button
-                        variant="outlined"
-                        sx={{ mt: 2 }}
-                        onClick={handleClick}
-                    >
-                        Select Image File
-                    </Button>
-                </Paper>
-            )}
-
-            <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/*"
-                onChange={handleFileSelect}
-                style={{ display: 'none' }}
-            />
-        </Box>
-    );
-};
 
 const QuickAddNoteModal: React.FC<QuickAddNoteModalProps> = ({
     open,
@@ -161,66 +43,21 @@ const QuickAddNoteModal: React.FC<QuickAddNoteModalProps> = ({
     const [fieldValues, setFieldValues] = useState<Record<string, string | File>>({});
     const [loading, setLoading] = useState(false);
     const [autoFillLoading, setAutoFillLoading] = useState(false);
-    const [expandedOptions, setExpandedOptions] = useState(false);
     const [dictionaryData, setDictionaryData] = useState<any>(null);
+    const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
+    const [showValidationErrors, setShowValidationErrors] = useState(false);
+    const [imageUrls, setImageUrls] = useState<Record<string, string>>({});
 
-    // Load data when modal opens
-    useEffect(() => {
-        if (open) {
-            loadData();
-        }
-    }, [open]);
-
-    // Initialize form when data is loaded
-    useEffect(() => {
-        if (decks.length > 0 && noteTypes.length > 0) {
-            setSelectedDeck(decks[0]);
-            setSelectedNoteType(noteTypes[0]);
-            initializeForm();
-        }
-    }, [decks, noteTypes]);
-
-    const loadData = async () => {
-        try {
-            setLoading(true);
-            const [decksData, noteTypesData] = await Promise.all([
-                vocabularyDeckApi.getUserDecks(),
-                vocabularyNoteTypeApi.getUserNoteTypes(),
-            ]);
-            setDecks(decksData);
-            setNoteTypes(noteTypesData);
-        } catch (error) {
-            notify('Lỗi khi tải dữ liệu', 'error');
-        } finally {
-            setLoading(false);
-        }
+    // Create formData from current state
+    const formData: CreateNoteRequest = {
+        noteTypeId: selectedNoteType?.id || 0,
+        deckId: selectedDeck?.id || 0,
+        fieldValues: fieldValues
     };
 
-    const initializeForm = () => {
-        if (selectedNoteType) {
-            const initialValues: Record<string, string> = {};
-            selectedNoteType.fields.forEach(field => {
-                if (field.name.toLowerCase().includes('word') || field.name.toLowerCase().includes('từ')) {
-                    initialValues[field.name] = selectedWord;
-                } else {
-                    initialValues[field.name] = '';
-                }
-            });
-            setFieldValues(initialValues);
-        }
-    };
-
-    const handleDeckChange = (deckId: number) => {
-        const deck = decks.find(d => d.id === deckId);
-        setSelectedDeck(deck || null);
-    };
-
-
-    const handleFieldChange = (fieldName: string, value: string) => {
-        setFieldValues(prev => ({
-            ...prev,
-            [fieldName]: value
-        }));
+    // Handler functions for NoteForm
+    const handleFormDataChange = (data: CreateNoteRequest) => {
+        setFieldValues(data.fieldValues);
     };
 
     const handleFileChange = (fieldName: string, file: File | null) => {
@@ -245,46 +82,181 @@ const QuickAddNoteModal: React.FC<QuickAddNoteModalProps> = ({
         }));
     };
 
-    const isImageField = (fieldName: string) => {
-        const lowerName = fieldName.toLowerCase();
-        return lowerName.includes('image') || lowerName.includes('ảnh') || lowerName.includes('picture') || lowerName.includes('photo');
+    // Load data when modal opens
+    useEffect(() => {
+        if (open) {
+            loadData();
+            // Clear validation errors when modal opens
+            setValidationErrors({});
+            setShowValidationErrors(false);
+            // Add selectedWord to fieldValues for auto-fill
+            setFieldValues(prev => ({
+                ...prev,
+                word: selectedWord
+            }));
+        }
+    }, [open, selectedWord]);
+
+    // Initialize form when data is loaded
+    useEffect(() => {
+        if (decks.length > 0 && noteTypes.length > 0) {
+            setSelectedDeck(decks[0]);
+            setSelectedNoteType(noteTypes[0]);
+            initializeForm();
+        }
+    }, [decks, noteTypes]);
+
+    const loadData = async () => {
+        try {
+            setLoading(true);
+
+            // Try to load noteTypes from cache first
+            const cachedNoteTypes = VocabularyCache.getNoteTypes() as NoteType[] | null;
+            let noteTypesData: NoteType[] = cachedNoteTypes || [];
+
+
+            // Fetch fresh data in parallel
+            const [freshDecksData, freshNoteTypesData] = await Promise.all([
+                vocabularyDeckApi.getUserDecks(),
+                vocabularyNoteTypeApi.getUserNoteTypes()
+            ]);
+
+            // Always use fresh decks data (no caching)
+            setDecks(freshDecksData);
+
+            // Handle noteTypes cache
+            if (noteTypesData.length === 0) {
+                noteTypesData = freshNoteTypesData;
+                VocabularyCache.setNoteTypes(noteTypesData);
+            } else {
+                // Compare cached data with fresh data to detect changes
+                const cachedIds = noteTypesData.map(nt => nt.id).sort();
+                const freshIds = freshNoteTypesData.map(nt => nt.id).sort();
+
+                if (JSON.stringify(cachedIds) !== JSON.stringify(freshIds)) {
+                    // Data has changed, update cache
+                    noteTypesData = freshNoteTypesData;
+                    VocabularyCache.setNoteTypes(noteTypesData);
+                }
+            }
+
+            setNoteTypes(noteTypesData);
+        } catch (error) {
+            notify('Lỗi khi tải dữ liệu', 'error');
+        } finally {
+            setLoading(false);
+        }
     };
 
-    const handleAutoFill = async () => {
-        if (!selectedWord.trim()) {
+    const initializeForm = () => {
+        // Initialize with selectedWord in word field
+        const initialValues: Record<string, string> = {
+            word: selectedWord || ''
+        };
+        setFieldValues(initialValues);
+    };
+
+    // Function to clear noteTypes cache (can be called from outside if needed)
+    const clearCache = () => {
+        VocabularyCache.clearAll();
+    };
+
+    // Expose clearCache function globally for external use
+    useEffect(() => {
+        (window as any).clearVocabularyCache = clearCache;
+        return () => {
+            delete (window as any).clearVocabularyCache;
+        };
+    }, []);
+
+    const handleDeckChange = (deckId: number) => {
+        const deck = decks.find(d => d.id === deckId);
+        setSelectedDeck(deck || null);
+    };
+
+    // Validation function
+    const validateForm = (): { isValid: boolean; errorCount: number } => {
+        const errors: Record<string, string> = {};
+
+        if (!selectedDeck) {
+            errors.deck = 'Vui lòng chọn deck';
+        }
+
+        if (!selectedNoteType) {
+            errors.noteType = 'Vui lòng chọn loại note';
+        }
+
+        // Validate required fields from selectedNoteType
+        if (selectedNoteType) {
+            selectedNoteType.fields.forEach(field => {
+                if (field.isRequired) {
+                    const fieldValue = fieldValues[field.name];
+                    if (!fieldValue || (typeof fieldValue === 'string' && fieldValue.trim() === '')) {
+                        errors[field.name] = `${field.name} là bắt buộc`;
+                    }
+                }
+            });
+        }
+
+        setValidationErrors(errors);
+        const errorCount = Object.keys(errors).length;
+        return { isValid: errorCount === 0, errorCount };
+    };
+
+    // Re-validate when form data changes
+    useEffect(() => {
+        if (showValidationErrors) {
+            validateForm();
+        }
+    }, [fieldValues, selectedDeck, selectedNoteType, showValidationErrors]);
+
+    const handleAutoFill = async (word?: string) => {
+        const wordToLookup = word || selectedWord;
+        if (!wordToLookup?.trim()) {
             notify('Không có từ để tra', 'warning');
             return;
         }
 
         setAutoFillLoading(true);
         try {
-            const dictionaryResult = await dictionaryApi.lookupWord({ word: selectedWord.trim() });
+            const dictionaryResult = await dictionaryApi.lookupWord({ word: wordToLookup.trim() });
             setDictionaryData(dictionaryResult);
 
-            if (selectedNoteType) {
-                const newFieldValues: Record<string, string | File> = { ...fieldValues };
+            const newFieldValues: Record<string, string | File> = { ...fieldValues };
 
-                selectedNoteType.fields.forEach(field => {
-                    const fieldName = field.name.toLowerCase();
-
-                    if (fieldName.includes('phonetic') || fieldName.includes('phiên âm')) {
-                        newFieldValues[field.name] = dictionaryResult.phonetic || '';
-                    } else if (fieldName.includes('meaning') || fieldName.includes('nghĩa')) {
-                        newFieldValues[field.name] = dictionaryResult.meaning || '';
-                    } else if (fieldName.includes('pos') || fieldName.includes('loại từ') || fieldName.includes('part of speech')) {
-                        newFieldValues[field.name] = dictionaryResult.pos || '';
-                    } else if (fieldName.includes('example') || fieldName.includes('ví dụ')) {
-                        newFieldValues[field.name] = dictionaryResult.example || '';
-                    } else if (fieldName.includes('translation') || fieldName.includes('dịch')) {
-                        newFieldValues[field.name] = dictionaryResult.translation || '';
-                    } else if (fieldName.includes('audio') || fieldName.includes('âm thanh') || fieldName.includes('pronunciation')) {
-                        newFieldValues[field.name] = dictionaryResult.audio || '';
-                    }
-                });
-
-                setFieldValues(newFieldValues);
-                notify('Đã tự động điền thông tin từ Dictionary!', 'success');
+            // Map dictionary data to common field names
+            if (dictionaryResult.phonetic) {
+                newFieldValues['phonetic'] = dictionaryResult.phonetic;
+                newFieldValues['phiên âm'] = dictionaryResult.phonetic;
             }
+
+            if (dictionaryResult.meaning) {
+                newFieldValues['meaning'] = dictionaryResult.meaning;
+                newFieldValues['nghĩa'] = dictionaryResult.meaning;
+            }
+
+            if (dictionaryResult.pos) {
+                newFieldValues['pos'] = dictionaryResult.pos;
+                newFieldValues['loại từ'] = dictionaryResult.pos;
+            }
+
+            if (dictionaryResult.example) {
+                newFieldValues['example'] = dictionaryResult.example;
+                newFieldValues['ví dụ'] = dictionaryResult.example;
+            }
+
+            if (dictionaryResult.translation) {
+                newFieldValues['translation'] = dictionaryResult.translation;
+                newFieldValues['dịch'] = dictionaryResult.translation;
+            }
+
+            if (dictionaryResult.audio) {
+                newFieldValues['audio'] = dictionaryResult.audio;
+                newFieldValues['âm thanh'] = dictionaryResult.audio;
+            }
+
+            setFieldValues(newFieldValues);
+            notify('Đã tự động điền thông tin từ Dictionary!', 'success');
         } catch (error: any) {
             const errorMessage = error.response?.data?.message || 'Có lỗi xảy ra khi tra từ';
             notify(errorMessage, 'error');
@@ -293,25 +265,10 @@ const QuickAddNoteModal: React.FC<QuickAddNoteModalProps> = ({
         }
     };
 
-    const handlePlayAudio = () => {
-        if (dictionaryData?.audio) {
-            try {
-                const audio = new Audio(dictionaryData.audio);
-                audio.play().catch(error => {
-                    console.error('Error playing audio:', error);
-                    notify('Không thể phát audio', 'error');
-                });
-            } catch (error) {
-                notify('URL audio không hợp lệ', 'error');
-            }
-        } else {
-            notify('Không có audio cho từ này', 'warning');
-        }
-    };
 
     const handleSubmit = async () => {
         if (!selectedDeck || !selectedNoteType) {
-            notify('Vui lòng chọn deck và note type', 'warning');
+            notify('Vui lòng chọn deck và loại note', 'warning');
             return;
         }
 
@@ -324,10 +281,10 @@ const QuickAddNoteModal: React.FC<QuickAddNoteModalProps> = ({
             };
 
             await vocabularyNoteApi.createNote(createNoteRequest);
-            notify('Tạo flashcard thành công!', 'success');
+            notify('Tạo note thành công!', 'success');
             onClose();
         } catch (error: any) {
-            const errorMessage = error.response?.data?.message || 'Có lỗi xảy ra khi tạo flashcard';
+            const errorMessage = error.response?.data?.message || 'Có lỗi xảy ra khi tạo note';
             notify(errorMessage, 'error');
         } finally {
             setLoading(false);
@@ -339,7 +296,9 @@ const QuickAddNoteModal: React.FC<QuickAddNoteModalProps> = ({
         setSelectedDeck(null);
         setSelectedNoteType(null);
         setDictionaryData(null);
-        setExpandedOptions(false);
+        setValidationErrors({});
+        setShowValidationErrors(false);
+        setImageUrls({});
         onClose();
     };
 
@@ -365,7 +324,7 @@ const QuickAddNoteModal: React.FC<QuickAddNoteModalProps> = ({
                 justifyContent: 'space-between'
             }}>
                 <Typography variant="h6" fontWeight="bold" color="primary.main">
-                    Tạo flashcard
+                    Thêm note
                 </Typography>
                 <IconButton onClick={handleClose} size="small">
                     <CloseIcon />
@@ -379,12 +338,26 @@ const QuickAddNoteModal: React.FC<QuickAddNoteModalProps> = ({
                     </Box>
                 ) : (
                     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+                        {/* Show validation errors summary */}
+                        {showValidationErrors && Object.keys(validationErrors).length > 0 && (
+                            <Alert severity="error" sx={{ mb: 2 }}>
+                                <Typography variant="subtitle2" gutterBottom>
+                                    Vui lòng điền đầy đủ các trường bắt buộc:
+                                </Typography>
+                                <ul style={{ margin: 0, paddingLeft: 20 }}>
+                                    {Object.entries(validationErrors).map(([field, error]) => (
+                                        <li key={field}>{error}</li>
+                                    ))}
+                                </ul>
+                            </Alert>
+                        )}
+
                         {/* Deck Selection */}
                         <Box>
                             <Typography variant="subtitle1" fontWeight="medium" mb={1}>
                                 Deck
                             </Typography>
-                            <FormControl fullWidth size="small">
+                            <FormControl fullWidth size="small" error={!!validationErrors.deck}>
                                 <Select
                                     value={selectedDeck?.id || ''}
                                     onChange={(e) => handleDeckChange(Number(e.target.value))}
@@ -397,148 +370,31 @@ const QuickAddNoteModal: React.FC<QuickAddNoteModalProps> = ({
                                         </MenuItem>
                                     ))}
                                 </Select>
+                                {validationErrors.deck && (
+                                    <Typography variant="caption" color="error" sx={{ mt: 1 }}>
+                                        {validationErrors.deck}
+                                    </Typography>
+                                )}
                             </FormControl>
                         </Box>
 
-                        {/* Word Field */}
-                        <Box>
-                            <Typography variant="subtitle2" fontWeight="medium" mb={1}>
-                                Từ mới
-                            </Typography>
-                            <TextField
-                                fullWidth
-                                size="small"
-                                value={selectedWord}
-                                disabled
-                                sx={{
-                                    borderRadius: 2,
-                                    '& .MuiInputBase-input': {
-                                        bgcolor: 'grey.50',
-                                        color: 'text.primary'
-                                    }
-                                }}
-                            />
-                        </Box>
-
-                        {/* Auto-fill Section */}
-                        <Box>
-                            <Box display="flex" alignItems="center" gap={2} mb={2}>
-                                <Button
-                                    variant="outlined"
-                                    color="primary"
-                                    onClick={handleAutoFill}
-                                    disabled={autoFillLoading}
-                                    startIcon={autoFillLoading ? <CircularProgress size={16} /> : <AutoAwesomeIcon />}
-                                    sx={{
-                                        textTransform: 'none',
-                                        borderRadius: 2,
-                                        px: 2
-                                    }}
-                                >
-                                    {autoFillLoading ? 'Đang tra từ...' : 'Tự động điền'}
-                                </Button>
-
-                                {dictionaryData?.audio && (
-                                    <IconButton
-                                        onClick={handlePlayAudio}
-                                        sx={{
-                                            color: 'primary.main',
-                                            '&:hover': {
-                                                color: 'primary.dark',
-                                                transform: 'scale(1.1)'
-                                            },
-                                            transition: 'all 0.2s ease'
-                                        }}
-                                    >
-                                        <VolumeUpIcon />
-                                    </IconButton>
-                                )}
-                            </Box>
-                        </Box>
-
-                        {/* Definition Field */}
-                        <Box>
-                            <Typography variant="subtitle2" fontWeight="medium" mb={1}>
-                                Định nghĩa
-                            </Typography>
-                            <TextField
-                                fullWidth
-                                multiline
-                                rows={3}
-                                size="small"
-                                placeholder="Nhập định nghĩa của từ..."
-                                value={fieldValues['meaning'] || fieldValues['nghĩa'] || fieldValues['definition'] || ''}
-                                onChange={(e) => {
-                                    const fieldName = selectedNoteType?.fields.find(f =>
-                                        f.name.toLowerCase().includes('meaning') ||
-                                        f.name.toLowerCase().includes('nghĩa') ||
-                                        f.name.toLowerCase().includes('definition')
-                                    )?.name || 'meaning';
-                                    handleFieldChange(fieldName, e.target.value);
-                                }}
-                                sx={{ borderRadius: 2 }}
-                            />
-                        </Box>
-
-                        {/* Expandable Options */}
-                        <Box>
-                            <Button
-                                variant="text"
-                                onClick={() => setExpandedOptions(!expandedOptions)}
-                                endIcon={expandedOptions ? <ExpandLessIcon /> : <ExpandMoreIcon />}
-                                sx={{
-                                    textTransform: 'none',
-                                    justifyContent: 'flex-start',
-                                    p: 0,
-                                    color: 'text.secondary'
-                                }}
-                            >
-                                Thêm phiên âm, ví dụ, ảnh, ghi chú ...
-                            </Button>
-
-                            {expandedOptions && selectedNoteType && (
-                                <Box sx={{ mt: 2, display: 'flex', flexDirection: 'column', gap: 2 }}>
-                                    {selectedNoteType.fields
-                                        .filter(field =>
-                                            !field.name.toLowerCase().includes('word') &&
-                                            !field.name.toLowerCase().includes('từ') &&
-                                            !field.name.toLowerCase().includes('meaning') &&
-                                            !field.name.toLowerCase().includes('nghĩa') &&
-                                            !field.name.toLowerCase().includes('definition')
-                                        )
-                                        .map((field) => {
-                                            if (isImageField(field.name)) {
-                                                return (
-                                                    <Box key={field.id} sx={{ mb: 2 }}>
-                                                        <Typography variant="subtitle2" fontWeight="medium" mb={1}>
-                                                            {field.name}
-                                                        </Typography>
-                                                        <ImageUpload
-                                                            value={fieldValues[field.name] instanceof File ? fieldValues[field.name] as File : null}
-                                                            onChange={(file) => handleFileChange(field.name, file)}
-                                                            onRemove={() => handleFileChange(field.name, null)}
-                                                        />
-                                                    </Box>
-                                                );
-                                            }
-
-                                            return (
-                                                <TextField
-                                                    key={field.id}
-                                                    fullWidth
-                                                    size="small"
-                                                    label={field.name}
-                                                    value={fieldValues[field.name] || ''}
-                                                    onChange={(e) => handleFieldChange(field.name, e.target.value)}
-                                                    multiline={field.name.toLowerCase().includes('example') || field.name.toLowerCase().includes('ví dụ')}
-                                                    rows={field.name.toLowerCase().includes('example') || field.name.toLowerCase().includes('ví dụ') ? 2 : 1}
-                                                    sx={{ borderRadius: 2 }}
-                                                />
-                                            );
-                                        })}
-                                </Box>
-                            )}
-                        </Box>
+                        {/* Note Form */}
+                        <NoteForm
+                            noteTypes={noteTypes}
+                            formData={formData}
+                            imageUrls={imageUrls}
+                            autoFillLoading={autoFillLoading}
+                            validationErrors={validationErrors}
+                            showValidationErrors={showValidationErrors}
+                            showRequiredFieldsInfo={true}
+                            compactMode={true}
+                            onFormDataChange={handleFormDataChange}
+                            onImageUrlsChange={setImageUrls}
+                            onFileChange={handleFileChange}
+                            onAutoFillLoadingChange={setAutoFillLoading}
+                            onAutoFill={handleAutoFill}
+                            dictionaryData={dictionaryData}
+                        />
                     </Box>
                 )}
             </DialogContent>
@@ -555,9 +411,17 @@ const QuickAddNoteModal: React.FC<QuickAddNoteModalProps> = ({
                     Hủy
                 </Button>
                 <Button
-                    onClick={handleSubmit}
+                    onClick={() => {
+                        setShowValidationErrors(true);
+                        const { isValid, errorCount } = validateForm();
+                        if (isValid) {
+                            handleSubmit();
+                        } else {
+                            notify(`Vui lòng điền đầy đủ ${errorCount} trường bắt buộc`, 'error');
+                        }
+                    }}
                     variant="contained"
-                    disabled={loading || !selectedDeck || !selectedNoteType}
+                    disabled={loading}
                     sx={{
                         textTransform: 'none',
                         borderRadius: 2,
