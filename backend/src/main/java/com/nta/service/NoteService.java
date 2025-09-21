@@ -7,6 +7,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -102,6 +106,18 @@ public class NoteService {
     public List<NoteResponse> getNotesByDeck(Long deckId, Long userId) {
         List<Note> notes = noteRepository.findByDeckIdAndUserId(deckId, userId);
         return notes.stream().map(this::convertToResponse).collect(Collectors.toList());
+    }
+
+    public Page<NoteResponse> getNotesByDeckPaginated(
+            Long deckId, Long userId, int page, int size, String sortBy, String sortDir) {
+        Sort sort = sortDir.equalsIgnoreCase("desc")
+                ? Sort.by(sortBy).descending()
+                : Sort.by(sortBy).ascending();
+
+        Pageable pageable = PageRequest.of(page, size, sort);
+        Page<Note> notes = noteRepository.findByDeckIdAndUserId(deckId, userId, pageable);
+
+        return notes.map(this::convertToResponse);
     }
 
     @Transactional(readOnly = true)

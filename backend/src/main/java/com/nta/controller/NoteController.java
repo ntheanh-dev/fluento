@@ -4,6 +4,7 @@ import java.util.List;
 
 import jakarta.validation.Valid;
 
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -81,6 +82,25 @@ public class NoteController {
         List<NoteResponse> notes = noteService.getNotesByDeck(deckId, userId);
 
         return ResponseEntity.ok(ApiResponse.<List<NoteResponse>>builder()
+                .code(1000)
+                .message("Notes retrieved successfully")
+                .result(notes)
+                .build());
+    }
+
+    @GetMapping("/deck/{deckId}/paginated")
+    public ResponseEntity<ApiResponse<Page<NoteResponse>>> getNotesByDeckPaginated(
+            @PathVariable Long deckId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "createdAt") String sortBy,
+            @RequestParam(defaultValue = "desc") String sortDir) {
+
+        User user = userService.getUserFromContext();
+        Long userId = user.getId();
+        Page<NoteResponse> notes = noteService.getNotesByDeckPaginated(deckId, userId, page, size, sortBy, sortDir);
+
+        return ResponseEntity.ok(ApiResponse.<Page<NoteResponse>>builder()
                 .code(1000)
                 .message("Notes retrieved successfully")
                 .result(notes)
