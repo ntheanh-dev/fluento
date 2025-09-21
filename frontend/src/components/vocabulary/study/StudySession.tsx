@@ -29,9 +29,11 @@ import {
     Home as HomeIcon,
     NavigateNext as NavigateNextIcon,
 } from '@mui/icons-material';
-import { type StudySession, type ReviewCardRequest } from './vocabulary';
-import { vocabularyStudyApi } from './vocabularyApi';
-import { notify } from '../../utils/notify';
+import { type StudySession, type ReviewCardRequest, type StudyMode } from '../vocabulary';
+import { vocabularyStudyApi } from '../vocabularyApi';
+import { notify } from '../../../utils/notify';
+import { useSearchParams } from 'react-router-dom';
+import Flashcard from './Flashcard';
 
 // Function to render template with field values
 const renderTemplate = (template: string, fieldValues: Record<string, string> | undefined | null): string => {
@@ -50,6 +52,7 @@ const renderTemplate = (template: string, fieldValues: Record<string, string> | 
 };
 
 const StudySessionPage: React.FC = () => {
+    const [searchParams] = useSearchParams();
     const [studySession, setStudySession] = useState<StudySession | null>(null);
     const [currentCardIndex, setCurrentCardIndex] = useState(0);
     const [showAnswer, setShowAnswer] = useState(false);
@@ -57,17 +60,21 @@ const StudySessionPage: React.FC = () => {
     const [reviewing, setReviewing] = useState(false);
     const [startTime, setStartTime] = useState<number>(0);
     const [openStatsDialog, setOpenStatsDialog] = useState(false);
-    useEffect(() => {
-        loadStudySession();
-    }, []);
 
-    const loadStudySession = async () => {
+    useEffect(() => {
+        const mode = searchParams.get('mode') as StudyMode;
+        const deckId = searchParams.get('deckId');
+        loadStudySession(mode, deckId ? parseInt(deckId) : undefined);
+    }, [searchParams]);
+
+    const loadStudySession = async (mode?: StudyMode, deckId?: number) => {
         try {
             setLoading(true);
-            const session = await vocabularyStudyApi.getStudySession();
+            const session = await vocabularyStudyApi.getStudySession(mode, deckId);
             setStudySession(session);
             setCurrentCardIndex(0);
             setShowAnswer(false);
+            setStartTime(Date.now());
         } catch (error) {
             notify('Lỗi khi tải phiên học', 'error');
         } finally {
@@ -103,7 +110,9 @@ const StudySessionPage: React.FC = () => {
             } else {
                 // Session completed
                 notify('Hoàn thành phiên học!', 'success');
-                await loadStudySession();
+                const mode = searchParams.get('mode') as StudyMode;
+                const deckId = searchParams.get('deckId');
+                await loadStudySession(mode, deckId ? parseInt(deckId) : undefined);
             }
         } catch (error) {
             notify('Lỗi khi review card', 'error');
@@ -238,7 +247,11 @@ const StudySessionPage: React.FC = () => {
                         <Button
                             variant="contained"
                             startIcon={<RefreshIcon />}
-                            onClick={loadStudySession}
+                            onClick={() => {
+                                const mode = searchParams.get('mode') as StudyMode;
+                                const deckId = searchParams.get('deckId');
+                                loadStudySession(mode, deckId ? parseInt(deckId) : undefined);
+                            }}
                         >
                             Làm mới
                         </Button>
@@ -248,6 +261,23 @@ const StudySessionPage: React.FC = () => {
         );
     }
 
+    // Get current mode from URL params
+    const mode = searchParams.get('mode') as StudyMode;
+
+    // Render Flashcard mode if mode is FLASHCARD
+    if (mode === 'FLASHCARD') {
+        return (
+            <Flashcard
+                session={studySession}
+                currentCardIndex={currentCardIndex}
+                showAnswer={showAnswer}
+                onShowAnswer={handleShowAnswer}
+                onReview={handleReview}
+            />
+        );
+    }
+
+    // Default study session layout for other modes
     return (
         <Box sx={{ p: 3 }}>
             {/* Breadcrumb */}
@@ -292,7 +322,11 @@ const StudySessionPage: React.FC = () => {
                         </IconButton>
                     </Tooltip>
                     <Tooltip title="Làm mới">
-                        <IconButton onClick={loadStudySession}>
+                        <IconButton onClick={() => {
+                            const mode = searchParams.get('mode') as StudyMode;
+                            const deckId = searchParams.get('deckId');
+                            loadStudySession(mode, deckId ? parseInt(deckId) : undefined);
+                        }}>
                             <RefreshIcon />
                         </IconButton>
                     </Tooltip>

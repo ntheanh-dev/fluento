@@ -6,6 +6,7 @@ import {
   type Note, 
   type Card, 
   type StudySession,
+  type StudyModeStats,
   type CreateDeckRequest,
   type CreateNoteTypeRequest,
   type CreateNoteRequest,
@@ -181,8 +182,18 @@ export const vocabularyNoteApi = {
 // Vocabulary Study API
 export const vocabularyStudyApi = {
   // Get study session
-  getStudySession: async (): Promise<StudySession> => {
-    const response = await api.get<ApiResponse<StudySession>>('/study/session');
+  getStudySession: async (studyMode?: string, deckId?: number): Promise<StudySession> => {
+    const params: any = {};
+    if (studyMode) params.mode = studyMode;
+    if (deckId) params.deckId = deckId;
+    
+    const response = await api.get<ApiResponse<StudySession>>('/study/session', { params });
+    return response.data.result;
+  },
+
+  // Get study mode stats for a specific deck
+  getStudyModeStats: async (deckId: number): Promise<StudyModeStats> => {
+    const response = await api.get<ApiResponse<StudyModeStats>>(`/study/decks/${deckId}/mode-stats`);
     return response.data.result;
   },
 

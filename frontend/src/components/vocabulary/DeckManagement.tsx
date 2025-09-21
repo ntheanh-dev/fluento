@@ -262,6 +262,18 @@ const DeckManagement: React.FC = () => {
                                         <Typography variant="caption" color="text.secondary">
                                             {new Date(deck.createdAt).toLocaleDateString('vi-VN')}
                                         </Typography>
+                                        <Button
+                                            size="small"
+                                            variant="contained"
+                                            startIcon={<SchoolIcon />}
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                navigate(`/vocabulary/study-mode/decks/${deck.id}`);
+                                            }}
+                                            sx={{ ml: 1 }}
+                                        >
+                                            Học
+                                        </Button>
                                     </Box>
                                 </CardContent>
                             </Card>
@@ -307,6 +319,13 @@ const DeckManagement: React.FC = () => {
                 }}>
                     <VisibilityIcon fontSize="small" sx={{ mr: 1 }} />
                     Xem Notes
+                </MenuItem>
+                <MenuItem onClick={() => {
+                    navigate(`/vocabulary/study-mode/decks/${selectedDeck!.id}`);
+                    handleMenuClose();
+                }}>
+                    <SchoolIcon fontSize="small" sx={{ mr: 1 }} />
+                    Học
                 </MenuItem>
                 <MenuItem onClick={() => {
                     handleOpenDialog(selectedDeck!);

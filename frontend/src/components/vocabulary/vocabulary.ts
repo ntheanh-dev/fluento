@@ -115,3 +115,19 @@ export interface ReviewCardRequest {
   reviewTimeMs: number;
 }
 
+export type StudyMode = 'FLASHCARD' | 'GUESS_TYPE';
+
+export interface StudyModeStats {
+  totalVocabulary: number;
+  mastered: number;
+  dueForReview: number;
+  masteryPercentage: number;
+  difficultyDistribution: {
+    known: number;
+    easy: number;
+    medium: number;
+    hard: number;
+    notStarted: number;
+  };
+}
+

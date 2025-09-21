@@ -10,9 +10,9 @@ const VocabularyPractice = () => {
     {
       icon: <FaPlay className="text-2xl text-purple-600" />,
       title: "Bắt đầu học",
-      description: "Bắt đầu phiên học với flashcard thông minh",
-      buttonText: "Học ngay",
-      route: "/vocabulary/study",
+      description: "Chọn deck và bắt đầu phiên học với flashcard thông minh",
+      buttonText: "Chọn Deck",
+      route: "/vocabulary/decks",
       color: "from-purple-500 to-purple-600"
     },
     {
