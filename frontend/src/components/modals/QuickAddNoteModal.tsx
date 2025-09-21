@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
     Dialog,
     DialogTitle,
@@ -13,14 +13,19 @@ import {
     Typography,
     CircularProgress,
     IconButton,
-    Chip
+    Paper,
+    Card,
+    CardMedia,
+    CardActions
 } from '@mui/material';
 import {
     Close as CloseIcon,
     AutoAwesome as AutoAwesomeIcon,
     VolumeUp as VolumeUpIcon,
     ExpandMore as ExpandMoreIcon,
-    ExpandLess as ExpandLessIcon
+    ExpandLess as ExpandLessIcon,
+    CloudUpload as CloudUploadIcon,
+    Delete as DeleteIcon,
 } from '@mui/icons-material';
 import { vocabularyDeckApi, vocabularyNoteTypeApi, vocabularyNoteApi } from '../vocabulary/vocabularyApi';
 import { dictionaryApi } from '../vocabulary/dictionaryApi';
@@ -33,6 +38,117 @@ interface QuickAddNoteModalProps {
     selectedWord: string;
 }
 
+interface ImageUploadProps {
+    value: File | null;
+    onChange: (file: File | null) => void;
+    onRemove: () => void;
+}
+
+const ImageUpload: React.FC<ImageUploadProps> = ({ value, onChange, onRemove }) => {
+    const fileInputRef = useRef<HTMLInputElement>(null);
+
+    const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+
+            // Check if it's an image file
+            const isImage = file.type && file.type.startsWith('image/') ||
+                file.name.toLowerCase().match(/\.(jpg|jpeg|png|gif|webp|bmp|svg)$/);
+
+            if (!isImage) {
+                notify('Please select an image file (JPG, PNG, GIF, WebP, etc.)', 'error');
+                return;
+            }
+
+            if (file.size > 10 * 1024 * 1024) {
+                notify('File size must be less than 10MB', 'error');
+                return;
+            }
+            onChange(file);
+        }
+    };
+
+    const handleClick = (e: React.MouseEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        fileInputRef.current?.click();
+    };
+
+    return (
+        <Box>
+            {value ? (
+                <Card sx={{ maxWidth: 300, margin: '8px 0' }}>
+                    <CardMedia
+                        component="img"
+                        height="200"
+                        image={URL.createObjectURL(value)}
+                        alt="Preview"
+                        sx={{ objectFit: 'cover' }}
+                    />
+                    <CardActions>
+                        <Button
+                            size="small"
+                            color="error"
+                            startIcon={<DeleteIcon />}
+                            onClick={onRemove}
+                        >
+                            Remove
+                        </Button>
+                        <Button
+                            size="small"
+                            color="primary"
+                            startIcon={<CloudUploadIcon />}
+                            onClick={handleClick}
+                        >
+                            Change
+                        </Button>
+                    </CardActions>
+                </Card>
+            ) : (
+                <Paper
+                    sx={{
+                        p: 3,
+                        textAlign: 'center',
+                        border: '2px dashed',
+                        borderColor: 'grey.300',
+                        backgroundColor: 'background.paper',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s ease-in-out',
+                        '&:hover': {
+                            borderColor: 'primary.main',
+                            backgroundColor: 'action.hover'
+                        }
+                    }}
+                    onClick={handleClick}
+                >
+                    <CloudUploadIcon sx={{ fontSize: 48, color: 'grey.400', mb: 2 }} />
+                    <Typography variant="h6" gutterBottom>
+                        Click to upload image
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                        Supports: JPG, PNG, GIF, WebP (Max 10MB)
+                    </Typography>
+                    <Button
+                        variant="outlined"
+                        sx={{ mt: 2 }}
+                        onClick={handleClick}
+                    >
+                        Select Image File
+                    </Button>
+                </Paper>
+            )}
+
+            <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                onChange={handleFileSelect}
+                style={{ display: 'none' }}
+            />
+        </Box>
+    );
+};
+
 const QuickAddNoteModal: React.FC<QuickAddNoteModalProps> = ({
     open,
     onClose,
@@ -42,7 +158,7 @@ const QuickAddNoteModal: React.FC<QuickAddNoteModalProps> = ({
     const [noteTypes, setNoteTypes] = useState<NoteType[]>([]);
     const [selectedDeck, setSelectedDeck] = useState<Deck | null>(null);
     const [selectedNoteType, setSelectedNoteType] = useState<NoteType | null>(null);
-    const [fieldValues, setFieldValues] = useState<Record<string, string>>({});
+    const [fieldValues, setFieldValues] = useState<Record<string, string | File>>({});
     const [loading, setLoading] = useState(false);
     const [autoFillLoading, setAutoFillLoading] = useState(false);
     const [expandedOptions, setExpandedOptions] = useState(false);
@@ -107,6 +223,33 @@ const QuickAddNoteModal: React.FC<QuickAddNoteModalProps> = ({
         }));
     };
 
+    const handleFileChange = (fieldName: string, file: File | null) => {
+        if (file) {
+            // Check file size (10MB limit)
+            const maxSize = 10 * 1024 * 1024; // 10MB in bytes
+            if (file.size > maxSize) {
+                notify('File quá lớn. Kích thước tối đa là 10MB.', 'error');
+                return;
+            }
+
+            // Check file type
+            if (!file.type.startsWith('image/')) {
+                notify('Chỉ hỗ trợ file hình ảnh.', 'error');
+                return;
+            }
+        }
+
+        setFieldValues(prev => ({
+            ...prev,
+            [fieldName]: file || ''
+        }));
+    };
+
+    const isImageField = (fieldName: string) => {
+        const lowerName = fieldName.toLowerCase();
+        return lowerName.includes('image') || lowerName.includes('ảnh') || lowerName.includes('picture') || lowerName.includes('photo');
+    };
+
     const handleAutoFill = async () => {
         if (!selectedWord.trim()) {
             notify('Không có từ để tra', 'warning');
@@ -119,7 +262,7 @@ const QuickAddNoteModal: React.FC<QuickAddNoteModalProps> = ({
             setDictionaryData(dictionaryResult);
 
             if (selectedNoteType) {
-                const newFieldValues: Record<string, string> = { ...fieldValues };
+                const newFieldValues: Record<string, string | File> = { ...fieldValues };
 
                 selectedNoteType.fields.forEach(field => {
                     const fieldName = field.name.toLowerCase();
@@ -311,29 +454,6 @@ const QuickAddNoteModal: React.FC<QuickAddNoteModalProps> = ({
                                     </IconButton>
                                 )}
                             </Box>
-
-                            {/* Dictionary Preview */}
-                            {dictionaryData && (
-                                <Box sx={{
-                                    p: 2,
-                                    bgcolor: 'primary.50',
-                                    borderRadius: 2,
-                                    border: '1px solid',
-                                    borderColor: 'primary.200'
-                                }}>
-                                    <Typography variant="caption" color="primary.main" fontWeight="medium">
-                                        Thông tin từ Dictionary:
-                                    </Typography>
-                                    <Box sx={{ mt: 1, display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-                                        {dictionaryData.phonetic && (
-                                            <Chip label={`Phát âm: ${dictionaryData.phonetic}`} size="small" />
-                                        )}
-                                        {dictionaryData.pos && (
-                                            <Chip label={`Loại từ: ${dictionaryData.pos}`} size="small" />
-                                        )}
-                                    </Box>
-                                </Box>
-                            )}
                         </Box>
 
                         {/* Definition Field */}
@@ -386,19 +506,36 @@ const QuickAddNoteModal: React.FC<QuickAddNoteModalProps> = ({
                                             !field.name.toLowerCase().includes('nghĩa') &&
                                             !field.name.toLowerCase().includes('definition')
                                         )
-                                        .map((field) => (
-                                            <TextField
-                                                key={field.id}
-                                                fullWidth
-                                                size="small"
-                                                label={field.name}
-                                                value={fieldValues[field.name] || ''}
-                                                onChange={(e) => handleFieldChange(field.name, e.target.value)}
-                                                multiline={field.name.toLowerCase().includes('example') || field.name.toLowerCase().includes('ví dụ')}
-                                                rows={field.name.toLowerCase().includes('example') || field.name.toLowerCase().includes('ví dụ') ? 2 : 1}
-                                                sx={{ borderRadius: 2 }}
-                                            />
-                                        ))}
+                                        .map((field) => {
+                                            if (isImageField(field.name)) {
+                                                return (
+                                                    <Box key={field.id} sx={{ mb: 2 }}>
+                                                        <Typography variant="subtitle2" fontWeight="medium" mb={1}>
+                                                            {field.name}
+                                                        </Typography>
+                                                        <ImageUpload
+                                                            value={fieldValues[field.name] instanceof File ? fieldValues[field.name] as File : null}
+                                                            onChange={(file) => handleFileChange(field.name, file)}
+                                                            onRemove={() => handleFileChange(field.name, null)}
+                                                        />
+                                                    </Box>
+                                                );
+                                            }
+
+                                            return (
+                                                <TextField
+                                                    key={field.id}
+                                                    fullWidth
+                                                    size="small"
+                                                    label={field.name}
+                                                    value={fieldValues[field.name] || ''}
+                                                    onChange={(e) => handleFieldChange(field.name, e.target.value)}
+                                                    multiline={field.name.toLowerCase().includes('example') || field.name.toLowerCase().includes('ví dụ')}
+                                                    rows={field.name.toLowerCase().includes('example') || field.name.toLowerCase().includes('ví dụ') ? 2 : 1}
+                                                    sx={{ borderRadius: 2 }}
+                                                />
+                                            );
+                                        })}
                                 </Box>
                             )}
                         </Box>

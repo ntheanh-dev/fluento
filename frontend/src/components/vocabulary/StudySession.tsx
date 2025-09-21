@@ -15,6 +15,8 @@ import {
     LinearProgress,
     IconButton,
     Tooltip,
+    Breadcrumbs,
+    Link,
 } from '@mui/material';
 import {
     CheckCircle as CheckCircleIcon,
@@ -24,6 +26,8 @@ import {
     Refresh as RefreshIcon,
     School as SchoolIcon,
     LibraryBooks as LibraryBooksIcon,
+    Home as HomeIcon,
+    NavigateNext as NavigateNextIcon,
 } from '@mui/icons-material';
 import { type StudySession, type ReviewCardRequest } from './vocabulary';
 import { vocabularyStudyApi } from './vocabularyApi';
@@ -153,6 +157,36 @@ const StudySessionPage: React.FC = () => {
     if (!studySession) {
         return (
             <Box sx={{ p: 3 }}>
+                {/* Breadcrumb */}
+                <Breadcrumbs
+                    separator={<NavigateNextIcon fontSize="small" />}
+                    sx={{ mb: 2 }}
+                >
+                    <Link
+                        href="/"
+                        color="inherit"
+                        sx={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}
+                    >
+                        <HomeIcon sx={{ mr: 0.5 }} fontSize="inherit" />
+                        Trang chủ
+                    </Link>
+                    <Link
+                        href="/vocabulary"
+                        color="inherit"
+                        sx={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}
+                    >
+                        <SchoolIcon sx={{ mr: 0.5 }} fontSize="inherit" />
+                        Luyện từ vựng
+                    </Link>
+                    <Typography
+                        color="text.primary"
+                        sx={{ display: 'flex', alignItems: 'center' }}
+                    >
+                        <SchoolIcon sx={{ mr: 0.5 }} fontSize="inherit" />
+                        Phiên học
+                    </Typography>
+                </Breadcrumbs>
+
                 <Alert severity="info">
                     Không có phiên học nào hiện tại.
                 </Alert>
@@ -163,6 +197,36 @@ const StudySessionPage: React.FC = () => {
     if (studySession.cardsToStudy.length === 0) {
         return (
             <Box sx={{ p: 3 }}>
+                {/* Breadcrumb */}
+                <Breadcrumbs
+                    separator={<NavigateNextIcon fontSize="small" />}
+                    sx={{ mb: 2 }}
+                >
+                    <Link
+                        href="/"
+                        color="inherit"
+                        sx={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}
+                    >
+                        <HomeIcon sx={{ mr: 0.5 }} fontSize="inherit" />
+                        Trang chủ
+                    </Link>
+                    <Link
+                        href="/vocabulary"
+                        color="inherit"
+                        sx={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}
+                    >
+                        <SchoolIcon sx={{ mr: 0.5 }} fontSize="inherit" />
+                        Luyện từ vựng
+                    </Link>
+                    <Typography
+                        color="text.primary"
+                        sx={{ display: 'flex', alignItems: 'center' }}
+                    >
+                        <SchoolIcon sx={{ mr: 0.5 }} fontSize="inherit" />
+                        Phiên học
+                    </Typography>
+                </Breadcrumbs>
+
                 <Card sx={{ textAlign: 'center', py: 4 }}>
                     <CardContent>
                         <SchoolIcon sx={{ fontSize: 64, color: 'text.secondary', mb: 2 }} />
@@ -187,6 +251,36 @@ const StudySessionPage: React.FC = () => {
 
     return (
         <Box sx={{ p: 3 }}>
+            {/* Breadcrumb */}
+            <Breadcrumbs
+                separator={<NavigateNextIcon fontSize="small" />}
+                sx={{ mb: 2 }}
+            >
+                <Link
+                    href="/"
+                    color="inherit"
+                    sx={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}
+                >
+                    <HomeIcon sx={{ mr: 0.5 }} fontSize="inherit" />
+                    Trang chủ
+                </Link>
+                <Link
+                    href="/vocabulary"
+                    color="inherit"
+                    sx={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}
+                >
+                    <SchoolIcon sx={{ mr: 0.5 }} fontSize="inherit" />
+                    Luyện từ vựng
+                </Link>
+                <Typography
+                    color="text.primary"
+                    sx={{ display: 'flex', alignItems: 'center' }}
+                >
+                    <SchoolIcon sx={{ mr: 0.5 }} fontSize="inherit" />
+                    Phiên học
+                </Typography>
+            </Breadcrumbs>
+
             {/* Header */}
             <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
                 <Typography variant="h4" component="h1">

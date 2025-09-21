@@ -18,6 +18,8 @@ import {
     Divider,
     Menu,
     MenuItem,
+    Breadcrumbs,
+    Link,
 } from '@mui/material';
 import {
     Add as AddIcon,
@@ -26,6 +28,9 @@ import {
     Delete as DeleteIcon,
     Quiz as QuizIcon,
     LibraryBooks as LibraryBooksIcon,
+    Home as HomeIcon,
+    School as SchoolIcon,
+    NavigateNext as NavigateNextIcon,
 } from '@mui/icons-material';
 import { type NoteType, type CreateNoteTypeRequest, type CreateFieldRequest } from './vocabulary';
 import { vocabularyNoteTypeApi } from './vocabularyApi';
@@ -175,6 +180,36 @@ const NoteTypeManagement: React.FC = () => {
 
     return (
         <Box sx={{ p: 3 }}>
+            {/* Breadcrumb */}
+            <Breadcrumbs
+                separator={<NavigateNextIcon fontSize="small" />}
+                sx={{ mb: 2 }}
+            >
+                <Link
+                    href="/"
+                    color="inherit"
+                    sx={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}
+                >
+                    <HomeIcon sx={{ mr: 0.5 }} fontSize="inherit" />
+                    Trang chủ
+                </Link>
+                <Link
+                    href="/vocabulary"
+                    color="inherit"
+                    sx={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}
+                >
+                    <SchoolIcon sx={{ mr: 0.5 }} fontSize="inherit" />
+                    Luyện từ vựng
+                </Link>
+                <Typography
+                    color="text.primary"
+                    sx={{ display: 'flex', alignItems: 'center' }}
+                >
+                    <QuizIcon sx={{ mr: 0.5 }} fontSize="inherit" />
+                    Quản lý Note Types
+                </Typography>
+            </Breadcrumbs>
+
             <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
                 <Typography variant="h4" component="h1" gutterBottom>
                     Quản lý Note Types

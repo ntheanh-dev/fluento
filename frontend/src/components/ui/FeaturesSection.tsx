@@ -130,7 +130,7 @@ const FeaturesSection: React.FC = () => {
       description: "Ghi nhớ từ vựng với phương pháp spaced repetition và flashcard thông minh",
       buttonText: "Bắt đầu luyện tập",
       buttonColor: "bg-purple-600 hover:bg-purple-700",
-      route: "/vocabulary-practice"
+      route: "/vocabulary"
     }
   ];
 

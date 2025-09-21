@@ -12,6 +12,24 @@ import {
   type ReviewCardRequest
 } from './vocabulary';
 
+export interface PaginatedResponse<T> {
+  content: T[];
+  totalElements: number;
+  totalPages: number;
+  size: number;
+  number: number;
+  first: boolean;
+  last: boolean;
+  numberOfElements: number;
+}
+
+export interface PaginationParams {
+  page: number;
+  size: number;
+  sortBy: string;
+  sortDir: 'asc' | 'desc';
+}
+
 // Vocabulary Deck API
 export const vocabularyDeckApi = {
   // Create a new deck
@@ -86,14 +104,60 @@ export const vocabularyNoteTypeApi = {
 export const vocabularyNoteApi = {
   // Create a new note
   createNote: async (data: CreateNoteRequest): Promise<Note> => {
-    const response = await api.post<ApiResponse<Note>>('/notes', data);
-    return response.data.result;
+    // Check if there are any File objects in fieldValues
+    const hasFiles = Object.values(data.fieldValues).some(value => value instanceof File);
+    
+    if (hasFiles) {
+      // Use FormData for multipart upload
+      const formData = new FormData();
+      formData.append('noteTypeId', data.noteTypeId.toString());
+      formData.append('deckId', data.deckId.toString());
+      
+      // Separate text and file fields
+      const textFields: Record<string, string> = {};
+      const fileFields: Record<string, string> = {};
+      
+      Object.entries(data.fieldValues).forEach(([key, value]) => {
+        if (value instanceof File) {
+          fileFields[key] = value.name; // Store filename for mapping
+          formData.append('files', value);
+        } else {
+          textFields[key] = value as string;
+        }
+      });
+      
+      formData.append('fieldValues', JSON.stringify(textFields));
+      formData.append('fileFields', JSON.stringify(fileFields));
+      
+      const response = await api.post<ApiResponse<Note>>('/notes/with-files', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      return response.data.result;
+    } else {
+      // Use regular JSON for text-only notes
+      const response = await api.post<ApiResponse<Note>>('/notes', data);
+      return response.data.result;
+    }
   },
 
   // Get notes by deck
   getNotesByDeck: async (deckId: number): Promise<Note[]> => {
     const response = await api.get<ApiResponse<Note[]>>(`/notes/deck/${deckId}`);
     return response.data.result || [];
+  },
+
+  // Get notes by deck with pagination
+  getNotesByDeckPaginated: async (deckId: number, params: PaginationParams): Promise<PaginatedResponse<Note>> => {
+    const queryParams = new URLSearchParams({
+      page: params.page.toString(),
+      size: params.size.toString(),
+      sortBy: params.sortBy,
+      sortDir: params.sortDir
+    });
+    const response = await api.get<ApiResponse<PaginatedResponse<Note>>>(`/notes/deck/${deckId}/paginated?${queryParams}`);
+    return response.data.result;
   },
 
   // Get note by ID

@@ -67,7 +67,7 @@ function App() {
           />
 
           <Route
-            path="/vocabulary-practice"
+            path="/vocabulary"
             element={
               <RequiredAuth>
                 <MainLayout>
@@ -121,9 +121,9 @@ function App() {
             }
           />
 
-          {/* Anki System Routes */}
+          {/* Vocabulary Management Routes */}
           <Route
-            path="/anki/decks"
+            path="/vocabulary/decks"
             element={
               <RequiredAuth>
                 <MainLayout>
@@ -133,17 +133,7 @@ function App() {
             }
           />
           <Route
-            path="/anki/note-types"
-            element={
-              <RequiredAuth>
-                <MainLayout>
-                  <NoteTypeManagement />
-                </MainLayout>
-              </RequiredAuth>
-            }
-          />
-          <Route
-            path="/anki/notes"
+            path="/vocabulary/decks/:deckId"
             element={
               <RequiredAuth>
                 <MainLayout>
@@ -153,7 +143,27 @@ function App() {
             }
           />
           <Route
-            path="/anki/study"
+            path="/vocabulary/note-types"
+            element={
+              <RequiredAuth>
+                <MainLayout>
+                  <NoteTypeManagement />
+                </MainLayout>
+              </RequiredAuth>
+            }
+          />
+          <Route
+            path="/vocabulary/notes"
+            element={
+              <RequiredAuth>
+                <MainLayout>
+                  <NoteManagement />
+                </MainLayout>
+              </RequiredAuth>
+            }
+          />
+          <Route
+            path="/vocabulary/study"
             element={
               <RequiredAuth>
                 <MainLayout>

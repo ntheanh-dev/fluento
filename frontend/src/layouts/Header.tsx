@@ -22,7 +22,7 @@ import { FaKey } from "react-icons/fa";
 import { Modal, Backdrop, Fade, Typography, TextField, Button } from "@mui/material";
 
 const menuItems = [
-  { label: "Luyện từ vựng", path: "/vocabulary-practice" },
+  { label: "Luyện từ vựng", path: "/vocabulary" },
   { label: "Từ điển", path: "/dictionary" },
   { label: "Luyện viết", path: "/writing" },
   { label: "Thống kê học tập", path: "/analytic" },

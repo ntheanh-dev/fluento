@@ -106,7 +106,7 @@ export interface CreateFieldRequest {
 export interface CreateNoteRequest {
   noteTypeId: number;
   deckId: number;
-  fieldValues: Record<string, string>;
+  fieldValues: Record<string, string | File>;
 }
 
 export interface ReviewCardRequest {

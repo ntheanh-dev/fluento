@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
     Box,
     Card,
@@ -16,6 +17,8 @@ import {
     Menu,
     MenuItem,
     CircularProgress,
+    Breadcrumbs,
+    Link,
 } from '@mui/material';
 import {
     Add as AddIcon,
@@ -24,12 +27,16 @@ import {
     Delete as DeleteIcon,
     School as SchoolIcon,
     LibraryBooks as LibraryBooksIcon,
+    Visibility as VisibilityIcon,
+    Home as HomeIcon,
+    NavigateNext as NavigateNextIcon,
 } from '@mui/icons-material';
 import { type Deck, type CreateDeckRequest } from './vocabulary';
 import { vocabularyDeckApi } from './vocabularyApi';
 import { notify } from '../../utils/notify';
 
 const DeckManagement: React.FC = () => {
+    const navigate = useNavigate();
     const [decks, setDecks] = useState<Deck[]>([]);
     const [loading, setLoading] = useState(true);
     const [openDialog, setOpenDialog] = useState(false);
@@ -119,6 +126,10 @@ const DeckManagement: React.FC = () => {
         setSelectedDeck(null);
     };
 
+    const handleDeckClick = (deck: Deck) => {
+        navigate(`/vocabulary/decks/${deck.id}`);
+    };
+
 
     if (loading) {
         return (
@@ -130,6 +141,36 @@ const DeckManagement: React.FC = () => {
 
     return (
         <Box sx={{ p: 3 }}>
+            {/* Breadcrumb */}
+            <Breadcrumbs
+                separator={<NavigateNextIcon fontSize="small" />}
+                sx={{ mb: 2 }}
+            >
+                <Link
+                    href="/"
+                    color="inherit"
+                    sx={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}
+                >
+                    <HomeIcon sx={{ mr: 0.5 }} fontSize="inherit" />
+                    Trang chủ
+                </Link>
+                <Link
+                    href="/vocabulary"
+                    color="inherit"
+                    sx={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}
+                >
+                    <SchoolIcon sx={{ mr: 0.5 }} fontSize="inherit" />
+                    Luyện từ vựng
+                </Link>
+                <Typography
+                    color="text.primary"
+                    sx={{ display: 'flex', alignItems: 'center' }}
+                >
+                    <SchoolIcon sx={{ mr: 0.5 }} fontSize="inherit" />
+                    Quản lý Decks
+                </Typography>
+            </Breadcrumbs>
+
             <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
                 <Typography variant="h4" component="h1" gutterBottom>
                     Quản lý Decks
@@ -173,11 +214,13 @@ const DeckManagement: React.FC = () => {
                                     display: 'flex',
                                     flexDirection: 'column',
                                     transition: 'transform 0.2s',
+                                    cursor: 'pointer',
                                     '&:hover': {
                                         transform: 'translateY(-4px)',
                                         boxShadow: 4,
                                     },
                                 }}
+                                onClick={() => handleDeckClick(deck)}
                             >
                                 <CardContent sx={{ flexGrow: 1 }}>
                                     <Box display="flex" justifyContent="space-between" alignItems="flex-start" mb={2}>
@@ -188,7 +231,10 @@ const DeckManagement: React.FC = () => {
                                         </Box>
                                         <IconButton
                                             size="small"
-                                            onClick={(e) => handleMenuOpen(e, deck)}
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                handleMenuOpen(e, deck);
+                                            }}
                                         >
                                             <MoreVertIcon />
                                         </IconButton>
@@ -255,6 +301,13 @@ const DeckManagement: React.FC = () => {
                 open={Boolean(anchorEl)}
                 onClose={handleMenuClose}
             >
+                <MenuItem onClick={() => {
+                    handleDeckClick(selectedDeck!);
+                    handleMenuClose();
+                }}>
+                    <VisibilityIcon fontSize="small" sx={{ mr: 1 }} />
+                    Xem Notes
+                </MenuItem>
                 <MenuItem onClick={() => {
                     handleOpenDialog(selectedDeck!);
                     handleMenuClose();

@@ -1,6 +1,7 @@
-import { Container, Typography, Box, Paper, Button, Grid, Card, CardContent } from '@mui/material';
+import { Container, Typography, Box, Paper, Button, Grid, Card, CardContent, Breadcrumbs, Link } from '@mui/material';
 import { FaBook, FaBrain, FaPlay, FaCog, FaPlus, FaList } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
+import { Home as HomeIcon, School as SchoolIcon, NavigateNext as NavigateNextIcon } from '@mui/icons-material';
 
 const VocabularyPractice = () => {
   const navigate = useNavigate();
@@ -11,7 +12,7 @@ const VocabularyPractice = () => {
       title: "Bắt đầu học",
       description: "Bắt đầu phiên học với flashcard thông minh",
       buttonText: "Học ngay",
-      route: "/anki/study",
+      route: "/vocabulary/study",
       color: "from-purple-500 to-purple-600"
     },
     {
@@ -19,7 +20,7 @@ const VocabularyPractice = () => {
       title: "Quản lý bộ thẻ",
       description: "Tạo và quản lý các bộ thẻ từ vựng",
       buttonText: "Quản lý",
-      route: "/anki/decks",
+      route: "/vocabulary/decks",
       color: "from-blue-500 to-blue-600"
     },
     {
@@ -27,7 +28,7 @@ const VocabularyPractice = () => {
       title: "Thêm từ vựng",
       description: "Thêm từ vựng mới vào bộ thẻ",
       buttonText: "Thêm từ",
-      route: "/anki/notes",
+      route: "/vocabulary/notes",
       color: "from-green-500 to-green-600"
     },
     {
@@ -35,13 +36,35 @@ const VocabularyPractice = () => {
       title: "Cấu hình",
       description: "Tùy chỉnh loại thẻ và cài đặt học tập",
       buttonText: "Cài đặt",
-      route: "/anki/note-types",
+      route: "/vocabulary/note-types",
       color: "from-orange-500 to-orange-600"
     }
   ];
 
   return (
     <Container maxWidth="lg" className="py-8">
+      {/* Breadcrumb */}
+      <Breadcrumbs
+        separator={<NavigateNextIcon fontSize="small" />}
+        sx={{ mb: 2 }}
+      >
+        <Link
+          href="/"
+          color="inherit"
+          sx={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}
+        >
+          <HomeIcon sx={{ mr: 0.5 }} fontSize="inherit" />
+          Trang chủ
+        </Link>
+        <Typography
+          color="text.primary"
+          sx={{ display: 'flex', alignItems: 'center' }}
+        >
+          <SchoolIcon sx={{ mr: 0.5 }} fontSize="inherit" />
+          Luyện từ vựng
+        </Typography>
+      </Breadcrumbs>
+
       <Box className="text-center mb-8">
         <div className="flex items-center justify-center gap-3 mb-4">
           <FaBook className="text-4xl text-purple-600" />
