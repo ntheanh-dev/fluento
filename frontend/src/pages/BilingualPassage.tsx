@@ -85,7 +85,8 @@ const BilingualPassage = () => {
         // Check if there are no errors in corrections
         const hasErrors = translationCheck.corrections.spellingMistakes.length > 0 ||
           translationCheck.corrections.grammarErrors.length > 0 ||
-          translationCheck.corrections.sentenceStructure.length > 0;
+          translationCheck.corrections.sentenceStructure.length > 0 ||
+          translationCheck.corrections.vocabularyIssues.length > 0;
 
         if (hasErrors) {
           // Has errors - trigger "Viết lại" button
@@ -415,23 +416,6 @@ const BilingualPassage = () => {
 
           {/* AI Assistant Sidebar */}
           <div className="w-96 bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden flex flex-col">
-            {/* Sidebar Header */}
-            <div className="flex items-center justify-between px-4 py-3 bg-white border-b border-gray-200">
-              <Typography variant="h6" className="font-bold text-gray-800 text-base">
-                Trợ lý học tập AI của bạn
-              </Typography>
-              <Button
-                variant="outlined"
-                size="small"
-                className="text-gray-600 border-gray-300 hover:border-gray-400 hover:bg-gray-50 px-3 py-1 rounded-lg text-sm font-medium"
-                startIcon={<FaComment className="text-sm" />}
-                onClick={() => {
-                  window.open('https://www.facebook.com/share/g/1PMDRoCfK7/?mibextid=wwXIfr', '_blank');
-                }}
-              >
-                Góp ý
-              </Button>
-            </div>
 
             {/* Content Area - Shows either instructions, translation hints, or translation check */}
             <div className="p-4 flex-1 overflow-y-auto">
@@ -486,9 +470,9 @@ const BilingualPassage = () => {
                           <div className="space-y-1.5">
                             {translationCheck?.corrections.spellingMistakes.map((mistake, index) => (
                               <div key={index} className="flex items-center gap-2 p-1.5 bg-white rounded-md border border-red-100">
-                                <span className="text-red-600 font-semibold text-xs px-1.5 py-0.5 bg-red-100 rounded">{mistake.word}</span>
+                                <span className="text-red-600 font-semibold text-sm px-1.5 py-0.5 bg-red-100 rounded">{mistake.word}</span>
                                 <span className="text-gray-400 text-sm">→</span>
-                                <span className="text-green-600 font-semibold text-xs px-1.5 py-0.5 bg-green-100 rounded">{mistake.suggestion}</span>
+                                <span className="text-green-600 font-semibold text-sm px-1.5 py-0.5 bg-green-100 rounded">{mistake.suggestion}</span>
                               </div>
                             ))}
                           </div>
@@ -509,8 +493,8 @@ const BilingualPassage = () => {
                           <div className="space-y-1.5">
                             {translationCheck.corrections.grammarErrors.map((error, index) => (
                               <div key={index} className="p-2 bg-white rounded-md border border-orange-100">
-                                <div className="text-orange-700 font-semibold text-xs mb-1">{error.issue}</div>
-                                <div className="text-orange-600 text-xs bg-orange-50 px-1.5 py-0.5 rounded border border-orange-200 font-mono">{error.example}</div>
+                                <div className="text-orange-700 font-semibold text-sm mb-1">{error.issue}</div>
+                                <div className="text-orange-600 text-sm bg-orange-50 px-1.5 py-0.5 rounded border border-orange-200 font-mono">{error.example}</div>
                               </div>
                             ))}
                           </div>
@@ -531,8 +515,39 @@ const BilingualPassage = () => {
                           <div className="space-y-1.5">
                             {translationCheck?.corrections?.sentenceStructure.map((structure, index) => (
                               <div key={index} className="p-2 bg-white rounded-md border border-yellow-100">
-                                <div className="text-yellow-700 font-semibold text-xs mb-1">{structure.problem}</div>
-                                <div className="text-yellow-600 text-xs bg-yellow-50 px-1.5 py-0.5 rounded border border-yellow-200">{structure.suggestion}</div>
+                                <div className="text-yellow-700 font-semibold text-sm mb-1">{structure.problem}</div>
+                                <div className="text-yellow-600 text-sm bg-yellow-50 px-1.5 py-0.5 rounded border border-yellow-200">{structure.suggestion}</div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Vocabulary Issues */}
+                    {translationCheck?.corrections.vocabularyIssues.length > 0 && (
+                      <div className="relative rounded-lg border border-blue-200 bg-white p-3 shadow-sm">
+                        <div className="relative">
+                          <div className="flex items-center gap-2 mb-2">
+                            <div className="h-1.5 w-1.5 rounded-full bg-blue-500"></div>
+                            <Typography variant="body2" className="font-semibold text-blue-800 text-sm">
+                              Từ vựng có thay thế
+                            </Typography>
+                          </div>
+                          <div className="space-y-1.5">
+                            {translationCheck.corrections.vocabularyIssues.map((issue, index) => (
+                              <div key={index} className="p-2 bg-white rounded-md border border-blue-100">
+                                <div className="flex items-center gap-2 mb-1">
+                                  <span className="text-blue-700 font-semibold text-sm px-1.5 py-0.5 bg-blue-50 rounded border border-blue-200">{issue.word}</span>
+                                  <span className="text-gray-400 text-sm">→</span>
+                                  <div className="flex flex-wrap gap-1.5">
+                                    {issue.suggestion.map((s, i) => (
+                                      <span key={i} className="inline-flex items-center text-blue-700 text-xs font-medium bg-blue-50 px-2 py-0.5 rounded border border-blue-200">
+                                        {s}
+                                      </span>
+                                    ))}
+                                  </div>
+                                </div>
                               </div>
                             ))}
                           </div>
@@ -542,7 +557,7 @@ const BilingualPassage = () => {
                   </div>
 
                   {/* Feedback */}
-                  {(translationCheck?.feedback?.strengths.length > 0 || translationCheck?.feedback?.weaknesses.length > 0) && (
+                  {(translationCheck?.feedback?.weaknesses.length > 0) && (
                     <div className="space-y-3">
 
                       <div className="flex items-center gap-2">
@@ -552,27 +567,7 @@ const BilingualPassage = () => {
                         </Typography>
                       </div>
 
-                      {/* Strengths */}
-                      {translationCheck?.feedback.strengths?.length > 0 && (
-                        <div className="relative rounded-lg border border-green-200 bg-white p-3 shadow-sm">
-                          <div className="relative">
-                            <div className="flex items-center gap-2 mb-2">
-                              <div className="h-1.5 w-1.5 rounded-full bg-green-500"></div>
-                              <Typography variant="body2" className="font-semibold text-green-800 text-sm">
-                                Điểm mạnh
-                              </Typography>
-                            </div>
-                            <ul className="space-y-1.5">
-                              {translationCheck?.feedback?.strengths.map((strength, index) => (
-                                <li key={index} className="text-green-700 text-xs flex items-start gap-2 p-1.5 bg-white rounded-md border border-green-100">
-                                  <span className="text-green-500 mt-0.5 text-sm">✓</span>
-                                  <span className="flex-1">{strength}</span>
-                                </li>
-                              ))}
-                            </ul>
-                          </div>
-                        </div>
-                      )}
+
 
                       {/* Weaknesses */}
                       {translationCheck?.feedback.weaknesses.length > 0 && (
@@ -586,7 +581,7 @@ const BilingualPassage = () => {
                             </div>
                             <ul className="space-y-1.5">
                               {translationCheck?.feedback.weaknesses.map((weakness, index) => (
-                                <li key={index} className="text-red-700 text-xs flex items-start gap-2 p-1.5 bg-white rounded-md border border-red-100">
+                                <li key={index} className="text-red-700 text-sm flex items-start gap-2 p-1.5 bg-white rounded-md border border-red-100">
                                   <span className="text-red-500 mt-0.5 text-sm">⚠</span>
                                   <span className="flex-1">{weakness}</span>
                                 </li>
@@ -635,7 +630,7 @@ const BilingualPassage = () => {
                         <Typography variant="h6" className="font-bold text-white text-base mb-0.5">
                           Gợi ý dịch thuật
                         </Typography>
-                        <Typography variant="body2" className="text-white/90 text-xs">
+                        <Typography variant="body2" className="text-white/90 text-sm">
                           AI đã phân tích và đưa ra gợi ý cho bạn
                         </Typography>
                       </div>
@@ -700,7 +695,7 @@ const BilingualPassage = () => {
                           <Typography variant="body2" className="text-gray-700 font-medium text-sm">
                             {translationHints.structureHints.kindsOfSentencesAccordingToStructure.vietnamese}
                           </Typography>
-                          <Typography variant="body2" className="text-green-600 text-xs font-medium bg-green-50 px-2 py-1 rounded-md border border-green-200">
+                          <Typography variant="body2" className="text-green-600 text-sm font-medium bg-green-50 px-2 py-1 rounded-md border border-green-200">
                             {translationHints.structureHints.kindsOfSentencesAccordingToStructure.english}
                           </Typography>
                         </div>
@@ -722,13 +717,13 @@ const BilingualPassage = () => {
                             <Typography variant="body2" className="text-gray-700 font-medium text-sm">
                               {translationHints.structureHints.tenses.vietnamese}
                             </Typography>
-                            <Typography variant="body2" className="text-purple-600 text-xs font-medium bg-purple-50 px-2 py-1 rounded-md border border-purple-200">
+                            <Typography variant="body2" className="text-purple-600 text-sm font-medium bg-purple-50 px-2 py-1 rounded-md border border-purple-200">
                               {translationHints.structureHints.tenses.english}
                             </Typography>
                           </div>
                           <div className="flex justify-end">
                             <div className="inline-block rounded-md bg-gradient-to-r from-purple-100 to-pink-100 px-2 py-1.5 border border-purple-200">
-                              <Typography variant="body2" className="text-purple-800 text-xs font-mono font-semibold">
+                              <Typography variant="body2" className="text-purple-800 text-sm font-mono font-semibold">
                                 {translationHints.structureHints.tenses.form}
                               </Typography>
                             </div>

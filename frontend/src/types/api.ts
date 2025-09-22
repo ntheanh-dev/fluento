@@ -64,13 +64,17 @@ export interface GrammarError {
   example: string;
 }
 
+export interface VocabularyIssue {
+  word: string;
+  suggestion: string[];
+}
+
 export interface SentenceStructure {
   problem: string;
   suggestion: string;
 }
 
 export interface TranslationFeedback {
-  strengths: string[];
   weaknesses: string[];
 }
 
@@ -79,7 +83,7 @@ export interface TranslationCheckResponse {
   learnerEnglish: string;
   corrections: {
     spellingMistakes: SpellingMistake[];
-    vocabularyIssues: string[];
+    vocabularyIssues: VocabularyIssue[];
     grammarErrors: GrammarError[];
     sentenceStructure: SentenceStructure[];
   };
