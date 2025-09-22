@@ -49,7 +49,7 @@ public class WritingService {
                         + "The paragraphs should flow naturally and contain vocabulary appropriate for the specified language proficiency level.";
 
         final String promptText = String.format(
-                "Create a well-structured paragraph in %s with around %d (±1) sentences about the topic '%s'. "
+                "Create a well-structured paragraph in %s with around %d sentences about the topic '%s'. "
                         + "Requirements:\n"
                         + "- Use vocabulary and grammar appropriate for %s proficiency level\n"
                         + "- Maintain a %s tone throughout the text\n"
@@ -169,7 +169,6 @@ public class WritingService {
 					]
 				},
 				"feedback": {
-					"strengths": ["positive aspects in Vietnamese"],
 					"weaknesses": ["areas for improvement in Vietnamese"]
 				},
 				"improvedTranslation": "polished, natural English translation",
@@ -197,7 +196,6 @@ public class WritingService {
 				- 1-2: Very poor translation with major errors and poor understanding
 
 				Feedback Guidelines:
-				- Strengths: Acknowledge correct usage, good word choices, proper grammar in Vietnamese
 				- Weaknesses: Identify specific areas needing improvement with gentle, educational tone in Vietnamese
 				- Use Vietnamese for all explanations and comments to be user-friendly
 				- Keep English words/phrases only as examples when necessary

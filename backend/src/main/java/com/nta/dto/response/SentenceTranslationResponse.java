@@ -63,7 +63,6 @@ public class SentenceTranslationResponse {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class Feedback {
-        private List<String> strengths;
         private List<String> weaknesses;
     }
 }
