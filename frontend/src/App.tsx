@@ -15,7 +15,6 @@ import SpeakingPractice from "./pages/SpeakingPractice";
 import DeckManagement from "./components/vocabulary/DeckManagement";
 import NoteManagement from "./components/vocabulary/NoteManagement";
 import { StudySession as StudySessionPage, StudyModeSelection } from "./components/vocabulary/study";
-import DictionaryLookup from "./components/vocabulary/DictionaryLookup";
 import { RequiredAuth } from "./components/auth";
 import "./index.css";
 import Authenticate from "./pages/Authenticated";
@@ -75,18 +74,6 @@ function App() {
               </RequiredAuth>
             }
           />
-
-          <Route
-            path="/dictionary"
-            element={
-              <RequiredAuth>
-                <MainLayout>
-                  <DictionaryLookup />
-                </MainLayout>
-              </RequiredAuth>
-            }
-          />
-
           <Route
             path="/sentence-writing/:conversationId"
             element={

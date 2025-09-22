@@ -21,7 +21,6 @@ import { notify } from "../utils/notify";
 
 const menuItems = [
   { label: "Luyện từ vựng", path: "/vocabulary" },
-  { label: "Từ điển", path: "/dictionary" },
   { label: "Luyện viết", path: "/writing" },
   { label: "Thống kê học tập", path: "/analytic" },
 ];
