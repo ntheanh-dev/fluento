@@ -1,6 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Box, Button, Popper, Paper } from '@mui/material';
-import { Add as AddIcon } from '@mui/icons-material';
 import { QuickAddNoteModal } from '../modals';
 
 interface TextHighlighterProps {
@@ -134,7 +133,8 @@ const TextHighlighter: React.FC<TextHighlighterProps> = ({ children, className }
                 sx={{
                     position: 'relative',
                     userSelect: 'text',
-                    cursor: 'text'
+                    cursor: 'text',
+                    display: 'inline'
                 }}
             >
                 {children}
