@@ -9,7 +9,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
 @Repository
-@Primary
 public class CustomJdbcChatMemoryRepository implements ChatMemoryRepository {
 
     private final JdbcTemplate jdbc;

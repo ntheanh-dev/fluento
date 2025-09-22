@@ -17,6 +17,5 @@ public class UserResponse {
     String username;
     String urlAvatar;
     Boolean noPassword;
-    Boolean hasApiKey;
     Set<Role> roles;
 }
