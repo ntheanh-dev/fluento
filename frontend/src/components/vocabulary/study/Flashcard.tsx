@@ -193,11 +193,11 @@ const Flashcard: React.FC<FlashcardProps> = ({
 
     return (
         <Container maxWidth="lg" sx={{ py: 4 }}>
-            <Box sx={{ height: '100vh', display: 'flex', flexDirection: 'column', bgcolor: '#f5f5f5', position: 'relative' }}>
+            <Box sx={{ height: '85vh', display: 'flex', flexDirection: 'column', bgcolor: '#f5f5f5', position: 'relative' }}>
                 {/* Floating Action Buttons */}
                 <Box sx={{
                     position: 'absolute',
-                    top: 180,
+                    top: 120,
                     right: 16,
                     zIndex: 1000,
                     display: 'flex',
@@ -249,7 +249,7 @@ const Flashcard: React.FC<FlashcardProps> = ({
                 </Box>
 
                 {/* Breadcrumb */}
-                <Box sx={{ p: 2, bgcolor: 'white', borderBottom: '1px solid #e0e0e0' }}>
+                <Box sx={{ bgcolor: 'white', borderBottom: '1px solid #e0e0e0' }}>
                     <Breadcrumbs
                         separator={<NavigateNextIcon fontSize="small" />}
                         sx={{ mb: 2 }}
@@ -316,12 +316,12 @@ const Flashcard: React.FC<FlashcardProps> = ({
 
 
                 {/* Main Flashcard */}
-                <Box sx={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', p: 2 }}>
+                <Box sx={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                     <Card
                         sx={{
                             width: '100%',
-                            maxWidth: 450,
-                            minHeight: 280,
+                            maxWidth: 550,
+                            minHeight: 400,
                             borderRadius: 2,
                             boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
                             cursor: !showAnswer ? 'pointer' : 'default',
@@ -335,9 +335,9 @@ const Flashcard: React.FC<FlashcardProps> = ({
                         }}
                         onClick={!showAnswer ? onShowAnswer : undefined}
                     >
-                        <CardContent sx={{ p: 2, height: '100%', display: 'flex', flexDirection: 'column' }}>
+                        <CardContent sx={{ height: '100%', display: 'flex', flexDirection: 'column', position: 'relative' }}>
                             {/* Card Header */}
-                            <Box sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'flex-start', mb: 1 }}>
+                            <Box sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'flex-start', mb: 1, position: 'absolute', top: 10, right: 10 }}>
                                 <Box sx={{ display: 'flex', gap: 1 }}>
                                     <IconButton
                                         color="error"
@@ -361,11 +361,11 @@ const Flashcard: React.FC<FlashcardProps> = ({
                                     // Front of card
                                     <Box sx={{ textAlign: 'center' }}>
                                         <Typography
-                                            variant="h5"
+                                            variant="h4"
                                             sx={{
                                                 fontWeight: 'bold',
                                                 mb: 1,
-                                                fontSize: { xs: '1.25rem', md: '1.5rem' }
+                                                fontSize: { xs: '1.75rem', md: '2.25rem' }
                                             }}
                                         >
                                             {word}
@@ -374,7 +374,7 @@ const Flashcard: React.FC<FlashcardProps> = ({
                                             <Typography
                                                 variant="h6"
                                                 color="text.secondary"
-                                                sx={{ mb: 1.5 }}
+                                                sx={{ mb: 2, fontSize: { xs: '1.1rem', md: '1.25rem' } }}
                                             >
                                                 {phonetic}
                                             </Typography>
@@ -447,7 +447,7 @@ const Flashcard: React.FC<FlashcardProps> = ({
                                             </Box>
                                         )}
 
-                                        <Typography variant="caption" color="text.secondary" sx={{ mt: 1 }}>
+                                        <Typography variant="body2" color="text.secondary" sx={{ mt: 1.5, fontSize: { xs: '0.95rem', md: '1rem' } }}>
                                             Nhấn để lật thẻ
                                         </Typography>
                                     </Box>
@@ -457,11 +457,12 @@ const Flashcard: React.FC<FlashcardProps> = ({
                                         {/* Word and POS */}
                                         <Box sx={{ mb: 1 }}>
                                             <Typography
-                                                variant="h6"
+                                                variant="h5"
                                                 sx={{
                                                     fontWeight: 'bold',
-                                                    mb: 0.5,
-                                                    color: 'primary.main'
+                                                    mb: 1,
+                                                    color: 'primary.main',
+                                                    fontSize: { xs: '1.6rem', md: '2rem' }
                                                 }}
                                             >
                                                 {word}
@@ -470,7 +471,7 @@ const Flashcard: React.FC<FlashcardProps> = ({
                                                 <Typography
                                                     variant="body1"
                                                     color="text.secondary"
-                                                    sx={{ mb: 0.5 }}
+                                                    sx={{ mb: 1, fontSize: { xs: '1rem', md: '1.125rem' } }}
                                                 >
                                                     {phonetic}
                                                 </Typography>
@@ -479,7 +480,7 @@ const Flashcard: React.FC<FlashcardProps> = ({
                                                 <Typography
                                                     variant="body1"
                                                     color="text.secondary"
-                                                    sx={{ fontStyle: 'italic' }}
+                                                    sx={{ fontStyle: 'italic', fontSize: { xs: '1rem', md: '1.075rem' } }}
                                                 >
                                                     {pos}
                                                 </Typography>
@@ -556,11 +557,12 @@ const Flashcard: React.FC<FlashcardProps> = ({
                                         {/* Meaning */}
                                         {meaning && (
                                             <Typography
-                                                variant="body1"
+                                                variant="h6"
                                                 sx={{
                                                     fontWeight: 'bold',
-                                                    mb: 0.5,
-                                                    color: 'text.primary'
+                                                    mb: 1,
+                                                    color: 'text.primary',
+                                                    fontSize: { xs: '1.15rem', md: '1.25rem' }
                                                 }}
                                             >
                                                 {meaning}
@@ -571,19 +573,21 @@ const Flashcard: React.FC<FlashcardProps> = ({
                                         {example && settings.showExample && (
                                             <Box sx={{ mb: 1 }}>
                                                 <Typography
-                                                    variant="body2"
+                                                    variant="body1"
                                                     sx={{
                                                         fontStyle: 'italic',
-                                                        mb: 0.5,
-                                                        color: 'text.primary'
+                                                        mb: 1,
+                                                        color: 'text.primary',
+                                                        fontSize: { xs: '1.05rem', md: '1.15rem' }
                                                     }}
                                                 >
                                                     {example}
                                                 </Typography>
                                                 {translation && settings.showExampleTranslation && (
                                                     <Typography
-                                                        variant="body2"
+                                                        variant="body1"
                                                         color="primary.main"
+                                                        sx={{ fontSize: { xs: '1.05rem', md: '1.15rem' } }}
                                                     >
                                                         {translation}
                                                     </Typography>

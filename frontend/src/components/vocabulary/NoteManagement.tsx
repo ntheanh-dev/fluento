@@ -2,7 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useSearchParams, useParams, useNavigate } from 'react-router-dom';
 import {
     Box,
-    CircularProgress
+    CircularProgress,
+    Container
 } from '@mui/material';
 import { type Deck, type NoteType, type Note, type CreateNoteRequest } from './vocabulary';
 import { vocabularyDeckApi, vocabularyNoteTypeApi, vocabularyNoteApi, type PaginatedResponse, type PaginationParams } from './vocabularyApi';
@@ -326,7 +327,7 @@ const NoteManagement: React.FC = () => {
     }
 
     return (
-        <Box sx={{ p: 3 }}>
+        <Container maxWidth="lg" sx={{ py: 4 }}>
             <Breadcrumb selectedDeck={selectedDeck} />
 
             <NotesTable
@@ -356,7 +357,8 @@ const NoteManagement: React.FC = () => {
                 onFileChange={handleFileChange}
                 onAutoFillLoadingChange={handleAutoFillLoading}
             />
-        </Box>
+        </Container>
+
     );
 };
 

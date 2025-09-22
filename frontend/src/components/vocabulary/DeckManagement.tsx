@@ -19,6 +19,7 @@ import {
     CircularProgress,
     Breadcrumbs,
     Link,
+    Container,
 } from '@mui/material';
 import {
     Add as AddIcon,
@@ -140,7 +141,7 @@ const DeckManagement: React.FC = () => {
     }
 
     return (
-        <Box sx={{ p: 3 }}>
+        <Container maxWidth="lg" sx={{ py: 4 }}>
             {/* Breadcrumb */}
             <Breadcrumbs
                 separator={<NavigateNextIcon fontSize="small" />}
@@ -339,7 +340,8 @@ const DeckManagement: React.FC = () => {
                     Xóa
                 </MenuItem>
             </Menu>
-        </Box>
+        </Container>
+
     );
 };
 
