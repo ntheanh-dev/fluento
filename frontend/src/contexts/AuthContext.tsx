@@ -1,9 +1,8 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
 import Cookies from 'js-cookie';
-import { api, apiKeyAPI } from '../configs/API';
+import { api } from '../configs/API';
 import { CreatePasswordModal } from '../components/modals';
-import { notify } from '../utils/notify';
 
 interface User {
     id: string;
@@ -17,13 +16,11 @@ interface AuthContextType {
     isAuthenticated: boolean;
     isLoading: boolean;
     showCreatePasswordModal: boolean;
-    hasApiKey: boolean;
     login: (token: string, refreshToken: string, userData: User) => void;
     logout: () => Promise<void>;
     checkAuth: () => Promise<void>;
     closeCreatePasswordModal: () => void;
     updateTokens: (accessToken: string, refreshToken?: string) => void;
-    saveApiKey: (provider: string, apiKey: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -45,7 +42,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
     const [showCreatePasswordModal, setShowCreatePasswordModal] = useState(false);
-    const [hasApiKey, setHasApiKey] = useState(false);
     // Check authentication status on app load
     useEffect(() => {
         checkAuth();
@@ -116,11 +112,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
                 // Check if user needs to create password
                 if (userData.noPassword) {
                     setShowCreatePasswordModal(true);
-                }
-
-                // Check if user has API key
-                if (response.data.result.hasApiKey) {
-                    setHasApiKey(true);
                 }
             }
         } catch (error) {
@@ -220,21 +211,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         api.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
     };
 
-    const saveApiKey = async (provider: string, apiKey: string) => {
-        try {
-            await apiKeyAPI.upsertApiKey(provider, apiKey);
-            setHasApiKey(true);
-            notify("API key đã được lưu thành công!", "success");
-        } catch (error: any) {
-            console.error('Failed to save API key:', error);
-            const errorMessage = error?.response?.data?.message || "Không thể lưu API key. Vui lòng thử lại.";
-            notify(errorMessage, "error");
-            throw error;
-        }
-    };
-
-
-
     const value: AuthContextType = {
         user,
         isAuthenticated,
@@ -244,9 +220,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         logout,
         checkAuth,
         closeCreatePasswordModal,
-        hasApiKey,
         updateTokens,
-        saveApiKey,
     };
 
     return (

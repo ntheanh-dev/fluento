@@ -18,8 +18,6 @@ import Container from "@mui/material/Container";
 import logo from "../assets/image/logo3.png";
 import { useAuth } from "../contexts/AuthContext";
 import { notify } from "../utils/notify";
-import { FaKey } from "react-icons/fa";
-import { Modal, Backdrop, Fade, Typography, TextField, Button } from "@mui/material";
 
 const menuItems = [
   { label: "Luyện từ vựng", path: "/vocabulary" },
@@ -31,30 +29,9 @@ const menuItems = [
 const Header = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { user, isAuthenticated, logout, hasApiKey, saveApiKey } = useAuth();
+  const { user, isAuthenticated, logout } = useAuth();
   const menuRefs = useRef<(HTMLAnchorElement | null)[]>([]);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-
-  // State for API key modal
-  const [showApiKeyModal, setShowApiKeyModal] = useState(false);
-  const [apiKeyInput, setApiKeyInput] = useState("");
-
-  const handleApiKeyButtonClick = () => {
-    setShowApiKeyModal(true);
-    setApiKeyInput("");
-  };
-
-  const handleSaveApiKey = async () => {
-    try {
-      await saveApiKey("GOOGLE", apiKeyInput.trim());
-      setShowApiKeyModal(false);
-      setApiKeyInput("");
-    } catch (error) {
-      // Error handling is done in AuthContext
-      console.error('Failed to save API key:', error);
-    }
-  };
-
 
   const handleLogout = async () => {
     try {
@@ -151,19 +128,6 @@ const Header = () => {
 
           {/* Avatar */}
           <Box className="flex items-center gap-3">
-
-            {/* API Key Button - Only show when no API key */}
-            {!hasApiKey && (
-              <button
-                type="button"
-                className="flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-white text-sm shadow-sm focus:outline-none transition-all duration-200 bg-orange-500 hover:bg-orange-600"
-                onClick={handleApiKeyButtonClick}
-              >
-                <FaKey className="text-lg" />
-                Connect API Key
-              </button>
-            )}
-
             <PopupState variant="popover" popupId="demo-popup-menu">
               {(popupState) => (
                 <React.Fragment>
@@ -234,88 +198,6 @@ const Header = () => {
           </Box>
         </Container>
       </div>
-      {/* API Key Modal */}
-      <Modal
-        open={showApiKeyModal}
-        onClose={() => setShowApiKeyModal(false)}
-        closeAfterTransition
-        slots={{ backdrop: Backdrop }}
-        slotProps={{ backdrop: { timeout: 300 } }}
-      >
-        <Fade in={showApiKeyModal}>
-          <Box className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-white rounded-2xl shadow-2xl p-8 w-[95vw] max-w-lg outline-none border border-gray-100">
-            <Typography
-              variant="h5"
-              className="mb-5 flex items-center gap-3 font-bold text-gray-800"
-            >
-              <span className="bg-yellow-100 text-yellow-700 rounded-full p-2 flex items-center justify-center text-2xl shadow-sm">
-                <FaKey />
-              </span>
-              Kết nối Google Gemini API Key
-            </Typography>
-
-            <Box className="my-4">
-              <TextField
-                label="Nhập API Key"
-                placeholder="AIzaSyBk..."
-                fullWidth
-                value={apiKeyInput}
-                onChange={(e) => setApiKeyInput(e.target.value)}
-                autoFocus
-                InputProps={{
-                  style: {
-                    fontFamily: "monospace",
-                    fontSize: 16,
-                    background: "#f8fafc",
-                    borderRadius: 8,
-                  },
-                }}
-              />
-            </Box>
-            <Box className="bg-blue-50 rounded-lg p-4 mb-7 border border-blue-100">
-              <Typography
-                variant="body2"
-                className="text-gray-700 mb-2 font-semibold"
-              >
-                <span className="mr-1">💡</span>Bạn chưa có API key?
-              </Typography>
-              <ol className="list-decimal pl-5 text-sm text-gray-700 space-y-1">
-                <li>
-                  Truy cập{" "}
-                  <a
-                    href="https://aistudio.google.com/app/apikey"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-blue-600 underline font-medium"
-                  >
-                    Google AI Studio
-                  </a>
-                </li>
-                <li>Đăng nhập bằng tài khoản Google của bạn</li>
-                <li>Nhấn "Create API key" và sao chép khoá</li>
-                <li>Dán vào ô phía trên</li>
-              </ol>
-            </Box>
-            <Box className="flex justify-end gap-3 mt-2 mb-2">
-              <Button
-                onClick={() => setShowApiKeyModal(false)}
-                variant="outlined"
-                className="rounded-lg px-5 py-2 text-gray-700 border-gray-300 hover:bg-gray-50"
-              >
-                Hủy
-              </Button>
-              <Button
-                onClick={handleSaveApiKey}
-                variant="contained"
-                className="rounded-lg px-5 py-2 font-semibold bg-blue-600 hover:bg-blue-700"
-                disabled={!apiKeyInput.trim()}
-              >
-                Lưu khoá
-              </Button>
-            </Box>
-          </Box>
-        </Fade>
-      </Modal>
       {/* Mobile Sidebar */}
       <Drawer
         anchor="left"
