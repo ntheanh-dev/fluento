@@ -34,6 +34,7 @@ import { vocabularyStudyApi } from '../vocabularyApi';
 import { notify } from '../../../utils/notify';
 import { useSearchParams } from 'react-router-dom';
 import Flashcard from './Flashcard';
+import GuessType from './GuessType';
 
 // Function to render template with field values
 const renderTemplate = (template: string, fieldValues: Record<string, string> | undefined | null): string => {
@@ -272,6 +273,17 @@ const StudySessionPage: React.FC = () => {
                 currentCardIndex={currentCardIndex}
                 showAnswer={showAnswer}
                 onShowAnswer={handleShowAnswer}
+                onReview={handleReview}
+            />
+        );
+    }
+
+    // Render Guess & Type mode
+    if (mode === 'GUESS_TYPE') {
+        return (
+            <GuessType
+                session={studySession}
+                currentCardIndex={currentCardIndex}
                 onReview={handleReview}
             />
         );

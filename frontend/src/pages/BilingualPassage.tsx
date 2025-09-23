@@ -356,7 +356,7 @@ const BilingualPassage = () => {
                     style: {
                       borderRadius: 16,
                       borderColor: '#E5E7EB',
-                      fontSize: '16px',
+                      fontSize: '18px',
                       lineHeight: '1.6',
                       padding: '16px',
                       paddingRight: '48px',

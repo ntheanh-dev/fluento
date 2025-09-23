@@ -184,10 +184,10 @@ const Flashcard: React.FC<FlashcardProps> = ({
     const shortcuts = [
         { key: 'Space/Enter', action: 'Lật thẻ' },
         { key: 'R', action: 'Phát âm từ' },
-        { key: '1', action: 'Đánh dấu Đã biết' },
-        { key: '2', action: 'Đánh dấu Dễ' },
-        { key: '3', action: 'Đánh dấu Trung bình' },
-        { key: '4', action: 'Đánh dấu Khó' },
+        { key: '1', action: 'Đánh dấu Khó' },
+        { key: '2', action: 'Đánh dấu Trung bình' },
+        { key: '3', action: 'Đánh dấu Dễ' },
+        { key: '4', action: 'Đánh dấu Đã biết' },
         { key: 'S', action: 'Cài đặt hiển thị' },
     ];
 
@@ -316,12 +316,12 @@ const Flashcard: React.FC<FlashcardProps> = ({
 
 
                 {/* Main Flashcard */}
-                <Box sx={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Box sx={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column' }}>
                     <Card
                         sx={{
                             width: '100%',
-                            maxWidth: 550,
-                            minHeight: 400,
+                            maxWidth: 640,
+                            minHeight: 420,
                             borderRadius: 2,
                             boxShadow: '0 2px 12px rgba(0,0,0,0.06)',
                             cursor: !showAnswer ? 'pointer' : 'default',
@@ -601,96 +601,94 @@ const Flashcard: React.FC<FlashcardProps> = ({
 
                         </CardContent>
                     </Card>
-                </Box>
-
-                {/* Rating Buttons */}
-                {showAnswer && (
-                    <Box sx={{ p: 2, bgcolor: 'white', borderTop: '1px solid #e0e0e0' }}>
-                        <Box sx={{ display: 'flex', justifyContent: 'center', gap: 2, mb: 1 }}>
-                            <Button
-                                variant="contained"
-                                color="success"
-                                startIcon={<CheckCircleIcon />}
-                                onClick={() => onReview('EASY')}
-                                sx={{
-                                    borderRadius: 2,
-                                    px: 2,
-                                    py: 1,
-                                    fontWeight: 600,
-                                    textTransform: 'none',
-                                    boxShadow: '0 2px 8px rgba(76, 175, 80, 0.3)',
-                                    '&:hover': {
-                                        boxShadow: '0 4px 12px rgba(76, 175, 80, 0.4)',
-                                        transform: 'translateY(-1px)'
-                                    }
-                                }}
-                            >
-                                Dễ
-                            </Button>
-                            <Button
-                                variant="contained"
-                                color="warning"
-                                startIcon={<AccessTimeIcon />}
-                                onClick={() => onReview('GOOD')}
-                                sx={{
-                                    borderRadius: 3,
-                                    px: 3,
-                                    py: 1.5,
-                                    fontWeight: 600,
-                                    textTransform: 'none',
-                                    boxShadow: '0 4px 12px rgba(255, 152, 0, 0.3)',
-                                    '&:hover': {
-                                        boxShadow: '0 6px 16px rgba(255, 152, 0, 0.4)',
-                                        transform: 'translateY(-1px)'
-                                    }
-                                }}
-                            >
-                                Trung bình
-                            </Button>
-                            <Button
-                                variant="contained"
-                                color="error"
-                                startIcon={<ErrorIcon />}
-                                onClick={() => onReview('HARD')}
-                                sx={{
-                                    borderRadius: 3,
-                                    px: 3,
-                                    py: 1.5,
-                                    fontWeight: 600,
-                                    textTransform: 'none',
-                                    boxShadow: '0 4px 12px rgba(244, 67, 54, 0.3)',
-                                    '&:hover': {
-                                        boxShadow: '0 6px 16px rgba(244, 67, 54, 0.4)',
-                                        transform: 'translateY(-1px)'
-                                    }
-                                }}
-                            >
-                                ! Khó
-                            </Button>
-                            <Button
-                                variant="contained"
-                                color="info"
-                                startIcon={<SchoolIcon />}
-                                onClick={() => onReview('AGAIN')}
-                                sx={{
-                                    borderRadius: 3,
-                                    px: 3,
-                                    py: 1.5,
-                                    fontWeight: 600,
-                                    textTransform: 'none',
-                                    boxShadow: '0 4px 12px rgba(33, 150, 243, 0.3)',
-                                    '&:hover': {
-                                        boxShadow: '0 6px 16px rgba(33, 150, 243, 0.4)',
-                                        transform: 'translateY(-1px)'
-                                    }
-                                }}
-                            >
-                                Đã biết
-                            </Button>
+                    {/* Rating Buttons */}
+                    {showAnswer && (
+                        <Box sx={{ p: 2 }}>
+                            <Box sx={{ display: 'flex', justifyContent: 'center', gap: 2, mb: 1 }}>
+                                <Button
+                                    variant="contained"
+                                    color="error"
+                                    startIcon={<ErrorIcon />}
+                                    onClick={() => onReview('AGAIN')}
+                                    sx={{
+                                        borderRadius: 3,
+                                        px: 3,
+                                        py: 1.5,
+                                        fontWeight: 600,
+                                        textTransform: 'none',
+                                        boxShadow: '0 4px 12px rgba(244, 67, 54, 0.3)',
+                                        '&:hover': {
+                                            boxShadow: '0 6px 16px rgba(244, 67, 54, 0.4)',
+                                            transform: 'translateY(-1px)'
+                                        }
+                                    }}
+                                >
+                                    ! Khó
+                                </Button>
+                                <Button
+                                    variant="contained"
+                                    color="warning"
+                                    startIcon={<AccessTimeIcon />}
+                                    onClick={() => onReview('HARD')}
+                                    sx={{
+                                        borderRadius: 3,
+                                        px: 3,
+                                        py: 1.5,
+                                        fontWeight: 600,
+                                        textTransform: 'none',
+                                        boxShadow: '0 4px 12px rgba(255, 152, 0, 0.3)',
+                                        '&:hover': {
+                                            boxShadow: '0 6px 16px rgba(255, 152, 0, 0.4)',
+                                            transform: 'translateY(-1px)'
+                                        }
+                                    }}
+                                >
+                                    Trung bình
+                                </Button>
+                                <Button
+                                    variant="contained"
+                                    color="info"
+                                    startIcon={<SchoolIcon />}
+                                    onClick={() => onReview('GOOD')}
+                                    sx={{
+                                        borderRadius: 3,
+                                        px: 3,
+                                        py: 1.5,
+                                        fontWeight: 600,
+                                        textTransform: 'none',
+                                        boxShadow: '0 4px 12px rgba(33, 150, 243, 0.3)',
+                                        '&:hover': {
+                                            boxShadow: '0 6px 16px rgba(33, 150, 243, 0.4)',
+                                            transform: 'translateY(-1px)'
+                                        }
+                                    }}
+                                >
+                                    Đã biết
+                                </Button>
+                                <Button
+                                    variant="contained"
+                                    color="success"
+                                    startIcon={<CheckCircleIcon />}
+                                    onClick={() => onReview('EASY')}
+                                    sx={{
+                                        borderRadius: 2,
+                                        px: 2,
+                                        py: 1,
+                                        fontWeight: 600,
+                                        textTransform: 'none',
+                                        boxShadow: '0 2px 8px rgba(76, 175, 80, 0.3)',
+                                        '&:hover': {
+                                            boxShadow: '0 4px 12px rgba(76, 175, 80, 0.4)',
+                                            transform: 'translateY(-1px)'
+                                        }
+                                    }}
+                                >
+                                    Dễ
+                                </Button>
+                            </Box>
                         </Box>
-                    </Box>
-                )}
-
+                    )}
+                </Box>
 
                 {/* Shortcuts Dialog */}
                 <Dialog open={showShortcuts} onClose={() => setShowShortcuts(false)} maxWidth="sm" fullWidth>
