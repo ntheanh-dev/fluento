@@ -67,7 +67,6 @@ public class DictionaryService {
 
         try {
             DictionaryResponse response = aiChatService.sendMessage(
-                    "dictionary-lookup",
                     systemPrompt,
                     userPrompt,
                     new ParameterizedTypeReference<DictionaryResponse>() {});
@@ -121,7 +120,6 @@ public class DictionaryService {
 
         try {
             DictionaryResponse response = aiChatService.sendMessage(
-                    "dictionary-spellcheck",
                     systemPrompt,
                     userPrompt,
                     new ParameterizedTypeReference<DictionaryResponse>() {});

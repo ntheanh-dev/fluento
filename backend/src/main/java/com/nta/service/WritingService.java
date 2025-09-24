@@ -71,7 +71,7 @@ public class WritingService {
 
         final String conversationId = UUID.randomUUID().toString();
 
-        final String pharagraph = aiChatService.sendMessage(conversationId, systemMessage, promptText, String.class);
+        final String pharagraph = aiChatService.sendMessage(systemMessage, promptText, String.class);
 
         final User user = userService.getUserFromContext();
 
@@ -96,7 +96,7 @@ public class WritingService {
                 .build();
     }
 
-    public HintTranslationResponse generateHints(String conversationId, String vietnameseSentence) {
+    public HintTranslationResponse generateHints(final String vietnameseSentence) {
         final String SYSTEM_MESSAGE_TEXT =
                 "You are an expert English learning assistant specializing in helping Vietnamese learners understand sentence structure and vocabulary. "
                         + "Your role is to provide comprehensive, educational hints that help learners translate Vietnamese sentences to English effectively. "
@@ -130,8 +130,7 @@ public class WritingService {
                         + "Return only the JSON response with exact property names as specified.",
                 vietnameseSentence);
 
-        return aiChatService.sendMessage(
-                conversationId, SYSTEM_MESSAGE_TEXT, promptText, HintTranslationResponse.class);
+        return aiChatService.sendMessage(SYSTEM_MESSAGE_TEXT, promptText, HintTranslationResponse.class);
     }
 
     public SentenceTranslationResponse translateSentence(
@@ -229,8 +228,7 @@ public class WritingService {
 						Return your analysis in the specified JSON format with detailed, educational feedback including score.
 						""",
                 request.getVietnameseSentence(), request.getEnglishSentence());
-        return aiChatService.sendMessage(
-                conversationId, SYSTEM_MESSAGE_TEXT, promptText, SentenceTranslationResponse.class);
+        return aiChatService.sendMessage(SYSTEM_MESSAGE_TEXT, promptText, SentenceTranslationResponse.class);
     }
 
     public WritingResponse getConversationById(String conversationId) {

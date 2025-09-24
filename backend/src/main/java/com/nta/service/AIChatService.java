@@ -21,26 +21,22 @@ public class AIChatService {
 
   // For simple response types (e.g., String, Integer)
   public <T> T sendMessage(
-      final String conversationId,
       final String systemMessageText,
       final String userMessageText,
       Class<T> responseType) {
     return chatClient
         .prompt(this.buildPrompt(systemMessageText, userMessageText))
-        .advisors(a -> a.param(ChatMemory.CONVERSATION_ID, conversationId))
         .call()
         .entity(responseType);
   }
 
   // For custom response class
   public <T> T sendMessage(
-      final String conversationId,
       final String systemMessageText,
       final String userMessageText,
       ParameterizedTypeReference<T> responseType) {
     return chatClient
         .prompt(this.buildPrompt(systemMessageText, userMessageText))
-        .advisors(a -> a.param(ChatMemory.CONVERSATION_ID, conversationId))
         .call()
         .entity(responseType);
   }

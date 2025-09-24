@@ -30,7 +30,7 @@ public class WritingController {
     @PostMapping("/{conversationId}/translation-hints")
     public ApiResponse<HintTranslationResponse> getTranslationHints(
             @RequestBody String vietnameseSentence, @PathVariable String conversationId) {
-        final HintTranslationResponse response = writingService.generateHints(conversationId, vietnameseSentence);
+        final HintTranslationResponse response = writingService.generateHints(vietnameseSentence);
         return ApiResponse.<HintTranslationResponse>builder().result(response).build();
     }
 
