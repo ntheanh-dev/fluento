@@ -240,6 +240,9 @@ const BilingualPassage = () => {
       setEnglishTranslations(sentences => [...sentences, { englishTranslation: cleanedTranslation, vietnamese: vietNameseSentences[englishTranslations.length], score: score, feedback: feedback }]);
       setTranslation('');
 
+      // remove cache
+      localStorage.removeItem(`translationHints:${conversationId}:${englishTranslations.length}`);
+
       // Check if this was the last sentence
       if (englishTranslations.length + 1 >= vietNameseSentences.length) {
         notify('Hoàn thành bài luyện dịch!', 'success');
