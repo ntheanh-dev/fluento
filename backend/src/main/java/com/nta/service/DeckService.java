@@ -3,6 +3,10 @@ package com.nta.service;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -44,6 +48,16 @@ public class DeckService {
     public List<DeckResponse> getUserDecks(Long userId) {
         List<Deck> decks = deckRepository.findByUserId(userId);
         return decks.stream().map(this::convertToResponse).collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public Page<DeckResponse> getUserDecksPaginated(Long userId, int page, int size, String sortBy, String sortDir) {
+        Sort.Direction direction = sortDir.equalsIgnoreCase("asc") ? Sort.Direction.ASC : Sort.Direction.DESC;
+        Sort sort = Sort.by(direction, sortBy);
+        Pageable pageable = PageRequest.of(page, size, sort);
+        
+        Page<Deck> deckPage = deckRepository.findByUserId(userId, pageable);
+        return deckPage.map(this::convertToResponse);
     }
 
     @Transactional(readOnly = true)
