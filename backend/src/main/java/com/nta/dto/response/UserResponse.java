@@ -1,5 +1,6 @@
 package com.nta.dto.response;
 
+import java.time.LocalDateTime;
 import java.util.Set;
 
 import com.nta.entity.Role;
@@ -18,4 +19,5 @@ public class UserResponse {
     String urlAvatar;
     Boolean noPassword;
     Set<Role> roles;
+    LocalDateTime createdAt;
 }

@@ -196,10 +196,6 @@ public class StudyService {
         Map<String, String> fieldValues = getFieldValuesForNote(card.getNoteId());
         response.setFieldValues(fieldValues);
 
-        System.out.println("DEBUG: CardResponse fieldValues: " + fieldValues);
-        System.out.println(
-                "DEBUG: CardResponse fieldValues size: " + (fieldValues != null ? fieldValues.size() : "null"));
-
         // Get stats for this card
         CardStats stats = cardStatsRepository
                 .findByCardIdAndUserId(card.getId(), card.getNote().getUserId())

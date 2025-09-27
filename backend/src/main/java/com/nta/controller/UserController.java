@@ -5,6 +5,7 @@ import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
 import com.nta.dto.request.PasswordCreationRequest;
+import com.nta.dto.request.ChangePasswordRequest;
 import com.nta.dto.response.ApiResponse;
 import com.nta.dto.response.UserResponse;
 import com.nta.service.UserService;
@@ -26,6 +27,14 @@ public class UserController {
         userService.createPassword(request);
         return ApiResponse.<Void>builder()
                 .message("Password has been created, you could use it to log-in")
+                .build();
+    }
+
+    @PutMapping("/change-password")
+    ApiResponse<Void> changePassword(@RequestBody @Valid ChangePasswordRequest request) {
+        userService.changePassword(request);
+        return ApiResponse.<Void>builder()
+                .message("Password has been changed successfully")
                 .build();
     }
 

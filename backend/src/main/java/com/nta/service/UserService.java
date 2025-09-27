@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import com.nta.dto.request.PasswordCreationRequest;
+import com.nta.dto.request.ChangePasswordRequest;
 import com.nta.dto.response.UserResponse;
 import com.nta.entity.User;
 import com.nta.enums.ErrorCode;
@@ -37,6 +38,30 @@ public class UserService {
         final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
 
         user.setPassword(passwordEncoder.encode(passwordCreationRequest.getPassword()));
+        userRepository.save(user);
+    }
+
+    public void changePassword(final ChangePasswordRequest changePasswordRequest) {
+        final User user = this.getUserFromContext();
+        final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
+
+        // Check if user has a password
+        if (!StringUtils.hasText(user.getPassword())) {
+            throw new AppException(ErrorCode.UNAUTHENTICATED);
+        }
+
+        // Verify current password
+        boolean isCurrentPasswordValid = passwordEncoder.matches(
+            changePasswordRequest.getCurrentPassword(), 
+            user.getPassword()
+        );
+        
+        if (!isCurrentPasswordValid) {
+            throw new AppException(ErrorCode.INCORRECT_PASSWORD);
+        }
+
+        // Set new password
+        user.setPassword(passwordEncoder.encode(changePasswordRequest.getNewPassword()));
         userRepository.save(user);
     }
 
