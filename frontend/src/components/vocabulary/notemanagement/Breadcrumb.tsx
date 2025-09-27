@@ -7,6 +7,8 @@ import {
 import {
     Home as HomeIcon,
     School as SchoolIcon,
+    Widgets as WidgetsIcon,
+    Style as StyleIcon,
     NavigateNext as NavigateNextIcon,
 } from '@mui/icons-material';
 import { type Deck } from '../vocabulary';
@@ -42,14 +44,14 @@ const Breadcrumb: React.FC<BreadcrumbProps> = ({ selectedDeck }) => {
                 color="inherit"
                 sx={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}
             >
-                <SchoolIcon sx={{ mr: 0.5 }} fontSize="inherit" />
+                <WidgetsIcon sx={{ mr: 0.5 }} fontSize="inherit" />
                 Decks
             </Link>
             <Typography
                 color="text.primary"
                 sx={{ display: 'flex', alignItems: 'center' }}
             >
-                <SchoolIcon sx={{ mr: 0.5 }} fontSize="inherit" />
+                <StyleIcon sx={{ mr: 0.5 }} fontSize="inherit" />
                 {selectedDeck ? selectedDeck.name : 'Quản lý Notes'}
             </Typography>
         </Breadcrumbs>

@@ -34,6 +34,7 @@ import {
     MoreVert as MoreVertIcon,
     Edit as EditIcon,
     Delete as DeleteIcon,
+    Widgets as WidgetsIcon,
     School as SchoolIcon,
     LibraryBooks as LibraryBooksIcon,
     Visibility as VisibilityIcon,
@@ -215,7 +216,7 @@ const DeckManagement: React.FC = () => {
                     color="text.primary"
                     sx={{ display: 'flex', alignItems: 'center' }}
                 >
-                    <SchoolIcon sx={{ mr: 0.5 }} fontSize="inherit" />
+                    <WidgetsIcon sx={{ mr: 0.5 }} fontSize="inherit" />
                     Quản lý Decks
                 </Typography>
             </Breadcrumbs>
@@ -275,15 +276,6 @@ const DeckManagement: React.FC = () => {
                                 </TableCell>
                                 <TableCell>
                                     <TableSortLabel
-                                        active={sortBy === 'cardCount'}
-                                        direction={sortBy === 'cardCount' ? sortDir : 'asc'}
-                                        onClick={() => handleSort('cardCount')}
-                                    >
-                                        Số Cards
-                                    </TableSortLabel>
-                                </TableCell>
-                                <TableCell>
-                                    <TableSortLabel
                                         active={sortBy === 'createdAt'}
                                         direction={sortBy === 'createdAt' ? sortDir : 'asc'}
                                         onClick={() => handleSort('createdAt')}
@@ -318,15 +310,6 @@ const DeckManagement: React.FC = () => {
                                             label={deck.noteCount}
                                             size="small"
                                             color="primary"
-                                            variant="outlined"
-                                        />
-                                    </TableCell>
-                                    <TableCell>
-                                        <Chip
-                                            icon={<LibraryBooksIcon />}
-                                            label={deck.cardCount}
-                                            size="small"
-                                            color="secondary"
                                             variant="outlined"
                                         />
                                     </TableCell>

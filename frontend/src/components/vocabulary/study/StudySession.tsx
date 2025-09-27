@@ -6,7 +6,6 @@ import {
     Typography,
     Button,
     Grid,
-    Alert,
     CircularProgress,
     Dialog,
     DialogTitle,
@@ -17,6 +16,10 @@ import {
     Tooltip,
     Breadcrumbs,
     Link,
+    Container,
+    Chip,
+    Fade,
+    Slide,
 } from '@mui/material';
 import {
     CheckCircle as CheckCircleIcon,
@@ -28,6 +31,10 @@ import {
     LibraryBooks as LibraryBooksIcon,
     Home as HomeIcon,
     NavigateNext as NavigateNextIcon,
+    Psychology as PsychologyIcon,
+    Schedule as ScheduleIcon,
+    Star as StarIcon,
+    EmojiEvents as EmojiEventsIcon,
 } from '@mui/icons-material';
 import { type StudySession, type ReviewCardRequest, type StudyMode } from '../vocabulary';
 import { vocabularyStudyApi } from '../vocabularyApi';
@@ -157,19 +164,42 @@ const StudySessionPage: React.FC = () => {
 
     if (loading) {
         return (
-            <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
-                <CircularProgress />
-            </Box>
+            <Container maxWidth="lg" sx={{ py: 4 }}>
+                <Box
+                    display="flex"
+                    flexDirection="column"
+                    justifyContent="center"
+                    alignItems="center"
+                    minHeight="60vh"
+                    sx={{
+                        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                        borderRadius: 3,
+                        color: 'white',
+                        p: 4,
+                    }}
+                >
+                    <CircularProgress
+                        size={60}
+                        sx={{ color: 'white', mb: 2 }}
+                    />
+                    <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 1 }}>
+                        Đang tải phiên học...
+                    </Typography>
+                    <Typography variant="body2" sx={{ opacity: 0.9 }}>
+                        Vui lòng chờ trong giây lát
+                    </Typography>
+                </Box>
+            </Container>
         );
     }
 
     if (!studySession) {
         return (
-            <Box sx={{ p: 3 }}>
+            <Container maxWidth="lg" sx={{ py: 4 }}>
                 {/* Breadcrumb */}
                 <Breadcrumbs
                     separator={<NavigateNextIcon fontSize="small" />}
-                    sx={{ mb: 2 }}
+                    sx={{ mb: 3 }}
                 >
                     <Link
                         href="/"
@@ -196,20 +226,50 @@ const StudySessionPage: React.FC = () => {
                     </Typography>
                 </Breadcrumbs>
 
-                <Alert severity="info">
-                    Không có phiên học nào hiện tại.
-                </Alert>
-            </Box>
+                <Card sx={{
+                    textAlign: 'center',
+                    py: 6,
+                    background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)',
+                    border: 'none',
+                    boxShadow: '0 8px 32px rgba(0,0,0,0.1)',
+                }}>
+                    <CardContent>
+                        <PsychologyIcon sx={{ fontSize: 80, color: 'primary.main', mb: 2 }} />
+                        <Typography variant="h5" sx={{ fontWeight: 'bold', mb: 2, color: 'text.primary' }}>
+                            Không có phiên học nào hiện tại
+                        </Typography>
+                        <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
+                            Hãy tạo một deck từ vựng hoặc thêm cards để bắt đầu học tập
+                        </Typography>
+                        <Button
+                            variant="contained"
+                            size="large"
+                            startIcon={<SchoolIcon />}
+                            sx={{
+                                px: 4,
+                                py: 1.5,
+                                borderRadius: 3,
+                                textTransform: 'none',
+                                fontSize: '1.1rem',
+                                fontWeight: 'bold',
+                            }}
+                            onClick={() => window.location.href = '/vocabulary'}
+                        >
+                            Đi đến từ vựng
+                        </Button>
+                    </CardContent>
+                </Card>
+            </Container>
         );
     }
 
     if (studySession.cardsToStudy.length === 0) {
         return (
-            <Box sx={{ p: 3 }}>
+            <Container maxWidth="lg" sx={{ py: 4 }}>
                 {/* Breadcrumb */}
                 <Breadcrumbs
                     separator={<NavigateNextIcon fontSize="small" />}
-                    sx={{ mb: 2 }}
+                    sx={{ mb: 3 }}
                 >
                     <Link
                         href="/"
@@ -236,29 +296,62 @@ const StudySessionPage: React.FC = () => {
                     </Typography>
                 </Breadcrumbs>
 
-                <Card sx={{ textAlign: 'center', py: 4 }}>
+                <Card sx={{
+                    textAlign: 'center',
+                    py: 6,
+                    background: 'linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)',
+                    border: 'none',
+                    boxShadow: '0 8px 32px rgba(0,0,0,0.1)',
+                }}>
                     <CardContent>
-                        <SchoolIcon sx={{ fontSize: 64, color: 'text.secondary', mb: 2 }} />
-                        <Typography variant="h6" color="text.secondary" gutterBottom>
-                            Không có card nào cần học
+                        <EmojiEventsIcon sx={{ fontSize: 80, color: 'success.main', mb: 2 }} />
+                        <Typography variant="h5" sx={{ fontWeight: 'bold', mb: 2, color: 'text.primary' }}>
+                            Tuyệt vời! Bạn đã hoàn thành
                         </Typography>
-                        <Typography variant="body2" color="text.secondary" mb={3}>
-                            Tất cả cards đã được học hoặc chưa đến thời gian review
+                        <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
+                            Tất cả cards đã được học hoặc chưa đến thời gian review. Hãy quay lại sau để tiếp tục học tập!
                         </Typography>
-                        <Button
-                            variant="contained"
-                            startIcon={<RefreshIcon />}
-                            onClick={() => {
-                                const mode = searchParams.get('mode') as StudyMode;
-                                const deckId = searchParams.get('deckId');
-                                loadStudySession(mode, deckId ? parseInt(deckId) : undefined);
-                            }}
-                        >
-                            Làm mới
-                        </Button>
+                        <Box display="flex" gap={2} justifyContent="center">
+                            <Button
+                                variant="contained"
+                                size="large"
+                                startIcon={<RefreshIcon />}
+                                sx={{
+                                    px: 4,
+                                    py: 1.5,
+                                    borderRadius: 3,
+                                    textTransform: 'none',
+                                    fontSize: '1.1rem',
+                                    fontWeight: 'bold',
+                                }}
+                                onClick={() => {
+                                    const mode = searchParams.get('mode') as StudyMode;
+                                    const deckId = searchParams.get('deckId');
+                                    loadStudySession(mode, deckId ? parseInt(deckId) : undefined);
+                                }}
+                            >
+                                Làm mới
+                            </Button>
+                            <Button
+                                variant="outlined"
+                                size="large"
+                                startIcon={<SchoolIcon />}
+                                sx={{
+                                    px: 4,
+                                    py: 1.5,
+                                    borderRadius: 3,
+                                    textTransform: 'none',
+                                    fontSize: '1.1rem',
+                                    fontWeight: 'bold',
+                                }}
+                                onClick={() => window.location.href = '/vocabulary'}
+                            >
+                                Quay lại từ vựng
+                            </Button>
+                        </Box>
                     </CardContent>
                 </Card>
-            </Box>
+            </Container>
         );
     }
 
@@ -291,11 +384,11 @@ const StudySessionPage: React.FC = () => {
 
     // Default study session layout for other modes
     return (
-        <Box sx={{ p: 3 }}>
+        <Container maxWidth="lg" sx={{ py: 4 }}>
             {/* Breadcrumb */}
             <Breadcrumbs
                 separator={<NavigateNextIcon fontSize="small" />}
-                sx={{ mb: 2 }}
+                sx={{ mb: 3 }}
             >
                 <Link
                     href="/"
@@ -323,88 +416,221 @@ const StudySessionPage: React.FC = () => {
             </Breadcrumbs>
 
             {/* Header */}
-            <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
-                <Typography variant="h4" component="h1">
-                    Phiên Học
-                </Typography>
-                <Box display="flex" gap={1}>
-                    <Tooltip title="Thống kê">
-                        <IconButton onClick={() => setOpenStatsDialog(true)}>
-                            <LibraryBooksIcon />
-                        </IconButton>
-                    </Tooltip>
-                    <Tooltip title="Làm mới">
-                        <IconButton onClick={() => {
-                            const mode = searchParams.get('mode') as StudyMode;
-                            const deckId = searchParams.get('deckId');
-                            loadStudySession(mode, deckId ? parseInt(deckId) : undefined);
-                        }}>
-                            <RefreshIcon />
-                        </IconButton>
-                    </Tooltip>
-                </Box>
-            </Box>
+            <Card sx={{
+                mb: 4,
+                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                color: 'white',
+                border: 'none',
+                boxShadow: '0 8px 32px rgba(0,0,0,0.1)',
+            }}>
+                <CardContent sx={{ p: 3 }}>
+                    <Box display="flex" justifyContent="space-between" alignItems="center">
+                        <Box>
+                            <Typography variant="h4" component="h1" sx={{ fontWeight: 'bold', mb: 1 }}>
+                                Phiên Học
+                            </Typography>
+                            <Typography variant="body1" sx={{ opacity: 0.9 }}>
+                                Học tập hiệu quả với phương pháp spaced repetition
+                            </Typography>
+                        </Box>
+                        <Box display="flex" gap={1}>
+                            <Tooltip title="Thống kê">
+                                <IconButton
+                                    onClick={() => setOpenStatsDialog(true)}
+                                    sx={{
+                                        color: 'white',
+                                        backgroundColor: 'rgba(255,255,255,0.1)',
+                                        '&:hover': { backgroundColor: 'rgba(255,255,255,0.2)' }
+                                    }}
+                                >
+                                    <LibraryBooksIcon />
+                                </IconButton>
+                            </Tooltip>
+                            <Tooltip title="Làm mới">
+                                <IconButton
+                                    onClick={() => {
+                                        const mode = searchParams.get('mode') as StudyMode;
+                                        const deckId = searchParams.get('deckId');
+                                        loadStudySession(mode, deckId ? parseInt(deckId) : undefined);
+                                    }}
+                                    sx={{
+                                        color: 'white',
+                                        backgroundColor: 'rgba(255,255,255,0.1)',
+                                        '&:hover': { backgroundColor: 'rgba(255,255,255,0.2)' }
+                                    }}
+                                >
+                                    <RefreshIcon />
+                                </IconButton>
+                            </Tooltip>
+                        </Box>
+                    </Box>
+                </CardContent>
+            </Card>
 
             {/* Progress */}
-            <Card sx={{ mb: 3 }}>
-                <CardContent>
-                    <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
-                        <Typography variant="h6">
-                            Tiến độ: {currentCardIndex + 1} / {studySession.cardsToStudy.length}
-                        </Typography>
-                        <Typography variant="body2" color="text.secondary">
-                            {Math.round(progress)}%
-                        </Typography>
+            <Card sx={{
+                mb: 4,
+                border: 'none',
+                boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
+                borderRadius: 3,
+            }}>
+                <CardContent sx={{ p: 3 }}>
+                    <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
+                        <Box display="flex" alignItems="center" gap={2}>
+                            <ScheduleIcon sx={{ color: 'primary.main', fontSize: 28 }} />
+                            <Box>
+                                <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 0.5 }}>
+                                    Tiến độ học tập
+                                </Typography>
+                                <Typography variant="body2" color="text.secondary">
+                                    Card {currentCardIndex + 1} / {studySession.cardsToStudy.length}
+                                </Typography>
+                            </Box>
+                        </Box>
+                        <Chip
+                            label={`${Math.round(progress)}%`}
+                            color="primary"
+                            sx={{
+                                fontWeight: 'bold',
+                                fontSize: '0.9rem',
+                                px: 2,
+                                py: 1,
+                            }}
+                        />
                     </Box>
-                    <LinearProgress variant="determinate" value={progress} sx={{ height: 8, borderRadius: 4 }} />
+                    <LinearProgress
+                        variant="determinate"
+                        value={progress}
+                        sx={{
+                            height: 12,
+                            borderRadius: 6,
+                            backgroundColor: 'rgba(0,0,0,0.1)',
+                            '& .MuiLinearProgress-bar': {
+                                borderRadius: 6,
+                                background: 'linear-gradient(90deg, #667eea 0%, #764ba2 100%)',
+                            }
+                        }}
+                    />
                 </CardContent>
             </Card>
 
             {/* Stats Cards */}
-            <Grid container spacing={2} sx={{ mb: 3 }}>
+            <Grid container spacing={3} sx={{ mb: 4 }}>
                 <Grid size={{ xs: 6, sm: 3 }}>
-                    <Card>
-                        <CardContent sx={{ textAlign: 'center' }}>
-                            <Typography variant="h4" color="primary">
+                    <Card sx={{
+                        textAlign: 'center',
+                        border: 'none',
+                        boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
+                        borderRadius: 3,
+                    }}>
+                        <CardContent sx={{ p: 3 }}>
+                            <Box sx={{
+                                width: 60,
+                                height: 60,
+                                borderRadius: '50%',
+                                backgroundColor: 'primary.main',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                mx: 'auto',
+                                mb: 2,
+                            }}>
+                                <ScheduleIcon sx={{ color: 'white', fontSize: 28 }} />
+                            </Box>
+                            <Typography variant="h4" sx={{ fontWeight: 'bold', mb: 1, color: 'primary.main' }}>
                                 {studySession.stats.dueToday}
                             </Typography>
-                            <Typography variant="body2" color="text.secondary">
+                            <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 'medium' }}>
                                 Cần học hôm nay
                             </Typography>
                         </CardContent>
                     </Card>
                 </Grid>
                 <Grid size={{ xs: 6, sm: 3 }}>
-                    <Card>
-                        <CardContent sx={{ textAlign: 'center' }}>
-                            <Typography variant="h4" color="info.main">
+                    <Card sx={{
+                        textAlign: 'center',
+                        border: 'none',
+                        boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
+                        borderRadius: 3,
+                    }}>
+                        <CardContent sx={{ p: 3 }}>
+                            <Box sx={{
+                                width: 60,
+                                height: 60,
+                                borderRadius: '50%',
+                                backgroundColor: 'info.main',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                mx: 'auto',
+                                mb: 2,
+                            }}>
+                                <StarIcon sx={{ color: 'white', fontSize: 28 }} />
+                            </Box>
+                            <Typography variant="h4" sx={{ fontWeight: 'bold', mb: 1, color: 'info.main' }}>
                                 {studySession.stats.newToday}
                             </Typography>
-                            <Typography variant="body2" color="text.secondary">
-                                Mới
+                            <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 'medium' }}>
+                                Cards mới
                             </Typography>
                         </CardContent>
                     </Card>
                 </Grid>
                 <Grid size={{ xs: 6, sm: 3 }}>
-                    <Card>
-                        <CardContent sx={{ textAlign: 'center' }}>
-                            <Typography variant="h4" color="warning.main">
+                    <Card sx={{
+                        textAlign: 'center',
+                        border: 'none',
+                        boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
+                        borderRadius: 3,
+                    }}>
+                        <CardContent sx={{ p: 3 }}>
+                            <Box sx={{
+                                width: 60,
+                                height: 60,
+                                borderRadius: '50%',
+                                backgroundColor: 'warning.main',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                mx: 'auto',
+                                mb: 2,
+                            }}>
+                                <PsychologyIcon sx={{ color: 'white', fontSize: 28 }} />
+                            </Box>
+                            <Typography variant="h4" sx={{ fontWeight: 'bold', mb: 1, color: 'warning.main' }}>
                                 {studySession.stats.reviewToday}
                             </Typography>
-                            <Typography variant="body2" color="text.secondary">
+                            <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 'medium' }}>
                                 Ôn tập
                             </Typography>
                         </CardContent>
                     </Card>
                 </Grid>
                 <Grid size={{ xs: 6, sm: 3 }}>
-                    <Card>
-                        <CardContent sx={{ textAlign: 'center' }}>
-                            <Typography variant="h4" color="success.main">
+                    <Card sx={{
+                        textAlign: 'center',
+                        border: 'none',
+                        boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
+                        borderRadius: 3,
+                    }}>
+                        <CardContent sx={{ p: 3 }}>
+                            <Box sx={{
+                                width: 60,
+                                height: 60,
+                                borderRadius: '50%',
+                                backgroundColor: 'success.main',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                mx: 'auto',
+                                mb: 2,
+                            }}>
+                                <EmojiEventsIcon sx={{ color: 'white', fontSize: 28 }} />
+                            </Box>
+                            <Typography variant="h4" sx={{ fontWeight: 'bold', mb: 1, color: 'success.main' }}>
                                 {studySession.stats.learnedCards}
                             </Typography>
-                            <Typography variant="body2" color="text.secondary">
+                            <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 'medium' }}>
                                 Đã học
                             </Typography>
                         </CardContent>
@@ -413,119 +639,276 @@ const StudySessionPage: React.FC = () => {
             </Grid>
 
             {/* Study Card */}
-            <Card sx={{ mb: 3, minHeight: 400 }}>
-                <CardContent sx={{ p: 4 }}>
+            <Card sx={{
+                mb: 4,
+                minHeight: 500,
+                border: 'none',
+                boxShadow: '0 8px 32px rgba(0,0,0,0.1)',
+                borderRadius: 4,
+                background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)',
+            }}>
+                <CardContent sx={{ p: 6 }}>
                     {currentCard && (
-                        <Box>
-                            {/* Front of card */}
-                            <Box
-                                sx={{
-                                    minHeight: 200,
-                                    display: 'flex',
-                                    flexDirection: 'column',
-                                    justifyContent: 'center',
-                                    alignItems: 'center',
-                                    textAlign: 'center',
-                                    mb: 3,
-                                }}
-                            >
-                                <Typography variant="h5" component="div" sx={{ mb: 2 }}>
-                                    {renderTemplate(currentCard.frontTemplate, currentCard.fieldValues)}
-                                </Typography>
-
-                                {showAnswer && (
-                                    <>
-                                        <Box sx={{ width: '100%', height: 1, bgcolor: 'divider', my: 2 }} />
-                                        <Typography variant="h6" color="primary" sx={{ mb: 2 }}>
-                                            {renderTemplate(currentCard.backTemplate, currentCard.fieldValues)}
-                                        </Typography>
-                                    </>
-                                )}
-                            </Box>
-
-                            {/* Action buttons */}
-                            <Box display="flex" justifyContent="center" gap={2}>
-                                {!showAnswer ? (
-                                    <Button
-                                        variant="contained"
-                                        size="large"
-                                        onClick={handleShowAnswer}
-                                        sx={{ px: 4 }}
+                        <Fade in={true} timeout={500}>
+                            <Box>
+                                {/* Front of card */}
+                                <Box
+                                    sx={{
+                                        minHeight: 300,
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        justifyContent: 'center',
+                                        alignItems: 'center',
+                                        textAlign: 'center',
+                                        mb: 4,
+                                        p: 4,
+                                        backgroundColor: 'white',
+                                        borderRadius: 3,
+                                        boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
+                                    }}
+                                >
+                                    <Typography
+                                        variant="h4"
+                                        component="div"
+                                        sx={{
+                                            mb: 3,
+                                            fontWeight: 'bold',
+                                            color: 'text.primary',
+                                            lineHeight: 1.4,
+                                        }}
                                     >
-                                        Hiển thị đáp án
-                                    </Button>
-                                ) : (
-                                    <Grid container spacing={2} justifyContent="center">
-                                        {['AGAIN', 'HARD', 'GOOD', 'EASY'].map((rating) => (
-                                            <Grid key={rating}>
-                                                <Button
-                                                    variant="contained"
-                                                    color={getRatingColor(rating) as any}
-                                                    startIcon={getRatingIcon(rating)}
-                                                    onClick={() => handleReview(rating as any)}
-                                                    disabled={reviewing}
-                                                    sx={{ minWidth: 120 }}
+                                        {renderTemplate(currentCard.frontTemplate, currentCard.fieldValues)}
+                                    </Typography>
+
+                                    {showAnswer && (
+                                        <Slide direction="up" in={showAnswer} timeout={300}>
+                                            <Box sx={{ width: '100%' }}>
+                                                <Box sx={{
+                                                    width: '100%',
+                                                    height: 2,
+                                                    background: 'linear-gradient(90deg, #667eea 0%, #764ba2 100%)',
+                                                    my: 3,
+                                                    borderRadius: 1,
+                                                }} />
+                                                <Typography
+                                                    variant="h5"
+                                                    sx={{
+                                                        mb: 2,
+                                                        fontWeight: 'bold',
+                                                        color: 'primary.main',
+                                                        lineHeight: 1.4,
+                                                    }}
                                                 >
-                                                    {getRatingLabel(rating)}
-                                                </Button>
-                                            </Grid>
-                                        ))}
-                                    </Grid>
-                                )}
+                                                    {renderTemplate(currentCard.backTemplate, currentCard.fieldValues)}
+                                                </Typography>
+                                            </Box>
+                                        </Slide>
+                                    )}
+                                </Box>
+
+                                {/* Action buttons */}
+                                <Box display="flex" justifyContent="center" gap={3}>
+                                    {!showAnswer ? (
+                                        <Button
+                                            variant="contained"
+                                            size="large"
+                                            onClick={handleShowAnswer}
+                                            sx={{
+                                                px: 6,
+                                                py: 2,
+                                                borderRadius: 3,
+                                                textTransform: 'none',
+                                                fontSize: '1.2rem',
+                                                fontWeight: 'bold',
+                                                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                                                boxShadow: '0 4px 20px rgba(102, 126, 234, 0.4)',
+                                                '&:hover': {
+                                                    transform: 'translateY(-2px)',
+                                                    boxShadow: '0 8px 32px rgba(102, 126, 234, 0.6)',
+                                                },
+                                                transition: 'all 0.3s ease',
+                                            }}
+                                        >
+                                            Hiển thị đáp án
+                                        </Button>
+                                    ) : (
+                                        <Grid container spacing={2} justifyContent="center">
+                                            {['AGAIN', 'HARD', 'GOOD', 'EASY'].map((rating) => (
+                                                <Grid key={rating}>
+                                                    <Button
+                                                        variant="contained"
+                                                        color={getRatingColor(rating) as any}
+                                                        startIcon={getRatingIcon(rating)}
+                                                        onClick={() => handleReview(rating as any)}
+                                                        disabled={reviewing}
+                                                        sx={{
+                                                            minWidth: 140,
+                                                            py: 1.5,
+                                                            borderRadius: 3,
+                                                            textTransform: 'none',
+                                                            fontSize: '1rem',
+                                                            fontWeight: 'bold',
+                                                            boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
+                                                            '&:hover': {
+                                                                transform: 'translateY(-2px)',
+                                                                boxShadow: '0 8px 32px rgba(0,0,0,0.15)',
+                                                            },
+                                                            transition: 'all 0.3s ease',
+                                                        }}
+                                                    >
+                                                        {getRatingLabel(rating)}
+                                                    </Button>
+                                                </Grid>
+                                            ))}
+                                        </Grid>
+                                    )}
+                                </Box>
                             </Box>
-                        </Box>
+                        </Fade>
                     )}
                 </CardContent>
             </Card>
 
             {/* Stats Dialog */}
-            <Dialog open={openStatsDialog} onClose={() => setOpenStatsDialog(false)} maxWidth="sm" fullWidth>
-                <DialogTitle>Thống kê học tập</DialogTitle>
-                <DialogContent>
-                    <Grid container spacing={2} sx={{ mt: 1 }}>
-                        <Grid size={{ xs: 6 }}>
-                            <Card>
-                                <CardContent sx={{ textAlign: 'center' }}>
-                                    <Typography variant="h4" color="primary">
+            <Dialog
+                open={openStatsDialog}
+                onClose={() => setOpenStatsDialog(false)}
+                maxWidth="md"
+                fullWidth
+                PaperProps={{
+                    sx: {
+                        borderRadius: 3,
+                        boxShadow: '0 8px 32px rgba(0,0,0,0.15)',
+                    }
+                }}
+            >
+                <DialogTitle sx={{
+                    textAlign: 'center',
+                    py: 3,
+                    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                    color: 'white',
+                    fontWeight: 'bold',
+                    fontSize: '1.5rem',
+                }}>
+                    Thống kê học tập
+                </DialogTitle>
+                <DialogContent sx={{ p: 4 }}>
+                    <Grid container spacing={3}>
+                        <Grid size={{ xs: 6, sm: 3 }}>
+                            <Card sx={{
+                                textAlign: 'center',
+                                border: 'none',
+                                boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
+                                borderRadius: 3,
+                            }}>
+                                <CardContent sx={{ p: 3 }}>
+                                    <Box sx={{
+                                        width: 50,
+                                        height: 50,
+                                        borderRadius: '50%',
+                                        backgroundColor: 'primary.main',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        mx: 'auto',
+                                        mb: 2,
+                                    }}>
+                                        <LibraryBooksIcon sx={{ color: 'white', fontSize: 24 }} />
+                                    </Box>
+                                    <Typography variant="h4" sx={{ fontWeight: 'bold', mb: 1, color: 'primary.main' }}>
                                         {studySession.stats.totalCards}
                                     </Typography>
-                                    <Typography variant="body2" color="text.secondary">
+                                    <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 'medium' }}>
                                         Tổng cards
                                     </Typography>
                                 </CardContent>
                             </Card>
                         </Grid>
-                        <Grid size={{ xs: 6 }}>
-                            <Card>
-                                <CardContent sx={{ textAlign: 'center' }}>
-                                    <Typography variant="h4" color="success.main">
+                        <Grid size={{ xs: 6, sm: 3 }}>
+                            <Card sx={{
+                                textAlign: 'center',
+                                border: 'none',
+                                boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
+                                borderRadius: 3,
+                            }}>
+                                <CardContent sx={{ p: 3 }}>
+                                    <Box sx={{
+                                        width: 50,
+                                        height: 50,
+                                        borderRadius: '50%',
+                                        backgroundColor: 'success.main',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        mx: 'auto',
+                                        mb: 2,
+                                    }}>
+                                        <EmojiEventsIcon sx={{ color: 'white', fontSize: 24 }} />
+                                    </Box>
+                                    <Typography variant="h4" sx={{ fontWeight: 'bold', mb: 1, color: 'success.main' }}>
                                         {studySession.stats.learnedCards}
                                     </Typography>
-                                    <Typography variant="body2" color="text.secondary">
+                                    <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 'medium' }}>
                                         Đã học
                                     </Typography>
                                 </CardContent>
                             </Card>
                         </Grid>
-                        <Grid size={{ xs: 6 }}>
-                            <Card>
-                                <CardContent sx={{ textAlign: 'center' }}>
-                                    <Typography variant="h4" color="warning.main">
+                        <Grid size={{ xs: 6, sm: 3 }}>
+                            <Card sx={{
+                                textAlign: 'center',
+                                border: 'none',
+                                boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
+                                borderRadius: 3,
+                            }}>
+                                <CardContent sx={{ p: 3 }}>
+                                    <Box sx={{
+                                        width: 50,
+                                        height: 50,
+                                        borderRadius: '50%',
+                                        backgroundColor: 'warning.main',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        mx: 'auto',
+                                        mb: 2,
+                                    }}>
+                                        <ScheduleIcon sx={{ color: 'white', fontSize: 24 }} />
+                                    </Box>
+                                    <Typography variant="h4" sx={{ fontWeight: 'bold', mb: 1, color: 'warning.main' }}>
                                         {studySession.stats.dueToday}
                                     </Typography>
-                                    <Typography variant="body2" color="text.secondary">
+                                    <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 'medium' }}>
                                         Cần học hôm nay
                                     </Typography>
                                 </CardContent>
                             </Card>
                         </Grid>
-                        <Grid size={{ xs: 6 }}>
-                            <Card>
-                                <CardContent sx={{ textAlign: 'center' }}>
-                                    <Typography variant="h4" color="info.main">
+                        <Grid size={{ xs: 6, sm: 3 }}>
+                            <Card sx={{
+                                textAlign: 'center',
+                                border: 'none',
+                                boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
+                                borderRadius: 3,
+                            }}>
+                                <CardContent sx={{ p: 3 }}>
+                                    <Box sx={{
+                                        width: 50,
+                                        height: 50,
+                                        borderRadius: '50%',
+                                        backgroundColor: 'info.main',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        mx: 'auto',
+                                        mb: 2,
+                                    }}>
+                                        <StarIcon sx={{ color: 'white', fontSize: 24 }} />
+                                    </Box>
+                                    <Typography variant="h4" sx={{ fontWeight: 'bold', mb: 1, color: 'info.main' }}>
                                         {studySession.stats.newToday}
                                     </Typography>
-                                    <Typography variant="body2" color="text.secondary">
+                                    <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 'medium' }}>
                                         Cards mới
                                     </Typography>
                                 </CardContent>
@@ -533,11 +916,24 @@ const StudySessionPage: React.FC = () => {
                         </Grid>
                     </Grid>
                 </DialogContent>
-                <DialogActions>
-                    <Button onClick={() => setOpenStatsDialog(false)}>Đóng</Button>
+                <DialogActions sx={{ p: 3, justifyContent: 'center' }}>
+                    <Button
+                        onClick={() => setOpenStatsDialog(false)}
+                        variant="contained"
+                        sx={{
+                            px: 4,
+                            py: 1.5,
+                            borderRadius: 3,
+                            textTransform: 'none',
+                            fontSize: '1.1rem',
+                            fontWeight: 'bold',
+                        }}
+                    >
+                        Đóng
+                    </Button>
                 </DialogActions>
             </Dialog>
-        </Box>
+        </Container>
     );
 };
 
