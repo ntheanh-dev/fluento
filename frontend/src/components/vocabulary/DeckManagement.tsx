@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
     Box,
     Card,
     CardContent,
     Typography,
     Button,
-    Grid,
     Chip,
     IconButton,
     Dialog,
@@ -20,6 +19,15 @@ import {
     Breadcrumbs,
     Link,
     Container,
+    Table,
+    TableBody,
+    TableCell,
+    TableContainer,
+    TableHead,
+    TableRow,
+    TablePagination,
+    TableSortLabel,
+    Paper,
 } from '@mui/material';
 import {
     Add as AddIcon,
@@ -33,11 +41,12 @@ import {
     NavigateNext as NavigateNextIcon,
 } from '@mui/icons-material';
 import { type Deck, type CreateDeckRequest } from './vocabulary';
-import { vocabularyDeckApi } from './vocabularyApi';
+import { vocabularyDeckApi, type PaginatedResponse, type PaginationParams } from './vocabularyApi';
 import { notify } from '../../utils/notify';
 
 const DeckManagement: React.FC = () => {
     const navigate = useNavigate();
+    const [searchParams, setSearchParams] = useSearchParams();
     const [decks, setDecks] = useState<Deck[]>([]);
     const [loading, setLoading] = useState(true);
     const [openDialog, setOpenDialog] = useState(false);
@@ -48,15 +57,29 @@ const DeckManagement: React.FC = () => {
         name: '',
     });
 
+    // Pagination state - initialize from URL params
+    const [paginationData, setPaginationData] = useState<PaginatedResponse<Deck> | null>(null);
+    const page = parseInt(searchParams.get('page') || '0');
+    const rowsPerPage = parseInt(searchParams.get('size') || '10');
+    const sortBy = searchParams.get('sortBy') || 'createdAt';
+    const sortDir = (searchParams.get('sortDir') as 'asc' | 'desc') || 'desc';
+
     useEffect(() => {
         loadDecks();
-    }, []);
+    }, [searchParams]);
 
     const loadDecks = async () => {
         try {
             setLoading(true);
-            const userDecks = await vocabularyDeckApi.getUserDecks();
-            setDecks(userDecks);
+            const params: PaginationParams = {
+                page: page,
+                size: rowsPerPage,
+                sortBy: sortBy,
+                sortDir: sortDir
+            };
+            const paginatedData = await vocabularyDeckApi.getUserDecksPaginated(params);
+            setPaginationData(paginatedData);
+            setDecks(paginatedData.content);
         } catch (error) {
             notify('Lỗi khi tải danh sách deck', 'error');
         } finally {
@@ -131,6 +154,31 @@ const DeckManagement: React.FC = () => {
         navigate(`/vocabulary/decks/${deck.id}`);
     };
 
+    // Pagination handlers
+    const handleChangePage = async (_event: unknown, newPage: number) => {
+        const newSearchParams = new URLSearchParams(searchParams);
+        newSearchParams.set('page', newPage.toString());
+        setSearchParams(newSearchParams);
+    };
+
+    const handleChangeRowsPerPage = async (event: React.ChangeEvent<HTMLInputElement>) => {
+        const newSize = parseInt(event.target.value, 10);
+        const newSearchParams = new URLSearchParams(searchParams);
+        newSearchParams.set('size', newSize.toString());
+        newSearchParams.set('page', '0'); // Reset to first page
+        setSearchParams(newSearchParams);
+    };
+
+    const handleSort = async (property: string) => {
+        const isAsc = sortBy === property && sortDir === 'asc';
+        const newSortDir = isAsc ? 'desc' : 'asc';
+        const newSearchParams = new URLSearchParams(searchParams);
+        newSearchParams.set('sortBy', property);
+        newSearchParams.set('sortDir', newSortDir);
+        newSearchParams.set('page', '0'); // Reset to first page
+        setSearchParams(newSearchParams);
+    };
+
 
     if (loading) {
         return (
@@ -173,9 +221,6 @@ const DeckManagement: React.FC = () => {
             </Breadcrumbs>
 
             <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
-                <Typography variant="h4" component="h1" gutterBottom>
-                    Quản lý Decks
-                </Typography>
                 <Button
                     variant="contained"
                     startIcon={<AddIcon />}
@@ -206,81 +251,136 @@ const DeckManagement: React.FC = () => {
                     </CardContent>
                 </Card>
             ) : (
-                <Grid container spacing={3}>
-                    {decks.map((deck) => (
-                        <Grid size={{ xs: 12, sm: 6, md: 4 }} key={deck.id}>
-                            <Card
-                                sx={{
-                                    height: '100%',
-                                    display: 'flex',
-                                    flexDirection: 'column',
-                                    transition: 'transform 0.2s',
-                                    cursor: 'pointer',
-                                    '&:hover': {
-                                        transform: 'translateY(-4px)',
-                                        boxShadow: 4,
-                                    },
-                                }}
-                                onClick={() => handleDeckClick(deck)}
-                            >
-                                <CardContent sx={{ flexGrow: 1 }}>
-                                    <Box display="flex" justifyContent="space-between" alignItems="flex-start" mb={2}>
-                                        <Box display="flex" alignItems="center" gap={1}>
-                                            <Typography variant="h6" component="h2" noWrap>
-                                                {deck.name}
-                                            </Typography>
-                                        </Box>
-                                        <IconButton
-                                            size="small"
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                handleMenuOpen(e, deck);
-                                            }}
-                                        >
-                                            <MoreVertIcon />
-                                        </IconButton>
-                                    </Box>
-
-
-                                    <Box display="flex" gap={1} mb={2}>
+                <TableContainer component={Paper} sx={{ borderRadius: 2 }}>
+                    <Table>
+                        <TableHead>
+                            <TableRow sx={{ backgroundColor: 'grey.50' }}>
+                                <TableCell>
+                                    <TableSortLabel
+                                        active={sortBy === 'name'}
+                                        direction={sortBy === 'name' ? sortDir : 'asc'}
+                                        onClick={() => handleSort('name')}
+                                    >
+                                        Tên Deck
+                                    </TableSortLabel>
+                                </TableCell>
+                                <TableCell>
+                                    <TableSortLabel
+                                        active={sortBy === 'noteCount'}
+                                        direction={sortBy === 'noteCount' ? sortDir : 'asc'}
+                                        onClick={() => handleSort('noteCount')}
+                                    >
+                                        Số Notes
+                                    </TableSortLabel>
+                                </TableCell>
+                                <TableCell>
+                                    <TableSortLabel
+                                        active={sortBy === 'cardCount'}
+                                        direction={sortBy === 'cardCount' ? sortDir : 'asc'}
+                                        onClick={() => handleSort('cardCount')}
+                                    >
+                                        Số Cards
+                                    </TableSortLabel>
+                                </TableCell>
+                                <TableCell>
+                                    <TableSortLabel
+                                        active={sortBy === 'createdAt'}
+                                        direction={sortBy === 'createdAt' ? sortDir : 'asc'}
+                                        onClick={() => handleSort('createdAt')}
+                                    >
+                                        Ngày tạo
+                                    </TableSortLabel>
+                                </TableCell>
+                                <TableCell sx={{ fontWeight: 'bold' }}>Hành động</TableCell>
+                            </TableRow>
+                        </TableHead>
+                        <TableBody>
+                            {decks.map((deck) => (
+                                <TableRow
+                                    key={deck.id}
+                                    hover
+                                    sx={{
+                                        cursor: 'pointer',
+                                        '&:hover': {
+                                            backgroundColor: 'action.hover',
+                                        },
+                                    }}
+                                    onClick={() => handleDeckClick(deck)}
+                                >
+                                    <TableCell>
+                                        <Typography variant="subtitle1" fontWeight="medium">
+                                            {deck.name}
+                                        </Typography>
+                                    </TableCell>
+                                    <TableCell>
                                         <Chip
                                             icon={<SchoolIcon />}
-                                            label={`${deck.noteCount} notes`}
+                                            label={deck.noteCount}
                                             size="small"
                                             color="primary"
                                             variant="outlined"
                                         />
+                                    </TableCell>
+                                    <TableCell>
                                         <Chip
                                             icon={<LibraryBooksIcon />}
-                                            label={`${deck.cardCount} cards`}
+                                            label={deck.cardCount}
                                             size="small"
                                             color="secondary"
                                             variant="outlined"
                                         />
-                                    </Box>
-
-                                    <Box display="flex" justifyContent="space-between" alignItems="center">
-                                        <Typography variant="caption" color="text.secondary">
+                                    </TableCell>
+                                    <TableCell>
+                                        <Typography variant="body2" color="text.secondary">
                                             {new Date(deck.createdAt).toLocaleDateString('vi-VN')}
                                         </Typography>
-                                        <Button
-                                            size="small"
-                                            variant="contained"
-                                            startIcon={<SchoolIcon />}
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                navigate(`/vocabulary/study-mode/decks/${deck.id}`);
-                                            }}
-                                            sx={{ ml: 1 }}
-                                        >
-                                            Học
-                                        </Button>
-                                    </Box>
-                                </CardContent>
-                            </Card>
-                        </Grid>
-                    ))}
-                </Grid>
+                                    </TableCell>
+                                    <TableCell>
+                                        <Box display="flex" gap={1} alignItems="center">
+                                            <Button
+                                                size="small"
+                                                variant="contained"
+                                                startIcon={<SchoolIcon />}
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    navigate(`/vocabulary/study-mode/decks/${deck.id}`);
+                                                }}
+                                            >
+                                                Học
+                                            </Button>
+                                            <IconButton
+                                                size="small"
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    handleMenuOpen(e, deck);
+                                                }}
+                                            >
+                                                <MoreVertIcon />
+                                            </IconButton>
+                                        </Box>
+                                    </TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
+
+                    {/* Pagination */}
+                    {paginationData && (
+                        <TablePagination
+                            component="div"
+                            count={paginationData.totalElements}
+                            page={page}
+                            onPageChange={handleChangePage}
+                            rowsPerPage={rowsPerPage}
+                            onRowsPerPageChange={handleChangeRowsPerPage}
+                            rowsPerPageOptions={[5, 10, 25, 50]}
+                            labelRowsPerPage="Số dòng mỗi trang:"
+                            labelDisplayedRows={({ from, to, count }) =>
+                                `${from}-${to} của ${count !== -1 ? count : `hơn ${to}`}`
+                            }
+                        />
+                    )}
+                </TableContainer>
             )}
 
             {/* Create/Edit Dialog */}

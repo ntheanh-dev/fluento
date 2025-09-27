@@ -45,6 +45,18 @@ export const vocabularyDeckApi = {
     return response.data.result || [];
   },
 
+  // Get user's decks with pagination
+  getUserDecksPaginated: async (params: PaginationParams): Promise<PaginatedResponse<Deck>> => {
+    const queryParams = new URLSearchParams({
+      page: params.page.toString(),
+      size: params.size.toString(),
+      sortBy: params.sortBy,
+      sortDir: params.sortDir
+    });
+    const response = await api.get<ApiResponse<PaginatedResponse<Deck>>>(`/decks/paginated?${queryParams}`);
+    return response.data.result;
+  },
+
   // Get public decks
   getPublicDecks: async (): Promise<Deck[]> => {
     const response = await api.get<ApiResponse<Deck[]>>('/decks/public');
