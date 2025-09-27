@@ -12,6 +12,7 @@ import VocabularyPractice from "./pages/VocabularyPractice";
 import BilingualPassage from "./pages/BilingualPassage";
 import ListeningPractice from "./pages/ListeningPractice";
 import SpeakingPractice from "./pages/SpeakingPractice";
+import Profile from "./pages/Profile";
 import DeckManagement from "./components/vocabulary/DeckManagement";
 import NoteManagement from "./components/vocabulary/NoteManagement";
 import { StudySession as StudySessionPage, StudyModeSelection } from "./components/vocabulary/study";
@@ -102,6 +103,17 @@ function App() {
               <RequiredAuth>
                 <MainLayout>
                   <SpeakingPractice />
+                </MainLayout>
+              </RequiredAuth>
+            }
+          />
+
+          <Route
+            path="/profile"
+            element={
+              <RequiredAuth>
+                <MainLayout>
+                  <Profile />
                 </MainLayout>
               </RequiredAuth>
             }

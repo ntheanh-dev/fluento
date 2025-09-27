@@ -162,19 +162,38 @@ const Header = () => {
                     }}
                   >
                     {isAuthenticated ? (
-                      <MenuItem
-                        key="logout"
-                        className="py-3 px-4 hover:shadow-sm transition-all duration-200 rounded-md mx-2 my-1"
-                        onClick={async () => {
-                          await handleLogout();
-                          popupState.close();
-                        }}
-                      >
-                        <Box className="flex items-center gap-3 text-sm font-medium text-red-600 transition-all duration-200 w-full">
-                          <CiLogout className="text-lg hover:scale-110 transition-transform duration-200" />
-                          Đăng xuất
-                        </Box>
-                      </MenuItem>
+                      <>
+                        <MenuItem
+                          key="profile"
+                          className="py-3 px-4 hover:shadow-sm transition-all duration-200 rounded-md mx-2 my-1"
+                          onClick={() => {
+                            navigate('/profile');
+                            popupState.close();
+                          }}
+                        >
+                          <Box className="flex items-center gap-3 text-sm font-medium text-gray-700 transition-all duration-200 w-full">
+                            <Avatar
+                              alt={user?.username || 'User'}
+                              src={user?.urlAvatar}
+                              sx={{ width: 20, height: 20 }}
+                            />
+                            Thông tin cá nhân
+                          </Box>
+                        </MenuItem>
+                        <MenuItem
+                          key="logout"
+                          className="py-3 px-4 hover:shadow-sm transition-all duration-200 rounded-md mx-2 my-1"
+                          onClick={async () => {
+                            await handleLogout();
+                            popupState.close();
+                          }}
+                        >
+                          <Box className="flex items-center gap-3 text-sm font-medium text-red-600 transition-all duration-200 w-full">
+                            <CiLogout className="text-lg hover:scale-110 transition-transform duration-200" />
+                            Đăng xuất
+                          </Box>
+                        </MenuItem>
+                      </>
                     ) : (
                       <MenuItem
                         key="login"
@@ -273,16 +292,30 @@ const Header = () => {
             </div>
 
             {isAuthenticated ? (
-              <button
-                onClick={async () => {
-                  await handleLogout();
-                  closeMobileMenu();
-                }}
-                className="w-full flex items-center gap-3 p-3 text-red-600 hover:bg-red-50 rounded-lg transition-colors duration-200 font-medium"
-              >
-                <CiLogout className="text-lg" />
-                Đăng xuất
-              </button>
+              <>
+                <Link
+                  to="/profile"
+                  onClick={closeMobileMenu}
+                  className="w-full flex items-center gap-3 p-3 text-gray-700 hover:bg-gray-50 rounded-lg transition-colors duration-200 font-medium mb-2"
+                >
+                  <Avatar
+                    alt={user?.username || 'User'}
+                    src={user?.urlAvatar}
+                    sx={{ width: 20, height: 20 }}
+                  />
+                  Thông tin cá nhân
+                </Link>
+                <button
+                  onClick={async () => {
+                    await handleLogout();
+                    closeMobileMenu();
+                  }}
+                  className="w-full flex items-center gap-3 p-3 text-red-600 hover:bg-red-50 rounded-lg transition-colors duration-200 font-medium"
+                >
+                  <CiLogout className="text-lg" />
+                  Đăng xuất
+                </button>
+              </>
             ) : (
               <Link
                 to="/login"

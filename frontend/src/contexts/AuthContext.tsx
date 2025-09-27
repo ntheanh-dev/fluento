@@ -2,25 +2,24 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
 import Cookies from 'js-cookie';
 import { api } from '../configs/API';
-import { CreatePasswordModal } from '../components/modals';
 
 interface User {
     id: string;
     username: string;
     urlAvatar: string;
     noPassword: boolean;
+    createdAt?: string;
 }
 
 interface AuthContextType {
     user: User | null;
     isAuthenticated: boolean;
     isLoading: boolean;
-    showCreatePasswordModal: boolean;
     login: (token: string, refreshToken: string, userData: User) => void;
     logout: () => Promise<void>;
     checkAuth: () => Promise<void>;
-    closeCreatePasswordModal: () => void;
     updateTokens: (accessToken: string, refreshToken?: string) => void;
+    setUser: (user: User | null) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -41,7 +40,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const [user, setUser] = useState<User | null>(null);
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
-    const [showCreatePasswordModal, setShowCreatePasswordModal] = useState(false);
     // Check authentication status on app load
     useEffect(() => {
         checkAuth();
@@ -106,13 +104,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
                     username: response.data.result.username,
                     urlAvatar: response.data.result.urlAvatar,
                     noPassword: response.data.result.noPassword,
+                    createdAt: response.data.result.createdAt,
                 };
                 setUser(userData);
-
-                // Check if user needs to create password
-                if (userData.noPassword) {
-                    setShowCreatePasswordModal(true);
-                }
             }
         } catch (error) {
             console.error('Failed to fetch user info:', error);
@@ -148,11 +142,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         setUser(userData);
         setIsAuthenticated(true);
 
-        // Check if user needs to create password
-        if (userData.noPassword) {
-            setShowCreatePasswordModal(true);
-        }
-
         // Set token in API headers
         api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
     };
@@ -172,21 +161,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         } finally {
             clearAuthData();
         }
-    };
-
-    const closeCreatePasswordModal = () => {
-        setShowCreatePasswordModal(false);
-    };
-
-    const handlePasswordCreated = () => {
-        // Update user data to reflect that password has been created
-        if (user) {
-            setUser({
-                ...user,
-                noPassword: false
-            });
-        }
-        setShowCreatePasswordModal(false);
     };
 
     const updateTokens = (accessToken: string, refreshToken?: string) => {
@@ -215,22 +189,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         user,
         isAuthenticated,
         isLoading,
-        showCreatePasswordModal,
         login,
         logout,
         checkAuth,
-        closeCreatePasswordModal,
         updateTokens,
+        setUser,
     };
 
     return (
         <AuthContext.Provider value={value}>
             {children}
-            <CreatePasswordModal
-                isOpen={showCreatePasswordModal}
-                onClose={closeCreatePasswordModal}
-                onSuccess={handlePasswordCreated}
-            />
         </AuthContext.Provider>
     );
 };
