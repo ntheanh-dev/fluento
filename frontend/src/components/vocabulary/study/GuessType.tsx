@@ -181,16 +181,20 @@ const GuessType: React.FC<GuessTypeProps> = ({ session, currentCardIndex, onRevi
 
     const shortcuts = [
         { key: 'Enter', action: 'Nộp đáp án' },
-        { key: 'R', action: 'Phát âm từ' },
-        { key: '1', action: 'Đánh dấu Khó' },
-        { key: '2', action: 'Đánh dấu Trung bình' },
-        { key: '3', action: 'Đánh dấu Dễ' },
-        { key: '4', action: 'Đánh dấu Đã biết' },
+        { key: 'Ctrl+R', action: 'Phát âm từ' },
+        { key: 'Ctrl+1', action: 'Đánh dấu Khó' },
+        { key: 'Ctrl+2', action: 'Đánh dấu Trung bình' },
+        { key: 'Ctrl+3', action: 'Đánh dấu Dễ' },
+        { key: 'Ctrl+4', action: 'Đánh dấu Đã biết' },
         { key: 'S', action: 'Cài đặt hiển thị' },
     ];
 
     const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
         if (showShortcuts) return;
+
+        // Only trigger shortcuts if Ctrl/Alt/Cmd is pressed or if already submitted
+        const isShortcutMode = e.ctrlKey || e.altKey || e.metaKey || submitted;
+
         switch (e.key) {
             case 'Enter':
                 e.preventDefault();
@@ -198,26 +202,36 @@ const GuessType: React.FC<GuessTypeProps> = ({ session, currentCardIndex, onRevi
                 break;
             case 'r':
             case 'R':
-                e.preventDefault();
-                const audioElement = new Audio(audio);
-                audioElement.play().catch(() => undefined);
+                if (isShortcutMode) {
+                    e.preventDefault();
+                    const audioElement = new Audio(audio);
+                    audioElement.play().catch(() => undefined);
+                }
                 break;
 
             case '1':
-                e.preventDefault();
-                if (submitted) onReview('AGAIN');
+                if (isShortcutMode) {
+                    e.preventDefault();
+                    if (submitted) onReview('AGAIN');
+                }
                 break;
             case '2':
-                e.preventDefault();
-                if (submitted) onReview('HARD');
+                if (isShortcutMode) {
+                    e.preventDefault();
+                    if (submitted) onReview('HARD');
+                }
                 break;
             case '3':
-                e.preventDefault();
-                if (submitted) onReview('GOOD');
+                if (isShortcutMode) {
+                    e.preventDefault();
+                    if (submitted) onReview('GOOD');
+                }
                 break;
             case '4':
-                e.preventDefault();
-                if (submitted) onReview('EASY');
+                if (isShortcutMode) {
+                    e.preventDefault();
+                    if (submitted) onReview('EASY');
+                }
                 break;
         }
 
@@ -628,7 +642,7 @@ const GuessType: React.FC<GuessTypeProps> = ({ session, currentCardIndex, onRevi
                             <strong>Đoán và Gõ Từ:</strong> Nghe phát âm, gõ lại chính xác từ vựng.
                         </Typography>
                         <Typography variant="body2">
-                            - Nhấn biểu tượng loa hoặc phím R để nghe lại âm thanh.
+                            - Nhấn biểu tượng loa hoặc Ctrl+R để nghe lại âm thanh.
                         </Typography>
                         <Typography variant="body2">
                             - Nhập câu trả lời và nhấn Enter hoặc nút Nộp.
