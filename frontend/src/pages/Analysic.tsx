@@ -306,63 +306,44 @@ const Analytic = () => {
     <Container maxWidth="lg" className="h-full py-8 bg-gradient-to-br from-gray-50 via-blue-50 to-purple-50">
       {/* Progress Statistics Section */}
       <Box
-        className="mb-8 p-6 rounded-2xl shadow-2xl"
+        className="mb-6 p-4 rounded-lg"
         sx={{
-          background: 'linear-gradient(135deg, #7C3AED 0%, #A855F7 25%, #C084FC 50%, #DDD6FE 75%, #EDE9FE 100%)',
+          background: 'linear-gradient(135deg, #7C3AED 0%, #A855F7 50%, #C084FC 100%)',
           color: 'white',
-          boxShadow: '0 25px 50px -12px rgba(124, 58, 237, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.1)',
-          border: '1px solid rgba(255, 255, 255, 0.2)',
-          position: 'relative',
-          overflow: 'hidden',
-          '&::before': {
-            content: '""',
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            background: 'radial-gradient(circle at 30% 20%, rgba(255,255,255,0.1) 0%, transparent 50%)',
-            pointerEvents: 'none'
-          }
+          boxShadow: '0 4px 12px rgba(124, 58, 237, 0.3)',
+          border: '1px solid rgba(255, 255, 255, 0.2)'
         }}
       >
         <Typography
-          variant="h5"
-          className="mb-6 font-bold text-center relative z-10"
+          variant="h6"
+          className="mb-4 font-bold text-center"
           sx={{
-            textShadow: '0 2px 4px rgba(0,0,0,0.2)',
-            fontSize: '1.75rem',
-            letterSpacing: '0.02em'
+            fontSize: '1.25rem'
           }}
         >
           Thống kê tiến bộ
         </Typography>
 
         {/* Top Row - Statistic Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
           <Card
-            className="bg-white bg-opacity-95 hover:bg-opacity-100 transition-all duration-500 transform hover:scale-105 hover:-rotate-1"
+            className="bg-white bg-opacity-95"
             sx={{
-              boxShadow: '0 15px 30px rgba(0,0,0,0.15), 0 0 0 1px rgba(255,255,255,0.3)',
-              borderRadius: '20px',
-              border: '1px solid rgba(255,255,255,0.3)',
-              backdropFilter: 'blur(20px)',
-              '&:hover': {
-                boxShadow: '0 20px 40px rgba(0,0,0,0.25), 0 0 0 1px rgba(255,255,255,0.5)',
-                transform: 'translateY(-3px)'
-              }
+              boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+              borderRadius: '12px',
+              border: '1px solid rgba(255,255,255,0.3)'
             }}
           >
-            <CardContent className="p-5">
+            <CardContent className="p-3">
               <div className="flex items-center">
-                <div className="p-3 bg-gradient-to-br from-purple-100 to-purple-200 rounded-xl mr-4 shadow-lg">
-                  <Description className="text-purple-600 text-2xl" />
+                <div className="p-2 bg-gradient-to-br from-purple-100 to-purple-200 rounded-lg mr-3">
+                  <Description className="text-purple-600 text-xl" />
                 </div>
                 <div>
-                  <Typography variant="h3" className="text-purple-800 font-black mb-1 bg-gradient-to-r from-purple-600 to-purple-800 bg-clip-text text-transparent">
+                  <Typography variant="h4" className="text-purple-800 font-bold mb-1">
                     {totalSessions}
                   </Typography>
-                  <Typography variant="body1" className="text-purple-600 font-semibold text-sm">
+                  <Typography variant="body2" className="text-purple-600 font-medium text-xs">
                     Tổng bài luyện viết
                   </Typography>
                 </div>
@@ -371,28 +352,23 @@ const Analytic = () => {
           </Card>
 
           <Card
-            className="bg-white bg-opacity-95 hover:bg-opacity-100 transition-all duration-500 transform hover:scale-105 hover:rotate-1"
+            className="bg-white bg-opacity-95"
             sx={{
-              boxShadow: '0 15px 30px rgba(0,0,0,0.15), 0 0 0 1px rgba(255,255,255,0.3)',
-              borderRadius: '20px',
-              border: '1px solid rgba(255,255,255,0.3)',
-              backdropFilter: 'blur(20px)',
-              '&:hover': {
-                boxShadow: '0 20px 40px rgba(0,0,0,0.25), 0 0 0 1px rgba(255,255,255,0.5)',
-                transform: 'translateY(-3px)'
-              }
+              boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+              borderRadius: '12px',
+              border: '1px solid rgba(255,255,255,0.3)'
             }}
           >
-            <CardContent className="p-5">
+            <CardContent className="p-3">
               <div className="flex items-center">
-                <div className="p-3 bg-gradient-to-br from-blue-100 to-blue-200 rounded-xl mr-4 shadow-lg">
-                  <TrendingUp className="text-blue-600 text-2xl" />
+                <div className="p-2 bg-gradient-to-br from-blue-100 to-blue-200 rounded-lg mr-3">
+                  <TrendingUp className="text-blue-600 text-xl" />
                 </div>
                 <div>
-                  <Typography variant="h3" className="text-blue-800 font-black mb-1 bg-gradient-to-r from-blue-600 to-blue-800 bg-clip-text text-transparent">
-                    {averageScore}
+                  <Typography variant="h4" className="text-blue-800 font-bold mb-1">
+                    {averageScore.toFixed(2)}
                   </Typography>
-                  <Typography variant="body1" className="text-blue-600 font-semibold text-sm">
+                  <Typography variant="body2" className="text-blue-600 font-medium text-xs">
                     Số câu trung bình
                   </Typography>
                 </div>
@@ -401,28 +377,23 @@ const Analytic = () => {
           </Card>
 
           <Card
-            className="bg-white bg-opacity-95 hover:bg-opacity-100 transition-all duration-500 transform hover:scale-105 hover:-rotate-1"
+            className="bg-white bg-opacity-95"
             sx={{
-              boxShadow: '0 15px 30px rgba(0,0,0,0.15), 0 0 0 1px rgba(255,255,255,0.3)',
-              borderRadius: '20px',
-              border: '1px solid rgba(255,255,255,0.3)',
-              backdropFilter: 'blur(20px)',
-              '&:hover': {
-                boxShadow: '0 20px 40px rgba(0,0,0,0.25), 0 0 0 1px rgba(255,255,255,0.5)',
-                transform: 'translateY(-3px)'
-              }
+              boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+              borderRadius: '12px',
+              border: '1px solid rgba(255,255,255,0.3)'
             }}
           >
-            <CardContent className="p-5">
+            <CardContent className="p-3">
               <div className="flex items-center">
-                <div className="p-3 bg-gradient-to-br from-yellow-100 to-yellow-200 rounded-xl mr-4 shadow-lg">
-                  <Star className="text-yellow-600 text-2xl" />
+                <div className="p-2 bg-gradient-to-br from-yellow-100 to-yellow-200 rounded-lg mr-3">
+                  <Star className="text-yellow-600 text-xl" />
                 </div>
                 <div>
-                  <Typography variant="h3" className="text-yellow-800 font-black mb-1 bg-gradient-to-r from-yellow-600 to-yellow-800 bg-clip-text text-transparent">
+                  <Typography variant="h4" className="text-yellow-800 font-bold mb-1">
                     {maxScore}
                   </Typography>
-                  <Typography variant="body1" className="text-yellow-600 font-semibold text-sm">
+                  <Typography variant="body2" className="text-yellow-600 font-medium text-xs">
                     Số câu cao nhất
                   </Typography>
                 </div>
@@ -432,37 +403,30 @@ const Analytic = () => {
         </div>
 
         {/* Bottom Row - Charts */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Paper
-            className="p-6 bg-white bg-opacity-25 backdrop-blur-md"
+            className="p-4 bg-white bg-opacity-25"
             sx={{
-              borderRadius: '20px',
+              borderRadius: '12px',
               border: '1px solid rgba(255,255,255,0.3)',
-              backdropFilter: 'blur(20px)',
-              boxShadow: '0 10px 25px rgba(0,0,0,0.15)',
-              transition: 'all 0.3s ease',
-              '&:hover': {
-                transform: 'translateY(-3px)',
-                boxShadow: '0 15px 35px rgba(0,0,0,0.25)',
-                background: 'rgba(255,255,255,0.3)'
-              }
+              boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
             }}
           >
-            <Typography variant="h6" className="mb-4 font-bold text-center">
+            <Typography variant="subtitle1" className="mb-3 font-bold text-center">
               Tần suất luyện tập
             </Typography>
-            <div className="flex items-end justify-between h-36 px-4">
+            <div className="flex items-end justify-between h-24 px-2">
               {statisticsData?.practiceFrequency ? (
                 statisticsData.practiceFrequency.map((item, index) => (
-                  <div key={index} className="flex flex-col items-center group">
+                  <div key={index} className="flex flex-col items-center">
                     <div
-                      className="w-10 bg-gradient-to-t from-white to-purple-100 rounded-t-xl transition-all duration-700 hover:bg-gradient-to-t hover:from-purple-200 hover:to-white cursor-pointer"
+                      className="w-8 bg-gradient-to-t from-white to-purple-100 rounded-t-lg"
                       style={{
-                        height: `${Math.max(item.count * 20, 8)}px`,
-                        minHeight: '8px'
+                        height: `${Math.max(item.count * 15, 6)}px`,
+                        minHeight: '6px'
                       }}
                     />
-                    <Typography variant="body2" className="mt-3 font-medium group-hover:text-purple-200 transition-colors duration-300">
+                    <Typography variant="caption" className="mt-2 font-medium text-xs">
                       {item.dayOfWeek}
                     </Typography>
                     <Typography variant="caption" className="text-xs opacity-75">
@@ -479,35 +443,28 @@ const Analytic = () => {
           </Paper>
 
           <Paper
-            className="p-6 bg-white bg-opacity-25 backdrop-blur-md"
+            className="p-4 bg-white bg-opacity-25"
             sx={{
-              borderRadius: '20px',
+              borderRadius: '12px',
               border: '1px solid rgba(255,255,255,0.3)',
-              backdropFilter: 'blur(20px)',
-              boxShadow: '0 10px 25px rgba(0,0,0,0.15)',
-              transition: 'all 0.3s ease',
-              '&:hover': {
-                transform: 'translateY(-3px)',
-                boxShadow: '0 15px 35px rgba(0,0,0,0.25)',
-                background: 'rgba(255,255,255,0.3)'
-              }
+              boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
             }}
           >
-            <Typography variant="h6" className="mb-4 font-bold text-center">
+            <Typography variant="subtitle1" className="mb-3 font-bold text-center">
               Tiến bộ điểm số
             </Typography>
-            <div className="flex items-end justify-center h-36 px-4">
+            <div className="flex items-end justify-center h-24 px-2">
               {statisticsData?.scoreProgress && statisticsData.scoreProgress.length > 0 ? (
                 statisticsData.scoreProgress.map((item, index) => (
                   <div key={index} className="flex flex-col items-center mx-1">
                     <div
-                      className="w-6 bg-gradient-to-t from-white to-purple-200 rounded-t-full mb-3 shadow-lg transition-all duration-500"
+                      className="w-5 bg-gradient-to-t from-white to-purple-200 rounded-t-full mb-2"
                       style={{
-                        height: `${Math.max(item.score * 8, 8)}px`,
-                        minHeight: '8px'
+                        height: `${Math.max(item.score * 6, 6)}px`,
+                        minHeight: '6px'
                       }}
                     />
-                    <Typography variant="body2" className="font-medium text-xs">
+                    <Typography variant="caption" className="font-medium text-xs">
                       {item.date}
                     </Typography>
                     <Typography variant="caption" className="text-xs opacity-75">
@@ -736,7 +693,7 @@ const Analytic = () => {
                       </TableCell>
 
                       <TableCell className="font-semibold text-center">
-                        {averageScore}
+                        {averageScore.toFixed(2)}
                       </TableCell>
 
                       <TableCell className="text-sm">
