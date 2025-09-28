@@ -2,9 +2,11 @@ package com.nta.service;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
@@ -99,13 +101,13 @@ public class NoteService {
         // Create default card
         createDefaultCard(savedNote, noteType);
 
-        return convertToResponse(savedNote);
+        return convertToResponse(savedNote, userId);
     }
 
     @Transactional(readOnly = true)
     public List<NoteResponse> getNotesByDeck(Long deckId, Long userId) {
         List<Note> notes = noteRepository.findByDeckIdAndUserId(deckId, userId);
-        return notes.stream().map(this::convertToResponse).collect(Collectors.toList());
+        return convertToResponseList(notes, userId);
     }
 
     public Page<NoteResponse> getNotesByDeckPaginated(
@@ -117,7 +119,7 @@ public class NoteService {
         Pageable pageable = PageRequest.of(page, size, sort);
         Page<Note> notes = noteRepository.findByDeckIdAndUserId(deckId, userId, pageable);
 
-        return notes.map(this::convertToResponse);
+        return notes.map(note -> convertToResponse(note, userId));
     }
 
     @Transactional(readOnly = true)
@@ -128,7 +130,7 @@ public class NoteService {
             throw new AppException(ErrorCode.ACCESS_DENIED);
         }
 
-        return convertToResponse(note);
+        return convertToResponse(note, userId);
     }
 
     public NoteResponse updateNote(Long noteId, Long userId, CreateNoteRequest request) {
@@ -184,7 +186,7 @@ public class NoteService {
         }
 
         Note updatedNote = noteRepository.save(note);
-        return convertToResponse(updatedNote);
+        return convertToResponse(updatedNote, userId);
     }
 
     public void deleteNote(Long noteId, Long userId) {
@@ -216,7 +218,52 @@ public class NoteService {
         }
     }
 
-    private NoteResponse convertToResponse(Note note) {
+    private List<NoteResponse> convertToResponseList(List<Note> notes, Long userId) {
+        if (notes.isEmpty()) {
+            return List.of();
+        }
+
+        // Batch load all card stats for all notes
+        List<Long> noteIds = notes.stream().map(Note::getId).collect(Collectors.toList());
+        List<Card> allCards = cardRepository.findByNoteIdIn(noteIds);
+        List<Long> cardIds = allCards.stream().map(Card::getId).collect(Collectors.toList());
+        
+        final Map<Long, CardStats> cardStatsMap;
+        if (!cardIds.isEmpty()) {
+            List<CardStats> allCardStats = cardStatsRepository.findByCardIdInAndUserId(cardIds, userId);
+            cardStatsMap = allCardStats.stream()
+                    .collect(Collectors.toMap(CardStats::getCardId, stats -> stats));
+        } else {
+            cardStatsMap = new HashMap<>();
+        }
+
+        // Group cards by note ID
+        Map<Long, List<Card>> cardsByNoteId = allCards.stream()
+                .collect(Collectors.groupingBy(Card::getNoteId));
+
+        return notes.stream()
+                .map(note -> convertToResponse(note, userId, cardsByNoteId.getOrDefault(note.getId(), Collections.emptyList()), cardStatsMap))
+                .collect(Collectors.toList());
+    }
+
+    private NoteResponse convertToResponse(Note note, Long userId) {
+        List<Card> cards = cardRepository.findByNoteId(note.getId());
+        
+        // Batch load card stats for this note's cards
+        List<Long> cardIds = cards.stream().map(Card::getId).collect(Collectors.toList());
+        final Map<Long, CardStats> cardStatsMap;
+        if (!cardIds.isEmpty()) {
+            List<CardStats> cardStats = cardStatsRepository.findByCardIdInAndUserId(cardIds, userId);
+            cardStatsMap = cardStats.stream()
+                    .collect(Collectors.toMap(CardStats::getCardId, stats -> stats));
+        } else {
+            cardStatsMap = new HashMap<>();
+        }
+
+        return convertToResponse(note, userId, cards, cardStatsMap);
+    }
+
+    private NoteResponse convertToResponse(Note note, Long userId, List<Card> cards, Map<Long, CardStats> cardStatsMap) {
         NoteResponse response = new NoteResponse();
         response.setId(note.getId());
         response.setNoteTypeId(note.getNoteTypeId());
@@ -242,8 +289,7 @@ public class NoteService {
 
         response.setFieldValues(fieldValues);
 
-        // Get cards
-        List<Card> cards = cardRepository.findByNoteId(note.getId());
+        // Set cards
         response.setCards(cards.stream()
                 .map(card -> {
                     NoteResponse.CardResponse cardResponse = new NoteResponse.CardResponse();
@@ -255,6 +301,18 @@ public class NoteService {
                     return cardResponse;
                 })
                 .collect(Collectors.toList()));
+
+        // Get due date from card stats (earliest due date among all cards)
+        LocalDateTime earliestDue = null;
+        for (Card card : cards) {
+            CardStats stats = cardStatsMap.get(card.getId());
+            if (stats != null) {
+                if (earliestDue == null || stats.getDueDate().isBefore(earliestDue)) {
+                    earliestDue = stats.getDueDate();
+                }
+            }
+        }
+        response.setDue(earliestDue);
 
         return response;
     }
@@ -358,7 +416,7 @@ public class NoteService {
             // Create default card
             createDefaultCard(savedNote, noteType);
 
-            return convertToResponse(savedNote);
+            return convertToResponse(savedNote, userId);
 
         } catch (IOException e) {
             throw new AppException(ErrorCode.ERROR_KEY_INVALID);

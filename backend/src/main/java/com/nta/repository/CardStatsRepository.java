@@ -43,4 +43,6 @@ public interface CardStatsRepository extends JpaRepository<CardStats, Long> {
 
     @Query("SELECT COUNT(cs) FROM CardStats cs JOIN Card c ON cs.cardId = c.id JOIN Note n ON c.noteId = n.id WHERE cs.userId = :userId AND cs.repetitions > 0 AND n.deckId = :deckId")
     Long countLearnedCardsForUserAndDeck(@Param("userId") Long userId, @Param("deckId") Long deckId);
+
+    List<CardStats> findByCardIdInAndUserId(List<Long> cardIds, Long userId);
 }

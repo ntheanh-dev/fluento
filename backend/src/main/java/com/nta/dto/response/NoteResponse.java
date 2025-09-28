@@ -19,6 +19,7 @@ public class NoteResponse {
     private LocalDateTime updatedAt;
     private Map<String, String> fieldValues;
     private List<CardResponse> cards;
+    private LocalDateTime due;
 
     @Data
     public static class CardResponse {
