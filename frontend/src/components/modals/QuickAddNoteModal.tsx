@@ -14,6 +14,7 @@ import {
     IconButton,
     Alert
 } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
 import { NoteForm } from '../vocabulary/notemanagement/index';
 import {
     Close as CloseIcon,
@@ -36,6 +37,7 @@ const QuickAddNoteModal: React.FC<QuickAddNoteModalProps> = ({
     onClose,
     selectedWord
 }) => {
+    const navigate = useNavigate();
     const [decks, setDecks] = useState<Deck[]>([]);
     const [noteTypes, setNoteTypes] = useState<NoteType[]>([]);
     const [selectedDeck, setSelectedDeck] = useState<Deck | null>(null);
@@ -172,6 +174,11 @@ const QuickAddNoteModal: React.FC<QuickAddNoteModalProps> = ({
     const handleDeckChange = (deckId: number) => {
         const deck = decks.find(d => d.id === deckId);
         setSelectedDeck(deck || null);
+    };
+
+    const handleNavigateToDeckManagement = () => {
+        onClose(); // Close the modal first
+        navigate('/vocabulary/decks');
     };
 
     // Validation function
@@ -357,25 +364,50 @@ const QuickAddNoteModal: React.FC<QuickAddNoteModalProps> = ({
                             <Typography variant="subtitle1" fontWeight="medium" mb={1}>
                                 Deck
                             </Typography>
-                            <FormControl fullWidth size="small" error={!!validationErrors.deck}>
-                                <Select
-                                    value={selectedDeck?.id || ''}
-                                    onChange={(e) => handleDeckChange(Number(e.target.value))}
-                                    displayEmpty
-                                    sx={{ borderRadius: 2 }}
-                                >
-                                    {decks.map((deck) => (
-                                        <MenuItem key={deck.id} value={deck.id}>
-                                            {deck.name}
-                                        </MenuItem>
-                                    ))}
-                                </Select>
-                                {validationErrors.deck && (
-                                    <Typography variant="caption" color="error" sx={{ mt: 1 }}>
-                                        {validationErrors.deck}
+                            {decks.length === 0 ? (
+                                <Box sx={{
+                                    border: '2px dashed',
+                                    borderColor: 'divider',
+                                    borderRadius: 2,
+                                    p: 3,
+                                    textAlign: 'center',
+                                    backgroundColor: 'grey.50'
+                                }}>
+                                    <Typography variant="body2" color="text.secondary" mb={2}>
+                                        Bạn chưa có deck nào. Hãy tạo deck để có thể thêm note.
                                     </Typography>
-                                )}
-                            </FormControl>
+                                    <Button
+                                        variant="contained"
+                                        onClick={handleNavigateToDeckManagement}
+                                        sx={{
+                                            textTransform: 'none',
+                                            borderRadius: 2,
+                                        }}
+                                    >
+                                        Tạo Deck
+                                    </Button>
+                                </Box>
+                            ) : (
+                                <FormControl fullWidth size="small" error={!!validationErrors.deck}>
+                                    <Select
+                                        value={selectedDeck?.id || ''}
+                                        onChange={(e) => handleDeckChange(Number(e.target.value))}
+                                        displayEmpty
+                                        sx={{ borderRadius: 2 }}
+                                    >
+                                        {decks.map((deck) => (
+                                            <MenuItem key={deck.id} value={deck.id}>
+                                                {deck.name}
+                                            </MenuItem>
+                                        ))}
+                                    </Select>
+                                    {validationErrors.deck && (
+                                        <Typography variant="caption" color="error" sx={{ mt: 1 }}>
+                                            {validationErrors.deck}
+                                        </Typography>
+                                    )}
+                                </FormControl>
+                            )}
                         </Box>
 
                         {/* Note Form */}
@@ -421,7 +453,7 @@ const QuickAddNoteModal: React.FC<QuickAddNoteModalProps> = ({
                         }
                     }}
                     variant="contained"
-                    disabled={loading}
+                    disabled={loading || decks.length === 0}
                     sx={{
                         textTransform: 'none',
                         borderRadius: 2,

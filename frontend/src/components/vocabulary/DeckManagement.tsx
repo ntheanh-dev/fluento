@@ -221,17 +221,6 @@ const DeckManagement: React.FC = () => {
                 </Typography>
             </Breadcrumbs>
 
-            <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
-                <Button
-                    variant="contained"
-                    startIcon={<AddIcon />}
-                    onClick={() => handleOpenDialog()}
-                    sx={{ borderRadius: 2 }}
-                >
-                    Tạo Deck Mới
-                </Button>
-            </Box>
-
             {decks.length === 0 ? (
                 <Card sx={{ textAlign: 'center', py: 4 }}>
                     <CardContent>
