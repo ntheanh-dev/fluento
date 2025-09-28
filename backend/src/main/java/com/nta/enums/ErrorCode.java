@@ -20,7 +20,7 @@ public enum ErrorCode {
     UNABLE_TO_USE_REFRESH_TOKEN_TO_ACCESS_RESOURCE(
             1010, "Unable to use refresh token to access resource", HttpStatus.BAD_REQUEST),
     AI_API_KEY_MISSING(1100, "Thiếu API key AI", HttpStatus.BAD_REQUEST),
-    AI_API_KEY_INVALID(1101, "API key không hợp lệ hoặc đã hết hạn", HttpStatus.BAD_REQUEST),
+    AI_API_KEY_INVALID(1101, "API key không hợp lệ hoặc đã đạt giới hạn", HttpStatus.BAD_REQUEST),
     JSON_PARSE_ERROR(1015, "Lỗi khi parse JSON, hãy thử lại", HttpStatus.INTERNAL_SERVER_ERROR),
     DECK_NAME_EXISTS(2001, "Deck with this name already exists", HttpStatus.BAD_REQUEST),
     NOTE_TYPE_NAME_EXISTS(2002, "Note type with this name already exists", HttpStatus.BAD_REQUEST),
@@ -29,6 +29,7 @@ public enum ErrorCode {
     NOTE_TYPE_NOT_FOUND(2005, "Note type not found", HttpStatus.NOT_FOUND),
     NOTE_NOT_FOUND(2006, "Note not found", HttpStatus.NOT_FOUND),
     CARD_NOT_FOUND(2007, "Card not found", HttpStatus.NOT_FOUND),
+    API_KEY_EXISTED(2008, "API key already exists", HttpStatus.BAD_REQUEST),
     ;
     private int code;
     private String message;

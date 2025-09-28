@@ -39,6 +39,9 @@ public class User {
     @Column(name = "url_avatar", columnDefinition = "TEXT")
     private String urlAvatar;
 
+    @Column(name = "api_key", length = 255)
+    private String apiKey;
+
     @Column(name = "created_at")
     private LocalDateTime createdAt = LocalDateTime.now();
 

@@ -52,11 +52,6 @@ spring:
         completions-path: /v1beta/openai/chat/completions
         options:
           model: gemini-2.0-flash
-    retry:
-        max-attempts: 3
-        wait-duration: 2s
-
-
 
 # CORS Configuration
 app:

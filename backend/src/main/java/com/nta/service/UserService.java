@@ -1,5 +1,7 @@
 package com.nta.service;
 
+import java.util.Optional;
+
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -8,7 +10,9 @@ import org.springframework.util.StringUtils;
 
 import com.nta.dto.request.PasswordCreationRequest;
 import com.nta.dto.request.ChangePasswordRequest;
+import com.nta.dto.request.CreateApiKeyRequest;
 import com.nta.dto.response.UserResponse;
+import com.nta.dto.response.ApiKeyResponse;
 import com.nta.entity.User;
 import com.nta.enums.ErrorCode;
 import com.nta.exception.AppException;
@@ -19,6 +23,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -79,5 +84,60 @@ public class UserService {
         final String name = context.getAuthentication().getName();
 
         return userRepository.findByUsername(name).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+    }
+
+    public String getApiKeyFromContext() {
+        final var context = SecurityContextHolder.getContext();
+        final String name = context.getAuthentication().getName();
+
+        return userRepository.findApiKeyByUsername(name).orElseThrow(() -> new AppException(ErrorCode.AI_API_KEY_MISSING));
+    }
+
+    // API Key Management Methods
+    @Transactional
+    public ApiKeyResponse createApiKey(CreateApiKeyRequest request) {
+        final User user = this.getUserFromContext();
+        
+        // Check if API key already exists for any user
+        if (userRepository.findByApiKey(request.getApiKey()).isPresent()) {
+            throw new AppException(ErrorCode.API_KEY_EXISTED);
+        }
+
+        user.setApiKey(request.getApiKey());
+        User savedUser = userRepository.save(user);
+
+        return ApiKeyResponse.builder()
+                .id(savedUser.getId())
+                .apiKey(savedUser.getApiKey())
+                .createdAt(savedUser.getCreatedAt())
+                .build();
+    }
+
+    @Transactional
+    public void deleteApiKey() {
+        final User user = this.getUserFromContext();
+        
+        user.setApiKey(null);
+        userRepository.save(user);
+    }
+
+    @Transactional
+    public ApiKeyResponse updateApiKey(CreateApiKeyRequest request) {
+        final User user = this.getUserFromContext();
+        
+        // Check if API key already exists for any other user
+        Optional<User> existingUser = userRepository.findByApiKey(request.getApiKey());
+        if (existingUser.isPresent() && !existingUser.get().getId().equals(user.getId())) {
+            throw new AppException(ErrorCode.API_KEY_EXISTED);
+        }
+
+        user.setApiKey(request.getApiKey());
+        User savedUser = userRepository.save(user);
+
+        return ApiKeyResponse.builder()
+                .id(savedUser.getId())
+                .apiKey(savedUser.getApiKey())
+                .createdAt(savedUser.getCreatedAt())
+                .build();
     }
 }

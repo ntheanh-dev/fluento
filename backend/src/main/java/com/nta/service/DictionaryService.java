@@ -20,6 +20,7 @@ public class DictionaryService {
 
     private final AIChatService aiChatService;
     private final DictionaryApiClient dictionaryApiClient;
+    private final UserService userService;
 
     public DictionaryResponse lookupWord(DictionaryRequest request) {
         String inputWord = request.getWord().trim();
@@ -63,10 +64,13 @@ public class DictionaryService {
 			- Generate a unique ID number
 			""";
 
-        String userPrompt = String.format("Look up the English word/phrase: '%s'. Audio URL: %s", word, audioUrl);
+        final String userPrompt = String.format("Look up the English word/phrase: '%s'. Audio URL: %s", word, audioUrl);
 
         try {
-            DictionaryResponse response = aiChatService.sendMessage(
+
+            final String apiKey = userService.getApiKeyFromContext();
+            final DictionaryResponse response = aiChatService.sendMessage(
+                    apiKey,
                     systemPrompt,
                     userPrompt,
                     new ParameterizedTypeReference<DictionaryResponse>() {});
@@ -119,7 +123,9 @@ public class DictionaryService {
                 misspelledWord);
 
         try {
-            DictionaryResponse response = aiChatService.sendMessage(
+            final String apiKey = userService.getApiKeyFromContext();
+            final DictionaryResponse response = aiChatService.sendMessage(
+                    apiKey,
                     systemPrompt,
                     userPrompt,
                     new ParameterizedTypeReference<DictionaryResponse>() {});

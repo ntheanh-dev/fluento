@@ -20,4 +20,5 @@ public class UserResponse {
     Boolean noPassword;
     Set<Role> roles;
     LocalDateTime createdAt;
+    String apiKey;
 }

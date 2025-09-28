@@ -1,16 +1,5 @@
 package com.nta.service;
 
-import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.List;
-import java.util.UUID;
-
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.stereotype.Service;
-
 import com.nta.dto.request.GenerateParagraphRequest;
 import com.nta.dto.request.SentenceTranslationRequest;
 import com.nta.dto.response.GenerateParagraphResponse;
@@ -24,6 +13,17 @@ import com.nta.repository.*;
 
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.List;
+import java.util.UUID;
 
 @Service
 @FieldDefaults(makeFinal = true, level = lombok.AccessLevel.PRIVATE)
@@ -48,45 +48,51 @@ public class WritingService {
                         + "Always ensure the content is culturally appropriate, engaging, and educational. "
                         + "The paragraphs should flow naturally and contain vocabulary appropriate for the specified language proficiency level.";
 
-        final String promptText = String.format(
-                "Create a well-structured paragraph in %s with around %d sentences about the topic '%s'. "
-                        + "Requirements:\n"
-                        + "- Use vocabulary and grammar appropriate for %s proficiency level\n"
-                        + "- Maintain a %s tone throughout the text\n"
-                        + "- Ensure sentences are connected logically with appropriate transitions\n"
-                        + "- Make the content engaging and educational for Vietnamese learners\n"
-                        + "- Focus on practical, real-world applications of the topic\n"
-                        + "- Use varied sentence structures to enhance learning value\n\n"
-                        + "Topic: %s\nLanguage: %s\nLevel: %s\nTone: %s\nSentences: %d",
-                request.getLanguage(),
-                request.getSentenceCount(),
-                request.getTopic(),
-                request.getLevel(),
-                request.getTone(),
-                request.getTopic(),
-                request.getLanguage(),
-                request.getLevel(),
-                request.getTone(),
-                request.getSentenceCount());
+        final String promptText =
+                String.format(
+                        "Create a well-structured paragraph in %s with around %d sentences about the topic '%s'. "
+                                + "Requirements:\n"
+                                + "- Use vocabulary and grammar appropriate for %s proficiency level\n"
+                                + "- Maintain a %s tone throughout the text\n"
+                                + "- Ensure sentences are connected logically with appropriate transitions\n"
+                                + "- Make the content engaging and educational for Vietnamese learners\n"
+                                + "- Focus on practical, real-world applications of the topic\n"
+                                + "- Use varied sentence structures to enhance learning value\n\n"
+                                + "Topic: %s\nLanguage: %s\nLevel: %s\nTone: %s\nSentences: %d",
+                        request.getLanguage(),
+                        request.getSentenceCount(),
+                        request.getTopic(),
+                        request.getLevel(),
+                        request.getTone(),
+                        request.getTopic(),
+                        request.getLanguage(),
+                        request.getLevel(),
+                        request.getTone(),
+                        request.getSentenceCount());
 
         final String conversationId = UUID.randomUUID().toString();
 
-        final String pharagraph = aiChatService.sendMessage(systemMessage, promptText, String.class);
+        final String apiKey = userService.getApiKeyFromContext();
+
+        final String pharagraph =
+                aiChatService.sendMessage(apiKey, systemMessage, promptText, String.class);
 
         final User user = userService.getUserFromContext();
 
-        final Writing writing = Writing.builder()
-                .conversationId(conversationId)
-                .topic(topicRepository.findByName(request.getTopic()).orElse(null))
-                .level(levelRepository.findByName(request.getLevel()).orElse(null))
-                .user(user)
-                .sentenceCount(sentenceCountRepository
-                        .findBySize(request.getSentenceCount())
-                        .orElse(null))
-                .tone(toneRepository.findByName(request.getTone()).orElse(null))
-                .vietnameseParagraph(pharagraph)
-                .createdAt(LocalDateTime.now())
-                .build();
+        final Writing writing =
+                Writing.builder()
+                        .conversationId(conversationId)
+                        .topic(topicRepository.findByName(request.getTopic()).orElse(null))
+                        .level(levelRepository.findByName(request.getLevel()).orElse(null))
+                        .user(user)
+                        .sentenceCount(
+                                sentenceCountRepository
+                                        .findBySize(request.getSentenceCount())
+                                        .orElse(null))
+                        .tone(toneRepository.findByName(request.getTone()).orElse(null))
+                        .vietnameseParagraph(pharagraph)
+                        .createdAt(LocalDateTime.now())
+                        .build();
 
         writingRepository.save(writing);
 
@@ -119,18 +125,22 @@ public class WritingService {
                         + "- Provide educational value by choosing translations that help learners understand context and usage.\n"
                         + "- Maintain JSON validity - no trailing commas, proper escaping, exact property names.";
 
-        String promptText = String.format(
-                "Analyze the Vietnamese sentence below and provide comprehensive learning hints in the specified JSON format.\n\n"
-                        + "Vietnamese sentence: \"%s\"\n\n"
-                        + "Tasks:\n"
-                        + "1. Extract key vocabulary with appropriate English translations\n"
-                        + "2. Identify the sentence structure type in both languages\n"
-                        + "3. Determine the main tense/aspect with grammatical pattern\n"
-                        + "4. Ensure all hints support effective Vietnamese-to-English translation learning\n\n"
-                        + "Return only the JSON response with exact property names as specified.",
-                vietnameseSentence);
+        String promptText =
+                String.format(
+                        "Analyze the Vietnamese sentence below and provide comprehensive learning hints in the specified JSON format.\n\n"
+                                + "Vietnamese sentence: \"%s\"\n\n"
+                                + "Tasks:\n"
+                                + "1. Extract key vocabulary with appropriate English translations\n"
+                                + "2. Identify the sentence structure type in both languages\n"
+                                + "3. Determine the main tense/aspect with grammatical pattern\n"
+                                + "4. Ensure all hints support effective Vietnamese-to-English translation learning\n\n"
+                                + "Return only the JSON response with exact property names as specified.",
+                        vietnameseSentence);
 
-        return aiChatService.sendMessage(SYSTEM_MESSAGE_TEXT, promptText, HintTranslationResponse.class);
+        final String apiKey = userService.getApiKeyFromContext();
+
+        return aiChatService.sendMessage(
+                apiKey, SYSTEM_MESSAGE_TEXT, promptText, HintTranslationResponse.class);
     }
 
     public SentenceTranslationResponse translateSentence(
@@ -202,8 +212,9 @@ public class WritingService {
 				- Score: Provide fair assessment based on overall quality and error frequency
 				""";
 
-        final String promptText = String.format(
-                """
+        final String promptText =
+                String.format(
+                        """
 						Please evaluate the following Vietnamese-to-English translation attempt:
 
 						Original Vietnamese: "%s"
@@ -227,17 +238,22 @@ public class WritingService {
 
 						Return your analysis in the specified JSON format with detailed, educational feedback including score.
 						""",
-                request.getVietnameseSentence(), request.getEnglishSentence());
-        return aiChatService.sendMessage(SYSTEM_MESSAGE_TEXT, promptText, SentenceTranslationResponse.class);
+                        request.getVietnameseSentence(), request.getEnglishSentence());
+
+        final String apiKey = userService.getApiKeyFromContext();
+
+        return aiChatService.sendMessage(
+                apiKey, SYSTEM_MESSAGE_TEXT, promptText, SentenceTranslationResponse.class);
     }
 
     public WritingResponse getConversationById(String conversationId) {
-        final Writing writing = writingRepository
-                .findByConversationIdWithSentences(conversationId)
-                .orElse(null);
+        final Writing writing =
+                writingRepository.findByConversationIdWithSentences(conversationId).orElse(null);
         final WritingResponse response = writingMapper.toWritingResponse(writing);
 
-        response.setVietNamesesentences(List.of(writing.getVietnameseParagraph().split("(?<=[.!?])\\s+")));
+        assert writing != null;
+        response.setVietNamesesentences(
+                List.of(writing.getVietnameseParagraph().split("(?<=[.!?])\\s+")));
         return response;
     }
 
@@ -249,15 +265,17 @@ public class WritingService {
             final String keyword,
             final Long userId) {
 
-        final Sort sort = "desc".equalsIgnoreCase(direction)
-                ? Sort.by(sortBy).descending()
-                : Sort.by(sortBy).ascending();
+        final Sort sort =
+                "desc".equalsIgnoreCase(direction)
+                        ? Sort.by(sortBy).descending()
+                        : Sort.by(sortBy).ascending();
 
         final Pageable pageable = PageRequest.of(page, size, sort);
 
-        final Page<Writing> writingsPage = keyword == null || keyword.isEmpty()
-                ? writingRepository.findByUserId(userId, pageable)
-                : writingRepository.searchByTopicNameAndUserId(keyword, userId, pageable);
+        final Page<Writing> writingsPage =
+                keyword == null || keyword.isEmpty()
+                        ? writingRepository.findByUserId(userId, pageable)
+                        : writingRepository.searchByTopicNameAndUserId(keyword, userId, pageable);
 
         return writingsPage.map(this::toResponse);
     }
