@@ -35,6 +35,7 @@ export interface Note {
   updatedAt: string;
   fieldValues: Record<string, string>;
   cards: Card[];
+  due?: string; // Thời gian học tiếp theo
 }
 
 export interface Card {

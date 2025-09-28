@@ -65,6 +65,42 @@ const NotesTable: React.FC<NotesTableProps> = ({
         }
     };
 
+    const formatDueDate = (dueDate: string): string => {
+        const now = new Date();
+        const due = new Date(dueDate);
+        const diffMs = due.getTime() - now.getTime();
+        const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+
+        if (diffDays < 0) {
+            return 'Quá hạn';
+        } else if (diffDays === 0) {
+            return 'Hôm nay';
+        } else if (diffDays === 1) {
+            return 'Ngày mai';
+        } else if (diffDays <= 7) {
+            return `${diffDays} ngày`;
+        } else {
+            return due.toLocaleDateString('vi-VN');
+        }
+    };
+
+    const getDueDateColor = (dueDate: string): string => {
+        const now = new Date();
+        const due = new Date(dueDate);
+        const diffMs = due.getTime() - now.getTime();
+        const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+
+        if (diffDays < 0) {
+            return '#EF4444'; // Đỏ - quá hạn
+        } else if (diffDays === 0) {
+            return '#F59E0B'; // Cam - hôm nay
+        } else if (diffDays <= 3) {
+            return '#10B981'; // Xanh lá - sắp đến hạn
+        } else {
+            return '#6B7280'; // Xám - còn nhiều thời gian
+        }
+    };
+
     if (!selectedDeck) {
         return null;
     }
@@ -130,6 +166,7 @@ const NotesTable: React.FC<NotesTableProps> = ({
                                                     )}
                                                 </div>
                                             </TableCell>
+                                            <TableCell className="font-semibold">Thời gian học</TableCell>
                                             <TableCell className="font-semibold">Thao tác</TableCell>
                                         </TableRow>
                                     </TableHead>
@@ -260,6 +297,31 @@ const NotesTable: React.FC<NotesTableProps> = ({
                                                     </TableCell>
                                                     <TableCell className="text-sm">
                                                         <div>{new Date(note.createdAt).toLocaleDateString('vi-VN')}</div>
+                                                    </TableCell>
+                                                    <TableCell className="text-sm">
+                                                        {note.due ? (
+                                                            <Chip
+                                                                label={formatDueDate(note.due)}
+                                                                size="small"
+                                                                sx={{
+                                                                    backgroundColor: getDueDateColor(note.due),
+                                                                    color: 'white',
+                                                                    fontWeight: 600,
+                                                                    fontSize: '0.75rem'
+                                                                }}
+                                                            />
+                                                        ) : (
+                                                            <Chip
+                                                                label="Chưa có"
+                                                                size="small"
+                                                                sx={{
+                                                                    backgroundColor: '#9CA3AF',
+                                                                    color: 'white',
+                                                                    fontWeight: 600,
+                                                                    fontSize: '0.75rem'
+                                                                }}
+                                                            />
+                                                        )}
                                                     </TableCell>
                                                     <TableCell>
                                                         <Box display="flex" gap={1} justifyContent="center">
