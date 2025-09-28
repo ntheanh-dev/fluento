@@ -117,8 +117,12 @@ const NoteForm: React.FC<NoteFormProps> = ({
             } else {
                 notify('Không tìm thấy thông tin từ điển cho từ này', 'warning');
             }
-        } catch (error) {
-            notify('Lỗi khi auto-fill từ điển', 'error');
+        } catch (error: any) {
+            if (error.response?.data?.code === 1100) {
+                notify('Thêm API key để sử dụng tính năng này', 'error');
+            } else {
+                notify(error, 'error');
+            }
         } finally {
             onAutoFillLoadingChange(false);
         }

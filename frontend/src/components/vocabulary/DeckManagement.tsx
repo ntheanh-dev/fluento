@@ -6,7 +6,6 @@ import {
     CardContent,
     Typography,
     Button,
-    Chip,
     IconButton,
     Dialog,
     DialogTitle,
@@ -25,9 +24,10 @@ import {
     TableContainer,
     TableHead,
     TableRow,
-    TablePagination,
-    TableSortLabel,
     Paper,
+    Alert,
+    FormControl,
+    Select,
 } from '@mui/material';
 import {
     Add as AddIcon,
@@ -36,10 +36,11 @@ import {
     Delete as DeleteIcon,
     Widgets as WidgetsIcon,
     School as SchoolIcon,
-    LibraryBooks as LibraryBooksIcon,
-    Visibility as VisibilityIcon,
     Home as HomeIcon,
     NavigateNext as NavigateNextIcon,
+    Visibility as VisibilityIcon,
+    NavigateBefore,
+    NavigateNext,
 } from '@mui/icons-material';
 import { type Deck, type CreateDeckRequest } from './vocabulary';
 import { vocabularyDeckApi, type PaginatedResponse, type PaginationParams } from './vocabularyApi';
@@ -122,8 +123,12 @@ const DeckManagement: React.FC = () => {
             }
             handleCloseDialog();
             loadDecks();
-        } catch (error) {
-            notify('Lỗi khi lưu deck', 'error');
+        } catch (error: any) {
+            if (error?.response?.data?.code === 2001) {
+                notify('Tên deck đã tồn tại', 'warning');
+            } else {
+                notify('Lỗi khi lưu deck', 'error');
+            }
         }
     };
 
@@ -137,8 +142,11 @@ const DeckManagement: React.FC = () => {
                 notify('Lỗi khi xóa deck', 'error');
             }
         }
-        setAnchorEl(null);
-        setSelectedDeck(null);
+    };
+
+
+    const handleDeckClick = (deck: Deck) => {
+        navigate(`/vocabulary/study-mode/decks/${deck.id}`);
     };
 
     const handleMenuOpen = (event: React.MouseEvent<HTMLElement>, deck: Deck) => {
@@ -151,8 +159,9 @@ const DeckManagement: React.FC = () => {
         setSelectedDeck(null);
     };
 
-    const handleDeckClick = (deck: Deck) => {
+    const handleDetails = (deck: Deck) => {
         navigate(`/vocabulary/decks/${deck.id}`);
+        handleMenuClose();
     };
 
     // Pagination handlers
@@ -221,139 +230,246 @@ const DeckManagement: React.FC = () => {
                 </Typography>
             </Breadcrumbs>
 
-            {decks.length === 0 ? (
-                <Card sx={{ textAlign: 'center', py: 4 }}>
-                    <CardContent>
-                        <LibraryBooksIcon sx={{ fontSize: 64, color: 'text.secondary', mb: 2 }} />
-                        <Typography variant="h6" color="text.secondary" gutterBottom>
-                            Chưa có deck nào
-                        </Typography>
-                        <Typography variant="body2" color="text.secondary" mb={3}>
-                            Tạo deck đầu tiên để bắt đầu học với flashcard
+            <Card>
+                <CardContent>
+                    <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
+                        <Typography variant="h6">
+                            Các decks của bạn
                         </Typography>
                         <Button
-                            variant="contained"
+                            variant="outlined"
                             startIcon={<AddIcon />}
                             onClick={() => handleOpenDialog()}
+                            sx={{ borderRadius: 2 }}
                         >
-                            Tạo Deck Đầu Tiên
+                            Thêm
                         </Button>
-                    </CardContent>
-                </Card>
-            ) : (
-                <TableContainer component={Paper} sx={{ borderRadius: 2 }}>
-                    <Table>
-                        <TableHead>
-                            <TableRow sx={{ backgroundColor: 'grey.50' }}>
-                                <TableCell>
-                                    <TableSortLabel
-                                        active={sortBy === 'name'}
-                                        direction={sortBy === 'name' ? sortDir : 'asc'}
-                                        onClick={() => handleSort('name')}
-                                    >
-                                        Tên Deck
-                                    </TableSortLabel>
-                                </TableCell>
-                                <TableCell>
-                                    <TableSortLabel
-                                        active={sortBy === 'noteCount'}
-                                        direction={sortBy === 'noteCount' ? sortDir : 'asc'}
-                                        onClick={() => handleSort('noteCount')}
-                                    >
-                                        Số Notes
-                                    </TableSortLabel>
-                                </TableCell>
-                                <TableCell>
-                                    <TableSortLabel
-                                        active={sortBy === 'createdAt'}
-                                        direction={sortBy === 'createdAt' ? sortDir : 'asc'}
-                                        onClick={() => handleSort('createdAt')}
-                                    >
-                                        Ngày tạo
-                                    </TableSortLabel>
-                                </TableCell>
-                                <TableCell sx={{ fontWeight: 'bold' }}>Hành động</TableCell>
-                            </TableRow>
-                        </TableHead>
-                        <TableBody>
-                            {decks.map((deck) => (
-                                <TableRow
-                                    key={deck.id}
-                                    hover
-                                    sx={{
-                                        cursor: 'pointer',
-                                        '&:hover': {
-                                            backgroundColor: 'action.hover',
-                                        },
-                                    }}
-                                    onClick={() => handleDeckClick(deck)}
-                                >
-                                    <TableCell>
-                                        <Typography variant="subtitle1" fontWeight="medium">
-                                            {deck.name}
-                                        </Typography>
-                                    </TableCell>
-                                    <TableCell>
-                                        <Chip
-                                            icon={<SchoolIcon />}
-                                            label={deck.noteCount}
-                                            size="small"
-                                            color="primary"
-                                            variant="outlined"
-                                        />
-                                    </TableCell>
-                                    <TableCell>
-                                        <Typography variant="body2" color="text.secondary">
-                                            {new Date(deck.createdAt).toLocaleDateString('vi-VN')}
-                                        </Typography>
-                                    </TableCell>
-                                    <TableCell>
-                                        <Box display="flex" gap={1} alignItems="center">
-                                            <Button
-                                                size="small"
-                                                variant="contained"
-                                                startIcon={<SchoolIcon />}
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    navigate(`/vocabulary/study-mode/decks/${deck.id}`);
-                                                }}
-                                            >
-                                                Học
-                                            </Button>
-                                            <IconButton
-                                                size="small"
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    handleMenuOpen(e, deck);
-                                                }}
-                                            >
-                                                <MoreVertIcon />
-                                            </IconButton>
-                                        </Box>
-                                    </TableCell>
-                                </TableRow>
-                            ))}
-                        </TableBody>
-                    </Table>
+                    </Box>
 
-                    {/* Pagination */}
-                    {paginationData && (
-                        <TablePagination
-                            component="div"
-                            count={paginationData.totalElements}
-                            page={page}
-                            onPageChange={handleChangePage}
-                            rowsPerPage={rowsPerPage}
-                            onRowsPerPageChange={handleChangeRowsPerPage}
-                            rowsPerPageOptions={[5, 10, 25, 50]}
-                            labelRowsPerPage="Số dòng mỗi trang:"
-                            labelDisplayedRows={({ from, to, count }) =>
-                                `${from}-${to} của ${count !== -1 ? count : `hơn ${to}`}`
-                            }
-                        />
+                    {decks.length === 0 ? (
+                        <Alert severity="info">
+                            Chưa có deck nào. Hãy tạo deck đầu tiên!
+                        </Alert>
+                    ) : (
+                        <Box>
+                            <Paper
+                                className="rounded-2xl shadow-lg overflow-hidden"
+                                sx={{
+                                    background: 'linear-gradient(135deg, #FFFFFF 0%, #F8FAFC 50%, #F1F5F9 100%)',
+                                    border: '1px solid #E2E8F0'
+                                }}
+                            >
+                                <TableContainer>
+                                    <Table>
+                                        <TableHead>
+                                            <TableRow sx={{ backgroundColor: '#F8FAFC' }}>
+                                                <TableCell
+                                                    className="font-semibold cursor-pointer hover:bg-gray-100 transition-colors"
+                                                    onClick={() => handleSort('name')}
+                                                >
+                                                    <div className="flex items-center gap-2">
+                                                        <span>Tên Deck</span>
+                                                        {sortBy === 'name' && (
+                                                            sortDir === 'asc' ? '↑' : '↓'
+                                                        )}
+                                                    </div>
+                                                </TableCell>
+                                                <TableCell className="font-semibold">
+                                                    <div className="flex items-center gap-2">
+                                                        <span>Số Notes</span>
+                                                    </div>
+                                                </TableCell>
+                                                <TableCell
+                                                    className="font-semibold cursor-pointer hover:bg-gray-100 transition-colors"
+                                                    onClick={() => handleSort('createdAt')}
+                                                >
+                                                    <div className="flex items-center gap-2">
+                                                        <span>Ngày tạo</span>
+                                                        {sortBy === 'createdAt' && (
+                                                            sortDir === 'asc' ? '↑' : '↓'
+                                                        )}
+                                                    </div>
+                                                </TableCell>
+                                                <TableCell className="font-semibold">Hành động</TableCell>
+                                            </TableRow>
+                                        </TableHead>
+                                        <TableBody>
+                                            {decks.map((deck) => (
+                                                <TableRow
+                                                    key={deck.id}
+                                                    onClick={() => handleDeckClick(deck)}
+                                                    sx={{
+                                                        cursor: 'pointer',
+                                                        '&:hover': {
+                                                            backgroundColor: '#F1F5F9',
+                                                            transform: 'scale(1.01)',
+                                                            boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+                                                        },
+                                                        borderBottom: '1px solid #E5E7EB',
+                                                        transition: 'all 0.2s ease',
+                                                        '&:active': {
+                                                            transform: 'scale(0.99)',
+                                                            backgroundColor: '#E2E8F0'
+                                                        }
+                                                    }}
+                                                >
+                                                    <TableCell className="font-medium">
+                                                        <div className="font-semibold">{deck.name}</div>
+                                                    </TableCell>
+                                                    <TableCell>
+                                                        <span>{deck.noteCount}</span>
+                                                    </TableCell>
+                                                    <TableCell className="text-sm">
+                                                        <div>{new Date(deck.createdAt).toLocaleDateString('vi-VN')}</div>
+                                                    </TableCell>
+                                                    <TableCell>
+                                                        <IconButton
+                                                            size="small"
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                handleMenuOpen(e, deck);
+                                                            }}
+                                                            sx={{
+                                                                borderRadius: '8px',
+                                                                backgroundColor: '#F3F4F6',
+                                                                '&:hover': {
+                                                                    backgroundColor: '#E5E7EB'
+                                                                }
+                                                            }}
+                                                        >
+                                                            <MoreVertIcon />
+                                                        </IconButton>
+                                                    </TableCell>
+                                                </TableRow>
+                                            ))}
+                                        </TableBody>
+                                    </Table>
+                                </TableContainer>
+
+                                {/* Bottom Control Bar */}
+                                {paginationData && (
+                                    <Box className="p-4 border-t border-gray-200 bg-white">
+                                        <div className="flex items-center justify-between">
+                                            {/* Rows per page selector */}
+                                            <div className="flex items-center gap-3">
+                                                <Typography variant="body2" className="text-gray-600">
+                                                    Số dòng hiển thị:
+                                                </Typography>
+                                                <FormControl size="small" sx={{ minWidth: 80 }}>
+                                                    <Select
+                                                        value={parseInt(searchParams.get('size') || '10')}
+                                                        onChange={(e) => handleChangeRowsPerPage(e as any)}
+                                                        sx={{
+                                                            '& .MuiOutlinedInput-notchedOutline': {
+                                                                borderColor: '#D1D5DB',
+                                                            },
+                                                            '&:hover .MuiOutlinedInput-notchedOutline': {
+                                                                borderColor: '#7C3AED',
+                                                            },
+                                                            '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                                                                borderColor: '#7C3AED',
+                                                            },
+                                                        }}
+                                                    >
+                                                        <MenuItem value={5}>5</MenuItem>
+                                                        <MenuItem value={10}>10</MenuItem>
+                                                        <MenuItem value={25}>25</MenuItem>
+                                                        <MenuItem value={50}>50</MenuItem>
+                                                    </Select>
+                                                </FormControl>
+                                                <Typography variant="body2" className="text-gray-600">
+                                                    {`${parseInt(searchParams.get('page') || '0') * parseInt(searchParams.get('size') || '10') + 1}-${Math.min((parseInt(searchParams.get('page') || '0') + 1) * parseInt(searchParams.get('size') || '10'), paginationData.totalElements)} of ${paginationData.totalElements}`}
+                                                </Typography>
+                                            </div>
+
+                                            {/* Pagination */}
+                                            <div className="flex items-center gap-6">
+                                                <Button
+                                                    variant="outlined"
+                                                    disabled={parseInt(searchParams.get('page') || '0') === 0}
+                                                    startIcon={<NavigateBefore />}
+                                                    onClick={() => handleChangePage(null, parseInt(searchParams.get('page') || '0') - 1)}
+                                                    sx={{
+                                                        borderRadius: '8px',
+                                                        textTransform: 'none',
+                                                        borderColor: parseInt(searchParams.get('page') || '0') === 0 ? '#D1D5DB' : '#7C3AED',
+                                                        color: parseInt(searchParams.get('page') || '0') === 0 ? '#9CA3AF' : '#7C3AED'
+                                                    }}
+                                                >
+                                                    Trang trước
+                                                </Button>
+
+                                                {/* Page Numbers */}
+                                                <div className="flex gap-3">
+                                                    {Array.from({ length: Math.min(5, paginationData.totalPages) }, (_, i) => {
+                                                        const pageNum = i + 1;
+                                                        const currentPage = parseInt(searchParams.get('page') || '0') + 1;
+                                                        return (
+                                                            <Button
+                                                                key={pageNum}
+                                                                variant={pageNum === currentPage ? 'contained' : 'text'}
+                                                                onClick={() => handleChangePage(null, pageNum - 1)}
+                                                                sx={{
+                                                                    minWidth: '40px',
+                                                                    height: '40px',
+                                                                    borderRadius: '8px',
+                                                                    textTransform: 'none',
+                                                                    fontWeight: 600,
+                                                                    ...(pageNum === currentPage && {
+                                                                        backgroundColor: '#7C3AED',
+                                                                        '&:hover': { backgroundColor: '#6D28D9' }
+                                                                    })
+                                                                }}
+                                                            >
+                                                                {pageNum}
+                                                            </Button>
+                                                        );
+                                                    })}
+                                                    {paginationData.totalPages > 5 && (
+                                                        <>
+                                                            {paginationData.totalPages > 6 && <span className="px-2">...</span>}
+                                                            <Button
+                                                                variant="text"
+                                                                onClick={() => handleChangePage(null, paginationData.totalPages - 1)}
+                                                                sx={{
+                                                                    minWidth: '40px',
+                                                                    height: '40px',
+                                                                    borderRadius: '8px',
+                                                                    textTransform: 'none',
+                                                                    fontWeight: 600,
+                                                                }}
+                                                            >
+                                                                {paginationData.totalPages}
+                                                            </Button>
+                                                        </>
+                                                    )}
+                                                </div>
+
+                                                <Button
+                                                    variant="outlined"
+                                                    disabled={parseInt(searchParams.get('page') || '0') === paginationData.totalPages - 1}
+                                                    endIcon={<NavigateNext />}
+                                                    onClick={() => handleChangePage(null, parseInt(searchParams.get('page') || '0') + 1)}
+                                                    sx={{
+                                                        borderRadius: '8px',
+                                                        textTransform: 'none',
+                                                        borderColor: parseInt(searchParams.get('page') || '0') === paginationData.totalPages - 1 ? '#D1D5DB' : '#7C3AED',
+                                                        color: parseInt(searchParams.get('page') || '0') === paginationData.totalPages - 1 ? '#9CA3AF' : '#7C3AED'
+                                                    }}
+                                                >
+                                                    Trang sau
+                                                </Button>
+                                            </div>
+                                        </div>
+                                    </Box>
+                                )}
+                            </Paper>
+                        </Box>
                     )}
-                </TableContainer>
-            )}
+
+                </CardContent>
+            </Card>
+
 
             {/* Create/Edit Dialog */}
             <Dialog open={openDialog} onClose={handleCloseDialog} maxWidth="sm" fullWidth>
@@ -380,38 +496,29 @@ const DeckManagement: React.FC = () => {
                 </DialogActions>
             </Dialog>
 
-            {/* Context Menu */}
+            {/* Action Menu */}
             <Menu
                 anchorEl={anchorEl}
                 open={Boolean(anchorEl)}
                 onClose={handleMenuClose}
             >
-                <MenuItem onClick={() => {
-                    handleDeckClick(selectedDeck!);
-                    handleMenuClose();
-                }}>
+                <MenuItem onClick={() => handleDetails(selectedDeck!)}>
                     <VisibilityIcon fontSize="small" sx={{ mr: 1 }} />
-                    Xem Notes
-                </MenuItem>
-                <MenuItem onClick={() => {
-                    navigate(`/vocabulary/study-mode/decks/${selectedDeck!.id}`);
-                    handleMenuClose();
-                }}>
-                    <SchoolIcon fontSize="small" sx={{ mr: 1 }} />
-                    Học
+                    Chi tiết
                 </MenuItem>
                 <MenuItem onClick={() => {
                     handleOpenDialog(selectedDeck!);
                     handleMenuClose();
                 }}>
                     <EditIcon fontSize="small" sx={{ mr: 1 }} />
-                    Chỉnh sửa
+                    Sửa
                 </MenuItem>
                 <MenuItem onClick={() => handleDelete(selectedDeck!)}>
                     <DeleteIcon fontSize="small" sx={{ mr: 1 }} />
                     Xóa
                 </MenuItem>
             </Menu>
+
         </Container>
 
     );

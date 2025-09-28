@@ -12,17 +12,20 @@ import {
     TableContainer,
     TableHead,
     TableRow,
-    TablePagination,
-    TableSortLabel,
     Button,
     Chip,
-    IconButton
+    IconButton,
+    FormControl,
+    Select,
+    MenuItem
 } from '@mui/material';
 import {
     Edit as EditIcon,
     Delete as DeleteIcon,
     VolumeUp as VolumeUpIcon,
     Add as AddIcon,
+    NavigateBefore,
+    NavigateNext,
 } from '@mui/icons-material';
 import { type Note, type Deck } from '../vocabulary';
 import { type PaginatedResponse } from '../vocabularyApi';
@@ -69,17 +72,17 @@ const NotesTable: React.FC<NotesTableProps> = ({
     return (
         <Card>
             <CardContent>
-                <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
+                <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
                     <Typography variant="h6">
-                        Notes trong "{selectedDeck.name}"
+                        Thẻ trong Deck: {selectedDeck.name}
                     </Typography>
                     <Button
-                        variant="contained"
+                        variant="outlined"
                         startIcon={<AddIcon />}
                         onClick={onAddNote}
-                        size="small"
+                        sx={{ borderRadius: 2 }}
                     >
-                        Thêm Note
+                        Thêm
                     </Button>
                 </Box>
 
@@ -89,181 +92,346 @@ const NotesTable: React.FC<NotesTableProps> = ({
                     </Alert>
                 ) : (
                     <Box>
-                        <TableContainer component={Paper} sx={{ borderRadius: 2 }}>
-                            <Table>
-                                <TableHead>
-                                    <TableRow>
-                                        <TableCell>
-                                            <TableSortLabel
-                                                active={searchParams.get('sortBy') === 'word'}
-                                                direction={searchParams.get('sortBy') === 'word' ? (searchParams.get('sortDir') as 'asc' | 'desc') : 'asc'}
+                        <Paper
+                            className="rounded-2xl shadow-lg overflow-hidden"
+                            sx={{
+                                background: 'linear-gradient(135deg, #FFFFFF 0%, #F8FAFC 50%, #F1F5F9 100%)',
+                                border: '1px solid #E2E8F0'
+                            }}
+                        >
+                            <TableContainer>
+                                <Table>
+                                    <TableHead>
+                                        <TableRow sx={{ backgroundColor: '#F8FAFC' }}>
+                                            <TableCell
+                                                className="font-semibold cursor-pointer hover:bg-gray-100 transition-colors"
                                                 onClick={() => onSort('word')}
                                             >
-                                                Từ
-                                            </TableSortLabel>
-                                        </TableCell>
-                                        <TableCell>Phiên âm</TableCell>
-                                        <TableCell>Nghĩa</TableCell>
-                                        <TableCell>Loại từ</TableCell>
-                                        <TableCell>Ví dụ</TableCell>
-                                        <TableCell>Hình ảnh</TableCell>
-                                        <TableCell>
-                                            <TableSortLabel
-                                                active={searchParams.get('sortBy') === 'createdAt'}
-                                                direction={searchParams.get('sortBy') === 'createdAt' ? (searchParams.get('sortDir') as 'asc' | 'desc') : 'asc'}
+                                                <div className="flex items-center gap-2">
+                                                    <span>Từ</span>
+                                                    {searchParams.get('sortBy') === 'word' && (
+                                                        searchParams.get('sortDir') === 'asc' ? '↑' : '↓'
+                                                    )}
+                                                </div>
+                                            </TableCell>
+                                            <TableCell className="font-semibold">Phiên âm</TableCell>
+                                            <TableCell className="font-semibold">Nghĩa</TableCell>
+                                            <TableCell className="font-semibold">Loại từ</TableCell>
+                                            <TableCell className="font-semibold">Ví dụ</TableCell>
+                                            <TableCell className="font-semibold">Hình ảnh</TableCell>
+                                            <TableCell
+                                                className="font-semibold cursor-pointer hover:bg-gray-100 transition-colors"
                                                 onClick={() => onSort('createdAt')}
                                             >
-                                                Ngày tạo
-                                            </TableSortLabel>
-                                        </TableCell>
-                                        <TableCell align="center">Thao tác</TableCell>
-                                    </TableRow>
-                                </TableHead>
-                                <TableBody>
-                                    {notes.map((note) => {
-                                        const wordField = note.fieldValues['word'] || Object.values(note.fieldValues)[0] || 'Untitled';
-                                        const phoneticField = note.fieldValues['phonetic'] || note.fieldValues['phiên âm'] || '';
-                                        const meaningField = note.fieldValues['meaning'] || note.fieldValues['nghĩa'] || '';
-                                        const posField = note.fieldValues['pos'] || note.fieldValues['loại từ'] || '';
-                                        const exampleField = note.fieldValues['example'] || note.fieldValues['ví dụ'] || '';
-                                        const audioField = note.fieldValues['audio'] || note.fieldValues['âm thanh'] || note.fieldValues['pronunciation'] || '';
-
-                                        // Find image field - check common image field names
-                                        const imageField = note.fieldValues['image'];
-
-                                        return (
-                                            <TableRow key={note.id} hover>
-                                                <TableCell>
-                                                    <Box display="flex" alignItems="center" gap={1}>
-                                                        <Typography variant="body2" fontWeight="medium">
-                                                            {wordField}
-                                                        </Typography>
-                                                        {audioField && (
-                                                            <IconButton
-                                                                size="small"
-                                                                onClick={() => handlePlayAudio(audioField)}
-                                                                sx={{ p: 0.5 }}
-                                                            >
-                                                                <VolumeUpIcon fontSize="small" />
-                                                            </IconButton>
-                                                        )}
-                                                    </Box>
-                                                </TableCell>
-                                                <TableCell>
-                                                    <Typography variant="body2" sx={{ fontStyle: 'italic' }}>
-                                                        {phoneticField ? `${phoneticField}` : '-'}
-                                                    </Typography>
-                                                </TableCell>
-                                                <TableCell>
-                                                    <Typography variant="body2">
-                                                        {meaningField || '-'}
-                                                    </Typography>
-                                                </TableCell>
-                                                <TableCell>
-                                                    {posField ? (
-                                                        <Chip label={posField} size="small" variant="outlined" />
-                                                    ) : (
-                                                        '-'
+                                                <div className="flex items-center gap-2">
+                                                    <span>Ngày tạo</span>
+                                                    {searchParams.get('sortBy') === 'createdAt' && (
+                                                        searchParams.get('sortDir') === 'asc' ? '↑' : '↓'
                                                     )}
-                                                </TableCell>
-                                                <TableCell>
-                                                    <Typography variant="body2" sx={{ fontStyle: 'italic', maxWidth: 200 }}>
-                                                        {exampleField ? `"${exampleField}"` : '-'}
-                                                    </Typography>
-                                                </TableCell>
-                                                <TableCell>
-                                                    {imageField ? (
-                                                        <Box
-                                                            sx={{
-                                                                width: 40,
-                                                                height: 40,
-                                                                backgroundImage: `url(${imageField})`,
-                                                                backgroundSize: 'cover',
-                                                                backgroundPosition: 'center',
-                                                                backgroundRepeat: 'no-repeat',
-                                                                borderRadius: 1,
-                                                                cursor: 'pointer',
-                                                                border: '1px solid',
-                                                                borderColor: 'divider',
-                                                                '&:hover': {
-                                                                    transform: 'scale(1.1)',
-                                                                    transition: 'transform 0.2s ease-in-out',
-                                                                    boxShadow: 2
-                                                                }
-                                                            }}
-                                                            onClick={() => window.open(imageField, '_blank')}
-                                                            title="Click to view full image"
-                                                        />
-                                                    ) : (
-                                                        <Box
-                                                            sx={{
-                                                                width: 40,
-                                                                height: 40,
-                                                                border: '1px dashed',
-                                                                borderColor: 'divider',
-                                                                borderRadius: 1,
-                                                                display: 'flex',
-                                                                alignItems: 'center',
-                                                                justifyContent: 'center'
-                                                            }}
-                                                        >
-                                                            <Typography variant="caption" color="text.secondary">
-                                                                -
-                                                            </Typography>
+                                                </div>
+                                            </TableCell>
+                                            <TableCell className="font-semibold">Thao tác</TableCell>
+                                        </TableRow>
+                                    </TableHead>
+                                    <TableBody>
+                                        {notes.map((note) => {
+                                            const wordField = note.fieldValues['word'] || Object.values(note.fieldValues)[0] || 'Untitled';
+                                            const phoneticField = note.fieldValues['phonetic'] || note.fieldValues['phiên âm'] || '';
+                                            const meaningField = note.fieldValues['meaning'] || note.fieldValues['nghĩa'] || '';
+                                            const posField = note.fieldValues['pos'] || note.fieldValues['loại từ'] || '';
+                                            const exampleField = note.fieldValues['example'] || note.fieldValues['ví dụ'] || '';
+                                            const audioField = note.fieldValues['audio'] || note.fieldValues['âm thanh'] || note.fieldValues['pronunciation'] || '';
+
+                                            // Find image field - check common image field names
+                                            const imageField = note.fieldValues['image'];
+
+                                            return (
+                                                <TableRow
+                                                    key={note.id}
+                                                    sx={{
+                                                        cursor: 'pointer',
+                                                        '&:hover': {
+                                                            backgroundColor: '#F1F5F9',
+                                                            transform: 'scale(1.01)',
+                                                            boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+                                                        },
+                                                        borderBottom: '1px solid #E5E7EB',
+                                                        transition: 'all 0.2s ease',
+                                                        '&:active': {
+                                                            transform: 'scale(0.99)',
+                                                            backgroundColor: '#E2E8F0'
+                                                        }
+                                                    }}
+                                                >
+                                                    <TableCell className="font-medium">
+                                                        <Box display="flex" alignItems="center" gap={1}>
+                                                            <div className="font-semibold">{wordField}</div>
+                                                            {audioField && (
+                                                                <IconButton
+                                                                    size="small"
+                                                                    onClick={(e) => {
+                                                                        e.stopPropagation();
+                                                                        handlePlayAudio(audioField);
+                                                                    }}
+                                                                    sx={{
+                                                                        p: 0.5,
+                                                                        borderRadius: '8px',
+                                                                        backgroundColor: '#F3F4F6',
+                                                                        '&:hover': {
+                                                                            backgroundColor: '#E5E7EB'
+                                                                        }
+                                                                    }}
+                                                                >
+                                                                    <VolumeUpIcon fontSize="small" />
+                                                                </IconButton>
+                                                            )}
                                                         </Box>
-                                                    )}
-                                                </TableCell>
-                                                <TableCell>
-                                                    <Typography variant="body2" color="text.secondary">
-                                                        {new Date(note.createdAt).toLocaleDateString('vi-VN')}
-                                                    </Typography>
-                                                </TableCell>
-                                                <TableCell align="center">
-                                                    <Box display="flex" gap={1} justifyContent="center">
-                                                        <Button
-                                                            size="small"
-                                                            variant="outlined"
-                                                            startIcon={<EditIcon />}
-                                                            onClick={() => onEdit(note)}
-                                                            sx={{ fontSize: '0.75rem' }}
-                                                        >
-                                                            Sửa
-                                                        </Button>
-                                                        <Button
-                                                            size="small"
-                                                            variant="outlined"
-                                                            color="error"
-                                                            startIcon={<DeleteIcon />}
-                                                            onClick={() => onDelete(note)}
-                                                            sx={{ fontSize: '0.75rem' }}
-                                                        >
-                                                            Xóa
-                                                        </Button>
-                                                    </Box>
-                                                </TableCell>
-                                            </TableRow>
-                                        );
-                                    })}
-                                </TableBody>
-                            </Table>
-                        </TableContainer>
+                                                    </TableCell>
+                                                    <TableCell className="text-sm">
+                                                        <div className="italic">
+                                                            {phoneticField ? `${phoneticField}` : '-'}
+                                                        </div>
+                                                    </TableCell>
+                                                    <TableCell className="text-sm">
+                                                        <div>{meaningField || '-'}</div>
+                                                    </TableCell>
+                                                    <TableCell>
+                                                        {posField ? (
+                                                            <Chip
+                                                                label={posField}
+                                                                size="small"
+                                                                sx={{
+                                                                    backgroundColor: '#E0E7FF',
+                                                                    color: '#3730A3',
+                                                                    fontWeight: 600,
+                                                                    border: '1px solid #C7D2FE'
+                                                                }}
+                                                            />
+                                                        ) : (
+                                                            '-'
+                                                        )}
+                                                    </TableCell>
+                                                    <TableCell className="text-sm">
+                                                        <div className="italic max-w-xs">
+                                                            {exampleField ? `"${exampleField}"` : '-'}
+                                                        </div>
+                                                    </TableCell>
+                                                    <TableCell>
+                                                        {imageField ? (
+                                                            <Box
+                                                                sx={{
+                                                                    width: 40,
+                                                                    height: 40,
+                                                                    backgroundImage: `url(${imageField})`,
+                                                                    backgroundSize: 'cover',
+                                                                    backgroundPosition: 'center',
+                                                                    backgroundRepeat: 'no-repeat',
+                                                                    borderRadius: 1,
+                                                                    cursor: 'pointer',
+                                                                    border: '1px solid',
+                                                                    borderColor: 'divider',
+                                                                    '&:hover': {
+                                                                        transform: 'scale(1.1)',
+                                                                        transition: 'transform 0.2s ease-in-out',
+                                                                        boxShadow: 2
+                                                                    }
+                                                                }}
+                                                                onClick={() => window.open(imageField, '_blank')}
+                                                                title="Click to view full image"
+                                                            />
+                                                        ) : (
+                                                            <Box
+                                                                sx={{
+                                                                    width: 40,
+                                                                    height: 40,
+                                                                    border: '1px dashed',
+                                                                    borderColor: 'divider',
+                                                                    borderRadius: 1,
+                                                                    display: 'flex',
+                                                                    alignItems: 'center',
+                                                                    justifyContent: 'center'
+                                                                }}
+                                                            >
+                                                                <Typography variant="caption" color="text.secondary">
+                                                                    -
+                                                                </Typography>
+                                                            </Box>
+                                                        )}
+                                                    </TableCell>
+                                                    <TableCell className="text-sm">
+                                                        <div>{new Date(note.createdAt).toLocaleDateString('vi-VN')}</div>
+                                                    </TableCell>
+                                                    <TableCell>
+                                                        <Box display="flex" gap={1} justifyContent="center">
+                                                            <Button
+                                                                size="small"
+                                                                variant="outlined"
+                                                                startIcon={<EditIcon />}
+                                                                onClick={(e) => {
+                                                                    e.stopPropagation();
+                                                                    onEdit(note);
+                                                                }}
+                                                                sx={{
+                                                                    fontSize: '0.75rem',
+                                                                    borderRadius: '8px',
+                                                                    textTransform: 'none',
+                                                                    borderColor: '#7C3AED',
+                                                                    color: '#7C3AED',
+                                                                    '&:hover': {
+                                                                        backgroundColor: '#F3F4F6',
+                                                                        borderColor: '#6D28D9'
+                                                                    }
+                                                                }}
+                                                            >
+                                                                Sửa
+                                                            </Button>
+                                                            <Button
+                                                                size="small"
+                                                                variant="outlined"
+                                                                color="error"
+                                                                startIcon={<DeleteIcon />}
+                                                                onClick={(e) => {
+                                                                    e.stopPropagation();
+                                                                    onDelete(note);
+                                                                }}
+                                                                sx={{
+                                                                    fontSize: '0.75rem',
+                                                                    borderRadius: '8px',
+                                                                    textTransform: 'none',
+                                                                    '&:hover': {
+                                                                        backgroundColor: '#FEF2F2'
+                                                                    }
+                                                                }}
+                                                            >
+                                                                Xóa
+                                                            </Button>
+                                                        </Box>
+                                                    </TableCell>
+                                                </TableRow>
+                                            );
+                                        })}
+                                    </TableBody>
+                                </Table>
+                            </TableContainer>
 
-                        {/* Pagination */}
-                        {paginationData && (
-                            <TablePagination
-                                component="div"
-                                count={paginationData.totalElements}
-                                page={parseInt(searchParams.get('page') || '0')}
-                                onPageChange={onPageChange}
-                                rowsPerPage={parseInt(searchParams.get('size') || '10')}
-                                onRowsPerPageChange={onRowsPerPageChange}
-                                rowsPerPageOptions={[5, 10, 25, 50]}
-                                labelRowsPerPage="Số dòng mỗi trang:"
-                                labelDisplayedRows={({ from, to, count }) =>
-                                    `${from}-${to} của ${count !== -1 ? count : `hơn ${to}`}`
-                                }
-                            />
-                        )}
+                            {/* Bottom Control Bar */}
+                            {paginationData && (
+                                <Box className="p-4 border-t border-gray-200 bg-white">
+                                    <div className="flex items-center justify-between">
+                                        {/* Rows per page selector */}
+                                        <div className="flex items-center gap-3">
+                                            <Typography variant="body2" className="text-gray-600">
+                                                Số dòng hiển thị:
+                                            </Typography>
+                                            <FormControl size="small" sx={{ minWidth: 80 }}>
+                                                <Select
+                                                    value={parseInt(searchParams.get('size') || '10')}
+                                                    onChange={(e) => onRowsPerPageChange(e as any)}
+                                                    sx={{
+                                                        '& .MuiOutlinedInput-notchedOutline': {
+                                                            borderColor: '#D1D5DB',
+                                                        },
+                                                        '&:hover .MuiOutlinedInput-notchedOutline': {
+                                                            borderColor: '#7C3AED',
+                                                        },
+                                                        '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                                                            borderColor: '#7C3AED',
+                                                        },
+                                                    }}
+                                                >
+                                                    <MenuItem value={5}>5</MenuItem>
+                                                    <MenuItem value={10}>10</MenuItem>
+                                                    <MenuItem value={25}>25</MenuItem>
+                                                    <MenuItem value={50}>50</MenuItem>
+                                                </Select>
+                                            </FormControl>
+                                            <Typography variant="body2" className="text-gray-600">
+                                                {`${parseInt(searchParams.get('page') || '0') * parseInt(searchParams.get('size') || '10') + 1}-${Math.min((parseInt(searchParams.get('page') || '0') + 1) * parseInt(searchParams.get('size') || '10'), paginationData.totalElements)} of ${paginationData.totalElements}`}
+                                            </Typography>
+                                        </div>
+
+                                        {/* Pagination */}
+                                        <div className="flex items-center gap-6">
+                                            <Button
+                                                variant="outlined"
+                                                disabled={parseInt(searchParams.get('page') || '0') === 0}
+                                                startIcon={<NavigateBefore />}
+                                                onClick={() => onPageChange(null, parseInt(searchParams.get('page') || '0') - 1)}
+                                                sx={{
+                                                    borderRadius: '8px',
+                                                    textTransform: 'none',
+                                                    borderColor: parseInt(searchParams.get('page') || '0') === 0 ? '#D1D5DB' : '#7C3AED',
+                                                    color: parseInt(searchParams.get('page') || '0') === 0 ? '#9CA3AF' : '#7C3AED'
+                                                }}
+                                            >
+                                                Trang trước
+                                            </Button>
+
+                                            {/* Page Numbers */}
+                                            <div className="flex gap-3">
+                                                {Array.from({ length: Math.min(5, paginationData.totalPages) }, (_, i) => {
+                                                    const pageNum = i + 1;
+                                                    const currentPage = parseInt(searchParams.get('page') || '0') + 1;
+                                                    return (
+                                                        <Button
+                                                            key={pageNum}
+                                                            variant={pageNum === currentPage ? 'contained' : 'text'}
+                                                            onClick={() => onPageChange(null, pageNum - 1)}
+                                                            sx={{
+                                                                minWidth: '40px',
+                                                                height: '40px',
+                                                                borderRadius: '8px',
+                                                                textTransform: 'none',
+                                                                fontWeight: 600,
+                                                                ...(pageNum === currentPage && {
+                                                                    backgroundColor: '#7C3AED',
+                                                                    '&:hover': { backgroundColor: '#6D28D9' }
+                                                                })
+                                                            }}
+                                                        >
+                                                            {pageNum}
+                                                        </Button>
+                                                    );
+                                                })}
+                                                {paginationData.totalPages > 5 && (
+                                                    <>
+                                                        {paginationData.totalPages > 6 && <span className="px-2">...</span>}
+                                                        <Button
+                                                            variant="text"
+                                                            onClick={() => onPageChange(null, paginationData.totalPages - 1)}
+                                                            sx={{
+                                                                minWidth: '40px',
+                                                                height: '40px',
+                                                                borderRadius: '8px',
+                                                                textTransform: 'none',
+                                                                fontWeight: 600,
+                                                            }}
+                                                        >
+                                                            {paginationData.totalPages}
+                                                        </Button>
+                                                    </>
+                                                )}
+                                            </div>
+
+                                            <Button
+                                                variant="outlined"
+                                                disabled={parseInt(searchParams.get('page') || '0') === paginationData.totalPages - 1}
+                                                endIcon={<NavigateNext />}
+                                                onClick={() => onPageChange(null, parseInt(searchParams.get('page') || '0') + 1)}
+                                                sx={{
+                                                    borderRadius: '8px',
+                                                    textTransform: 'none',
+                                                    borderColor: parseInt(searchParams.get('page') || '0') === paginationData.totalPages - 1 ? '#D1D5DB' : '#7C3AED',
+                                                    color: parseInt(searchParams.get('page') || '0') === paginationData.totalPages - 1 ? '#9CA3AF' : '#7C3AED'
+                                                }}
+                                            >
+                                                Trang sau
+                                            </Button>
+                                        </div>
+                                    </div>
+                                </Box>
+                            )}
+                        </Paper>
                     </Box>
                 )}
             </CardContent>

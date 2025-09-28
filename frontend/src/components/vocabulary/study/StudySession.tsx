@@ -296,61 +296,57 @@ const StudySessionPage: React.FC = () => {
                     </Typography>
                 </Breadcrumbs>
 
-                <Card sx={{
+                <Box sx={{
                     textAlign: 'center',
                     py: 6,
-                    background: 'linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)',
                     border: 'none',
-                    boxShadow: '0 8px 32px rgba(0,0,0,0.1)',
                 }}>
-                    <CardContent>
-                        <EmojiEventsIcon sx={{ fontSize: 80, color: 'success.main', mb: 2 }} />
-                        <Typography variant="h5" sx={{ fontWeight: 'bold', mb: 2, color: 'text.primary' }}>
-                            Tuyệt vời! Bạn đã hoàn thành
-                        </Typography>
-                        <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
-                            Tất cả cards đã được học hoặc chưa đến thời gian review. Hãy quay lại sau để tiếp tục học tập!
-                        </Typography>
-                        <Box display="flex" gap={2} justifyContent="center">
-                            <Button
-                                variant="contained"
-                                size="large"
-                                startIcon={<RefreshIcon />}
-                                sx={{
-                                    px: 4,
-                                    py: 1.5,
-                                    borderRadius: 3,
-                                    textTransform: 'none',
-                                    fontSize: '1.1rem',
-                                    fontWeight: 'bold',
-                                }}
-                                onClick={() => {
-                                    const mode = searchParams.get('mode') as StudyMode;
-                                    const deckId = searchParams.get('deckId');
-                                    loadStudySession(mode, deckId ? parseInt(deckId) : undefined);
-                                }}
-                            >
-                                Làm mới
-                            </Button>
-                            <Button
-                                variant="outlined"
-                                size="large"
-                                startIcon={<SchoolIcon />}
-                                sx={{
-                                    px: 4,
-                                    py: 1.5,
-                                    borderRadius: 3,
-                                    textTransform: 'none',
-                                    fontSize: '1.1rem',
-                                    fontWeight: 'bold',
-                                }}
-                                onClick={() => window.location.href = '/vocabulary'}
-                            >
-                                Quay lại từ vựng
-                            </Button>
-                        </Box>
-                    </CardContent>
-                </Card>
+                    <EmojiEventsIcon sx={{ fontSize: 80, color: 'success.main', mb: 2 }} />
+                    <Typography variant="h5" sx={{ fontWeight: 'bold', mb: 2, color: 'text.primary' }}>
+                        Tuyệt vời! Bạn đã hoàn thành
+                    </Typography>
+                    <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
+                        Tất cả cards đã được học hoặc chưa đến thời gian review. Hãy quay lại sau để tiếp tục học tập!
+                    </Typography>
+                    <Box display="flex" gap={2} justifyContent="center">
+                        <Button
+                            variant="contained"
+                            size="medium"
+                            startIcon={<RefreshIcon />}
+                            sx={{
+                                px: 4,
+                                py: 1.5,
+                                borderRadius: 3,
+                                textTransform: 'none',
+                                fontSize: '1.1rem',
+                                fontWeight: 'bold',
+                            }}
+                            onClick={() => {
+                                const mode = searchParams.get('mode') as StudyMode;
+                                const deckId = searchParams.get('deckId');
+                                loadStudySession(mode, deckId ? parseInt(deckId) : undefined);
+                            }}
+                        >
+                            Làm mới
+                        </Button>
+                        <Button
+                            variant="outlined"
+                            size="medium"
+                            startIcon={<SchoolIcon />}
+                            sx={{
+                                px: 4,
+                                py: 1.5,
+                                borderRadius: 3,
+                                textTransform: 'none',
+                                fontSize: '1.1rem',
+                                fontWeight: 'bold',
+                            }}
+                            onClick={() => window.location.href = '/vocabulary'}
+                        >
+                            Quay lại từ vựng
+                        </Button>
+                    </Box>
+                </Box>
             </Container>
         );
     }
