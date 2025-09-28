@@ -1,17 +1,17 @@
 package com.nta.service;
 
-import java.util.List;
-import java.util.Optional;
-
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.stereotype.Service;
-
 import com.nta.dto.request.DictionaryRequest;
 import com.nta.dto.response.DictionaryResponse;
 import com.nta.repository.client.DictionaryApiClient;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -64,27 +64,23 @@ public class DictionaryService {
 			- Generate a unique ID number
 			""";
 
-        final String userPrompt = String.format("Look up the English word/phrase: '%s'. Audio URL: %s", word, audioUrl);
+        final String userPrompt =
+                String.format(
+                        "Look up the English word/phrase: '%s'. Audio URL: %s", word, audioUrl);
 
-        try {
+        final String apiKey = userService.getApiKeyFromContext();
+        final DictionaryResponse response =
+                aiChatService.sendMessage(
+                        apiKey,
+                        systemPrompt,
+                        userPrompt,
+                        new ParameterizedTypeReference<DictionaryResponse>() {});
 
-            final String apiKey = userService.getApiKeyFromContext();
-            final DictionaryResponse response = aiChatService.sendMessage(
-                    apiKey,
-                    systemPrompt,
-                    userPrompt,
-                    new ParameterizedTypeReference<DictionaryResponse>() {});
+        // Set the audio URL from the external API
+        response.setAudio(audioUrl);
 
-            // Set the audio URL from the external API
-            response.setAudio(audioUrl);
-
-            log.info("Successfully looked up word: {} with audio: {}", word, audioUrl);
-            return response;
-
-        } catch (Exception e) {
-            log.error("Failed to look up word: {}", word, e);
-            throw new RuntimeException("Failed to look up word: " + e.getMessage());
-        }
+        log.info("Successfully looked up word: {} with audio: {}", word, audioUrl);
+        return response;
     }
 
     private DictionaryResponse handleMisspelledWord(String misspelledWord) {
@@ -118,43 +114,45 @@ public class DictionaryService {
 			- If the word seems completely wrong, suggest common alternatives
 			""";
 
-        String userPrompt = String.format(
-                "The word '%s' might be misspelled. Please correct it and provide translation. If you can't correct it, suggest similar words.",
-                misspelledWord);
+        String userPrompt =
+                String.format(
+                        "The word '%s' might be misspelled. Please correct it and provide translation. If you can't correct it, suggest similar words.",
+                        misspelledWord);
 
-        try {
-            final String apiKey = userService.getApiKeyFromContext();
-            final DictionaryResponse response = aiChatService.sendMessage(
-                    apiKey,
-                    systemPrompt,
-                    userPrompt,
-                    new ParameterizedTypeReference<DictionaryResponse>() {});
+        final String apiKey = userService.getApiKeyFromContext();
+        final DictionaryResponse response =
+                aiChatService.sendMessage(
+                        apiKey,
+                        systemPrompt,
+                        userPrompt,
+                        new ParameterizedTypeReference<DictionaryResponse>() {});
 
-            // No audio for misspelled/corrected words
-            response.setAudio(this.getAudioUrl(response.getWord()));
+        // No audio for misspelled/corrected words
+        response.setAudio(this.getAudioUrl(response.getWord()));
 
-            log.info("Handled misspelled word: {} -> {}", misspelledWord, response.getWord());
-            return response;
-
-        } catch (Exception e) {
-            log.error("Failed to handle misspelled word: {}", misspelledWord, e);
-            throw new RuntimeException("Failed to handle misspelled word: " + e.getMessage());
-        }
+        log.info("Handled misspelled word: {} -> {}", misspelledWord, response.getWord());
+        return response;
     }
 
     private String getAudioUrl(String word) {
         try {
-            List<DictionaryApiClient.DictionaryApiResponse> responses = dictionaryApiClient.getWordDefinition(word);
+            List<DictionaryApiClient.DictionaryApiResponse> responses =
+                    dictionaryApiClient.getWordDefinition(word);
 
             if (responses != null && !responses.isEmpty()) {
                 DictionaryApiClient.DictionaryApiResponse response = responses.get(0);
 
                 if (response.getPhonetics() != null) {
-                    Optional<String> audioUrl = response.getPhonetics().stream()
-                            .filter(phonetic -> phonetic.getAudio() != null
-                                    && !phonetic.getAudio().isEmpty())
-                            .map(DictionaryApiClient.DictionaryApiResponse.Phonetic::getAudio)
-                            .findFirst();
+                    Optional<String> audioUrl =
+                            response.getPhonetics().stream()
+                                    .filter(
+                                            phonetic ->
+                                                    phonetic.getAudio() != null
+                                                            && !phonetic.getAudio().isEmpty())
+                                    .map(
+                                            DictionaryApiClient.DictionaryApiResponse.Phonetic
+                                                    ::getAudio)
+                                    .findFirst();
 
                     if (audioUrl.isPresent()) {
                         log.info("Found audio URL for word '{}': {}", word, audioUrl.get());
