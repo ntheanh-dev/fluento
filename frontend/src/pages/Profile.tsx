@@ -22,7 +22,7 @@ import {
     TableRow,
     Paper,
 } from '@mui/material';
-import { Visibility, VisibilityOff, Save, Add, ContentCopy, Delete } from '@mui/icons-material';
+import { Visibility, VisibilityOff, Save, Add, ContentCopy, Delete, HelpOutline } from '@mui/icons-material';
 import { useAuth } from '../contexts/AuthContext';
 import { api } from '../configs/API';
 import { notify } from '../utils/notify';
@@ -73,6 +73,7 @@ const Profile: React.FC = () => {
     const [showCreateApiKeyForm, setShowCreateApiKeyForm] = useState(false);
     const [apiKeyError, setApiKeyError] = useState<string>('');
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+    const [showHelpModal, setShowHelpModal] = useState(false);
 
     // Load API key when user data changes
     useEffect(() => {
@@ -456,9 +457,19 @@ const Profile: React.FC = () => {
             {/* API Key Management Section */}
             <Card sx={{ mt: 4, p: 3 }}>
                 <Box sx={{ mb: 3 }}>
-                    <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 1 }}>
-                        Gemini API Key
-                    </Typography>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                        <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
+                            Gemini API Key
+                        </Typography>
+                        <IconButton
+                            size="small"
+                            onClick={() => setShowHelpModal(true)}
+                            sx={{ color: 'primary.main' }}
+                            title="Hướng dẫn lấy API key"
+                        >
+                            <HelpOutline fontSize="small" />
+                        </IconButton>
+                    </Box>
                     {!userApiKey && (
                         <Box sx={{ mt: 2 }}>
                             <Button
@@ -905,6 +916,89 @@ const Profile: React.FC = () => {
                         disabled={isChangingPassword || !changePasswordData.currentPassword || !changePasswordData.newPassword || !changePasswordData.confirmNewPassword}
                     >
                         {isChangingPassword ? 'Đang thay đổi...' : 'Thay đổi mật khẩu'}
+                    </Button>
+                </DialogActions>
+            </Dialog>
+
+            {/* Help Modal for API Key Guide */}
+            <Dialog
+                open={showHelpModal}
+                onClose={() => setShowHelpModal(false)}
+                maxWidth="md"
+                fullWidth
+            >
+                <DialogTitle sx={{ pb: 1 }}>
+                    <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
+                        📋 Hướng dẫn lấy Gemini API Key
+                    </Typography>
+                </DialogTitle>
+                <DialogContent sx={{ pt: 2 }}>
+                    <Box sx={{ mb: 2 }}>
+                        <Typography variant="body2" sx={{ fontWeight: 'medium', mb: 1 }}>
+                            1. Truy cập Google AI Studio:
+                        </Typography>
+                        <Box sx={{
+                            p: 2,
+                            backgroundColor: 'grey.50',
+                            borderRadius: 1,
+                            border: '1px solid',
+                            borderColor: 'grey.200'
+                        }}>
+                            <Typography
+                                variant="body2"
+                                sx={{
+                                    fontFamily: 'monospace',
+                                    color: 'primary.main',
+                                    cursor: 'pointer',
+                                    textDecoration: 'underline',
+                                    '&:hover': {
+                                        color: 'primary.dark'
+                                    }
+                                }}
+                                onClick={() => window.open('https://aistudio.google.com/app/apikey', '_blank')}
+                            >
+                                https://aistudio.google.com/app/apikey
+                            </Typography>
+                        </Box>
+                    </Box>
+
+                    <Box sx={{ mb: 2 }}>
+                        <Typography variant="body2" sx={{ fontWeight: 'medium', mb: 1 }}>
+                            2. Đăng nhập bằng tài khoản Google của bạn
+                        </Typography>
+                    </Box>
+
+                    <Box sx={{ mb: 2 }}>
+                        <Typography variant="body2" sx={{ fontWeight: 'medium', mb: 1 }}>
+                            3. Nhấn "Create API Key" để tạo key mới
+                        </Typography>
+                    </Box>
+
+                    <Box sx={{ mb: 2 }}>
+                        <Typography variant="body2" sx={{ fontWeight: 'medium', mb: 1 }}>
+                            4. Copy API key (bắt đầu với "AIza...")
+                        </Typography>
+                    </Box>
+
+                    <Alert severity="info" sx={{ mb: 2 }}>
+                        <Typography variant="body2">
+                            <strong>Lưu ý:</strong> API key miễn phí có giới hạn 15 requests/phút và 1M tokens/tháng.
+                            Để tăng giới hạn, bạn có thể nâng cấp tài khoản Google Cloud.
+                        </Typography>
+                    </Alert>
+
+                    <Alert severity="warning" sx={{ mb: 2 }}>
+                        <Typography variant="body2">
+                            <strong>Bảo mật:</strong> Không chia sẻ API key của bạn với người khác. Key này có thể được sử dụng để truy cập các dịch vụ Google AI của bạn.
+                        </Typography>
+                    </Alert>
+                </DialogContent>
+                <DialogActions sx={{ p: 3, pt: 1 }}>
+                    <Button
+                        variant="contained"
+                        onClick={() => setShowHelpModal(false)}
+                    >
+                        Đã hiểu
                     </Button>
                 </DialogActions>
             </Dialog>
