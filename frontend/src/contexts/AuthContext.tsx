@@ -9,6 +9,7 @@ interface User {
     urlAvatar: string;
     noPassword: boolean;
     createdAt?: string;
+    apiKey?: string;
 }
 
 interface AuthContextType {
@@ -20,6 +21,7 @@ interface AuthContextType {
     checkAuth: () => Promise<void>;
     updateTokens: (accessToken: string, refreshToken?: string) => void;
     setUser: (user: User | null) => void;
+    refreshUserData: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -105,6 +107,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
                     urlAvatar: response.data.result.urlAvatar,
                     noPassword: response.data.result.noPassword,
                     createdAt: response.data.result.createdAt,
+                    apiKey: response.data.result.apiKey,
                 };
                 setUser(userData);
             }
@@ -185,6 +188,17 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         api.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
     };
 
+    const refreshUserData = async () => {
+        try {
+            const token = Cookies.get('auth_token');
+            if (token) {
+                await fetchUserInfo(token);
+            }
+        } catch (error) {
+            console.error('Failed to refresh user data:', error);
+        }
+    };
+
     const value: AuthContextType = {
         user,
         isAuthenticated,
@@ -194,6 +208,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         checkAuth,
         updateTokens,
         setUser,
+        refreshUserData,
     };
 
     return (

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     Box,
     Card,
@@ -14,8 +14,15 @@ import {
     DialogTitle,
     DialogContent,
     DialogActions,
+    Table,
+    TableBody,
+    TableCell,
+    TableContainer,
+    TableHead,
+    TableRow,
+    Paper,
 } from '@mui/material';
-import { Visibility, VisibilityOff, Save } from '@mui/icons-material';
+import { Visibility, VisibilityOff, Save, Add, ContentCopy, Delete } from '@mui/icons-material';
 import { useAuth } from '../contexts/AuthContext';
 import { api } from '../configs/API';
 import { notify } from '../utils/notify';
@@ -28,8 +35,14 @@ interface User {
     createdAt?: string;
 }
 
+interface ApiKey {
+    id: number;
+    apiKey: string;
+    createdAt: string;
+}
+
 const Profile: React.FC = () => {
-    const { user, setUser } = useAuth();
+    const { user, setUser, refreshUserData } = useAuth();
     const [passwordData, setPasswordData] = useState({
         password: '',
         confirmPassword: '',
@@ -49,6 +62,137 @@ const Profile: React.FC = () => {
     const [showCreatePasswordForm, setShowCreatePasswordForm] = useState(false);
     const [showChangePasswordForm, setShowChangePasswordForm] = useState(false);
     const [error, setError] = useState<string>('');
+
+    // API Key states
+    const [userApiKey, setUserApiKey] = useState<ApiKey | null>(null);
+    const [newApiKey, setNewApiKey] = useState('');
+    const [isLoadingApiKey, setIsLoadingApiKey] = useState(false);
+    const [isCreatingApiKey, setIsCreatingApiKey] = useState(false);
+    const [isUpdatingApiKey, setIsUpdatingApiKey] = useState(false);
+    const [isDeletingApiKey, setIsDeletingApiKey] = useState(false);
+    const [showCreateApiKeyForm, setShowCreateApiKeyForm] = useState(false);
+    const [apiKeyError, setApiKeyError] = useState<string>('');
+    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+
+    // Load API key when user data changes
+    useEffect(() => {
+        loadApiKey();
+    }, [user]);
+
+    const loadApiKey = () => {
+        setIsLoadingApiKey(true);
+        try {
+            if (user?.apiKey) {
+                setUserApiKey({
+                    id: parseInt(user.id),
+                    apiKey: user.apiKey,
+                    createdAt: user.createdAt || new Date().toISOString()
+                });
+            } else {
+                setUserApiKey(null);
+            }
+        } catch (error) {
+            console.error('Error loading API key from auth context:', error);
+            setUserApiKey(null);
+        } finally {
+            setIsLoadingApiKey(false);
+        }
+    };
+
+    const handleCreateApiKey = async () => {
+        if (!newApiKey.trim()) {
+            setApiKeyError('API key không được để trống');
+            return;
+        }
+
+        setIsCreatingApiKey(true);
+        setApiKeyError('');
+
+        try {
+            const response = await api.post('/users/api-key', {
+                apiKey: newApiKey.trim(),
+            });
+
+            if (response.data?.code === 1000) {
+                setNewApiKey('');
+                setShowCreateApiKeyForm(false);
+                notify('Thêm Gemini API key thành công!', 'success');
+                // Refresh user data from auth context
+                await refreshUserData();
+            } else {
+                setApiKeyError('Có lỗi xảy ra khi tạo API key');
+            }
+        } catch (error: any) {
+            console.error('Create API key error:', error);
+            if (error.response?.data?.message) {
+                setApiKeyError(error.response.data.message);
+            } else {
+                setApiKeyError('Có lỗi xảy ra khi tạo API key');
+            }
+        } finally {
+            setIsCreatingApiKey(false);
+        }
+    };
+
+    const handleUpdateApiKey = async () => {
+        if (!newApiKey.trim()) {
+            setApiKeyError('API key không được để trống');
+            return;
+        }
+
+        setIsUpdatingApiKey(true);
+        setApiKeyError('');
+
+        try {
+            const response = await api.put('/users/api-key', {
+                apiKey: newApiKey.trim(),
+            });
+
+            if (response.data?.code === 1000) {
+                setNewApiKey('');
+                setShowCreateApiKeyForm(false);
+                notify('Cập nhật Gemini API key thành công!', 'success');
+                // Refresh user data from auth context
+                await refreshUserData();
+            } else {
+                setApiKeyError('Có lỗi xảy ra khi cập nhật API key');
+            }
+        } catch (error: any) {
+            console.error('Update API key error:', error);
+            if (error.response?.data?.message) {
+                setApiKeyError(error.response.data.message);
+            } else {
+                setApiKeyError('Có lỗi xảy ra khi cập nhật API key');
+            }
+        } finally {
+            setIsUpdatingApiKey(false);
+        }
+    };
+
+    const handleDeleteApiKey = async () => {
+        setIsDeletingApiKey(true);
+        try {
+            const response = await api.delete('/users/api-key');
+            if (response.data?.code === 1000) {
+                setShowDeleteConfirm(false);
+                notify('Xóa Gemini API key thành công!', 'success');
+                // Refresh user data from auth context
+                await refreshUserData();
+            } else {
+                notify('Có lỗi xảy ra khi xóa API key', 'error');
+            }
+        } catch (error: any) {
+            console.error('Delete API key error:', error);
+            notify('Có lỗi xảy ra khi xóa API key', 'error');
+        } finally {
+            setIsDeletingApiKey(false);
+        }
+    };
+
+    const handleCopyApiKey = (apiKey: string) => {
+        navigator.clipboard.writeText(apiKey);
+        notify('Đã sao chép Gemini API key!', 'success');
+    };
 
     const handlePasswordChange = (field: 'password' | 'confirmPassword') => (
         event: React.ChangeEvent<HTMLInputElement>
@@ -308,6 +452,276 @@ const Profile: React.FC = () => {
                     )}
                 </Box>
             </Box>
+
+            {/* API Key Management Section */}
+            <Card sx={{ mt: 4, p: 3 }}>
+                <Box sx={{ mb: 3 }}>
+                    <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 1 }}>
+                        Gemini API Key
+                    </Typography>
+                    {!userApiKey && (
+                        <Box sx={{ mt: 2 }}>
+                            <Button
+                                variant="contained"
+                                startIcon={<Add />}
+                                onClick={() => setShowCreateApiKeyForm(true)}
+                                sx={{ px: 3 }}
+                            >
+                                Thêm Gemini API Key
+                            </Button>
+                        </Box>
+                    )}
+                </Box>
+
+                {isLoadingApiKey ? (
+                    <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
+                        <CircularProgress />
+                    </Box>
+                ) : (userApiKey && (
+                    <TableContainer component={Paper} variant="outlined">
+                        <Table>
+                            <TableHead>
+                                <TableRow>
+                                    <TableCell><strong>Key</strong></TableCell>
+                                    <TableCell><strong>Ngày thêm</strong></TableCell>
+                                    <TableCell align="center"><strong>Thao tác</strong></TableCell>
+                                </TableRow>
+                            </TableHead>
+                            <TableBody>
+                                <TableRow>
+                                    <TableCell>
+                                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                            <Typography
+                                                variant="body2"
+                                                sx={{
+                                                    fontFamily: 'monospace',
+                                                    backgroundColor: 'grey.100',
+                                                    px: 1,
+                                                    py: 0.5,
+                                                    borderRadius: 1,
+                                                    maxWidth: 300,
+                                                    overflow: 'hidden',
+                                                    textOverflow: 'ellipsis',
+                                                    whiteSpace: 'nowrap'
+                                                }}
+                                            >
+                                                {userApiKey.apiKey}
+                                            </Typography>
+                                            <IconButton
+                                                size="small"
+                                                onClick={() => handleCopyApiKey(userApiKey.apiKey)}
+                                                title="Sao chép API key"
+                                            >
+                                                <ContentCopy fontSize="small" />
+                                            </IconButton>
+                                        </Box>
+                                    </TableCell>
+                                    <TableCell>
+                                        <Typography variant="body2" color="text.secondary">
+                                            {new Date(userApiKey.createdAt).toLocaleDateString('vi-VN')}
+                                        </Typography>
+                                    </TableCell>
+                                    <TableCell align="center">
+                                        <Box sx={{ display: 'flex', gap: 1, justifyContent: 'center' }}>
+                                            <Button
+                                                variant="outlined"
+                                                size="small"
+                                                onClick={() => {
+                                                    setNewApiKey(userApiKey.apiKey);
+                                                    setShowCreateApiKeyForm(true);
+                                                }}
+                                            >
+                                                Cập nhật
+                                            </Button>
+                                            <IconButton
+                                                color="error"
+                                                onClick={() => setShowDeleteConfirm(true)}
+                                                disabled={isDeletingApiKey}
+                                                title="Xóa API key"
+                                            >
+                                                {isDeletingApiKey ? (
+                                                    <CircularProgress size={20} />
+                                                ) : (
+                                                    <Delete />
+                                                )}
+                                            </IconButton>
+                                        </Box>
+                                    </TableCell>
+                                </TableRow>
+                            </TableBody>
+                        </Table>
+                    </TableContainer>
+                ))}
+            </Card>
+
+            {/* Create/Update API Key Modal */}
+            <Dialog
+                open={showCreateApiKeyForm}
+                onClose={() => {
+                    setShowCreateApiKeyForm(false);
+                    setNewApiKey('');
+                    setApiKeyError('');
+                }}
+                maxWidth="sm"
+                fullWidth
+            >
+                <DialogTitle sx={{ pb: 1 }}>
+                    <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
+                        {userApiKey ? 'Cập nhật Gemini API Key' : 'Thêm Gemini API Key'}
+                    </Typography>
+
+                </DialogTitle>
+                <DialogContent sx={{ pt: 2 }}>
+                    {apiKeyError && (
+                        <Alert severity="error" sx={{ mb: 3 }}>
+                            {apiKeyError}
+                        </Alert>
+                    )}
+
+                    {/* Hướng dẫn lấy API key */}
+                    <Box sx={{ mb: 3 }}>
+                        <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 2, color: 'primary.main' }}>
+                            📋 Hướng dẫn lấy Key
+                        </Typography>
+
+                        <Box sx={{ mb: 2 }}>
+                            <Typography variant="body2" sx={{ fontWeight: 'medium', mb: 1 }}>
+                                1. Truy cập Google AI Studio:
+                            </Typography>
+                            <Box sx={{
+                                p: 2,
+                                backgroundColor: 'grey.50',
+                                borderRadius: 1,
+                                border: '1px solid',
+                                borderColor: 'grey.200'
+                            }}>
+                                <Typography
+                                    variant="body2"
+                                    sx={{
+                                        fontFamily: 'monospace',
+                                        color: 'primary.main',
+                                        cursor: 'pointer',
+                                        textDecoration: 'underline',
+                                        '&:hover': {
+                                            color: 'primary.dark'
+                                        }
+                                    }}
+                                    onClick={() => window.open('https://aistudio.google.com/app/apikey', '_blank')}
+                                >
+                                    https://aistudio.google.com/app/apikey
+                                </Typography>
+                            </Box>
+                        </Box>
+
+                        <Box sx={{ mb: 2 }}>
+                            <Typography variant="body2" sx={{ fontWeight: 'medium', mb: 1 }}>
+                                2. Đăng nhập bằng tài khoản Google của bạn
+                            </Typography>
+                        </Box>
+
+                        <Box sx={{ mb: 2 }}>
+                            <Typography variant="body2" sx={{ fontWeight: 'medium', mb: 1 }}>
+                                3. Nhấn "Create API Key" để tạo key mới
+                            </Typography>
+                        </Box>
+
+                        <Box sx={{ mb: 2 }}>
+                            <Typography variant="body2" sx={{ fontWeight: 'medium', mb: 1 }}>
+                                4. Copy API key (bắt đầu với "AIza...")
+                            </Typography>
+                        </Box>
+
+                        <Alert severity="info" sx={{ mb: 2 }}>
+                            <Typography variant="body2">
+                                <strong>Lưu ý:</strong> API key miễn phí có giới hạn 15 requests/phút và 1M tokens/tháng.
+                                Để tăng giới hạn, bạn có thể nâng cấp tài khoản Google Cloud.
+                            </Typography>
+                        </Alert>
+                    </Box>
+
+                    <TextField
+                        fullWidth
+                        label="API Key"
+                        value={newApiKey}
+                        onChange={(e) => {
+                            setNewApiKey(e.target.value);
+                            setApiKeyError('');
+                        }}
+                        variant="outlined"
+                        placeholder="Nhập Gemini API key của bạn"
+                        multiline
+                        rows={1}
+                        sx={{
+                            marginTop: 2,
+                            '& .MuiInputBase-input': {
+                                fontFamily: 'monospace',
+                                fontSize: '0.875rem'
+                            }
+                        }}
+                    />
+
+                </DialogContent>
+                <DialogActions sx={{ p: 3, pt: 1 }}>
+                    <Button
+                        variant="outlined"
+                        onClick={() => {
+                            setShowCreateApiKeyForm(false);
+                            setNewApiKey('');
+                            setApiKeyError('');
+                        }}
+                    >
+                        Hủy
+                    </Button>
+                    <Button
+                        variant="contained"
+                        startIcon={(isCreatingApiKey || isUpdatingApiKey) ? <CircularProgress size={20} /> : <Add />}
+                        onClick={userApiKey ? handleUpdateApiKey : handleCreateApiKey}
+                        disabled={(isCreatingApiKey || isUpdatingApiKey) || !newApiKey.trim()}
+                    >
+                        {(isCreatingApiKey || isUpdatingApiKey)
+                            ? (userApiKey ? 'Đang cập nhật...' : 'Đang thêm...')
+                            : (userApiKey ? 'Cập nhật Gemini API Key' : 'Thêm Gemini API Key')
+                        }
+                    </Button>
+                </DialogActions>
+            </Dialog>
+
+            {/* Delete Confirmation Dialog */}
+            <Dialog
+                open={showDeleteConfirm}
+                onClose={() => setShowDeleteConfirm(false)}
+                maxWidth="sm"
+                fullWidth
+            >
+                <DialogTitle sx={{ pb: 1 }}>
+                    <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
+                        Xác nhận xóa Gemini API Key
+                    </Typography>
+                </DialogTitle>
+                <DialogContent sx={{ pt: 2 }}>
+                    <Typography variant="body1" sx={{ mb: 2 }}>
+                        Bạn có chắc chắn muốn xóa key này không?
+                    </Typography>
+                </DialogContent>
+                <DialogActions sx={{ p: 3, pt: 1 }}>
+                    <Button
+                        variant="outlined"
+                        onClick={() => setShowDeleteConfirm(false)}
+                        disabled={isDeletingApiKey}
+                    >
+                        Hủy
+                    </Button>
+                    <Button
+                        variant="contained"
+                        color="error"
+                        onClick={handleDeleteApiKey}
+                        disabled={isDeletingApiKey}
+                        startIcon={isDeletingApiKey ? <CircularProgress size={20} /> : undefined}
+                    >
+                        {isDeletingApiKey ? 'Đang xóa...' : 'Xóa Gemini API Key'}
+                    </Button>
+                </DialogActions>
+            </Dialog>
 
             {/* Password Creation Modal */}
             <Dialog
