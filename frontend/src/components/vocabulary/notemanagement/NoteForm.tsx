@@ -11,11 +11,167 @@ import {
 import {
     AutoAwesome as AutoAwesomeIcon,
     VolumeUp as VolumeUpIcon,
+    Close as CloseIcon,
 } from '@mui/icons-material';
 import { type NoteType, type CreateNoteRequest } from '../vocabulary';
-import { dictionaryApi } from '../dictionaryApi';
+import { dictionaryApi, type DictionaryResponse } from '../dictionaryApi';
 import { notify } from '../../../utils/notify';
 import ImageUpload from './ImageUpload';
+
+// Helper function to convert byte array to File object
+const byteArrayToFile = (audioData: any, filename: string, mimeType: string = 'audio/mpeg'): File => {
+    let uint8Array: Uint8Array;
+
+    if (typeof audioData === 'string') {
+        // If it's a base64 string, decode it
+        const binaryString = atob(audioData);
+        uint8Array = new Uint8Array(binaryString.length);
+        for (let i = 0; i < binaryString.length; i++) {
+            uint8Array[i] = binaryString.charCodeAt(i);
+        }
+    } else if (Array.isArray(audioData)) {
+        // If it's an array of numbers
+        uint8Array = new Uint8Array(audioData);
+    } else {
+        throw new Error('Invalid audio data format');
+    }
+
+    return new File([uint8Array], filename, { type: mimeType });
+};
+
+// Component to display audio file with play button
+const AudioFileDisplay: React.FC<{
+    file: File;
+    onPlay: () => void;
+    label: string;
+}> = ({ file, onPlay, label }) => (
+    <Box sx={{ mt: 1, display: 'flex', alignItems: 'center', gap: 1, p: 1, border: '1px solid #e0e0e0', borderRadius: 1, backgroundColor: '#f5f5f5' }}>
+        <Typography variant="caption" color="text.secondary" sx={{ flex: 1 }}>
+            {label}: {file.name}
+        </Typography>
+        <IconButton
+            onClick={onPlay}
+            size="small"
+            sx={{
+                color: 'primary.main',
+                '&:hover': {
+                    color: 'primary.dark',
+                    transform: 'scale(1.1)'
+                },
+                transition: 'all 0.2s ease'
+            }}
+        >
+            <VolumeUpIcon fontSize="small" />
+        </IconButton>
+    </Box>
+);
+
+// Component for audio file upload/display
+const AudioFileUpload: React.FC<{
+    value: File | null;
+    onChange: (file: File | null) => void;
+    label: string;
+    required?: boolean;
+    error?: boolean;
+    helperText?: string;
+}> = ({ value, onChange, label, required, error, helperText }) => {
+    const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
+        if (file) {
+            // Check if it's an audio file
+            if (!file.type.startsWith('audio/')) {
+                notify('Vui lòng chọn file audio', 'error');
+                return;
+            }
+            onChange(file);
+        }
+    };
+
+    const handlePlay = () => {
+        if (value) {
+            const audioUrl = URL.createObjectURL(value);
+            const audio = new Audio(audioUrl);
+            audio.play().catch(error => {
+                console.error('Error playing audio:', error);
+                notify(`Không thể phát audio: ${error.message}`, 'error');
+            });
+            // Clean up the URL after playing
+            audio.addEventListener('ended', () => {
+                URL.revokeObjectURL(audioUrl);
+            });
+        }
+    };
+
+    return (
+        <Box>
+            <Typography variant="subtitle2" gutterBottom>
+                {label} {required && <span style={{ color: 'red' }}>*</span>}
+            </Typography>
+
+            {value ? (
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, p: 2, border: '1px solid #e0e0e0', borderRadius: 1, backgroundColor: '#f5f5f5' }}>
+                    <Typography variant="body2" sx={{ flex: 1 }}>
+                        {value.name}
+                    </Typography>
+                    <IconButton
+                        onClick={handlePlay}
+                        size="small"
+                        sx={{
+                            color: 'primary.main',
+                            '&:hover': {
+                                color: 'primary.dark',
+                                transform: 'scale(1.1)'
+                            },
+                            transition: 'all 0.2s ease'
+                        }}
+                    >
+                        <VolumeUpIcon fontSize="small" />
+                    </IconButton>
+                    <IconButton
+                        onClick={() => onChange(null)}
+                        size="small"
+                        sx={{
+                            color: 'error.main',
+                            '&:hover': {
+                                color: 'error.dark',
+                                transform: 'scale(1.1)'
+                            },
+                            transition: 'all 0.2s ease'
+                        }}
+                    >
+                        <CloseIcon fontSize="small" />
+                    </IconButton>
+                </Box>
+            ) : (
+                <Box sx={{ border: '2px dashed #ccc', borderRadius: 1, p: 2, textAlign: 'center' }}>
+                    <input
+                        type="file"
+                        accept="audio/*"
+                        onChange={handleFileChange}
+                        style={{ display: 'none' }}
+                        id={`audio-upload-${label}`}
+                    />
+                    <label htmlFor={`audio-upload-${label}`}>
+                        <Button
+                            component="span"
+                            variant="outlined"
+                            startIcon={<VolumeUpIcon />}
+                            sx={{ cursor: 'pointer' }}
+                        >
+                            Chọn file audio
+                        </Button>
+                    </label>
+                </Box>
+            )}
+
+            {error && helperText && (
+                <Typography variant="caption" color="error" sx={{ mt: 1, display: 'block' }}>
+                    {helperText}
+                </Typography>
+            )}
+        </Box>
+    );
+};
 
 interface NoteFormProps {
     noteTypes: NoteType[];
@@ -31,7 +187,7 @@ interface NoteFormProps {
     onFileChange: (fieldName: string, file: File | null) => void;
     onAutoFillLoadingChange: (loading: boolean) => void;
     onAutoFill?: (word: string) => Promise<void>;
-    dictionaryData?: any;
+    dictionaryData?: DictionaryResponse;
 }
 
 const NoteForm: React.FC<NoteFormProps> = ({
@@ -54,6 +210,14 @@ const NoteForm: React.FC<NoteFormProps> = ({
     const isImageField = (fieldName: string): boolean => {
         const imageKeywords = ['image', 'hình ảnh', 'picture', 'photo', 'img'];
         return imageKeywords.some(keyword =>
+            fieldName.toLowerCase().includes(keyword)
+        );
+    };
+
+    // Helper function to detect audio fields
+    const isAudioField = (fieldName: string): boolean => {
+        const audioKeywords = ['audio', 'âm thanh', 'sound', 'voice', 'speech', 'mp3', 'wav'];
+        return audioKeywords.some(keyword =>
             fieldName.toLowerCase().includes(keyword)
         );
     };
@@ -97,19 +261,33 @@ const NoteForm: React.FC<NoteFormProps> = ({
                     newFieldValues['loại từ'] = dictionaryData.pos;
                 }
 
-                if (dictionaryData.example) {
-                    newFieldValues['example'] = dictionaryData.example;
-                    newFieldValues['ví dụ'] = dictionaryData.example;
+                if (dictionaryData.example1) {
+                    newFieldValues['example1'] = dictionaryData.example1;
+                    newFieldValues['ví dụ 1'] = dictionaryData.example1;
                 }
 
-                if (dictionaryData.translation) {
-                    newFieldValues['translation'] = dictionaryData.translation;
-                    newFieldValues['dịch'] = dictionaryData.translation;
+                if (dictionaryData.example2) {
+                    newFieldValues['example2'] = dictionaryData.example2;
+                    newFieldValues['ví dụ 2'] = dictionaryData.example2;
                 }
 
-                if (dictionaryData.audio) {
-                    newFieldValues['audio'] = dictionaryData.audio;
-                    newFieldValues['âm thanh'] = dictionaryData.audio;
+                // Convert audio byte arrays to File objects
+                if (dictionaryData.audio && (Array.isArray(dictionaryData.audio) ? dictionaryData.audio.length > 0 : dictionaryData.audio.length > 0)) {
+                    const audioFile = byteArrayToFile(dictionaryData.audio, `${dictionaryData.word}_audio.mp3`);
+                    newFieldValues['audio'] = audioFile;
+                    newFieldValues['âm thanh'] = audioFile;
+                }
+
+                if (dictionaryData.audioExample1 && (Array.isArray(dictionaryData.audioExample1) ? dictionaryData.audioExample1.length > 0 : dictionaryData.audioExample1.length > 0)) {
+                    const audioFile = byteArrayToFile(dictionaryData.audioExample1, `${dictionaryData.word}_example1_audio.mp3`);
+                    newFieldValues['audioExample1'] = audioFile;
+                    newFieldValues['âm thanh ví dụ 1'] = audioFile;
+                }
+
+                if (dictionaryData.audioExample2 && (Array.isArray(dictionaryData.audioExample2) ? dictionaryData.audioExample2.length > 0 : dictionaryData.audioExample2.length > 0)) {
+                    const audioFile = byteArrayToFile(dictionaryData.audioExample2, `${dictionaryData.word}_example2_audio.mp3`);
+                    newFieldValues['audioExample2'] = audioFile;
+                    newFieldValues['âm thanh ví dụ 2'] = audioFile;
                 }
 
                 onFormDataChange({ ...formData, fieldValues: newFieldValues });
@@ -129,18 +307,68 @@ const NoteForm: React.FC<NoteFormProps> = ({
     };
 
     const handlePlayAudio = () => {
-        if (dictionaryData?.audio) {
+        if (dictionaryData?.audio && dictionaryData.audio.length > 0) {
             try {
-                const audio = new Audio(dictionaryData.audio);
+                const audioFile = byteArrayToFile(dictionaryData.audio, `${dictionaryData.word}_audio.mp3`);
+                const audioUrl = URL.createObjectURL(audioFile);
+                const audio = new Audio(audioUrl);
                 audio.play().catch(error => {
                     console.error('Error playing audio:', error);
                     notify('Không thể phát audio', 'error');
+                });
+                // Clean up the URL after playing
+                audio.addEventListener('ended', () => {
+                    URL.revokeObjectURL(audioUrl);
                 });
             } catch (error) {
                 notify('URL audio không hợp lệ', 'error');
             }
         } else {
             notify('Không có audio cho từ này', 'warning');
+        }
+    };
+
+    const handlePlayAudioExample1 = () => {
+        if (dictionaryData?.audioExample1 && dictionaryData.audioExample1.length > 0) {
+            try {
+                const audioFile = byteArrayToFile(dictionaryData.audioExample1, `${dictionaryData.word}_example1_audio.mp3`);
+                const audioUrl = URL.createObjectURL(audioFile);
+                const audio = new Audio(audioUrl);
+                audio.play().catch(error => {
+                    console.error('Error playing audio example 1:', error);
+                    notify('Không thể phát audio ví dụ 1', 'error');
+                });
+                // Clean up the URL after playing
+                audio.addEventListener('ended', () => {
+                    URL.revokeObjectURL(audioUrl);
+                });
+            } catch (error) {
+                notify('URL audio ví dụ 1 không hợp lệ', 'error');
+            }
+        } else {
+            notify('Không có audio cho ví dụ 1', 'warning');
+        }
+    };
+
+    const handlePlayAudioExample2 = () => {
+        if (dictionaryData?.audioExample2 && dictionaryData.audioExample2.length > 0) {
+            try {
+                const audioFile = byteArrayToFile(dictionaryData.audioExample2, `${dictionaryData.word}_example2_audio.mp3`);
+                const audioUrl = URL.createObjectURL(audioFile);
+                const audio = new Audio(audioUrl);
+                audio.play().catch(error => {
+                    console.error('Error playing audio example 2:', error);
+                    notify('Không thể phát audio ví dụ 2', 'error');
+                });
+                // Clean up the URL after playing
+                audio.addEventListener('ended', () => {
+                    URL.revokeObjectURL(audioUrl);
+                });
+            } catch (error) {
+                notify('URL audio ví dụ 2 không hợp lệ', 'error');
+            }
+        } else {
+            notify('Không có audio cho ví dụ 2', 'warning');
         }
     };
 
@@ -218,6 +446,36 @@ const NoteForm: React.FC<NoteFormProps> = ({
                         </Box>
                     </Box>
 
+                    {/* Display audio files from dictionary */}
+                    {dictionaryData && (
+                        <Box sx={{ mt: 2 }}>
+                            <Typography variant="subtitle2" gutterBottom>
+                                Audio Files từ Dictionary:
+                            </Typography>
+                            {dictionaryData.audio && (Array.isArray(dictionaryData.audio) ? dictionaryData.audio.length > 0 : dictionaryData.audio.length > 0) && (
+                                <AudioFileDisplay
+                                    file={byteArrayToFile(dictionaryData.audio, `${dictionaryData.word}_audio.mp3`)}
+                                    onPlay={handlePlayAudio}
+                                    label="Audio từ chính"
+                                />
+                            )}
+                            {dictionaryData.audioExample1 && (Array.isArray(dictionaryData.audioExample1) ? dictionaryData.audioExample1.length > 0 : dictionaryData.audioExample1.length > 0) && (
+                                <AudioFileDisplay
+                                    file={byteArrayToFile(dictionaryData.audioExample1, `${dictionaryData.word}_example1_audio.mp3`)}
+                                    onPlay={handlePlayAudioExample1}
+                                    label="Audio ví dụ 1"
+                                />
+                            )}
+                            {dictionaryData.audioExample2 && (Array.isArray(dictionaryData.audioExample2) ? dictionaryData.audioExample2.length > 0 : dictionaryData.audioExample2.length > 0) && (
+                                <AudioFileDisplay
+                                    file={byteArrayToFile(dictionaryData.audioExample2, `${dictionaryData.word}_example2_audio.mp3`)}
+                                    onPlay={handlePlayAudioExample2}
+                                    label="Audio ví dụ 2"
+                                />
+                            )}
+                        </Box>
+                    )}
+
                     {!compactMode && (
                         <Typography variant="caption" color="text.secondary" display="block" sx={{ mb: 2 }}>
                             Nhập từ tiếng Anh vào trường "word" và nhấn nút này để tự động điền các trường còn lại
@@ -264,27 +522,43 @@ const NoteForm: React.FC<NoteFormProps> = ({
                             );
                         }
 
+                        if (isAudioField(field.name)) {
+                            return (
+                                <Box key={field.id} sx={{ mt: compactMode ? 1 : 2 }}>
+                                    <AudioFileUpload
+                                        value={fieldValue instanceof File ? fieldValue : null}
+                                        onChange={(file) => onFileChange(field.name, file)}
+                                        label={field.name}
+                                        required={field.isRequired}
+                                        error={!!validationErrors[field.name]}
+                                        helperText={validationErrors[field.name]}
+                                    />
+                                </Box>
+                            );
+                        }
+
                         return (
-                            <TextField
-                                key={field.id}
-                                fullWidth
-                                label={field.name}
-                                value={typeof fieldValue === 'string' ? fieldValue : ''}
-                                onChange={(e) => onFormDataChange({
-                                    ...formData,
-                                    fieldValues: {
-                                        ...formData.fieldValues,
-                                        [field.name]: e.target.value
-                                    }
-                                })}
-                                margin={compactMode ? "dense" : "normal"}
-                                multiline={field.name.toLowerCase().includes('description') || field.name.toLowerCase().includes('mô tả')}
-                                rows={field.name.toLowerCase().includes('description') || field.name.toLowerCase().includes('mô tả') ? 3 : 1}
-                                required={field.isRequired}
-                                error={!!validationErrors[field.name]}
-                                helperText={validationErrors[field.name]}
-                                size={compactMode ? "small" : "medium"}
-                            />
+                            <Box key={field.id}>
+                                <TextField
+                                    fullWidth
+                                    label={field.name}
+                                    value={typeof fieldValue === 'string' ? fieldValue : ''}
+                                    onChange={(e) => onFormDataChange({
+                                        ...formData,
+                                        fieldValues: {
+                                            ...formData.fieldValues,
+                                            [field.name]: e.target.value
+                                        }
+                                    })}
+                                    margin={compactMode ? "dense" : "normal"}
+                                    multiline={field.name.toLowerCase().includes('description') || field.name.toLowerCase().includes('mô tả')}
+                                    rows={field.name.toLowerCase().includes('description') || field.name.toLowerCase().includes('mô tả') ? 3 : 1}
+                                    required={field.isRequired}
+                                    error={!!validationErrors[field.name]}
+                                    helperText={validationErrors[field.name]}
+                                    size={compactMode ? "small" : "medium"}
+                                />
+                            </Box>
                         );
                     })}
                 </Box>

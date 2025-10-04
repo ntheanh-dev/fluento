@@ -155,17 +155,6 @@ const NotesTable: React.FC<NotesTableProps> = ({
                                             <TableCell className="font-semibold">Loại từ</TableCell>
                                             <TableCell className="font-semibold">Ví dụ</TableCell>
                                             <TableCell className="font-semibold">Hình ảnh</TableCell>
-                                            <TableCell
-                                                className="font-semibold cursor-pointer hover:bg-gray-100 transition-colors"
-                                                onClick={() => onSort('createdAt')}
-                                            >
-                                                <div className="flex items-center gap-2">
-                                                    <span>Ngày tạo</span>
-                                                    {searchParams.get('sortBy') === 'createdAt' && (
-                                                        searchParams.get('sortDir') === 'asc' ? '↑' : '↓'
-                                                    )}
-                                                </div>
-                                            </TableCell>
                                             <TableCell className="font-semibold">Thời gian học</TableCell>
                                             <TableCell className="font-semibold">Thao tác</TableCell>
                                         </TableRow>
@@ -176,7 +165,7 @@ const NotesTable: React.FC<NotesTableProps> = ({
                                             const phoneticField = note.fieldValues['phonetic'] || note.fieldValues['phiên âm'] || '';
                                             const meaningField = note.fieldValues['meaning'] || note.fieldValues['nghĩa'] || '';
                                             const posField = note.fieldValues['pos'] || note.fieldValues['loại từ'] || '';
-                                            const exampleField = note.fieldValues['example'] || note.fieldValues['ví dụ'] || '';
+                                            const exampleField = note.fieldValues['example1'] || note.fieldValues['ví dụ'] || '';
                                             const audioField = note.fieldValues['audio'] || note.fieldValues['âm thanh'] || note.fieldValues['pronunciation'] || '';
 
                                             // Find image field - check common image field names
@@ -294,9 +283,6 @@ const NotesTable: React.FC<NotesTableProps> = ({
                                                                 </Typography>
                                                             </Box>
                                                         )}
-                                                    </TableCell>
-                                                    <TableCell className="text-sm">
-                                                        <div>{new Date(note.createdAt).toLocaleDateString('vi-VN')}</div>
                                                     </TableCell>
                                                     <TableCell className="text-sm">
                                                         {note.due ? (

@@ -20,7 +20,28 @@ import {
     Close as CloseIcon,
 } from '@mui/icons-material';
 import { vocabularyDeckApi, vocabularyNoteTypeApi, vocabularyNoteApi } from '../vocabulary/vocabularyApi';
-import { dictionaryApi } from '../vocabulary/dictionaryApi';
+import { dictionaryApi, type DictionaryResponse } from '../vocabulary/dictionaryApi';
+
+// Helper function to convert byte array to File object
+const byteArrayToFile = (audioData: any, filename: string, mimeType: string = 'audio/mpeg'): File => {
+    let uint8Array: Uint8Array;
+
+    if (typeof audioData === 'string') {
+        // If it's a base64 string, decode it
+        const binaryString = atob(audioData);
+        uint8Array = new Uint8Array(binaryString.length);
+        for (let i = 0; i < binaryString.length; i++) {
+            uint8Array[i] = binaryString.charCodeAt(i);
+        }
+    } else if (Array.isArray(audioData)) {
+        // If it's an array of numbers
+        uint8Array = new Uint8Array(audioData);
+    } else {
+        throw new Error('Invalid audio data format');
+    }
+
+    return new File([uint8Array], filename, { type: mimeType });
+};
 import { notify } from '../../utils/notify';
 import { VocabularyCache } from '../../utils/cache';
 import type { Deck, NoteType, CreateNoteRequest } from '../vocabulary/vocabulary';
@@ -45,7 +66,7 @@ const QuickAddNoteModal: React.FC<QuickAddNoteModalProps> = ({
     const [fieldValues, setFieldValues] = useState<Record<string, string | File>>({});
     const [loading, setLoading] = useState(false);
     const [autoFillLoading, setAutoFillLoading] = useState(false);
-    const [dictionaryData, setDictionaryData] = useState<any>(null);
+    const [dictionaryData, setDictionaryData] = useState<DictionaryResponse | null>(null);
     const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
     const [showValidationErrors, setShowValidationErrors] = useState(false);
     const [imageUrls, setImageUrls] = useState<Record<string, string>>({});
@@ -247,19 +268,33 @@ const QuickAddNoteModal: React.FC<QuickAddNoteModalProps> = ({
                 newFieldValues['loại từ'] = dictionaryResult.pos;
             }
 
-            if (dictionaryResult.example) {
-                newFieldValues['example'] = dictionaryResult.example;
-                newFieldValues['ví dụ'] = dictionaryResult.example;
+            if (dictionaryResult.example1) {
+                newFieldValues['example'] = dictionaryResult.example1;
+                newFieldValues['ví dụ'] = dictionaryResult.example1;
             }
 
-            if (dictionaryResult.translation) {
-                newFieldValues['translation'] = dictionaryResult.translation;
-                newFieldValues['dịch'] = dictionaryResult.translation;
+            if (dictionaryResult.example2) {
+                newFieldValues['example2'] = dictionaryResult.example2;
+                newFieldValues['ví dụ 2'] = dictionaryResult.example2;
             }
 
-            if (dictionaryResult.audio) {
-                newFieldValues['audio'] = dictionaryResult.audio;
-                newFieldValues['âm thanh'] = dictionaryResult.audio;
+            // Convert audio byte arrays to File objects
+            if (dictionaryResult.audio && (Array.isArray(dictionaryResult.audio) ? dictionaryResult.audio.length > 0 : dictionaryResult.audio.length > 0)) {
+                const audioFile = byteArrayToFile(dictionaryResult.audio, `${dictionaryResult.word}_audio.mp3`);
+                newFieldValues['audio'] = audioFile;
+                newFieldValues['âm thanh'] = audioFile;
+            }
+
+            if (dictionaryResult.audioExample1 && (Array.isArray(dictionaryResult.audioExample1) ? dictionaryResult.audioExample1.length > 0 : dictionaryResult.audioExample1.length > 0)) {
+                const audioFile = byteArrayToFile(dictionaryResult.audioExample1, `${dictionaryResult.word}_example1_audio.mp3`);
+                newFieldValues['audioExample1'] = audioFile;
+                newFieldValues['âm thanh ví dụ 1'] = audioFile;
+            }
+
+            if (dictionaryResult.audioExample2 && (Array.isArray(dictionaryResult.audioExample2) ? dictionaryResult.audioExample2.length > 0 : dictionaryResult.audioExample2.length > 0)) {
+                const audioFile = byteArrayToFile(dictionaryResult.audioExample2, `${dictionaryResult.word}_example2_audio.mp3`);
+                newFieldValues['audioExample2'] = audioFile;
+                newFieldValues['âm thanh ví dụ 2'] = audioFile;
             }
 
             setFieldValues(newFieldValues);
@@ -425,7 +460,7 @@ const QuickAddNoteModal: React.FC<QuickAddNoteModalProps> = ({
                             onFileChange={handleFileChange}
                             onAutoFillLoadingChange={setAutoFillLoading}
                             onAutoFill={handleAutoFill}
-                            dictionaryData={dictionaryData}
+                            dictionaryData={dictionaryData || undefined}
                         />
                     </Box>
                 )}

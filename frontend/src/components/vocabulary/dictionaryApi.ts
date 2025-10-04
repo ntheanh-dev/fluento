@@ -6,14 +6,15 @@ export interface DictionaryRequest {
 }
 
 export interface DictionaryResponse {
-  id: number;
   word: string;
+  audio: number[] | string; // byte array or base64 string from backend
   phonetic: string;
   meaning: string;
   pos: string; // Part of Speech
-  example: string;
-  translation: string;
-  audio: string | null;
+  example1: string;
+  audioExample1: number[] | string; // byte array or base64 string from backend
+  example2: string;
+  audioExample2: number[] | string; // byte array or base64 string from backend
 }
 
 export const dictionaryApi = {

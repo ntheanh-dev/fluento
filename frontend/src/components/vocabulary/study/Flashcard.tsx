@@ -75,8 +75,10 @@ const Flashcard: React.FC<FlashcardProps> = ({
     const [settings, setSettings] = useState({
         showPartOfSpeech: true,
         showWordFamily: true,
-        showExample: true,
-        showExampleTranslation: true,
+        showExample1: true,
+        showExample2: true,
+        showExample1Translation: true,
+        showExample2Translation: true,
         showIllustrationImage: true,
     });
 
@@ -119,19 +121,103 @@ const Flashcard: React.FC<FlashcardProps> = ({
     const word = fieldValues.word || frontContent;
     const phonetic = fieldValues.phonetic || '';
     const meaning = fieldValues.meaning || '';
-    const translation = fieldValues.translation || '';
-    const example = fieldValues.example || '';
+    const example1 = fieldValues.example1 || '';
+    const example2 = fieldValues.example2 || '';
+    const example1Translation = fieldValues.example1Translation || fieldValues['ví dụ 1'] || '';
+    const example2Translation = fieldValues.example2Translation || fieldValues['ví dụ 2'] || '';
     const pos = fieldValues.pos || '';
     const audio = fieldValues.audio || '';
+    const audioExample1 = fieldValues.audioExample1 || '';
+    const audioExample2 = fieldValues.audioExample2 || '';
     const image = fieldValues.image || '';
 
     // Auto-play audio when card loads or flips
     useEffect(() => {
+        if (showAnswer) {
+            const playAudioSequence = async () => {
+                // Play main word audio first
+                if (audio) {
+                    const audioElement = new Audio(audio);
+                    await new Promise<void>((resolve) => {
+                        audioElement.addEventListener('ended', () => resolve());
+                        audioElement.addEventListener('error', () => resolve());
+                        audioElement.play().catch(() => resolve());
+                    });
+                }
+
+                // Play example 1 audio after main audio ends
+                if (audioExample1) {
+                    const audioElement1 = new Audio(audioExample1);
+                    await new Promise<void>((resolve) => {
+                        audioElement1.addEventListener('ended', () => resolve());
+                        audioElement1.addEventListener('error', () => resolve());
+                        audioElement1.play().catch(() => resolve());
+                    });
+                }
+
+                // Play example 2 audio after example 1 ends
+                if (audioExample2) {
+                    const audioElement2 = new Audio(audioExample2);
+                    await new Promise<void>((resolve) => {
+                        audioElement2.addEventListener('ended', () => resolve());
+                        audioElement2.addEventListener('error', () => resolve());
+                        audioElement2.play().catch(() => resolve());
+                    });
+                }
+            };
+
+            playAudioSequence().catch(console.error);
+        }
+    }, [audio, audioExample1, audioExample2, showAnswer]);
+
+    // Function to play main audio
+    const playMainAudio = () => {
         if (audio) {
             const audioElement = new Audio(audio);
             audioElement.play().catch(console.error);
         }
-    }, [audio, showAnswer]);
+    };
+
+    // Function to play example audio
+    const playExampleAudio = (audioUrl: string) => {
+        if (audioUrl) {
+            const audioElement = new Audio(audioUrl);
+            audioElement.play().catch(console.error);
+        }
+    };
+
+    // Function to play audio sequence
+    const playAudioSequence = async () => {
+        // Play main word audio first
+        if (audio) {
+            const audioElement = new Audio(audio);
+            await new Promise<void>((resolve) => {
+                audioElement.addEventListener('ended', () => resolve());
+                audioElement.addEventListener('error', () => resolve());
+                audioElement.play().catch(() => resolve());
+            });
+        }
+
+        // Play example 1 audio after main audio ends
+        if (audioExample1) {
+            const audioElement1 = new Audio(audioExample1);
+            await new Promise<void>((resolve) => {
+                audioElement1.addEventListener('ended', () => resolve());
+                audioElement1.addEventListener('error', () => resolve());
+                audioElement1.play().catch(() => resolve());
+            });
+        }
+
+        // Play example 2 audio after example 1 ends
+        if (audioExample2) {
+            const audioElement2 = new Audio(audioExample2);
+            await new Promise<void>((resolve) => {
+                audioElement2.addEventListener('ended', () => resolve());
+                audioElement2.addEventListener('error', () => resolve());
+                audioElement2.play().catch(() => resolve());
+            });
+        }
+    };
 
     const handleKeyPress = (event: KeyboardEvent) => {
         if (showShortcuts) return; // Don't handle shortcuts when dialog is open
@@ -147,10 +233,7 @@ const Flashcard: React.FC<FlashcardProps> = ({
             case 'r':
             case 'R':
                 event.preventDefault();
-                if (audio) {
-                    const audioElement = new Audio(audio);
-                    audioElement.play().catch(console.error);
-                }
+                playAudioSequence().catch(console.error);
                 break;
             case '1':
                 event.preventDefault();
@@ -343,10 +426,7 @@ const Flashcard: React.FC<FlashcardProps> = ({
                                         color="error"
                                         size="small"
                                         onClick={() => {
-                                            if (audio) {
-                                                const audioElement = new Audio(audio);
-                                                audioElement.play().catch(console.error);
-                                            }
+                                            playMainAudio();
                                         }}
                                         disabled={!audio}
                                     >
@@ -381,7 +461,7 @@ const Flashcard: React.FC<FlashcardProps> = ({
                                         )}
 
                                         {/* Image/illustration */}
-                                        {settings.showIllustrationImage && (
+                                        {settings.showIllustrationImage && image && (
                                             <Box
                                                 sx={{
                                                     width: 140,
@@ -395,55 +475,23 @@ const Flashcard: React.FC<FlashcardProps> = ({
                                                     mx: 'auto'
                                                 }}
                                             >
-                                                {image ? (
-                                                    <img
-                                                        src={image}
-                                                        alt={word}
-                                                        style={{
-                                                            width: '100%',
-                                                            height: '100%',
-                                                            objectFit: 'cover',
-                                                            objectPosition: 'center'
-                                                        }}
-                                                        onError={(e) => {
-                                                            e.currentTarget.style.display = 'none';
-                                                            const nextElement = e.currentTarget.nextElementSibling as HTMLElement;
-                                                            if (nextElement) {
-                                                                nextElement.style.display = 'flex';
-                                                            }
-                                                        }}
-                                                    />
-                                                ) : null}
-                                                <Box
-                                                    sx={{
-                                                        position: 'absolute',
-                                                        top: 0,
-                                                        left: 0,
+                                                <img
+                                                    src={image}
+                                                    alt={word}
+                                                    style={{
                                                         width: '100%',
                                                         height: '100%',
-                                                        bgcolor: '#f8f9fa',
-                                                        display: image ? 'none' : 'flex',
-                                                        alignItems: 'center',
-                                                        justifyContent: 'center',
-                                                        flexDirection: 'column',
-                                                        gap: 1
+                                                        objectFit: 'cover',
+                                                        objectPosition: 'center'
                                                     }}
-                                                >
-                                                    <Typography
-                                                        variant="body2"
-                                                        color="text.secondary"
-                                                        sx={{ fontWeight: 500 }}
-                                                    >
-                                                        Illustration
-                                                    </Typography>
-                                                    <Typography
-                                                        variant="caption"
-                                                        color="text.secondary"
-                                                        sx={{ opacity: 0.7 }}
-                                                    >
-                                                        {word}
-                                                    </Typography>
-                                                </Box>
+                                                    onError={(e) => {
+                                                        e.currentTarget.style.display = 'none';
+                                                        const nextElement = e.currentTarget.nextElementSibling as HTMLElement;
+                                                        if (nextElement) {
+                                                            nextElement.style.display = 'flex';
+                                                        }
+                                                    }}
+                                                />
                                             </Box>
                                         )}
 
@@ -488,7 +536,7 @@ const Flashcard: React.FC<FlashcardProps> = ({
                                         </Box>
 
                                         {/* Image/illustration */}
-                                        {settings.showIllustrationImage && (
+                                        {settings.showIllustrationImage && image && (
                                             <Box
                                                 sx={{
                                                     width: 160,
@@ -502,55 +550,23 @@ const Flashcard: React.FC<FlashcardProps> = ({
                                                     mx: 'auto'
                                                 }}
                                             >
-                                                {image ? (
-                                                    <img
-                                                        src={image}
-                                                        alt={word}
-                                                        style={{
-                                                            width: '100%',
-                                                            height: '100%',
-                                                            objectFit: 'cover',
-                                                            objectPosition: 'center'
-                                                        }}
-                                                        onError={(e) => {
-                                                            e.currentTarget.style.display = 'none';
-                                                            const nextElement = e.currentTarget.nextElementSibling as HTMLElement;
-                                                            if (nextElement) {
-                                                                nextElement.style.display = 'flex';
-                                                            }
-                                                        }}
-                                                    />
-                                                ) : null}
-                                                <Box
-                                                    sx={{
-                                                        position: 'absolute',
-                                                        top: 0,
-                                                        left: 0,
+                                                <img
+                                                    src={image}
+                                                    alt={word}
+                                                    style={{
                                                         width: '100%',
                                                         height: '100%',
-                                                        bgcolor: '#f8f9fa',
-                                                        display: image ? 'none' : 'flex',
-                                                        alignItems: 'center',
-                                                        justifyContent: 'center',
-                                                        flexDirection: 'column',
-                                                        gap: 1
+                                                        objectFit: 'cover',
+                                                        objectPosition: 'center'
                                                     }}
-                                                >
-                                                    <Typography
-                                                        variant="body2"
-                                                        color="text.secondary"
-                                                        sx={{ fontWeight: 500 }}
-                                                    >
-                                                        Illustration
-                                                    </Typography>
-                                                    <Typography
-                                                        variant="caption"
-                                                        color="text.secondary"
-                                                        sx={{ opacity: 0.7 }}
-                                                    >
-                                                        {word}
-                                                    </Typography>
-                                                </Box>
+                                                    onError={(e) => {
+                                                        e.currentTarget.style.display = 'none';
+                                                        const nextElement = e.currentTarget.nextElementSibling as HTMLElement;
+                                                        if (nextElement) {
+                                                            nextElement.style.display = 'flex';
+                                                        }
+                                                    }}
+                                                />
                                             </Box>
                                         )}
 
@@ -569,27 +585,89 @@ const Flashcard: React.FC<FlashcardProps> = ({
                                             </Typography>
                                         )}
 
-                                        {/* Example */}
-                                        {example && settings.showExample && (
-                                            <Box sx={{ mb: 1 }}>
-                                                <Typography
-                                                    variant="body1"
-                                                    sx={{
-                                                        fontStyle: 'italic',
-                                                        mb: 1,
-                                                        color: 'text.primary',
-                                                        fontSize: { xs: '1.05rem', md: '1.15rem' }
-                                                    }}
-                                                >
-                                                    {example}
-                                                </Typography>
-                                                {translation && settings.showExampleTranslation && (
+                                        {/* Example 1 */}
+                                        {example1 && settings.showExample1 && (
+                                            <Box sx={{ mb: 2 }}>
+                                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                                                    <Typography
+                                                        variant="body1"
+                                                        sx={{
+                                                            fontStyle: 'italic',
+                                                            color: 'text.primary',
+                                                            fontSize: { xs: '1.05rem', md: '1.15rem' },
+                                                            flex: 1
+                                                        }}
+                                                    >
+                                                        {example1}
+                                                    </Typography>
+                                                    {audioExample1 && (
+                                                        <IconButton
+                                                            onClick={() => playExampleAudio(audioExample1)}
+                                                            size="small"
+                                                            sx={{
+                                                                color: 'primary.main',
+                                                                '&:hover': {
+                                                                    color: 'primary.dark',
+                                                                    transform: 'scale(1.1)'
+                                                                },
+                                                                transition: 'all 0.2s ease'
+                                                            }}
+                                                        >
+                                                            <VolumeUpIcon fontSize="small" />
+                                                        </IconButton>
+                                                    )}
+                                                </Box>
+                                                {example1Translation && settings.showExample1Translation && (
                                                     <Typography
                                                         variant="body1"
                                                         color="primary.main"
                                                         sx={{ fontSize: { xs: '1.05rem', md: '1.15rem' } }}
                                                     >
-                                                        {translation}
+                                                        {example1Translation}
+                                                    </Typography>
+                                                )}
+                                            </Box>
+                                        )}
+
+                                        {/* Example 2 */}
+                                        {example2 && settings.showExample2 && (
+                                            <Box sx={{ mb: 2 }}>
+                                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                                                    <Typography
+                                                        variant="body1"
+                                                        sx={{
+                                                            fontStyle: 'italic',
+                                                            color: 'text.primary',
+                                                            fontSize: { xs: '1.05rem', md: '1.15rem' },
+                                                            flex: 1
+                                                        }}
+                                                    >
+                                                        {example2}
+                                                    </Typography>
+                                                    {audioExample2 && (
+                                                        <IconButton
+                                                            onClick={() => playExampleAudio(audioExample2)}
+                                                            size="small"
+                                                            sx={{
+                                                                color: 'primary.main',
+                                                                '&:hover': {
+                                                                    color: 'primary.dark',
+                                                                    transform: 'scale(1.1)'
+                                                                },
+                                                                transition: 'all 0.2s ease'
+                                                            }}
+                                                        >
+                                                            <VolumeUpIcon fontSize="small" />
+                                                        </IconButton>
+                                                    )}
+                                                </Box>
+                                                {example2Translation && settings.showExample2Translation && (
+                                                    <Typography
+                                                        variant="body1"
+                                                        color="primary.main"
+                                                        sx={{ fontSize: { xs: '1.05rem', md: '1.15rem' } }}
+                                                    >
+                                                        {example2Translation}
                                                     </Typography>
                                                 )}
                                             </Box>
@@ -804,18 +882,18 @@ const Flashcard: React.FC<FlashcardProps> = ({
                             <FormControlLabel
                                 control={
                                     <Switch
-                                        checked={settings.showExample}
-                                        onChange={() => handleSettingChange('showExample')}
+                                        checked={settings.showExample1}
+                                        onChange={() => handleSettingChange('showExample1')}
                                         color="error"
                                     />
                                 }
                                 label={
                                     <Box>
                                         <Typography variant="body1" fontWeight="bold">
-                                            Hiển thị ví dụ
+                                            Hiển thị ví dụ 1
                                         </Typography>
                                         <Typography variant="body2" color="text.secondary">
-                                            Hiển thị câu ví dụ sử dụng từ vựng
+                                            Hiển thị câu ví dụ đầu tiên
                                         </Typography>
                                     </Box>
                                 }
@@ -825,18 +903,60 @@ const Flashcard: React.FC<FlashcardProps> = ({
                             <FormControlLabel
                                 control={
                                     <Switch
-                                        checked={settings.showExampleTranslation}
-                                        onChange={() => handleSettingChange('showExampleTranslation')}
+                                        checked={settings.showExample2}
+                                        onChange={() => handleSettingChange('showExample2')}
                                         color="error"
                                     />
                                 }
                                 label={
                                     <Box>
                                         <Typography variant="body1" fontWeight="bold">
-                                            Hiển thị dịch ví dụ
+                                            Hiển thị ví dụ 2
                                         </Typography>
                                         <Typography variant="body2" color="text.secondary">
-                                            Hiển thị bản dịch tiếng Việt của câu ví dụ
+                                            Hiển thị câu ví dụ thứ hai
+                                        </Typography>
+                                    </Box>
+                                }
+                            />
+                            <Divider sx={{ my: 2 }} />
+
+                            <FormControlLabel
+                                control={
+                                    <Switch
+                                        checked={settings.showExample1Translation}
+                                        onChange={() => handleSettingChange('showExample1Translation')}
+                                        color="error"
+                                    />
+                                }
+                                label={
+                                    <Box>
+                                        <Typography variant="body1" fontWeight="bold">
+                                            Hiển thị dịch ví dụ 1
+                                        </Typography>
+                                        <Typography variant="body2" color="text.secondary">
+                                            Hiển thị bản dịch tiếng Việt của ví dụ 1
+                                        </Typography>
+                                    </Box>
+                                }
+                            />
+                            <Divider sx={{ my: 2 }} />
+
+                            <FormControlLabel
+                                control={
+                                    <Switch
+                                        checked={settings.showExample2Translation}
+                                        onChange={() => handleSettingChange('showExample2Translation')}
+                                        color="error"
+                                    />
+                                }
+                                label={
+                                    <Box>
+                                        <Typography variant="body1" fontWeight="bold">
+                                            Hiển thị dịch ví dụ 2
+                                        </Typography>
+                                        <Typography variant="body2" color="text.secondary">
+                                            Hiển thị bản dịch tiếng Việt của ví dụ 2
                                         </Typography>
                                     </Box>
                                 }
