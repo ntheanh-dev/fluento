@@ -30,6 +30,7 @@ public enum ErrorCode {
     NOTE_NOT_FOUND(2006, "Note not found", HttpStatus.NOT_FOUND),
     CARD_NOT_FOUND(2007, "Card not found", HttpStatus.NOT_FOUND),
     API_KEY_EXISTED(2008, "API key already exists", HttpStatus.BAD_REQUEST),
+    TEXT_TO_SPEECH_ERROR(3001, "Error during text-to-speech synthesis", HttpStatus.INTERNAL_SERVER_ERROR)
     ;
     private int code;
     private String message;

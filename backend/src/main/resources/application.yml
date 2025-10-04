@@ -52,6 +52,15 @@ spring:
         completions-path: /v1beta/openai/chat/completions
         options:
           model: gemini-2.0-flash
+    elevenlabs:
+      api-key: sk_1b50bb3854fa72ede29718e2499ecdf26b60e05ef8f23552
+      tts:
+        options:
+          model-id: eleven_multilingual_v2
+          output-format: mp3
+
+
+
 
 # CORS Configuration
 app:
