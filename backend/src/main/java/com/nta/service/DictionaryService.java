@@ -48,8 +48,10 @@ public class DictionaryService {
 			- Use IPA phonetic notation for pronunciation
 			- Provide multiple Vietnamese meanings if applicable, separated by commas
 			- Include both Vietnamese and English for part of speech (e.g., "Đại từ - Pronoun")
-			- Create a simple, clear example sentence
-			- Translate the example to Vietnamese
+			- Create natural, practical example sentences that are neither too simple nor too complex
+			- Use realistic contexts and situations that learners can relate to
+			- Make examples clear and educational for intermediate learners
+			- Avoid overly basic sentences but keep them accessible
 			- For audio URL fields, set them to null (we will fill them later)
 			""";
 
