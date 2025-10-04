@@ -3,15 +3,14 @@ package com.nta.dto.response;
 import lombok.Data;
 
 @Data
-public class DictionaryResponse {
-    private Long id;
+public class LookupWordResponse {
     private String word;
-    private String audio;
+    private byte[] audio;
     private String phonetic;
     private String meaning;
     private String pos;
     private String example1;
-    private String audioExample1;
+    private byte[] audioExample1;
     private String example2;
-    private String audioExample2;
+    private byte[] audioExample2;
 }

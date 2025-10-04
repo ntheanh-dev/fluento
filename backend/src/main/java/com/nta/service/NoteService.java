@@ -6,7 +6,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
@@ -44,6 +43,7 @@ public class NoteService {
     private final CardStatsRepository cardStatsRepository;
     private final FileUploadService fileUploadService;
     private final ObjectMapper objectMapper;
+    private final AuthService authService;
 
     public NoteResponse createNote(Long userId, CreateNoteRequest request) {
         // Verify deck exists and user has access
@@ -388,6 +388,8 @@ public class NoteService {
             List<Field> fields = fieldRepository.findByNoteTypeIdOrderByFieldOrder(noteTypeId);
             Map<String, MultipartFile> fileMap = createFileMap(files, fileFields);
 
+            // Get current username
+            final String currnetUserId = authService.getUserIdFromSecurityContext().toString();
             for (Field field : fields) {
                 NoteField noteField = new NoteField();
                 noteField.setNoteId(savedNote.getId());
@@ -398,9 +400,9 @@ public class NoteService {
                     MultipartFile file = fileMap.get(field.getName());
                     // Upload file and store URL
                     try {
-                        Map<String, Object> uploadResult = fileUploadService.uploadFile(file, "notes");
-                        String imageUrl = (String) uploadResult.get("secure_url");
-                        noteField.setContent(imageUrl);
+                        Map<String, Object> uploadResult = fileUploadService.uploadFile(file, "fluento/users/" + currnetUserId);
+                        String fileUrl = (String) uploadResult.get("secure_url");
+                        noteField.setContent(fileUrl);
                     } catch (IOException e) {
                         throw new AppException(ErrorCode.ERROR_KEY_INVALID);
                     }
@@ -485,22 +487,10 @@ public class NoteService {
         }
     }
 
-    /**
-     * Checks if a URL is a Cloudinary URL.
-     *
-     * @param url the URL to check
-     * @return true if it's a Cloudinary URL
-     */
     private boolean isCloudinaryUrl(String url) {
         return url != null && url.contains("res.cloudinary.com");
     }
 
-    /**
-     * Extracts the public ID from a Cloudinary URL.
-     *
-     * @param url the Cloudinary URL
-     * @return the public ID or null if extraction fails
-     */
     private String extractPublicIdFromUrl(String url) {
         try {
             // Cloudinary URL format:

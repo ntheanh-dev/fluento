@@ -1,19 +1,19 @@
 package com.nta.controller;
 
-import jakarta.validation.Valid;
-
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
 import com.nta.dto.request.DictionaryRequest;
 import com.nta.dto.response.ApiResponse;
-import com.nta.dto.response.DictionaryResponse;
+import com.nta.dto.response.LookupWordResponse;
 import com.nta.service.DictionaryService;
 
+import jakarta.validation.Valid;
+
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.concurrent.ExecutionException;
 
 @RestController
 @RequestMapping("/dictionary")
@@ -22,12 +22,12 @@ public class DictionaryController {
 
     private final DictionaryService dictionaryService;
 
-    @PostMapping("/lookup")
-    public ResponseEntity<ApiResponse<DictionaryResponse>> lookupWord(@Valid @RequestBody DictionaryRequest request) {
+    @PostMapping(value = "/lookup", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ApiResponse<LookupWordResponse>> lookupWord(@Valid @RequestBody DictionaryRequest request) throws ExecutionException, InterruptedException {
 
-        DictionaryResponse response = dictionaryService.lookupWord(request);
+        final LookupWordResponse response = dictionaryService.lookupWord(request.getWord());
 
-        return ResponseEntity.ok(ApiResponse.<DictionaryResponse>builder()
+        return ResponseEntity.ok(ApiResponse.<LookupWordResponse>builder()
                 .code(1000)
                 .message("Word looked up successfully")
                 .result(response)

@@ -30,7 +30,9 @@ public enum ErrorCode {
     NOTE_NOT_FOUND(2006, "Note not found", HttpStatus.NOT_FOUND),
     CARD_NOT_FOUND(2007, "Card not found", HttpStatus.NOT_FOUND),
     API_KEY_EXISTED(2008, "API key already exists", HttpStatus.BAD_REQUEST),
-    TEXT_TO_SPEECH_ERROR(3001, "Error during text-to-speech synthesis", HttpStatus.INTERNAL_SERVER_ERROR)
+    TEXT_TO_SPEECH_ERROR(3001, "Error during text-to-speech synthesis", HttpStatus.INTERNAL_SERVER_ERROR),
+    FILE_WRITE_ERROR(3002, "Error writing audio bytes to file", HttpStatus.INTERNAL_SERVER_ERROR),
+    THIS_METHOD_DOES_NOTE_SUPPORT_YET(9001, "This method does not support yet", HttpStatus.BAD_REQUEST)
     ;
     private int code;
     private String message;

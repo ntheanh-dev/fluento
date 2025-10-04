@@ -20,6 +20,7 @@ public interface FileUploadService {
      */
     Map<String, Object> uploadFile(MultipartFile file) throws IOException;
 
+
     /**
      * Uploads a file to cloud storage with specific folder path.
      *
@@ -29,6 +30,7 @@ public interface FileUploadService {
      * @throws IOException if file upload fails
      */
     Map<String, Object> uploadFile(MultipartFile file, String folder) throws IOException;
+
 
     /**
      * Deletes a file from cloud storage using its public ID.
