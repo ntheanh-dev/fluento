@@ -1,6 +1,6 @@
-package com.nta.service;
+package com.nta.service.ai.impl;
 
-import lombok.extern.slf4j.Slf4j;
+import com.nta.service.ai.AiChatService;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.messages.SystemMessage;
 import org.springframework.ai.chat.messages.UserMessage;
@@ -12,40 +12,22 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Service;
 
 @Service
-@Slf4j
-public class AIChatService {
+public class GeminiAiChatService implements AiChatService {
 
-    private ChatClient chatClient;
-
-    // For simple response types (e.g., String, Integer)
-    public <T> T sendMessage(
-            final String apiKey,
-            final String systemMessageText,
-            final String userMessageText,
-            Class<T> responseType) {
-
+    @Override
+    public <T> T sendMessage(String apiKey, String systemMessage, String userMessage, Class<T> responseType) {
         return this.buildChatClient(apiKey)
-                .prompt(this.buildPrompt(systemMessageText, userMessageText))
+                .prompt(this.buildPrompt(systemMessage, userMessage))
                 .call()
                 .entity(responseType);
     }
 
-    // For custom response class
-    public <T> T sendMessage(
-            final String apiKey,
-            final String systemMessageText,
-            final String userMessageText,
-            ParameterizedTypeReference<T> responseType) {
+    @Override
+    public <T> T sendMessage(String apiKey, String systemMessage, String userMessage, ParameterizedTypeReference<T> responseType) {
         return this.buildChatClient(apiKey)
-                .prompt(this.buildPrompt(systemMessageText, userMessageText))
+                .prompt(this.buildPrompt(systemMessage, userMessage))
                 .call()
                 .entity(responseType);
-    }
-
-    private Prompt buildPrompt(String systemMessageText, String userMessageText) {
-        SystemMessage systemMessage = new SystemMessage(systemMessageText);
-        UserMessage userMessage = new UserMessage(userMessageText);
-        return new Prompt(systemMessage, userMessage);
     }
 
     private ChatClient buildChatClient(String apiKey) {
@@ -64,5 +46,11 @@ public class AIChatService {
                         .build();
 
         return ChatClient.builder(geminiModel).build();
+    }
+
+    private Prompt buildPrompt(String systemMessageText, String userMessageText) {
+        SystemMessage systemMessage = new SystemMessage(systemMessageText);
+        UserMessage userMessage = new UserMessage(userMessageText);
+        return new Prompt(systemMessage, userMessage);
     }
 }

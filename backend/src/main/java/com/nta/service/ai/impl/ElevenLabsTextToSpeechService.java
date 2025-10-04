@@ -1,9 +1,9 @@
-package com.nta.service.impl;
+package com.nta.service.ai.impl;
 
 
 import com.nta.enums.ErrorCode;
 import com.nta.exception.AppException;
-import com.nta.service.TextToSpeechService;
+import com.nta.service.ai.TextToSpeechService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.audio.tts.TextToSpeechPrompt;
 import org.springframework.ai.elevenlabs.ElevenLabsTextToSpeechModel;

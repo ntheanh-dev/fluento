@@ -11,6 +11,7 @@ import com.nta.entity.Writing;
 import com.nta.mapper.WritingMapper;
 import com.nta.repository.*;
 
+import com.nta.service.ai.AiChatService;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 
@@ -29,7 +30,7 @@ import java.util.UUID;
 @FieldDefaults(makeFinal = true, level = lombok.AccessLevel.PRIVATE)
 @RequiredArgsConstructor
 public class WritingService {
-    AIChatService aiChatService;
+    AiChatService geminiAiChatService;
     UserService userService;
 
     TopicRepository topicRepository;
@@ -75,7 +76,7 @@ public class WritingService {
         final String apiKey = userService.getApiKeyFromContext();
 
         final String pharagraph =
-                aiChatService.sendMessage(apiKey, systemMessage, promptText, String.class);
+				geminiAiChatService.sendMessage(apiKey, systemMessage, promptText, String.class);
 
         final User user = userService.getUserFromContext();
 
@@ -139,7 +140,7 @@ public class WritingService {
 
         final String apiKey = userService.getApiKeyFromContext();
 
-        return aiChatService.sendMessage(
+        return geminiAiChatService.sendMessage(
                 apiKey, SYSTEM_MESSAGE_TEXT, promptText, HintTranslationResponse.class);
     }
 
@@ -242,7 +243,7 @@ public class WritingService {
 
         final String apiKey = userService.getApiKeyFromContext();
 
-        return aiChatService.sendMessage(
+        return geminiAiChatService.sendMessage(
                 apiKey, SYSTEM_MESSAGE_TEXT, promptText, SentenceTranslationResponse.class);
     }
 

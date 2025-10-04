@@ -1,4 +1,4 @@
-package com.nta.service;
+package com.nta.service.ai;
 
 import java.io.File;
 

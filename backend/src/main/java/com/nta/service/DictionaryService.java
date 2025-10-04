@@ -1,7 +1,9 @@
 package com.nta.service;
 
 import com.nta.dto.response.LookupWordResponse;
-import com.nta.service.impl.ElevenLabsTextToSpeechService;
+import com.nta.service.ai.AiChatService;
+import com.nta.service.ai.TextToSpeechService;
+import com.nta.service.ai.impl.ElevenLabsTextToSpeechService;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.core.ParameterizedTypeReference;
@@ -13,11 +15,11 @@ import java.util.concurrent.ExecutionException;
 @Slf4j
 public class DictionaryService {
 
-    private final AIChatService aiChatService;
+    private final AiChatService aiChatService;
     private final UserService userService;
     private final TextToSpeechService textToSpeechService;
 
-    public DictionaryService(AIChatService aiChatService, UserService userService, ElevenLabsTextToSpeechService textToSpeechService) {
+    public DictionaryService(AiChatService aiChatService, UserService userService, ElevenLabsTextToSpeechService textToSpeechService) {
         this.aiChatService = aiChatService;
         this.userService = userService;
         this.textToSpeechService = textToSpeechService;
