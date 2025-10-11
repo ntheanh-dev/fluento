@@ -177,20 +177,6 @@ const NotesTable: React.FC<NotesTableProps> = ({
                                             return (
                                                 <TableRow
                                                     key={note.id}
-                                                    sx={{
-                                                        cursor: 'pointer',
-                                                        '&:hover': {
-                                                            backgroundColor: '#F1F5F9',
-                                                            transform: 'scale(1.01)',
-                                                            boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
-                                                        },
-                                                        borderBottom: '1px solid #E5E7EB',
-                                                        transition: 'all 0.2s ease',
-                                                        '&:active': {
-                                                            transform: 'scale(0.99)',
-                                                            backgroundColor: '#E2E8F0'
-                                                        }
-                                                    }}
                                                 >
                                                     <TableCell className="font-medium">
                                                         <Box display="flex" alignItems="center" gap={1}>

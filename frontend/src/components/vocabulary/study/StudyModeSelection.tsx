@@ -436,15 +436,15 @@ const StudyModeSelection: React.FC = () => {
                                     >
                                         <CardContent sx={{ textAlign: 'center', p: 2 }}>
                                             <Box sx={{
-                                                width: 50,
-                                                height: 50,
+                                                width: 60,
+                                                height: 60,
                                                 borderRadius: '50%',
                                                 backgroundColor: `${mode.color}20`,
                                                 display: 'flex',
                                                 alignItems: 'center',
                                                 justifyContent: 'center',
                                                 mx: 'auto',
-                                                mb: 1.5,
+                                                mb: 2,
                                                 border: `2px solid ${mode.color}`,
                                             }}>
                                                 <Box sx={{ color: mode.color, fontSize: 32 }}>
@@ -453,14 +453,18 @@ const StudyModeSelection: React.FC = () => {
                                             </Box>
                                             <Typography variant="h6" sx={{
                                                 fontWeight: 'bold',
-                                                mb: 1,
+                                                mb: 1.5,
                                                 color: 'text.primary',
                                             }}>
                                                 {mode.title}
                                             </Typography>
                                             <Typography variant="body2" color="text.secondary" sx={{
-                                                mb: 1.5,
-                                                lineHeight: 1.4,
+                                                mb: 2,
+                                                lineHeight: 1.5,
+                                                minHeight: '2.5em', // Đảm bảo chiều cao tối thiểu cho description
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
                                             }}>
                                                 {mode.description}
                                             </Typography>
@@ -473,7 +477,7 @@ const StudyModeSelection: React.FC = () => {
                                                     fontWeight: 'bold',
                                                     px: 1.5,
                                                     py: 0.25,
-                                                    fontSize: '0.8rem',
+                                                    fontSize: '0.9rem',
                                                 }}
                                             />
                                         </CardContent>

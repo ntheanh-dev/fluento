@@ -98,10 +98,6 @@ const VocabularyPractice = () => {
                   transition: 'all 0.3s ease',
                   display: 'flex',
                   flexDirection: 'column',
-                  '&:hover': {
-                    transform: 'translateY(-6px)',
-                    boxShadow: '0 12px 40px rgba(0,0,0,0.15)',
-                  },
                 }}
                 onClick={() => navigate(feature.route)}
               >
@@ -180,124 +176,122 @@ const VocabularyPractice = () => {
       </Grid>
 
       {/* Information Card */}
-      <Slide direction="up" in={true} timeout={1200}>
-        <Card sx={{
-          border: 'none',
-          boxShadow: '0 8px 32px rgba(0,0,0,0.1)',
-          borderRadius: 4,
-          background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)',
-        }}>
-          <CardContent sx={{ p: 3 }}>
-            <Box display="flex" alignItems="center" sx={{ mb: 2 }}>
-              <Box sx={{
-                width: 40,
-                height: 40,
-                borderRadius: '50%',
-                backgroundColor: 'primary.main',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                mr: 1.5,
-              }}>
-                <PsychologyIcon sx={{ color: 'white', fontSize: 20 }} />
-              </Box>
-              <Typography variant="h6" sx={{ fontWeight: 'bold', color: 'text.primary' }}>
-                Phương pháp học thông minh
-              </Typography>
+      <Card sx={{
+        border: 'none',
+        boxShadow: '0 8px 32px rgba(0,0,0,0.1)',
+        borderRadius: 4,
+        background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)',
+      }}>
+        <CardContent sx={{ p: 3 }}>
+          <Box display="flex" alignItems="center" sx={{ mb: 2 }}>
+            <Box sx={{
+              width: 40,
+              height: 40,
+              borderRadius: '50%',
+              backgroundColor: 'primary.main',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              mr: 1.5,
+            }}>
+              <PsychologyIcon sx={{ color: 'white', fontSize: 20 }} />
             </Box>
-
-            <Typography variant="body2" color="text.secondary" sx={{ mb: 2, lineHeight: 1.5 }}>
-              Hệ thống luyện từ vựng sử dụng thuật toán spaced repetition (SM2) để tối ưu hóa việc ghi nhớ
+            <Typography variant="h6" sx={{ fontWeight: 'bold', color: 'text.primary' }}>
+              Phương pháp học thông minh
             </Typography>
+          </Box>
 
-            <Grid container spacing={1.5}>
-              <Grid size={{ xs: 12, sm: 6 }}>
-                <Box sx={{
-                  display: 'flex',
-                  alignItems: 'flex-start',
-                  p: 1.5,
-                  backgroundColor: 'white',
-                  borderRadius: 2,
-                  boxShadow: '0 2px 10px rgba(0,0,0,0.05)',
-                }}>
-                  <TrendingUpIcon sx={{ color: 'primary.main', mr: 1, mt: 0.5, fontSize: 20 }} />
-                  <Box>
-                    <Typography variant="subtitle2" sx={{ fontWeight: 'bold', mb: 0.5, fontSize: '0.85rem' }}>
-                      Spaced Repetition
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.8rem' }}>
-                      Ôn tập từ vựng vào đúng thời điểm để tối ưu hóa trí nhớ dài hạn
-                    </Typography>
-                  </Box>
-                </Box>
-              </Grid>
+          <Typography variant="body2" color="text.secondary" sx={{ mb: 2, lineHeight: 1.5 }}>
+            Hệ thống luyện từ vựng sử dụng thuật toán spaced repetition (SM2) để tối ưu hóa việc ghi nhớ
+          </Typography>
 
-              <Grid size={{ xs: 12, sm: 6 }}>
-                <Box sx={{
-                  display: 'flex',
-                  alignItems: 'flex-start',
-                  p: 1.5,
-                  backgroundColor: 'white',
-                  borderRadius: 2,
-                  boxShadow: '0 2px 10px rgba(0,0,0,0.05)',
-                }}>
-                  <StarIcon sx={{ color: 'warning.main', mr: 1, mt: 0.5, fontSize: 20 }} />
-                  <Box>
-                    <Typography variant="subtitle2" sx={{ fontWeight: 'bold', mb: 0.5, fontSize: '0.85rem' }}>
-                      AI Phân tích
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.8rem' }}>
-                      Theo dõi tiến độ học tập và điều chỉnh lịch ôn tập
-                    </Typography>
-                  </Box>
+          <Grid container spacing={1.5}>
+            <Grid size={{ xs: 12, sm: 6 }}>
+              <Box sx={{
+                display: 'flex',
+                alignItems: 'flex-start',
+                p: 1.5,
+                backgroundColor: 'white',
+                borderRadius: 2,
+                boxShadow: '0 2px 10px rgba(0,0,0,0.05)',
+              }}>
+                <TrendingUpIcon sx={{ color: 'primary.main', mr: 1, mt: 0.5, fontSize: 20 }} />
+                <Box>
+                  <Typography variant="subtitle2" sx={{ fontWeight: 'bold', mb: 0.5, fontSize: '0.85rem' }}>
+                    Spaced Repetition
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.8rem' }}>
+                    Ôn tập từ vựng vào đúng thời điểm để tối ưu hóa trí nhớ dài hạn
+                  </Typography>
                 </Box>
-              </Grid>
-
-              <Grid size={{ xs: 12, sm: 6 }}>
-                <Box sx={{
-                  display: 'flex',
-                  alignItems: 'flex-start',
-                  p: 1.5,
-                  backgroundColor: 'white',
-                  borderRadius: 2,
-                  boxShadow: '0 2px 10px rgba(0,0,0,0.05)',
-                }}>
-                  <LibraryBooksIcon sx={{ color: 'info.main', mr: 1, mt: 0.5, fontSize: 20 }} />
-                  <Box>
-                    <Typography variant="subtitle2" sx={{ fontWeight: 'bold', mb: 0.5, fontSize: '0.85rem' }}>
-                      Flashcard Thông minh
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.8rem' }}>
-                      Tạo thẻ học từ nhiều loại nội dung khác nhau
-                    </Typography>
-                  </Box>
-                </Box>
-              </Grid>
-
-              <Grid size={{ xs: 12, sm: 6 }}>
-                <Box sx={{
-                  display: 'flex',
-                  alignItems: 'flex-start',
-                  p: 1.5,
-                  backgroundColor: 'white',
-                  borderRadius: 2,
-                  boxShadow: '0 2px 10px rgba(0,0,0,0.05)',
-                }}>
-                  <EmojiEventsIcon sx={{ color: 'success.main', mr: 1, mt: 0.5, fontSize: 20 }} />
-                  <Box>
-                    <Typography variant="subtitle2" sx={{ fontWeight: 'bold', mb: 0.5, fontSize: '0.85rem' }}>
-                      Theo dõi Tiến độ
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.8rem' }}>
-                      Thống kê chi tiết về số từ đã học và độ thành thạo
-                    </Typography>
-                  </Box>
-                </Box>
-              </Grid>
+              </Box>
             </Grid>
-          </CardContent>
-        </Card>
-      </Slide>
+
+            <Grid size={{ xs: 12, sm: 6 }}>
+              <Box sx={{
+                display: 'flex',
+                alignItems: 'flex-start',
+                p: 1.5,
+                backgroundColor: 'white',
+                borderRadius: 2,
+                boxShadow: '0 2px 10px rgba(0,0,0,0.05)',
+              }}>
+                <StarIcon sx={{ color: 'warning.main', mr: 1, mt: 0.5, fontSize: 20 }} />
+                <Box>
+                  <Typography variant="subtitle2" sx={{ fontWeight: 'bold', mb: 0.5, fontSize: '0.85rem' }}>
+                    AI Phân tích
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.8rem' }}>
+                    Theo dõi tiến độ học tập và điều chỉnh lịch ôn tập
+                  </Typography>
+                </Box>
+              </Box>
+            </Grid>
+
+            <Grid size={{ xs: 12, sm: 6 }}>
+              <Box sx={{
+                display: 'flex',
+                alignItems: 'flex-start',
+                p: 1.5,
+                backgroundColor: 'white',
+                borderRadius: 2,
+                boxShadow: '0 2px 10px rgba(0,0,0,0.05)',
+              }}>
+                <LibraryBooksIcon sx={{ color: 'info.main', mr: 1, mt: 0.5, fontSize: 20 }} />
+                <Box>
+                  <Typography variant="subtitle2" sx={{ fontWeight: 'bold', mb: 0.5, fontSize: '0.85rem' }}>
+                    Flashcard Thông minh
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.8rem' }}>
+                    Tạo thẻ học từ nhiều loại nội dung khác nhau
+                  </Typography>
+                </Box>
+              </Box>
+            </Grid>
+
+            <Grid size={{ xs: 12, sm: 6 }}>
+              <Box sx={{
+                display: 'flex',
+                alignItems: 'flex-start',
+                p: 1.5,
+                backgroundColor: 'white',
+                borderRadius: 2,
+                boxShadow: '0 2px 10px rgba(0,0,0,0.05)',
+              }}>
+                <EmojiEventsIcon sx={{ color: 'success.main', mr: 1, mt: 0.5, fontSize: 20 }} />
+                <Box>
+                  <Typography variant="subtitle2" sx={{ fontWeight: 'bold', mb: 0.5, fontSize: '0.85rem' }}>
+                    Theo dõi Tiến độ
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.8rem' }}>
+                    Thống kê chi tiết về số từ đã học và độ thành thạo
+                  </Typography>
+                </Box>
+              </Box>
+            </Grid>
+          </Grid>
+        </CardContent>
+      </Card>
     </Container>
   );
 };
