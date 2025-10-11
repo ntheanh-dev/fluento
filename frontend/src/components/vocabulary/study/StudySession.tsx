@@ -75,6 +75,7 @@ const StudySessionPage: React.FC = () => {
         loadStudySession(mode, deckId ? parseInt(deckId) : undefined);
     }, [searchParams]);
 
+
     const loadStudySession = async (mode?: StudyMode, deckId?: number) => {
         try {
             setLoading(true);
@@ -141,10 +142,10 @@ const StudySessionPage: React.FC = () => {
 
     const getRatingLabel = (rating: string) => {
         switch (rating) {
-            case 'AGAIN': return 'Quên';
-            case 'HARD': return 'Khó';
+            case 'AGAIN': return 'Không biết';
+            case 'HARD': return 'Sai nhưng nhớ';
             case 'GOOD': return 'Tốt';
-            case 'EASY': return 'Dễ';
+            case 'EASY': return 'Hoàn hảo';
             default: return rating;
         }
     };
@@ -752,7 +753,14 @@ const StudySessionPage: React.FC = () => {
                                                             transition: 'all 0.3s ease',
                                                         }}
                                                     >
-                                                        {getRatingLabel(rating)}
+                                                        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                                                            <Typography variant="body1" sx={{ fontWeight: 'bold' }}>
+                                                                {getRatingLabel(rating)}
+                                                            </Typography>
+                                                            <Typography variant="caption" sx={{ opacity: 0.8, fontSize: '0.75rem' }}>
+                                                                {currentCard?.nextIntervals?.[`${rating.toLowerCase()}Interval` as keyof typeof currentCard.nextIntervals] || ''}
+                                                            </Typography>
+                                                        </Box>
                                                     </Button>
                                                 </Grid>
                                             ))}

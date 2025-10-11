@@ -47,11 +47,12 @@ export interface Card {
   createdAt: string;
   fieldValues?: Record<string, string>; // Field values for template rendering
   stats?: CardStats;
+  nextIntervals?: NextIntervalResponse;
 }
 
 export interface CardStats {
   easeFactor: number;
-  intervalDays: number;
+  intervalMinutes: number;
   repetitions: number;
   lapses: number;
   dueDate: string;
@@ -64,7 +65,7 @@ export interface Review {
   userId: number;
   rating: 'AGAIN' | 'HARD' | 'GOOD' | 'EASY';
   easeFactor: number;
-  intervalDays: number;
+  intervalMinutes: number;
   repetitions: number;
   dueDate: string;
   reviewTimeMs: number;
@@ -130,5 +131,16 @@ export interface StudyModeStats {
     hard: number;
     notStarted: number;
   };
+}
+
+export interface NextIntervalResponse {
+  againInterval: string;
+  hardInterval: string;
+  goodInterval: string;
+  easyInterval: string;
+  againMinutes: number;
+  hardMinutes: number;
+  goodMinutes: number;
+  easyMinutes: number;
 }
 

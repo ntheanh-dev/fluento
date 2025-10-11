@@ -22,9 +22,6 @@ import {
 } from '@mui/material';
 import {
     VolumeUp as VolumeUpIcon,
-    CheckCircle as CheckCircleIcon,
-    AccessTime as AccessTimeIcon,
-    Error as ErrorIcon,
     School as SchoolIcon,
     Keyboard as KeyboardIcon,
     Info as InfoIcon,
@@ -267,10 +264,10 @@ const Flashcard: React.FC<FlashcardProps> = ({
     const shortcuts = [
         { key: 'Space/Enter', action: 'Lật thẻ' },
         { key: 'R', action: 'Phát âm từ' },
-        { key: '1', action: 'Đánh dấu Khó' },
-        { key: '2', action: 'Đánh dấu Trung bình' },
-        { key: '3', action: 'Đánh dấu Dễ' },
-        { key: '4', action: 'Đánh dấu Đã biết' },
+        { key: '1', action: 'Không biết' },
+        { key: '2', action: 'Sai nhưng nhớ' },
+        { key: '3', action: 'Tốt' },
+        { key: '4', action: 'Hoàn hảo' },
         { key: 'S', action: 'Cài đặt hiển thị' },
     ];
 
@@ -686,7 +683,6 @@ const Flashcard: React.FC<FlashcardProps> = ({
                                 <Button
                                     variant="contained"
                                     color="error"
-                                    startIcon={<ErrorIcon />}
                                     onClick={() => onReview('AGAIN')}
                                     sx={{
                                         borderRadius: 3,
@@ -701,12 +697,18 @@ const Flashcard: React.FC<FlashcardProps> = ({
                                         }
                                     }}
                                 >
-                                    ! Khó
+                                    <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                                        <Typography variant="body2" sx={{ fontWeight: 'bold' }}>
+                                            Không biết
+                                        </Typography>
+                                        <Typography variant="caption" sx={{ opacity: 0.8, fontSize: '0.7rem' }}>
+                                            {currentCard?.nextIntervals?.againInterval || ''}
+                                        </Typography>
+                                    </Box>
                                 </Button>
                                 <Button
                                     variant="contained"
                                     color="warning"
-                                    startIcon={<AccessTimeIcon />}
                                     onClick={() => onReview('HARD')}
                                     sx={{
                                         borderRadius: 3,
@@ -721,12 +723,18 @@ const Flashcard: React.FC<FlashcardProps> = ({
                                         }
                                     }}
                                 >
-                                    Trung bình
+                                    <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                                        <Typography variant="body2" sx={{ fontWeight: 'bold' }}>
+                                            Sai nhưng nhớ
+                                        </Typography>
+                                        <Typography variant="caption" sx={{ opacity: 0.8, fontSize: '0.7rem' }}>
+                                            {currentCard?.nextIntervals?.hardInterval || ''}
+                                        </Typography>
+                                    </Box>
                                 </Button>
                                 <Button
                                     variant="contained"
                                     color="info"
-                                    startIcon={<SchoolIcon />}
                                     onClick={() => onReview('GOOD')}
                                     sx={{
                                         borderRadius: 3,
@@ -741,12 +749,18 @@ const Flashcard: React.FC<FlashcardProps> = ({
                                         }
                                     }}
                                 >
-                                    Đã biết
+                                    <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                                        <Typography variant="body2" sx={{ fontWeight: 'bold' }}>
+                                            Tốt
+                                        </Typography>
+                                        <Typography variant="caption" sx={{ opacity: 0.8, fontSize: '0.7rem' }}>
+                                            {currentCard?.nextIntervals?.goodInterval || ''}
+                                        </Typography>
+                                    </Box>
                                 </Button>
                                 <Button
                                     variant="contained"
                                     color="success"
-                                    startIcon={<CheckCircleIcon />}
                                     onClick={() => onReview('EASY')}
                                     sx={{
                                         borderRadius: 2,
@@ -761,7 +775,14 @@ const Flashcard: React.FC<FlashcardProps> = ({
                                         }
                                     }}
                                 >
-                                    Dễ
+                                    <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                                        <Typography variant="body2" sx={{ fontWeight: 'bold' }}>
+                                            Hoàn hảo
+                                        </Typography>
+                                        <Typography variant="caption" sx={{ opacity: 0.8, fontSize: '0.7rem' }}>
+                                            {currentCard?.nextIntervals?.easyInterval || ''}
+                                        </Typography>
+                                    </Box>
                                 </Button>
                             </Box>
                         </Box>

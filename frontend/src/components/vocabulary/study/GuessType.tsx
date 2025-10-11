@@ -27,9 +27,6 @@ import {
     NavigateNext as NavigateNextIcon,
     School as SchoolIcon,
     Home as HomeIcon,
-    CheckCircle as CheckCircleIcon,
-    Error as ErrorIcon,
-    AccessTime as AccessTimeIcon,
     Settings as SettingsIcon,
 } from '@mui/icons-material';
 import { type StudySession } from '../vocabulary';
@@ -325,10 +322,10 @@ const GuessType: React.FC<GuessTypeProps> = ({ session, currentCardIndex, onRevi
     const shortcuts = [
         { key: 'Enter', action: 'Nộp đáp án' },
         { key: 'R', action: 'Phát âm từ' },
-        { key: '1', action: 'Đánh dấu Khó' },
-        { key: '2', action: 'Đánh dấu Trung bình' },
-        { key: '3', action: 'Đánh dấu Dễ' },
-        { key: '4', action: 'Đánh dấu Đã biết' },
+        { key: '1', action: 'Không biết' },
+        { key: '2', action: 'Sai nhưng nhớ' },
+        { key: '3', action: 'Tốt' },
+        { key: '4', action: 'Hoàn hảo' },
     ];
 
     const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -506,20 +503,20 @@ const GuessType: React.FC<GuessTypeProps> = ({ session, currentCardIndex, onRevi
                                     />
                                 ) : (
                                     <>
-                                        <Box
-                                            sx={{
-                                                width: 140,
-                                                height: 100,
-                                                borderRadius: 2,
-                                                mb: 1.5,
-                                                overflow: 'hidden',
-                                                border: '2px solid #e0e0e0',
-                                                boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
-                                                position: 'relative',
-                                                mx: 'auto'
-                                            }}
-                                        >
-                                            {image ? (
+                                        {image && (
+                                            <Box
+                                                sx={{
+                                                    width: 140,
+                                                    height: 100,
+                                                    borderRadius: 2,
+                                                    mb: 1.5,
+                                                    overflow: 'hidden',
+                                                    border: '2px solid #e0e0e0',
+                                                    boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+                                                    position: 'relative',
+                                                    mx: 'auto'
+                                                }}
+                                            >
                                                 <img
                                                     src={image}
                                                     alt={word}
@@ -537,38 +534,9 @@ const GuessType: React.FC<GuessTypeProps> = ({ session, currentCardIndex, onRevi
                                                         }
                                                     }}
                                                 />
-                                            ) : null}
-                                            <Box
-                                                sx={{
-                                                    position: 'absolute',
-                                                    top: 0,
-                                                    left: 0,
-                                                    width: '100%',
-                                                    height: '100%',
-                                                    bgcolor: '#f8f9fa',
-                                                    display: image ? 'none' : 'flex',
-                                                    alignItems: 'center',
-                                                    justifyContent: 'center',
-                                                    flexDirection: 'column',
-                                                    gap: 1
-                                                }}
-                                            >
-                                                <Typography
-                                                    variant="body2"
-                                                    color="text.secondary"
-                                                    sx={{ fontWeight: 500 }}
-                                                >
-                                                    Illustration
-                                                </Typography>
-                                                <Typography
-                                                    variant="caption"
-                                                    color="text.secondary"
-                                                    sx={{ opacity: 0.7 }}
-                                                >
-                                                    {word}
-                                                </Typography>
                                             </Box>
-                                        </Box>
+                                        )}
+
                                         {/* Meaning */}
                                         {meaning && (
                                             <Typography
@@ -692,7 +660,6 @@ const GuessType: React.FC<GuessTypeProps> = ({ session, currentCardIndex, onRevi
                             <Button
                                 variant="contained"
                                 color="error"
-                                startIcon={<ErrorIcon />}
                                 onClick={() => onReview('AGAIN')}
                                 sx={{
                                     borderRadius: 3,
@@ -707,12 +674,18 @@ const GuessType: React.FC<GuessTypeProps> = ({ session, currentCardIndex, onRevi
                                     }
                                 }}
                             >
-                                ! Khó
+                                <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                                    <Typography variant="body2" sx={{ fontWeight: 'bold' }}>
+                                        Không biết
+                                    </Typography>
+                                    <Typography variant="caption" sx={{ opacity: 0.8, fontSize: '0.7rem' }}>
+                                        {currentCard?.nextIntervals?.againInterval || ''}
+                                    </Typography>
+                                </Box>
                             </Button>
                             <Button
                                 variant="contained"
                                 color="warning"
-                                startIcon={<AccessTimeIcon />}
                                 onClick={() => onReview('HARD')}
                                 sx={{
                                     borderRadius: 3,
@@ -727,12 +700,18 @@ const GuessType: React.FC<GuessTypeProps> = ({ session, currentCardIndex, onRevi
                                     }
                                 }}
                             >
-                                Trung bình
+                                <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                                    <Typography variant="body2" sx={{ fontWeight: 'bold' }}>
+                                        Sai nhưng nhớ
+                                    </Typography>
+                                    <Typography variant="caption" sx={{ opacity: 0.8, fontSize: '0.7rem' }}>
+                                        {currentCard?.nextIntervals?.hardInterval || ''}
+                                    </Typography>
+                                </Box>
                             </Button>
                             <Button
                                 variant="contained"
                                 color="info"
-                                startIcon={<SchoolIcon />}
                                 onClick={() => onReview('GOOD')}
                                 sx={{
                                     borderRadius: 3,
@@ -747,12 +726,18 @@ const GuessType: React.FC<GuessTypeProps> = ({ session, currentCardIndex, onRevi
                                     }
                                 }}
                             >
-                                Đã biết
+                                <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                                    <Typography variant="body2" sx={{ fontWeight: 'bold' }}>
+                                        Tốt
+                                    </Typography>
+                                    <Typography variant="caption" sx={{ opacity: 0.8, fontSize: '0.7rem' }}>
+                                        {currentCard?.nextIntervals?.goodInterval || ''}
+                                    </Typography>
+                                </Box>
                             </Button>
                             <Button
                                 variant="contained"
                                 color="success"
-                                startIcon={<CheckCircleIcon />}
                                 onClick={() => onReview('EASY')}
                                 sx={{
                                     borderRadius: 2,
@@ -767,7 +752,14 @@ const GuessType: React.FC<GuessTypeProps> = ({ session, currentCardIndex, onRevi
                                     }
                                 }}
                             >
-                                Dễ
+                                <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                                    <Typography variant="body2" sx={{ fontWeight: 'bold' }}>
+                                        Hoàn hảo
+                                    </Typography>
+                                    <Typography variant="caption" sx={{ opacity: 0.8, fontSize: '0.7rem' }}>
+                                        {currentCard?.nextIntervals?.easyInterval || ''}
+                                    </Typography>
+                                </Box>
                             </Button>
                         </Box>
                     )}

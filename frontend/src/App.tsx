@@ -15,7 +15,7 @@ import SpeakingPractice from "./pages/SpeakingPractice";
 import Profile from "./pages/Profile";
 import DeckManagement from "./components/vocabulary/DeckManagement";
 import NoteManagement from "./components/vocabulary/NoteManagement";
-import { StudySession as StudySessionPage, StudyModeSelection } from "./components/vocabulary/study";
+import { StudyModeSelection } from "./components/vocabulary/study";
 import { RequiredAuth } from "./components/auth";
 import "./index.css";
 import Authenticate from "./pages/Authenticated";
@@ -156,16 +156,6 @@ function App() {
               <RequiredAuth>
                 <MainLayout>
                   <StudyModeSelection />
-                </MainLayout>
-              </RequiredAuth>
-            }
-          />
-          <Route
-            path="/vocabulary/study"
-            element={
-              <RequiredAuth>
-                <MainLayout>
-                  <StudySessionPage />
                 </MainLayout>
               </RequiredAuth>
             }

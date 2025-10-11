@@ -69,18 +69,21 @@ const NotesTable: React.FC<NotesTableProps> = ({
         const now = new Date();
         const due = new Date(dueDate);
         const diffMs = due.getTime() - now.getTime();
-        const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+        const diffMinutes = Math.ceil(diffMs / (1000 * 60));
 
-        if (diffDays < 0) {
+        if (diffMinutes < 0) {
             return 'Quá hạn';
-        } else if (diffDays === 0) {
-            return 'Hôm nay';
-        } else if (diffDays === 1) {
-            return 'Ngày mai';
-        } else if (diffDays <= 7) {
-            return `${diffDays} ngày`;
+        } else if (diffMinutes === 0) {
+            return 'Bây giờ';
+        } else if (diffMinutes < 60) {
+            return `${diffMinutes} phút`;
+        } else if (diffMinutes < 1440) { // Less than 24 hours
+            const hours = Math.floor(diffMinutes / 60);
+            const minutes = diffMinutes % 60;
+            return minutes > 0 ? `${hours}h ${minutes}p` : `${hours} giờ`;
         } else {
-            return due.toLocaleDateString('vi-VN');
+            const days = Math.floor(diffMinutes / 1440);
+            return `${days} ngày`;
         }
     };
 
@@ -88,14 +91,14 @@ const NotesTable: React.FC<NotesTableProps> = ({
         const now = new Date();
         const due = new Date(dueDate);
         const diffMs = due.getTime() - now.getTime();
-        const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+        const diffMinutes = Math.ceil(diffMs / (1000 * 60));
 
-        if (diffDays < 0) {
+        if (diffMinutes < 0) {
             return '#EF4444'; // Đỏ - quá hạn
-        } else if (diffDays === 0) {
-            return '#F59E0B'; // Cam - hôm nay
-        } else if (diffDays <= 3) {
-            return '#10B981'; // Xanh lá - sắp đến hạn
+        } else if (diffMinutes <= 5) {
+            return '#F59E0B'; // Cam - sắp đến hạn (trong 5 phút)
+        } else if (diffMinutes <= 60) {
+            return '#10B981'; // Xanh lá - sắp đến hạn (trong 1 giờ)
         } else {
             return '#6B7280'; // Xám - còn nhiều thời gian
         }
