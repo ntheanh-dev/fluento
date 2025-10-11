@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
     Box,
     Card,
@@ -14,15 +14,8 @@ import {
     DialogTitle,
     DialogContent,
     DialogActions,
-    Table,
-    TableBody,
-    TableCell,
-    TableContainer,
-    TableHead,
-    TableRow,
-    Paper,
 } from '@mui/material';
-import { Visibility, VisibilityOff, Save, Add, ContentCopy, Delete, HelpOutline } from '@mui/icons-material';
+import { Visibility, VisibilityOff, Save } from '@mui/icons-material';
 import { useAuth } from '../contexts/AuthContext';
 import { api } from '../configs/API';
 import { notify } from '../utils/notify';
@@ -35,14 +28,14 @@ interface User {
     createdAt?: string;
 }
 
-interface ApiKey {
-    id: number;
-    apiKey: string;
-    createdAt: string;
-}
+// interface ApiKey {
+//     id: number;
+//     apiKey: string;
+//     createdAt: string;
+// }
 
 const Profile: React.FC = () => {
-    const { user, setUser, refreshUserData } = useAuth();
+    const { user, setUser } = useAuth();
     const [passwordData, setPasswordData] = useState({
         password: '',
         confirmPassword: '',
@@ -64,136 +57,136 @@ const Profile: React.FC = () => {
     const [error, setError] = useState<string>('');
 
     // API Key states
-    const [userApiKey, setUserApiKey] = useState<ApiKey | null>(null);
-    const [newApiKey, setNewApiKey] = useState('');
-    const [isLoadingApiKey, setIsLoadingApiKey] = useState(false);
-    const [isCreatingApiKey, setIsCreatingApiKey] = useState(false);
-    const [isUpdatingApiKey, setIsUpdatingApiKey] = useState(false);
-    const [isDeletingApiKey, setIsDeletingApiKey] = useState(false);
-    const [showCreateApiKeyForm, setShowCreateApiKeyForm] = useState(false);
-    const [apiKeyError, setApiKeyError] = useState<string>('');
-    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-    const [showHelpModal, setShowHelpModal] = useState(false);
+    // const [userApiKey, setUserApiKey] = useState<ApiKey | null>(null);
+    // const [newApiKey, setNewApiKey] = useState('');
+    // const [isLoadingApiKey, setIsLoadingApiKey] = useState(false);
+    // const [isCreatingApiKey, setIsCreatingApiKey] = useState(false);
+    // const [isUpdatingApiKey, setIsUpdatingApiKey] = useState(false);
+    // const [isDeletingApiKey, setIsDeletingApiKey] = useState(false);
+    // const [showCreateApiKeyForm, setShowCreateApiKeyForm] = useState(false);
+    // const [apiKeyError, setApiKeyError] = useState<string>('');
+    // const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+    // const [showHelpModal, setShowHelpModal] = useState(false);
 
     // Load API key when user data changes
     // useEffect(() => {
     //     loadApiKey();
     // }, [user]);
 
-    const loadApiKey = () => {
-        setIsLoadingApiKey(true);
-        try {
-            if (user?.apiKey) {
-                setUserApiKey({
-                    id: parseInt(user.id),
-                    apiKey: user.apiKey,
-                    createdAt: user.createdAt || new Date().toISOString()
-                });
-            } else {
-                setUserApiKey(null);
-            }
-        } catch (error) {
-            console.error('Error loading API key from auth context:', error);
-            setUserApiKey(null);
-        } finally {
-            setIsLoadingApiKey(false);
-        }
-    };
+    // const loadApiKey = () => {
+    //     setIsLoadingApiKey(true);
+    //     try {
+    //         if (user?.apiKey) {
+    //             setUserApiKey({
+    //                 id: parseInt(user.id),
+    //                 apiKey: user.apiKey,
+    //                 createdAt: user.createdAt || new Date().toISOString()
+    //             });
+    //         } else {
+    //             setUserApiKey(null);
+    //         }
+    //     } catch (error) {
+    //         console.error('Error loading API key from auth context:', error);
+    //         setUserApiKey(null);
+    //     } finally {
+    //         setIsLoadingApiKey(false);
+    //     }
+    // };
 
-    const handleCreateApiKey = async () => {
-        if (!newApiKey.trim()) {
-            setApiKeyError('API key không được để trống');
-            return;
-        }
+    // const handleCreateApiKey = async () => {
+    //     if (!newApiKey.trim()) {
+    //         setApiKeyError('API key không được để trống');
+    //         return;
+    //     }
 
-        setIsCreatingApiKey(true);
-        setApiKeyError('');
+    //     setIsCreatingApiKey(true);
+    //     setApiKeyError('');
 
-        try {
-            const response = await api.post('/users/api-key', {
-                apiKey: newApiKey.trim(),
-            });
+    //     try {
+    //         const response = await api.post('/users/api-key', {
+    //             apiKey: newApiKey.trim(),
+    //         });
 
-            if (response.data?.code === 1000) {
-                setNewApiKey('');
-                setShowCreateApiKeyForm(false);
-                notify('Thêm Gemini API key thành công!', 'success');
-                // Refresh user data from auth context
-                await refreshUserData();
-            } else {
-                setApiKeyError('Có lỗi xảy ra khi tạo API key');
-            }
-        } catch (error: any) {
-            console.error('Create API key error:', error);
-            if (error.response?.data?.message) {
-                setApiKeyError(error.response.data.message);
-            } else {
-                setApiKeyError('Có lỗi xảy ra khi tạo API key');
-            }
-        } finally {
-            setIsCreatingApiKey(false);
-        }
-    };
+    //         if (response.data?.code === 1000) {
+    //             setNewApiKey('');
+    //             setShowCreateApiKeyForm(false);
+    //             notify('Thêm Gemini API key thành công!', 'success');
+    //             // Refresh user data from auth context
+    //             await refreshUserData();
+    //         } else {
+    //             setApiKeyError('Có lỗi xảy ra khi tạo API key');
+    //         }
+    //     } catch (error: any) {
+    //         console.error('Create API key error:', error);
+    //         if (error.response?.data?.message) {
+    //             setApiKeyError(error.response.data.message);
+    //         } else {
+    //             setApiKeyError('Có lỗi xảy ra khi tạo API key');
+    //         }
+    //     } finally {
+    //         setIsCreatingApiKey(false);
+    //     }
+    // };
 
-    const handleUpdateApiKey = async () => {
-        if (!newApiKey.trim()) {
-            setApiKeyError('API key không được để trống');
-            return;
-        }
+    // const handleUpdateApiKey = async () => {
+    //     if (!newApiKey.trim()) {
+    //         setApiKeyError('API key không được để trống');
+    //         return;
+    //     }
 
-        setIsUpdatingApiKey(true);
-        setApiKeyError('');
+    //     setIsUpdatingApiKey(true);
+    //     setApiKeyError('');
 
-        try {
-            const response = await api.put('/users/api-key', {
-                apiKey: newApiKey.trim(),
-            });
+    //     try {
+    //         const response = await api.put('/users/api-key', {
+    //             apiKey: newApiKey.trim(),
+    //         });
 
-            if (response.data?.code === 1000) {
-                setNewApiKey('');
-                setShowCreateApiKeyForm(false);
-                notify('Cập nhật Gemini API key thành công!', 'success');
-                // Refresh user data from auth context
-                await refreshUserData();
-            } else {
-                setApiKeyError('Có lỗi xảy ra khi cập nhật API key');
-            }
-        } catch (error: any) {
-            console.error('Update API key error:', error);
-            if (error.response?.data?.message) {
-                setApiKeyError(error.response.data.message);
-            } else {
-                setApiKeyError('Có lỗi xảy ra khi cập nhật API key');
-            }
-        } finally {
-            setIsUpdatingApiKey(false);
-        }
-    };
+    //         if (response.data?.code === 1000) {
+    //             setNewApiKey('');
+    //             setShowCreateApiKeyForm(false);
+    //             notify('Cập nhật Gemini API key thành công!', 'success');
+    //             // Refresh user data from auth context
+    //             await refreshUserData();
+    //         } else {
+    //             setApiKeyError('Có lỗi xảy ra khi cập nhật API key');
+    //         }
+    //     } catch (error: any) {
+    //         console.error('Update API key error:', error);
+    //         if (error.response?.data?.message) {
+    //             setApiKeyError(error.response.data.message);
+    //         } else {
+    //             setApiKeyError('Có lỗi xảy ra khi cập nhật API key');
+    //         }
+    //     } finally {
+    //         setIsUpdatingApiKey(false);
+    //     }
+    // };
 
-    const handleDeleteApiKey = async () => {
-        setIsDeletingApiKey(true);
-        try {
-            const response = await api.delete('/users/api-key');
-            if (response.data?.code === 1000) {
-                setShowDeleteConfirm(false);
-                notify('Xóa Gemini API key thành công!', 'success');
-                // Refresh user data from auth context
-                await refreshUserData();
-            } else {
-                notify('Có lỗi xảy ra khi xóa API key', 'error');
-            }
-        } catch (error: any) {
-            console.error('Delete API key error:', error);
-            notify('Có lỗi xảy ra khi xóa API key', 'error');
-        } finally {
-            setIsDeletingApiKey(false);
-        }
-    };
+    // const handleDeleteApiKey = async () => {
+    //     setIsDeletingApiKey(true);
+    //     try {
+    //         const response = await api.delete('/users/api-key');
+    //         if (response.data?.code === 1000) {
+    //             setShowDeleteConfirm(false);
+    //             notify('Xóa Gemini API key thành công!', 'success');
+    //             // Refresh user data from auth context
+    //             await refreshUserData();
+    //         } else {
+    //             notify('Có lỗi xảy ra khi xóa API key', 'error');
+    //         }
+    //     } catch (error: any) {
+    //         console.error('Delete API key error:', error);
+    //         notify('Có lỗi xảy ra khi xóa API key', 'error');
+    //     } finally {
+    //         setIsDeletingApiKey(false);
+    //     }
+    // };
 
-    const handleCopyApiKey = (apiKey: string) => {
-        navigator.clipboard.writeText(apiKey);
-        notify('Đã sao chép Gemini API key!', 'success');
-    };
+    // const handleCopyApiKey = (apiKey: string) => {
+    //     navigator.clipboard.writeText(apiKey);
+    //     notify('Đã sao chép Gemini API key!', 'success');
+    // };
 
     const handlePasswordChange = (field: 'password' | 'confirmPassword') => (
         event: React.ChangeEvent<HTMLInputElement>
@@ -697,7 +690,7 @@ const Profile: React.FC = () => {
             </Dialog> */}
 
             {/* Delete Confirmation Dialog */}
-            <Dialog
+            {/* <Dialog
                 open={showDeleteConfirm}
                 onClose={() => setShowDeleteConfirm(false)}
                 maxWidth="sm"
@@ -731,7 +724,7 @@ const Profile: React.FC = () => {
                         {isDeletingApiKey ? 'Đang xóa...' : 'Xóa Gemini API Key'}
                     </Button>
                 </DialogActions>
-            </Dialog>
+            </Dialog> */}
 
             {/* Password Creation Modal */}
             <Dialog
