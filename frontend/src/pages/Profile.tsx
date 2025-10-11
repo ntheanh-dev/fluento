@@ -76,9 +76,9 @@ const Profile: React.FC = () => {
     const [showHelpModal, setShowHelpModal] = useState(false);
 
     // Load API key when user data changes
-    useEffect(() => {
-        loadApiKey();
-    }, [user]);
+    // useEffect(() => {
+    //     loadApiKey();
+    // }, [user]);
 
     const loadApiKey = () => {
         setIsLoadingApiKey(true);
@@ -455,7 +455,7 @@ const Profile: React.FC = () => {
             </Box>
 
             {/* API Key Management Section */}
-            <Card sx={{ mt: 4, p: 3 }}>
+            {/* <Card sx={{ mt: 4, p: 3 }}>
                 <Box sx={{ mb: 3 }}>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
                         <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
@@ -563,10 +563,10 @@ const Profile: React.FC = () => {
                         </Table>
                     </TableContainer>
                 ))}
-            </Card>
+            </Card> */}
 
             {/* Create/Update API Key Modal */}
-            <Dialog
+            {/* <Dialog
                 open={showCreateApiKeyForm}
                 onClose={() => {
                     setShowCreateApiKeyForm(false);
@@ -589,7 +589,6 @@ const Profile: React.FC = () => {
                         </Alert>
                     )}
 
-                    {/* Hướng dẫn lấy API key */}
                     <Box sx={{ mb: 3 }}>
                         <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 2, color: 'primary.main' }}>
                             📋 Hướng dẫn lấy Key
@@ -695,7 +694,7 @@ const Profile: React.FC = () => {
                         }
                     </Button>
                 </DialogActions>
-            </Dialog>
+            </Dialog> */}
 
             {/* Delete Confirmation Dialog */}
             <Dialog
@@ -921,7 +920,7 @@ const Profile: React.FC = () => {
             </Dialog>
 
             {/* Help Modal for API Key Guide */}
-            <Dialog
+            {/* <Dialog
                 open={showHelpModal}
                 onClose={() => setShowHelpModal(false)}
                 maxWidth="md"
@@ -1001,7 +1000,7 @@ const Profile: React.FC = () => {
                         Đã hiểu
                     </Button>
                 </DialogActions>
-            </Dialog>
+            </Dialog> */}
         </Container>
     );
 };
