@@ -12,8 +12,6 @@ import com.nta.mapper.WritingMapper;
 import com.nta.repository.*;
 
 import com.nta.service.ai.AiChatService;
-import com.nta.service.ai.impl.LLMAiChatService;
-import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 
 import org.springframework.data.domain.Page;
@@ -42,7 +40,7 @@ public class WritingService {
     WritingMapper writingMapper;
 
     public WritingService(AiChatService geminiAiChatService, UserService userService, TopicRepository topicRepository, LevelRepository levelRepository, SentenceCountRepository sentenceCountRepository, ToneRepository toneRepository, WritingRepository writingRepository, WritingMapper writingMapper) {
-        this.geminiAiChatService = new LLMAiChatService();
+        this.geminiAiChatService = geminiAiChatService;
         this.userService = userService;
         this.topicRepository = topicRepository;
         this.levelRepository = levelRepository;

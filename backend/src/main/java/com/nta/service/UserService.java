@@ -87,10 +87,12 @@ public class UserService {
     }
 
     public String getApiKeyFromContext() {
-        final var context = SecurityContextHolder.getContext();
-        final String name = context.getAuthentication().getName();
-
-        return userRepository.findApiKeyByUsername(name).orElseThrow(() -> new AppException(ErrorCode.AI_API_KEY_MISSING));
+        // currently use api key from env variable for all users
+//        final var context = SecurityContextHolder.getContext();
+//        final String name = context.getAuthentication().getName();
+//
+//        return userRepository.findApiKeyByUsername(name).orElseThrow(() -> new AppException(ErrorCode.AI_API_KEY_MISSING));
+        return "";
     }
 
     // API Key Management Methods

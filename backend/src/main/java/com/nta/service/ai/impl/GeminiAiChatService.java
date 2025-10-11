@@ -14,9 +14,15 @@ import org.springframework.stereotype.Service;
 @Service
 public class GeminiAiChatService implements AiChatService {
 
+    final ChatClient chatClient;
+
+    public GeminiAiChatService(ChatClient chatClient) {
+        this.chatClient = chatClient;
+    }
+
     @Override
     public <T> T sendMessage(String apiKey, String systemMessage, String userMessage, Class<T> responseType) {
-        return this.buildChatClient(apiKey)
+        return this.chatClient
                 .prompt(this.buildPrompt(systemMessage, userMessage))
                 .call()
                 .entity(responseType);
@@ -24,28 +30,10 @@ public class GeminiAiChatService implements AiChatService {
 
     @Override
     public <T> T sendMessage(String apiKey, String systemMessage, String userMessage, ParameterizedTypeReference<T> responseType) {
-        return this.buildChatClient(apiKey)
+        return this.chatClient
                 .prompt(this.buildPrompt(systemMessage, userMessage))
                 .call()
                 .entity(responseType);
-    }
-
-    private ChatClient buildChatClient(String apiKey) {
-        OpenAiApi openAiApi =
-                OpenAiApi.builder()
-                        .apiKey(apiKey)
-                        .baseUrl("https://generativelanguage.googleapis.com")
-                        .completionsPath("/v1beta/openai/chat/completions")
-                        .build();
-
-        OpenAiChatModel geminiModel =
-                OpenAiChatModel.builder()
-                        .openAiApi(openAiApi)
-                        .defaultOptions(
-                                OpenAiChatOptions.builder().model("gemini-2.0-flash").build())
-                        .build();
-
-        return ChatClient.builder(geminiModel).build();
     }
 
     private Prompt buildPrompt(String systemMessageText, String userMessageText) {
