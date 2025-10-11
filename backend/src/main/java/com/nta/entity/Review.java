@@ -35,8 +35,8 @@ public class Review {
     @Column(name = "ease_factor", precision = 3, scale = 2)
     private BigDecimal easeFactor = new BigDecimal("2.50");
 
-    @Column(name = "interval_days")
-    private Integer intervalDays = 1;
+    @Column(name = "interval_minutes")
+    private Integer intervalMinutes = 1;
 
     @Column(name = "repetitions")
     private Integer repetitions = 0;

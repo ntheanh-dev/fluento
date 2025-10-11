@@ -15,7 +15,7 @@ public class ReviewResponse {
     private Long userId;
     private Review.Rating rating;
     private BigDecimal easeFactor;
-    private Integer intervalDays;
+    private Integer intervalMinutes;
     private Integer repetitions;
     private LocalDateTime dueDate;
     private Integer reviewTimeMs;

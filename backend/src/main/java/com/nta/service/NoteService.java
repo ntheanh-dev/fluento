@@ -322,7 +322,7 @@ public class NoteService {
         stats.setCardId(cardId);
         stats.setUserId(userId);
         stats.setEaseFactor(new java.math.BigDecimal("2.50")); // Initial ease factor
-        stats.setIntervalDays(1); // Initial interval
+        stats.setIntervalMinutes(1); // Initial interval
         stats.setRepetitions(0);
         stats.setLapses(0);
         stats.setDueDate(LocalDateTime.now()); // Due immediately for new cards

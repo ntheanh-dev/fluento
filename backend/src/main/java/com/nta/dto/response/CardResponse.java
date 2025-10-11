@@ -24,11 +24,12 @@ public class CardResponse {
     private Map<String, String> fieldValues; // Field values for template rendering
 
     private CardStatsResponse stats;
+    private NextIntervalResponse nextIntervals;
 
     @Data
     public static class CardStatsResponse {
         private BigDecimal easeFactor;
-        private Integer intervalDays;
+        private Integer intervalMinutes;
         private Integer repetitions;
         private Integer lapses;
         private LocalDateTime dueDate;

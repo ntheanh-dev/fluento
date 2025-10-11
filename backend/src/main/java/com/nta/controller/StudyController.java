@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import com.nta.dto.request.ReviewCardRequest;
 import com.nta.dto.response.ApiResponse;
 import com.nta.dto.response.CardResponse;
+import com.nta.dto.response.NextIntervalResponse;
 import com.nta.dto.response.StudySessionResponse;
 import com.nta.dto.response.StudyModeStatsResponse;
 import com.nta.entity.User;

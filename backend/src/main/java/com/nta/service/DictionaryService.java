@@ -15,12 +15,12 @@ import java.util.concurrent.ExecutionException;
 @Slf4j
 public class DictionaryService {
 
-    private final AiChatService aiChatService;
+    private final AiChatService geminiAiChatService;
     private final UserService userService;
     private final TextToSpeechService textToSpeechService;
 
-    public DictionaryService(AiChatService aiChatService, UserService userService, ElevenLabsTextToSpeechService textToSpeechService) {
-        this.aiChatService = aiChatService;
+    public DictionaryService(AiChatService geminiAiChatService, UserService userService, ElevenLabsTextToSpeechService textToSpeechService) {
+        this.geminiAiChatService = geminiAiChatService;
         this.userService = userService;
         this.textToSpeechService = textToSpeechService;
     }
@@ -61,7 +61,7 @@ public class DictionaryService {
 
         final String apiKey = userService.getApiKeyFromContext();
         final LookupWordResponse response =
-                aiChatService.sendMessage(
+				geminiAiChatService.sendMessage(
                         apiKey,
                         systemPrompt,
                         userPrompt,

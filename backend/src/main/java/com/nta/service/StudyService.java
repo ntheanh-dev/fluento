@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.nta.dto.request.ReviewCardRequest;
 import com.nta.dto.response.CardResponse;
+import com.nta.dto.response.NextIntervalResponse;
 import com.nta.dto.response.StudySessionResponse;
 import com.nta.dto.response.StudyModeStatsResponse;
 import com.nta.entity.Card;
@@ -203,12 +204,16 @@ public class StudyService {
         if (stats != null) {
             CardResponse.CardStatsResponse statsResponse = new CardResponse.CardStatsResponse();
             statsResponse.setEaseFactor(stats.getEaseFactor());
-            statsResponse.setIntervalDays(stats.getIntervalDays());
+            statsResponse.setIntervalMinutes(stats.getIntervalMinutes());
             statsResponse.setRepetitions(stats.getRepetitions());
             statsResponse.setLapses(stats.getLapses());
             statsResponse.setDueDate(stats.getDueDate());
             statsResponse.setLastReviewedAt(stats.getLastReviewedAt());
             response.setStats(statsResponse);
+
+            // Add next intervals
+            NextIntervalResponse nextIntervals = spacedRepetitionService.calculateNextIntervals(card.getId(), stats.getUserId());
+            response.setNextIntervals(nextIntervals);
         }
 
         return response;
@@ -235,12 +240,16 @@ public class StudyService {
         // Override stats with current values
         CardResponse.CardStatsResponse statsResponse = new CardResponse.CardStatsResponse();
         statsResponse.setEaseFactor(cardStats.getEaseFactor());
-        statsResponse.setIntervalDays(cardStats.getIntervalDays());
+        statsResponse.setIntervalMinutes(cardStats.getIntervalMinutes());
         statsResponse.setRepetitions(cardStats.getRepetitions());
         statsResponse.setLapses(cardStats.getLapses());
         statsResponse.setDueDate(cardStats.getDueDate());
         statsResponse.setLastReviewedAt(cardStats.getLastReviewedAt());
         response.setStats(statsResponse);
+
+        // Add next intervals
+        NextIntervalResponse nextIntervals = spacedRepetitionService.calculateNextIntervals(card.getId(), cardStats.getUserId());
+        response.setNextIntervals(nextIntervals);
 
         return response;
     }

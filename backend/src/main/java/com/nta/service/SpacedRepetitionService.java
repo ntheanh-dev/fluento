@@ -11,6 +11,7 @@ import com.nta.entity.CardStats;
 import com.nta.entity.Review;
 import com.nta.repository.CardStatsRepository;
 import com.nta.repository.ReviewRepository;
+import com.nta.dto.response.NextIntervalResponse;
 
 import lombok.RequiredArgsConstructor;
 
@@ -22,11 +23,11 @@ public class SpacedRepetitionService {
     private final CardStatsRepository cardStatsRepository;
     private final ReviewRepository reviewRepository;
 
-    // SM-2 Algorithm constants
+    // SM-2 Algorithm constants (converted to minutes)
     private static final BigDecimal MIN_EASE_FACTOR = new BigDecimal("1.30");
     private static final BigDecimal INITIAL_EASE_FACTOR = new BigDecimal("2.50");
-    private static final int INITIAL_INTERVAL = 1;
-    private static final int SECOND_INTERVAL = 6;
+    private static final int INITIAL_INTERVAL = 1; // 1 minute
+    private static final int SECOND_INTERVAL = 6; // 6 minutes
 
     public void processReview(Long cardId, Long userId, Review.Rating rating, Long reviewTimeMs) {
         CardStats stats = cardStatsRepository
@@ -47,12 +48,12 @@ public class SpacedRepetitionService {
 
         // Update stats
         stats.setEaseFactor(newEaseFactor);
-        stats.setIntervalDays(newInterval);
+        stats.setIntervalMinutes(newInterval);
         stats.setRepetitions(stats.getRepetitions() + 1);
         stats.setLastReviewedAt(LocalDateTime.now());
 
-        // Calculate due date
-        LocalDateTime dueDate = LocalDateTime.now().plusDays(newInterval);
+        // Calculate due date (using minutes instead of days)
+        LocalDateTime dueDate = LocalDateTime.now().plusMinutes(newInterval);
         stats.setDueDate(dueDate);
 
         // Update lapses if rating is AGAIN
@@ -63,7 +64,7 @@ public class SpacedRepetitionService {
 
         // Set review values
         review.setEaseFactor(newEaseFactor);
-        review.setIntervalDays(newInterval);
+        review.setIntervalMinutes(newInterval);
         review.setRepetitions(stats.getRepetitions());
         review.setDueDate(dueDate);
 
@@ -120,7 +121,7 @@ public class SpacedRepetitionService {
         stats.setCardId(cardId);
         stats.setUserId(userId);
         stats.setEaseFactor(INITIAL_EASE_FACTOR);
-        stats.setIntervalDays(INITIAL_INTERVAL);
+        stats.setIntervalMinutes(INITIAL_INTERVAL);
         stats.setRepetitions(0);
         stats.setLapses(0);
         stats.setDueDate(LocalDateTime.now());
@@ -130,7 +131,7 @@ public class SpacedRepetitionService {
     private int calculateNewInterval(CardStats stats, Review.Rating rating) {
         switch (rating) {
             case AGAIN:
-                return INITIAL_INTERVAL; // Reset to 1 day
+                return INITIAL_INTERVAL; // Reset to 1 minute
             case HARD:
                 if (stats.getRepetitions() == 0) {
                     return INITIAL_INTERVAL;
@@ -138,7 +139,7 @@ public class SpacedRepetitionService {
                     return SECOND_INTERVAL;
                 } else {
                     return Math.max(1, (int)
-                            (stats.getIntervalDays() * stats.getEaseFactor().doubleValue() * 0.8));
+                            (stats.getIntervalMinutes() * stats.getEaseFactor().doubleValue() * 0.8));
                 }
             case GOOD:
                 if (stats.getRepetitions() == 0) {
@@ -147,7 +148,7 @@ public class SpacedRepetitionService {
                     return SECOND_INTERVAL;
                 } else {
                     return (int)
-                            (stats.getIntervalDays() * stats.getEaseFactor().doubleValue());
+                            (stats.getIntervalMinutes() * stats.getEaseFactor().doubleValue());
                 }
             case EASY:
                 if (stats.getRepetitions() == 0) {
@@ -156,7 +157,7 @@ public class SpacedRepetitionService {
                     return SECOND_INTERVAL * 4;
                 } else {
                     return (int)
-                            (stats.getIntervalDays() * stats.getEaseFactor().doubleValue() * 1.3);
+                            (stats.getIntervalMinutes() * stats.getEaseFactor().doubleValue() * 1.3);
                 }
             default:
                 return INITIAL_INTERVAL;
@@ -177,6 +178,46 @@ public class SpacedRepetitionService {
                 return currentEase.add(new BigDecimal("0.15"));
             default:
                 return currentEase;
+        }
+    }
+
+    @Transactional(readOnly = true)
+    public NextIntervalResponse calculateNextIntervals(Long cardId, Long userId) {
+        CardStats stats = cardStatsRepository
+                .findByCardIdAndUserId(cardId, userId)
+                .orElseGet(() -> createInitialStats(cardId, userId));
+
+        int againInterval = calculateNewInterval(stats, Review.Rating.AGAIN);
+        int hardInterval = calculateNewInterval(stats, Review.Rating.HARD);
+        int goodInterval = calculateNewInterval(stats, Review.Rating.GOOD);
+        int easyInterval = calculateNewInterval(stats, Review.Rating.EASY);
+
+        return NextIntervalResponse.builder()
+                .againInterval(formatIntervalTime(againInterval))
+                .hardInterval(formatIntervalTime(hardInterval))
+                .goodInterval(formatIntervalTime(goodInterval))
+                .easyInterval(formatIntervalTime(easyInterval))
+                .againMinutes(againInterval)
+                .hardMinutes(hardInterval)
+                .goodMinutes(goodInterval)
+                .easyMinutes(easyInterval)
+                .build();
+    }
+
+    private String formatIntervalTime(int minutes) {
+        if (minutes < 60) {
+            return String.format("(%d phút)", minutes);
+        } else if (minutes < 1440) { // Less than 24 hours
+            int hours = minutes / 60;
+            int remainingMinutes = minutes % 60;
+            if (remainingMinutes > 0) {
+                return String.format("(%dh %dp)", hours, remainingMinutes);
+            } else {
+                return String.format("(%d giờ)", hours);
+            }
+        } else {
+            int days = minutes / 1440;
+            return String.format("(%d ngày)", days);
         }
     }
 }
