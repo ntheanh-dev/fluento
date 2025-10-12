@@ -19,12 +19,6 @@ RUN npm ci
 # Copy source code
 COPY . .
 
-# Create .env file from build arguments
-RUN echo "VITE_GOOGLE_CLIENT_ID=${VITE_GOOGLE_CLIENT_ID}" > .env && \
-    echo "VITE_GOOGLE_REDIRECT_URI=${VITE_GOOGLE_REDIRECT_URI}" >> .env && \
-    echo "VITE_GOOGLE_AUTH_URI=${VITE_GOOGLE_AUTH_URI}" >> .env && \
-    echo "VITE_API_BASE_URL=${VITE_API_BASE_URL}" >> .env
-
 # Build the application
 RUN npm run build
 

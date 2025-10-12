@@ -5,7 +5,7 @@ server:
 
 spring:
   datasource:
-    url: "jdbc:mysql://${mysqldb:localhost}:3306/fluento"
+    url: "jdbc:mysql://mysql:3306/fluento?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC"
     username: "root"
     password: "Admin@123"
     driverClassName: com.mysql.cj.jdbc.Driver
@@ -15,7 +15,7 @@ spring:
       ddl-auto: update
     properties:
       hibernate:
-        dialect: org.hibernate.dialect.MySQL8Dialect
+        dialect: org.hibernate.dialect.MySQLDialect
         format_sql: true
   servlet:
     multipart:
@@ -30,14 +30,14 @@ spring:
       resourceserver:
         jwt:
           signer-key: 29A1E019A311440FF025957809748C9D
-          access-token-valid-duration: 15 # in minutes
+          access-token-valid-duration: 100000 # in minutes
           refresh-token-valid-duration: 3 # in day
     client:
       registration:
         google:
           client-id: 940316326175-8jma9br9b2j1cjgqu992v3a693euvr6c.apps.googleusercontent.com # fixed
           client-secret: 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 # fixed
-          redirect-uri: http://localhost:5173/oauth/authenticate # modify as needed
+          redirect-uri: http://localhost:1234/oauth/authenticate # modify as needed
           scope: openid, profile, email
       provider:
         google:
@@ -46,35 +46,32 @@ spring:
           user-info-uri: https://www.googleapis.com/oauth2/v3/userinfo # fixed
   ai:
     openai:
-      api-key: AIzaSyA1G8wrDoHLWVOTLM0wkUbO1-U7cC2A7RE
+      api-key: ${OPENAI_API_KEY}
       chat:
         base-url: https://generativelanguage.googleapis.com
         completions-path: /v1beta/openai/chat/completions
         options:
           model: gemini-2.0-flash
     elevenlabs:
-      api-key: sk_1b50bb3854fa72ede29718e2499ecdf26b60e05ef8f23552
+      api-key: ${ELEVENLABS_API_KEY}
       tts:
         options:
           model-id: eleven_multilingual_v2
           output-format: mp3
 
-
-
-
 # CORS Configuration
 app:
   cors:
-    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:5173}
-    allowed-methods: ${CORS_ALLOWED_METHODS:GET,POST,PUT,DELETE,OPTIONS}
-    allowed-headers: ${CORS_ALLOWED_HEADERS:Authorization,Content-Type}
-    allow-credentials: ${CORS_ALLOW_CREDENTIALS:true}
-    max-age: ${CORS_MAX_AGE:3600}
+    allowed-origins: http://localhost:1234
+    allowed-methods: GET,POST,PUT,DELETE,OPTIONS
+    allowed-headers: Authorization,Content-Type
+    allow-credentials: true
+    max-age: 3600
 
 # Cloudinary Configuration
 cloudinary:
-  cloud-name: ${CLOUDINARY_CLOUD_NAME:dqpo9h5s2}
-  api-key: ${CLOUDINARY_API_KEY:247473939561997}
-  api-secret: ${CLOUDINARY_API_SECRET:lZZWOntBPCDWEnECsmWIalOtl08}
-  secure: ${CLOUDINARY_SECURE:true}
-  folder: ${CLOUDINARY_FOLDER:fluento}
+  cloud-name: dqpo9h5s2
+  api-key: 247473939561997
+  api-secret: lZZWOntBPCDWEnECsmWIalOtl08
+  secure: true
+  folder: fluento
