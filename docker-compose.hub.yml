@@ -1,0 +1,50 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: theanhn28/fluento-mysql:1.0
+    container_name: fluento-mysql-hub
+    restart: unless-stopped
+    ports:
+      - "3307:3306"
+    volumes:
+      - ./mysql_data_hub:/var/lib/mysql
+    networks:
+      - fluento
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+      interval: 30s
+      start_period: 30s
+
+  backend:
+    image: theanhn28/fluento-backend:1.0
+    container_name: fluento-backend-hub
+    restart: unless-stopped
+    ports:
+      - "9000:8080"
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - ELEVENLABS_API_KEY=${ELEVENLABS_API_KEY}
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - fluento
+
+  # Frontend React from Docker Hub
+  frontend:
+    image: theanhn28/fluento-frontend:1.0
+    container_name: fluento-frontend-hub
+    restart: unless-stopped
+    ports:
+      - "1234:80"
+    depends_on:
+      - backend
+    networks:
+      - fluento
+
+networks:
+  fluento:
+    driver: bridge

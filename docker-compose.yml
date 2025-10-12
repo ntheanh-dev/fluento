@@ -3,18 +3,15 @@ version: '3.8'
 services:
   # MySQL Database
   mysql:
-    image: mysql:8.0
+    build:
+      context: ./mysql
+      dockerfile: Dockerfile
     container_name: fluento-mysql
     restart: unless-stopped
-    environment:
-      MYSQL_ROOT_PASSWORD: Admin@123
-      MYSQL_DATABASE: fluento
-      MYSQL_USER: app_user
-      MYSQL_PASSWORD: Admin@123
     ports:
       - "3307:3306"
     volumes:
-      - mysql_data:/var/lib/mysql
+      - ./mysql_data:/var/lib/mysql
       - ./backend/src/main/resources/db:/docker-entrypoint-initdb.d
     networks:
       - fluento-network
@@ -29,7 +26,7 @@ services:
     ports:
       - "9000:8080"
     environment:
-      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - OPENAI_API_KEY=AIzaSyCp7ISJg72yQGRagJkK1mFw3OM7ssTloVk
       - ELEVENLABS_API_KEY=${ELEVENLABS_API_KEY}
     depends_on:
       - mysql

@@ -1,12 +1,6 @@
 # Multi-stage build for React frontend
 FROM node:18-alpine AS build
 
-# Accept build arguments
-ARG VITE_GOOGLE_CLIENT_ID
-ARG VITE_GOOGLE_REDIRECT_URI
-ARG VITE_GOOGLE_AUTH_URI
-ARG VITE_API_BASE_URL
-
 # Set working directory
 WORKDIR /app
 
