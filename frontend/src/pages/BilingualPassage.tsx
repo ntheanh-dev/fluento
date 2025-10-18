@@ -46,9 +46,9 @@ const BilingualPassage = () => {
 
         setVietNameseSentences(data.vietNamesesentences || []);
         setEnglishTranslations(data.englishSentences || []);
-        setCurrentLevel(data.level?.name || '');
-        setCurrentTopic(data.topic?.description || '');
-        setCurrentTone(data.tone?.name || '');
+        setCurrentLevel(data.level?.name || 'Auto-detected');
+        setCurrentTopic(data.topic?.description || 'Custom Text');
+        setCurrentTone(data.tone?.name || 'Auto-detected');
         setType(data.type || '');
 
         if (data.englishSentences.length === data.vietNamesesentences.length && data.vietNamesesentences.length > 0) {
@@ -271,20 +271,17 @@ const BilingualPassage = () => {
               {/* Main Content Row */}
               <div className="flex items-center justify-between mb-4">
                 {/* Main Title - Left Side */}
-                {type === 'CUSTOM_TEXT' ? (
-                  <div className="text-lg font-medium text-blue-600/80 mt-1">
-                    Bài luyện tập dịch tiếng Anh
-                  </div>
-                ) : (
-                  <div className="flex-1">
-                    <h1 className="text-2xl font-bold text-blue-700 leading-tight max-w-2xl">
-                      {currentTopic || 'Loading topic...'}
-                    </h1>
+
+                <div className="flex-1">
+                  <h1 className="text-2xl font-bold text-blue-700 leading-tight max-w-2xl">
+                    {currentTopic || 'Loading topic...'}
+                  </h1>
+                  {type === 'AI_GENERATED' && (
                     <div className="text-lg font-medium text-blue-600/80 mt-1">
                       Level: {currentLevel || 'Loading level...'} - Tone: {currentTone || 'Loading tone...'}
                     </div>
-                  </div>
-                )}
+                  )}
+                </div>
 
 
                 {/* Metrics - Right Side */}

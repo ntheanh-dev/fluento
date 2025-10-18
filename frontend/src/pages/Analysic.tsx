@@ -46,18 +46,25 @@ interface WritingHistory {
     name: string;
     description: string;
     writing: any[];
-  };
+  } | null; // Can be null for custom writings
   level: {
     id: number;
     name: string;
     description: string;
     writings: any[];
-  };
+  } | null; // Can be null for custom writings
   sentenceCount: {
     id: number;
     size: number;
     writings: any[];
-  };
+  } | null; // Can be null for custom writings
+  tone: {
+    id: number;
+    name: string;
+    description: string;
+    writings: any[];
+  } | null; // Can be null for custom writings
+  type: string; // Add type field to distinguish custom vs AI-generated
   createdAt: string;
   updatedAt: string;
 }
@@ -272,8 +279,9 @@ const Analytic = () => {
 
   // Filter data based on debounced search query (for client-side filtering if needed)
   const filteredData = writingHistory.filter(item =>
-    item.topic.description.toLowerCase().includes(debouncedSearchQuery.toLowerCase()) ||
-    item.topic.name.toLowerCase().includes(debouncedSearchQuery.toLowerCase())
+    (item.topic?.description?.toLowerCase().includes(debouncedSearchQuery.toLowerCase()) || false) ||
+    (item.topic?.name?.toLowerCase().includes(debouncedSearchQuery.toLowerCase()) || false) ||
+    (item.type === 'CUSTOM_TEXT' && 'custom text'.includes(debouncedSearchQuery.toLowerCase()))
   );
 
   // Calculate statistics from API data
@@ -611,7 +619,7 @@ const Analytic = () => {
                 </TableRow>
               ) : (
                 filteredData.map((row) => {
-                  const difficultyColors = getDifficultyColor(row.level.name);
+                  const difficultyColors = row.level ? getDifficultyColor(row.level.name) : { bg: '#F3F4F6', color: '#374151' };
                   const averageScore = row.englishSentences.length > 0 ? row.englishSentences.reduce((sum, sentence) => sum + sentence.score, 0) / row.englishSentences.length : 0;
 
                   return (
@@ -635,14 +643,18 @@ const Analytic = () => {
                     >
                       <TableCell className="font-medium">
                         <div>
-                          <div className="font-semibold">{row.topic.description}</div>
-                          <div className="text-sm text-gray-500">{row.topic.name}</div>
+                          <div className="font-semibold">
+                            {row.topic ? row.topic.description : 'Custom Text'}
+                          </div>
+                          <div className="text-sm text-gray-500">
+                            {row.topic ? row.topic.name : 'User-provided content'}
+                          </div>
                         </div>
                       </TableCell>
 
                       <TableCell>
                         <Chip
-                          label={`${row.level.name} - ${row.level.description}`}
+                          label={row.level ? `${row.level.name} - ${row.level.description}` : 'Auto-detected'}
                           size="small"
                           sx={{
                             backgroundColor: difficultyColors.bg,
