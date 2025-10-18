@@ -112,12 +112,19 @@ public class WritingService {
                 .build();
     }
 
-    public HintTranslationResponse generateHints(final String vietnameseSentence) {
+    public HintTranslationResponse generateHints(final String vietnameseSentence, final String level) {
         final String SYSTEM_MESSAGE_TEXT =
                 "You are an expert English learning assistant specializing in helping Vietnamese learners understand sentence structure and vocabulary. "
                         + "Your role is to provide comprehensive, educational hints that help learners translate Vietnamese sentences to English effectively. "
                         + "You must return ONLY valid JSON with no additional text, markdown, or explanations outside the JSON structure. "
                         + "Be precise, educational, and focus on practical learning insights.\n\n"
+                        + "IMPORTANT: Generate vocabulary hints appropriate for " + level + " level proficiency. "
+                        + "Choose English translations that match the vocabulary complexity expected at " + level + " level:\n"
+                        + "- A2: Basic vocabulary, simple words and common expressions\n"
+                        + "- B1: Intermediate vocabulary, familiar topics and everyday situations\n"
+                        + "- B2: Upper-intermediate vocabulary, abstract concepts and complex ideas\n"
+                        + "- C1: Advanced vocabulary, sophisticated language and nuanced expressions\n"
+                        + "- C2: Proficient vocabulary, complex academic and professional terms\n\n"
                         + "JSON Schema (use EXACTLY these property names in camelCase):\n"
                         + "{\n"
                         + "  \"vocabularyHints\": [\n"
@@ -129,23 +136,23 @@ public class WritingService {
                         + "  }\n"
                         + "}\n\n"
                         + "Detailed Requirements:\n"
-                        + "- vocabularyHints: Extract ALL key words/phrases with their most appropriate English translations. Include multiple translations when relevant.\n"
+                        + "- vocabularyHints: Extract ALL key words/phrases with their most appropriate English translations for " + level + " level. Include multiple translations when relevant.\n"
                         + "- kindsOfSentencesAccordingToStructure: Identify sentence type (simple/compound/complex) in both languages with proper Vietnamese terminology.\n"
                         + "- tenses: Identify the main tense/aspect with Vietnamese name, English equivalent, and grammatical pattern (e.g., 'S + V + O', 'S + have/has + V3').\n"
-                        + "- Provide educational value by choosing translations that help learners understand context and usage.\n"
+                        + "- Provide educational value by choosing translations that help learners understand context and usage appropriate for " + level + " level.\n"
                         + "- Maintain JSON validity - no trailing commas, proper escaping, exact property names.";
 
         String promptText =
                 String.format(
-                        "Analyze the Vietnamese sentence below and provide comprehensive learning hints in the specified JSON format.\n\n"
+                        "Analyze the Vietnamese sentence below and provide comprehensive learning hints in the specified JSON format for %s level proficiency.\n\n"
                                 + "Vietnamese sentence: \"%s\"\n\n"
                                 + "Tasks:\n"
-                                + "1. Extract key vocabulary with appropriate English translations\n"
+                                + "1. Extract key vocabulary with appropriate English translations suitable for %s level\n"
                                 + "2. Identify the sentence structure type in both languages\n"
                                 + "3. Determine the main tense/aspect with grammatical pattern\n"
-                                + "4. Ensure all hints support effective Vietnamese-to-English translation learning\n\n"
+                                + "4. Ensure all hints support effective Vietnamese-to-English translation learning at %s level\n\n"
                                 + "Return only the JSON response with exact property names as specified.",
-                        vietnameseSentence);
+                        level, vietnameseSentence, level, level);
 
         final String apiKey = userService.getApiKeyFromContext();
 

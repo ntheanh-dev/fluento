@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.*;
 
 import com.nta.dto.request.GenerateParagraphRequest;
 import com.nta.dto.request.SentenceTranslationRequest;
+import com.nta.dto.request.TranslationHintsRequest;
 import com.nta.dto.response.*;
 import com.nta.service.AuthService;
 import com.nta.service.WritingService;
@@ -29,8 +30,8 @@ public class WritingController {
 
     @PostMapping("/{conversationId}/translation-hints")
     public ApiResponse<HintTranslationResponse> getTranslationHints(
-            @RequestBody String vietnameseSentence, @PathVariable String conversationId) {
-        final HintTranslationResponse response = writingService.generateHints(vietnameseSentence);
+            @RequestBody TranslationHintsRequest request, @PathVariable String conversationId) {
+        final HintTranslationResponse response = writingService.generateHints(request.getVietnameseSentence(), request.getLevel());
         return ApiResponse.<HintTranslationResponse>builder().result(response).build();
     }
 
