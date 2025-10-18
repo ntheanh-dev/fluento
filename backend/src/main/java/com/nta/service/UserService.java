@@ -32,7 +32,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserService {
     UserRepository userRepository;
     UserMapper userMapper;
-
+    PasswordEncoder passwordEncoder;
     public void createPassword(final PasswordCreationRequest passwordCreationRequest) {
         final User user = this.getUserFromContext();
 
@@ -40,15 +40,12 @@ public class UserService {
             throw new AppException(ErrorCode.PASSWORD_EXISTED);
         }
 
-        final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
-
         user.setPassword(passwordEncoder.encode(passwordCreationRequest.getPassword()));
         userRepository.save(user);
     }
 
     public void changePassword(final ChangePasswordRequest changePasswordRequest) {
         final User user = this.getUserFromContext();
-        final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
 
         // Check if user has a password
         if (!StringUtils.hasText(user.getPassword())) {

@@ -12,6 +12,8 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -37,11 +39,19 @@ public class DataInitializer {
             ToneRepository toneRepository,
             UserRepository userRepository,
             NoteTypeRepository noteTypeRepository,
-            FieldRepository fieldRepository) {
+            FieldRepository fieldRepository,
+            PasswordEncoder passwordEncoder) {
         return args -> {
             // Initialization logic here
             System.out.println(
                     "DataInitializer: Application started, performing initialization...");
+
+            if(userRepository.findByUsername("admin").isEmpty()) {
+                userRepository.save(User.builder()
+                        .username("a@a.com")
+                        .password(passwordEncoder.encode("admin123"))
+                        .build());
+            }
 
             if (topicRepository.count() == 0 && topicGroupRepository.count() == 0) {
                 final TopicGroup topicGroup1 =

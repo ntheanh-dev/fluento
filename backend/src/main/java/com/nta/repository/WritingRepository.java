@@ -27,7 +27,9 @@ public interface WritingRepository extends JpaRepository<Writing, Long> {
     Page<Writing> findByUserId(@Param("userId") Long userId, Pageable pageable);
 
     @Query(
-            "SELECT w FROM Writing w JOIN w.topic t WHERE LOWER(t.name) LIKE LOWER(CONCAT('%', :keyword, '%')) AND w.user.id = :userId")
+            "SELECT w FROM Writing w WHERE w.user.id = :userId AND " +
+            "(w.topic IS NOT NULL AND LOWER(w.topic.name) LIKE LOWER(CONCAT('%', :keyword, '%')) " +
+            "OR w.type = 'CUSTOM_TEXT' AND LOWER('Custom Text') LIKE LOWER(CONCAT('%', :keyword, '%')))")
     Page<Writing> searchByTopicNameAndUserId(
             @Param("keyword") String keyword, @Param("userId") Long userId, Pageable pageable);
 
