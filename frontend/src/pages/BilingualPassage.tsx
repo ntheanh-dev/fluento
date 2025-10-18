@@ -114,7 +114,7 @@ const BilingualPassage = () => {
   const handleGetTranslationHints = async () => {
     // Try cached hints first (cache key based on conversation and current sentence index)
     const currentIndex = englishTranslations.length;
-    const cacheKey = `translationHints:${conversationId}:${currentIndex}`;
+    const cacheKey = `translationHints:${conversationId}:${currentIndex}:${currentLevel}`;
     try {
       const cached = localStorage.getItem(cacheKey);
       if (cached) {
@@ -131,7 +131,8 @@ const BilingualPassage = () => {
     showOverlay({ message: 'Đang tải gợi ý dịch thuật...' });
     try {
       const response = await api.post(`/writings/${conversationId}/translation-hints`, {
-        vietnameseSentence: vietNameseSentences[currentIndex]
+        vietnameseSentence: vietNameseSentences[currentIndex],
+        level: currentLevel
       });
 
       if (response.data?.code === 1000) {
