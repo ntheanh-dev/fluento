@@ -58,9 +58,6 @@ public class Writing {
     @Column(name = "custom_text", columnDefinition = "TEXT")
     private String customText;
 
-    @Column(name = "translated_paragraph", columnDefinition = "TEXT")
-    private String translatedParagraph;
-
     @OneToMany(mappedBy = "writing", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     @Column(name = "english_sentences", columnDefinition = "TEXT")
     @JsonManagedReference
