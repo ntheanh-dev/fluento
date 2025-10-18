@@ -29,4 +29,5 @@ public class WritingResponse {
     private LocalDateTime createdAt;
 
     private LocalDateTime updatedAt;
+    private WritingType type;
 }

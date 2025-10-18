@@ -28,6 +28,10 @@ public class Writing {
     @Column(name = "conversation_id", nullable = false, unique = true)
     private String conversationId;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "type", nullable = false)
+    private WritingType type;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
@@ -50,6 +54,9 @@ public class Writing {
 
     @Column(name = "vietnamese_paragraph", columnDefinition = "TEXT")
     private String vietnameseParagraph;
+
+    @Column(name = "custom_text", columnDefinition = "TEXT")
+    private String customText;
 
     @Column(name = "translated_paragraph", columnDefinition = "TEXT")
     private String translatedParagraph;

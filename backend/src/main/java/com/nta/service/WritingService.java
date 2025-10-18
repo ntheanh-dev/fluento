@@ -6,8 +6,10 @@ import com.nta.dto.response.GenerateParagraphResponse;
 import com.nta.dto.response.HintTranslationResponse;
 import com.nta.dto.response.SentenceTranslationResponse;
 import com.nta.dto.response.WritingResponse;
+import com.nta.entity.SentenceCount;
 import com.nta.entity.User;
 import com.nta.entity.Writing;
+import com.nta.entity.WritingType;
 import com.nta.mapper.WritingMapper;
 import com.nta.repository.*;
 
@@ -52,55 +54,70 @@ public class WritingService {
 
     public GenerateParagraphResponse generateParagraph(final GenerateParagraphRequest request) {
 
-        final String systemMessage =
-                "You are an expert language learning assistant specializing in creating educational content for Vietnamese learners studying English. "
-                        + "Your task is to generate well-structured, coherent paragraphs that help learners practice reading and translation skills. "
-                        + "Always ensure the content is culturally appropriate, engaging, and educational. "
-                        + "The paragraphs should flow naturally and contain vocabulary appropriate for the specified language proficiency level.";
-
-        final String promptText =
-                String.format(
-                        "Create a well-structured paragraph in %s with around %d sentences about the topic '%s'. "
-                                + "Requirements:\n"
-                                + "- Use vocabulary and grammar appropriate for %s proficiency level\n"
-                                + "- Maintain a %s tone throughout the text\n"
-                                + "- Ensure sentences are connected logically with appropriate transitions\n"
-                                + "- Make the content engaging and educational for Vietnamese learners\n"
-                                + "- Focus on practical, real-world applications of the topic\n"
-                                + "- Use varied sentence structures to enhance learning value\n\n"
-                                + "Topic: %s\nLanguage: %s\nLevel: %s\nTone: %s\nSentences: %d",
-                        request.getLanguage(),
-                        request.getSentenceCount(),
-                        request.getTopic(),
-                        request.getLevel(),
-                        request.getTone(),
-                        request.getTopic(),
-                        request.getLanguage(),
-                        request.getLevel(),
-                        request.getTone(),
-                        request.getSentenceCount());
-
         final String conversationId = UUID.randomUUID().toString();
+        final String pharagraph;
 
-        final String apiKey = userService.getApiKeyFromContext();
+        // Check if this is a custom text request
+		final boolean isCustomText = request.getCustomText() != null && !request.getCustomText().trim().isEmpty();
+        
+        if (isCustomText) {
+            // Custom text mode - use the text directly without AI processing
+            pharagraph = request.getCustomText().trim();
+        } else {
+            // Original mode - generate new content using AI
+            final String systemMessage =
+                    "You are an expert language learning assistant specializing in creating educational content for Vietnamese learners studying English. "
+                            + "Your task is to generate well-structured, coherent paragraphs that help learners practice reading and translation skills. "
+                            + "Always ensure the content is culturally appropriate, engaging, and educational. "
+                            + "The paragraphs should flow naturally and contain vocabulary appropriate for the specified language proficiency level.";
 
-        final String pharagraph =
-				geminiAiChatService.sendMessage(apiKey, systemMessage, promptText, String.class);
+            final String promptText =
+                    String.format(
+                            "Create a well-structured paragraph in %s with around %d sentences about the topic '%s'. "
+                                    + "Requirements:\n"
+                                    + "- Use vocabulary and grammar appropriate for %s proficiency level\n"
+                                    + "- Maintain a %s tone throughout the text\n"
+                                    + "- Ensure sentences are connected logically with appropriate transitions\n"
+                                    + "- Make the content engaging and educational for Vietnamese learners\n"
+                                    + "- Focus on practical, real-world applications of the topic\n"
+                                    + "- Use varied sentence structures to enhance learning value\n\n"
+                                    + "Topic: %s\nLanguage: %s\nLevel: %s\nTone: %s\nSentences: %d",
+                            request.getLanguage(),
+                            request.getSentenceCount(),
+                            request.getTopic(),
+                            request.getLevel(),
+                            request.getTone(),
+                            request.getTopic(),
+                            request.getLanguage(),
+                            request.getLevel(),
+                            request.getTone(),
+                            request.getSentenceCount());
+
+            final String apiKey = userService.getApiKeyFromContext();
+            pharagraph = geminiAiChatService.sendMessage(apiKey, systemMessage, promptText, String.class);
+        }
 
         final User user = userService.getUserFromContext();
 
         final Writing writing =
                 Writing.builder()
                         .conversationId(conversationId)
-                        .topic(topicRepository.findByName(request.getTopic()).orElse(null))
-                        .level(levelRepository.findByName(request.getLevel()).orElse(null))
+                        .type(isCustomText ? WritingType.CUSTOM_TEXT : WritingType.AI_GENERATED)
+                        .topic(isCustomText 
+                                ? null // No specific topic for custom text
+                                : topicRepository.findByName(request.getTopic()).orElse(null))
+                        .level(isCustomText
+                                ? null // No specific level for custom text
+                                : levelRepository.findByName(request.getLevel()).orElse(null))
                         .user(user)
-                        .sentenceCount(
-                                sentenceCountRepository
-                                        .findBySize(request.getSentenceCount())
-                                        .orElse(null))
-                        .tone(toneRepository.findByName(request.getTone()).orElse(null))
+                        .sentenceCount(isCustomText
+                                ? null // No specific sentence count for custom text
+                                : sentenceCountRepository.findBySize(request.getSentenceCount()).orElse(null))
+                        .tone(isCustomText
+                                ? null // No specific tone for custom text
+                                : toneRepository.findByName(request.getTone()).orElse(null))
                         .vietnameseParagraph(pharagraph)
+                        .customText(isCustomText ? request.getCustomText().trim() : null)
                         .createdAt(LocalDateTime.now())
                         .build();
 
@@ -267,10 +284,13 @@ public class WritingService {
         final Writing writing =
                 writingRepository.findByConversationIdWithSentences(conversationId).orElse(null);
         final WritingResponse response = writingMapper.toWritingResponse(writing);
+		List<String> vietNamesesentences = List.of(writing.getVietnameseParagraph().split("(?<=[.!?])\\s+"));
 
-        assert writing != null;
-        response.setVietNamesesentences(
-                List.of(writing.getVietnameseParagraph().split("(?<=[.!?])\\s+")));
+		if(response.getType() != WritingType.AI_GENERATED) {
+            response.setSentenceCount(
+                    SentenceCount.builder().size(vietNamesesentences.size()).build());
+		}
+        response.setVietNamesesentences(vietNamesesentences);
         return response;
     }
 
