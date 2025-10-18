@@ -18,6 +18,7 @@ const BilingualPassage = () => {
   const [currentLevel, setCurrentLevel] = useState<string>('');
   const [currentTopic, setCurrentTopic] = useState<string>('');
   const [currentTone, setCurrentTone] = useState<string>('');
+  const [type, setType] = useState<string>('');
 
   // New state for translation hints
   const [translationHints, setTranslationHints] = useState<TranslationHintsResponse | null>(null);
@@ -48,6 +49,7 @@ const BilingualPassage = () => {
         setCurrentLevel(data.level?.name || '');
         setCurrentTopic(data.topic?.description || '');
         setCurrentTone(data.tone?.name || '');
+        setType(data.type || '');
 
         if (data.englishSentences.length === data.vietNamesesentences.length && data.vietNamesesentences.length > 0) {
           setShowDetailModal(true);
@@ -269,14 +271,21 @@ const BilingualPassage = () => {
               {/* Main Content Row */}
               <div className="flex items-center justify-between mb-4">
                 {/* Main Title - Left Side */}
-                <div className="flex-1">
-                  <h1 className="text-2xl font-bold text-blue-700 leading-tight max-w-2xl">
-                    {currentTopic || 'Loading topic...'}
-                  </h1>
+                {type === 'CUSTOM_TEXT' ? (
                   <div className="text-lg font-medium text-blue-600/80 mt-1">
-                    Level: {currentLevel || 'Loading level...'} - Tone: {currentTone || 'Loading tone...'}
+                    Bài luyện tập dịch tiếng Anh
                   </div>
-                </div>
+                ) : (
+                  <div className="flex-1">
+                    <h1 className="text-2xl font-bold text-blue-700 leading-tight max-w-2xl">
+                      {currentTopic || 'Loading topic...'}
+                    </h1>
+                    <div className="text-lg font-medium text-blue-600/80 mt-1">
+                      Level: {currentLevel || 'Loading level...'} - Tone: {currentTone || 'Loading tone...'}
+                    </div>
+                  </div>
+                )}
+
 
                 {/* Metrics - Right Side */}
                 <div className="flex items-center gap-6">

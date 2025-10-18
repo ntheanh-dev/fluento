@@ -7,6 +7,8 @@ import {
   ListSubheader,
   CircularProgress,
   Slider,
+  Tabs,
+  Tab,
 } from "@mui/material";
 import { Settings, PlayArrow, MenuBook } from "@mui/icons-material";
 import { useState, useEffect } from "react";
@@ -24,6 +26,7 @@ import type {
   WritingGenerationResponse
 } from "../types";
 
+// Updated WritingGenerationRequest interface now supports customText
 const COLOR_BLACK = "#000000";
 const COLOR_NAVY = "#131f38";
 const COLOR_GRAY = "#e7e7e7";
@@ -31,10 +34,18 @@ const COLOR_GRAY = "#e7e7e7";
 const Writing = () => {
   const navigate = useNavigate();
 
+  // Tab state
+  const [activeTab, setActiveTab] = useState<number>(0);
+
+  // Configuration tab states
   const [selectedLevel, setSelectedLevel] = useState<string>("Trung bình");
   const [selectedTopic, setSelectedTopic] = useState<string>("");
   const [sentenceCount, setSentenceCount] = useState<number>(5);
   const [selectedTone, setSelectedTone] = useState<string>("");
+
+  // Paste tab states
+  const [pastedText, setPastedText] = useState<string>("");
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [snackbar, setSnackbar] = useState<{ open: boolean; message: string; severity: "success" | "error" }>({ open: false, message: "", severity: "success" });
 
@@ -168,20 +179,38 @@ const Writing = () => {
     fetchTones();
   }, []);
 
-  // Topic-only flow: no custom input
-
   const handleStartWriting = async () => {
     try {
       setIsSubmitting(true);
       showOverlay({ message: "Đang tạo bài luyện viết..." });
 
-      const payload: WritingGenerationRequest = {
-        level: selectedLevel,
-        topic: selectedTopic,
-        language: "vietnamese",
-        sentenceCount: sentenceCount,
-        tone: selectedTone
-      };
+      let payload: WritingGenerationRequest;
+
+      if (activeTab === 0) {
+        // Configuration tab - use selected configurations
+        payload = {
+          level: selectedLevel,
+          topic: selectedTopic,
+          language: "vietnamese",
+          sentenceCount: sentenceCount,
+          tone: selectedTone
+        };
+      } else {
+        // Paste tab - use pasted text
+        if (!pastedText.trim()) {
+          setSnackbar({ open: true, message: "Vui lòng nhập đoạn văn để luyện tập.", severity: "error" });
+          return;
+        }
+
+        payload = {
+          level: "Auto", // AI sẽ tự động phân tích độ khó
+          topic: "Custom Text",
+          language: "vietnamese",
+          sentenceCount: 0, // AI sẽ tự động quyết định số câu
+          tone: "Auto", // AI sẽ tự động phân tích ngữ điệu
+          customText: pastedText.trim()
+        };
+      }
 
       const response = await api.post<ApiResponse<WritingGenerationResponse>>("/writings/generate", payload);
 
@@ -228,13 +257,191 @@ const Writing = () => {
     ]);
   };
 
+  // Render configuration tab content
+  const renderConfigurationTab = () => (
+    <Box className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      {/* Left Column */}
+      <Box className="space-y-6">
+        {/* Topic Selection */}
+        <Box>
+          <Typography variant="h6" className="font-semibold text-gray-800 mb-3">
+            Chủ đề
+          </Typography>
+          <TextField
+            select
+            fullWidth
+            value={selectedTopic}
+            onChange={(e) => setSelectedTopic(e.target.value)}
+            placeholder="Chọn chủ đề..."
+            className="bg-gray-50 rounded-xl"
+            InputProps={{
+              style: { borderRadius: 12 }
+            }}
+          >
+            {renderTopicOptions()}
+          </TextField>
+        </Box>
+
+        {/* Sentence Count Slider */}
+        <Box>
+          <Typography variant="h6" className="font-semibold text-gray-800 mb-3">
+            Số câu
+          </Typography>
+          {isLoadingSentenceCounts ? (
+            <Box className="flex justify-center py-8">
+              <CircularProgress size={24} />
+            </Box>
+          ) : sentenceCountsError ? (
+            <Typography variant="body2" className="text-red-500 text-center py-4">
+              {sentenceCountsError}
+            </Typography>
+          ) : sentenceCounts.length > 0 ? (
+            <>
+              <Box className="px-4">
+                <Slider
+                  value={sentenceCount}
+                  onChange={(_, value) => setSentenceCount(value as number)}
+                  min={Math.min(...sentenceCounts.map(s => s.size))}
+                  max={Math.max(...sentenceCounts.map(s => s.size))}
+                  step={1}
+                  marks={sentenceCounts.map(count => ({
+                    value: count.size,
+                    label: `${count.size} câu`
+                  }))}
+                  sx={{
+                    '& .MuiSlider-markLabel': {
+                      color: sentenceCounts.some(s => s.size === sentenceCount) ? '#3b82f6' : '#6b7280',
+                      fontWeight: sentenceCounts.some(s => s.size === sentenceCount) ? 600 : 400
+                    },
+                    '& .MuiSlider-track': {
+                      backgroundColor: '#3b82f6'
+                    },
+                    '& .MuiSlider-thumb': {
+                      backgroundColor: '#3b82f6'
+                    }
+                  }}
+                />
+              </Box>
+            </>
+          ) : (
+            <Typography variant="body2" className="text-gray-500 text-center py-4">
+              Không có dữ liệu số câu
+            </Typography>
+          )}
+        </Box>
+      </Box>
+
+      {/* Right Column */}
+      <Box className="space-y-6">
+        {/* Difficulty Level */}
+        <Box>
+          <Typography variant="h6" className="font-semibold text-gray-800 mb-3">
+            Độ khó
+          </Typography>
+          {isLoadingLevels ? (
+            <Box className="flex justify-center py-8">
+              <CircularProgress size={24} />
+            </Box>
+          ) : levelsError ? (
+            <Typography variant="body2" className="text-red-500 text-center py-4">
+              {levelsError}
+            </Typography>
+          ) : levels.length > 0 ? (
+            <Box className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+              {levels.map((level) => (
+                <button
+                  key={level.id}
+                  onClick={() => setSelectedLevel(level.name)}
+                  className={`py-4 px-6 rounded-xl border-2 transition-all duration-200 hover:shadow-md ${selectedLevel === level.name
+                    ? 'border-blue-500 bg-blue-500 text-white shadow-lg'
+                    : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300'
+                    }`}
+                >
+                  <Typography variant="body2" className="font-medium text-center">
+                    {level.description}
+                  </Typography>
+                </button>
+              ))}
+            </Box>
+          ) : (
+            <Typography variant="body2" className="text-gray-500 text-center py-4">
+              Không có dữ liệu mức độ
+            </Typography>
+          )}
+        </Box>
+
+        {/* Tone/Style Selection */}
+        <Box>
+          <Typography variant="h6" className="font-semibold text-gray-800 mb-3">
+            Ngữ điệu
+          </Typography>
+          {isLoadingTones ? (
+            <Box className="flex justify-center py-8">
+              <CircularProgress size={24} />
+            </Box>
+          ) : tonesError ? (
+            <Typography variant="body2" className="text-red-500 text-center py-4">
+              {tonesError}
+            </Typography>
+          ) : tones.length > 0 ? (
+            <TextField
+              select
+              fullWidth
+              value={selectedTone}
+              onChange={(e) => setSelectedTone(e.target.value)}
+              className="bg-gray-50 rounded-xl"
+              InputProps={{
+                style: { borderRadius: 12 }
+              }}
+            >
+              {tones.map((tone) => (
+                <MenuItem key={tone.id} value={tone.name}>
+                  <Typography variant="body2" className="font-medium text-gray-800">
+                    {tone.description}
+                  </Typography>
+                </MenuItem>
+              ))}
+            </TextField>
+          ) : (
+            <Typography variant="body2" className="text-gray-500 text-center py-4">
+              Không có dữ liệu ngữ điệu
+            </Typography>
+          )}
+        </Box>
+      </Box>
+    </Box>
+  );
+
+  // Render paste tab content
+  const renderPasteTab = () => (
+    <Box className="space-y-6">
+      <Box>
+        <Typography variant="h6" className="font-semibold text-gray-800 mb-3">
+          Nhập đoạn văn của bạn
+        </Typography>
+        <TextField
+          multiline
+          rows={12}
+          fullWidth
+          value={pastedText}
+          onChange={(e) => setPastedText(e.target.value)}
+          placeholder="Dán đoạn văn tiếng Việt mà bạn muốn luyện dịch sang tiếng Anh..."
+          className="bg-gray-50 rounded-xl"
+          InputProps={{
+            style: { borderRadius: 12 }
+          }}
+        />
+      </Box>
+    </Box>
+  );
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 py-8">
       <Container maxWidth="lg">
         {/* Hero Header */}
         <Box className="text-center mb-16">
           {/* Icon with enhanced styling */}
-          <Box className="flex justify-center mb-8">
+          <Box className="flex justify-center mb-4">
             <Box className="w-20 h-20 bg-gradient-to-br from-white to-blue-50 rounded-full shadow-xl flex items-center justify-center border border-blue-100 transform hover:scale-105 transition-all duration-300">
               <MenuBook className="text-blue-600 text-4xl drop-shadow-sm" />
             </Box>
@@ -266,7 +473,7 @@ const Writing = () => {
         </Box>
 
         {/* Main Configuration Card */}
-        <Box className="bg-white rounded-3xl shadow-xl p-8 max-w-4xl mx-auto">
+        <Box className="bg-white rounded-3xl shadow-xl p-8 max-w-5xl mx-auto">
           {/* Card Header */}
           <Box className="flex items-center gap-3 mb-8">
             <Settings className="text-blue-600 text-2xl" />
@@ -275,166 +482,46 @@ const Writing = () => {
             </Typography>
           </Box>
 
-          <Box className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {/* Left Column */}
-            <Box className="space-y-6">
-              {/* Topic Selection */}
-              <Box>
-                <Typography variant="h6" className="font-semibold text-gray-800 mb-3">
-                  Chủ đề
-                </Typography>
-                <TextField
-                  select
-                  fullWidth
-                  value={selectedTopic}
-                  onChange={(e) => setSelectedTopic(e.target.value)}
-                  placeholder="Chọn chủ đề..."
-                  className="bg-gray-50 rounded-xl"
-                  InputProps={{
-                    style: { borderRadius: 12 }
-                  }}
-                >
-                  {renderTopicOptions()}
-                </TextField>
-              </Box>
-
-              {/* Sentence Count Slider */}
-              <Box>
-                <Typography variant="h6" className="font-semibold text-gray-800 mb-3">
-                  Số câu
-                </Typography>
-                {isLoadingSentenceCounts ? (
-                  <Box className="flex justify-center py-8">
-                    <CircularProgress size={24} />
-                  </Box>
-                ) : sentenceCountsError ? (
-                  <Typography variant="body2" className="text-red-500 text-center py-4">
-                    {sentenceCountsError}
-                  </Typography>
-                ) : sentenceCounts.length > 0 ? (
-                  <>
-                    <Box className="px-4">
-                      <Slider
-                        value={sentenceCount}
-                        onChange={(_, value) => setSentenceCount(value as number)}
-                        min={Math.min(...sentenceCounts.map(s => s.size))}
-                        max={Math.max(...sentenceCounts.map(s => s.size))}
-                        step={1}
-                        marks={sentenceCounts.map(count => ({
-                          value: count.size,
-                          label: `${count.size} câu`
-                        }))}
-                        sx={{
-                          '& .MuiSlider-markLabel': {
-                            color: sentenceCounts.some(s => s.size === sentenceCount) ? '#3b82f6' : '#6b7280',
-                            fontWeight: sentenceCounts.some(s => s.size === sentenceCount) ? 600 : 400
-                          },
-                          '& .MuiSlider-track': {
-                            backgroundColor: '#3b82f6'
-                          },
-                          '& .MuiSlider-thumb': {
-                            backgroundColor: '#3b82f6'
-                          }
-                        }}
-                      />
-                    </Box>
-                  </>
-                ) : (
-                  <Typography variant="body2" className="text-gray-500 text-center py-4">
-                    Không có dữ liệu số câu
-                  </Typography>
-                )}
-              </Box>
-            </Box>
-
-            {/* Right Column */}
-            <Box className="space-y-6">
-              {/* Difficulty Level */}
-              <Box>
-                <Typography variant="h6" className="font-semibold text-gray-800 mb-3">
-                  Độ khó
-                </Typography>
-                {isLoadingLevels ? (
-                  <Box className="flex justify-center py-8">
-                    <CircularProgress size={24} />
-                  </Box>
-                ) : levelsError ? (
-                  <Typography variant="body2" className="text-red-500 text-center py-4">
-                    {levelsError}
-                  </Typography>
-                ) : levels.length > 0 ? (
-                  <Box className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                    {levels.map((level) => (
-                      <button
-                        key={level.id}
-                        onClick={() => setSelectedLevel(level.name)}
-                        className={`py-4 px-6 rounded-xl border-2 transition-all duration-200 hover:shadow-md ${selectedLevel === level.name
-                          ? 'border-blue-500 bg-blue-500 text-white shadow-lg'
-                          : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300'
-                          }`}
-                      >
-                        <Typography variant="body2" className="font-medium text-center">
-                          {level.description}
-                        </Typography>
-                      </button>
-                    ))}
-                  </Box>
-                ) : (
-                  <Typography variant="body2" className="text-gray-500 text-center py-4">
-                    Không có dữ liệu mức độ
-                  </Typography>
-                )}
-              </Box>
-
-              {/* Tone/Style Selection */}
-              <Box>
-                <Typography variant="h6" className="font-semibold text-gray-800 mb-3">
-                  Ngữ điệu
-                </Typography>
-                {isLoadingTones ? (
-                  <Box className="flex justify-center py-8">
-                    <CircularProgress size={24} />
-                  </Box>
-                ) : tonesError ? (
-                  <Typography variant="body2" className="text-red-500 text-center py-4">
-                    {tonesError}
-                  </Typography>
-                ) : tones.length > 0 ? (
-                  <TextField
-                    select
-                    fullWidth
-                    value={selectedTone}
-                    onChange={(e) => setSelectedTone(e.target.value)}
-                    className="bg-gray-50 rounded-xl"
-                    InputProps={{
-                      style: { borderRadius: 12 }
-                    }}
-                  >
-                    {tones.map((tone) => (
-                      <MenuItem key={tone.id} value={tone.name}>
-                        <Typography variant="body2" className="font-medium text-gray-800">
-                          {tone.description}
-                        </Typography>
-                      </MenuItem>
-                    ))}
-                  </TextField>
-                ) : (
-                  <Typography variant="body2" className="text-gray-500 text-center py-4">
-                    Không có dữ liệu ngữ điệu
-                  </Typography>
-                )}
-              </Box>
-            </Box>
+          {/* Tabs */}
+          <Box className="mb-8">
+            <Tabs
+              value={activeTab}
+              onChange={(_, newValue) => setActiveTab(newValue)}
+              centered
+              sx={{
+                '& .MuiTabs-indicator': {
+                  backgroundColor: '#3b82f6',
+                  height: 3,
+                  borderRadius: '2px'
+                },
+                '& .MuiTab-root': {
+                  textTransform: 'none',
+                  fontSize: '1rem',
+                  fontWeight: 600,
+                  color: '#6b7280',
+                  '&.Mui-selected': {
+                    color: '#3b82f6'
+                  }
+                }
+              }}
+            >
+              <Tab label="Chọn chủ đề có sẵn" />
+              <Tab label="Nhập đoạn văn của bạn" />
+            </Tabs>
           </Box>
 
-
+          {/* Tab Content */}
+          <Box>
+            {activeTab === 0 && renderConfigurationTab()}
+            {activeTab === 1 && renderPasteTab()}
+          </Box>
 
           {/* Action Button */}
           <Box className="flex justify-center mt-10">
             <button
               className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white px-12 py-4 rounded-xl font-semibold text-lg transition-all duration-300 shadow-lg hover:shadow-xl flex items-center gap-3"
               onClick={handleStartWriting}
-              disabled={isSubmitting || (!selectedTopic || !selectedLevel || !sentenceCount || !selectedTone)}
+              disabled={isSubmitting || (activeTab === 0 && (!selectedLevel || !sentenceCount || !selectedTone || !selectedTopic)) || (activeTab === 1 && !pastedText.trim())}
             >
               <PlayArrow className="text-xl" />
               Bắt đầu luyện tập
