@@ -46,7 +46,7 @@ public class DataInitializer {
             System.out.println(
                     "DataInitializer: Application started, performing initialization...");
 
-            if(userRepository.findByUsername("admin").isEmpty()) {
+            if(userRepository.findByUsername("a@a.com").isEmpty()) {
                 userRepository.save(User.builder()
                         .username("a@a.com")
                         .password(passwordEncoder.encode("admin123"))
