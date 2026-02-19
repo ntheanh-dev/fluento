@@ -23,7 +23,7 @@ public class AuthenticationRequest {
 
     @Schema(description = "Password", example = "password123", defaultValue = "")
     @NotBlank(message = "Password cannot be blank")
-    @Size(min = 8, max = 20, message = "PASSWORD_INVALID")
+    @Size(min = 8, max = 20, message = "VALIDATION_PASSWORD_INVALID")
     @NotNull(message = "Password cannot be null")
     String password;
 }

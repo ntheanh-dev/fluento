@@ -14,6 +14,9 @@ public enum ErrorCode {
     PASSWORD_INVALID(903, "Mật khẩu không hợp lệ", HttpStatus.BAD_REQUEST),
     NOT_NULL(904, "Trường này không được null", HttpStatus.BAD_REQUEST),
     EMAIL_INVALID(905, "Email không hợp lệ", HttpStatus.BAD_REQUEST),
+    CURRENT_PASSWORD_INVALID(906, "Mật khẩu hiện tại không hợp lệ", HttpStatus.BAD_REQUEST),
+    VALIDATION_PASSWORD_INVALID(907, "Mật khẩu phải có từ 8 đến 20 ký tự", HttpStatus.BAD_REQUEST),
+    UPLOAD_FILE_ERROR(908, "Error when uploading file", HttpStatus.INTERNAL_SERVER_ERROR),
 
     // Authentication & user errors (10xx)
     USERNAME_EXISTED(1002, "This username has already existed", HttpStatus.CONFLICT),

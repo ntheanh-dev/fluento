@@ -65,3 +65,10 @@ app:
     allowed-headers: Authorization,Content-Type
     allow-credentials: true
     max-age: 3600
+
+cloudinary:
+  cloud-name: dqpo9h5s2
+  api-key: 247473939561997
+  api-secret: lZZWOntBPCDWEnECsmWIalOtl08
+  secure: true
+  folder: fluento

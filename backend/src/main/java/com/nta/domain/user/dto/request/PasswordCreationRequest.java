@@ -13,6 +13,6 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class PasswordCreationRequest {
     @Schema(description = "Password (minimum 8 characters)", example = "password123", defaultValue = "")
-    @Size(min = 8, message = "PASSWORD_INVALID")
+    @Size(min = 8, max = 20, message = "VALIDATION_PASSWORD_INVALID")
     String password;
 }

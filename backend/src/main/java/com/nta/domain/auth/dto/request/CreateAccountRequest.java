@@ -21,7 +21,7 @@ public class CreateAccountRequest {
     String username;
 
     @Schema(description = "Password (8-20 characters)", example = "password123", defaultValue = "")
-    @Size(min = 8, max = 20, message = "PASSWORD_INVALID")
+    @Size(min = 8, max = 20, message = "VALIDATION_PASSWORD_INVALID")
     @NotBlank(message = "NOT_BLANK")
     @NotNull(message = "NOT_NULL")
     String password;

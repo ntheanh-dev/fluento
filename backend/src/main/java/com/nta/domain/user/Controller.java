@@ -8,6 +8,7 @@ import com.nta.common.dto.ApiResponse;
 import com.nta.domain.user.dto.request.ChangePasswordRequest;
 import com.nta.domain.user.dto.request.CreateApiKeyRequest;
 import com.nta.domain.user.dto.request.PasswordCreationRequest;
+import com.nta.domain.user.dto.request.UpdateUserAvatarRequest;
 import com.nta.domain.user.dto.response.ApiKeyResponse;
 import com.nta.domain.user.dto.response.UserResponse;
 
@@ -27,7 +28,7 @@ public class Controller {
 
     Service service;
 
-    @PostMapping("/create-password")
+    @PostMapping("/me/password")
     ApiResponse<Void> createPassword(@RequestBody @Valid PasswordCreationRequest request) {
         log.debug("Create password requested");
         service.createPassword(request);
@@ -36,7 +37,7 @@ public class Controller {
                 .build();
     }
 
-    @PutMapping("/change-password")
+    @PutMapping("/me/password")
     ApiResponse<Void> changePassword(@RequestBody @Valid ChangePasswordRequest request) {
         log.debug("Change password requested");
         service.changePassword(request);
@@ -45,9 +46,16 @@ public class Controller {
                 .build();
     }
 
-    @GetMapping("/my-info")
+    @GetMapping("/me")
     ApiResponse<UserResponse> getMyInfo() {
         return ApiResponse.<UserResponse>builder().result(service.getMyInfo()).build();
+    }
+
+    @PutMapping("/me/avatar")
+    ApiResponse<UserResponse> changeAvatar(@RequestBody @Valid UpdateUserAvatarRequest request) {
+        return ApiResponse.<UserResponse>builder()
+                .result(service.updateAvatar(request))
+                .build();
     }
 
     // API Key Management Endpoints

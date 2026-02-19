@@ -1,5 +1,7 @@
 package com.nta.domain.user;
 
+import java.io.IOException;
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -9,9 +11,11 @@ import org.springframework.util.StringUtils;
 
 import com.nta.common.enums.ErrorCode;
 import com.nta.common.exception.AppException;
+import com.nta.common.service.cloudinary.CloudinaryFileUploadService;
 import com.nta.domain.user.dto.request.ChangePasswordRequest;
 import com.nta.domain.user.dto.request.CreateApiKeyRequest;
 import com.nta.domain.user.dto.request.PasswordCreationRequest;
+import com.nta.domain.user.dto.request.UpdateUserAvatarRequest;
 import com.nta.domain.user.dto.response.ApiKeyResponse;
 import com.nta.domain.user.dto.response.UserResponse;
 
@@ -28,6 +32,7 @@ public class Service {
     Repository repository;
     Mapper mapper;
     PasswordEncoder passwordEncoder;
+    private final CloudinaryFileUploadService cloudinaryFileUploadService;
 
     public void createPassword(final PasswordCreationRequest passwordCreationRequest) {
         final User user = this.getUserFromContext();
@@ -54,13 +59,30 @@ public class Service {
                 passwordEncoder.matches(changePasswordRequest.getCurrentPassword(), user.getPassword());
 
         if (!isCurrentPasswordValid) {
-            throw new AppException(ErrorCode.INCORRECT_PASSWORD);
+            throw new AppException(ErrorCode.CURRENT_PASSWORD_INVALID);
         }
 
         // Set new password
         user.setPassword(passwordEncoder.encode(changePasswordRequest.getNewPassword()));
         repository.save(user);
         log.info("Password changed for user: {}", user.getUsername());
+    }
+
+    public UserResponse updateAvatar(final UpdateUserAvatarRequest request) {
+        final User user = this.getUserFromContext();
+        try {
+            if (!StringUtils.hasText(user.getUrlAvatar())) {
+                cloudinaryFileUploadService.deleteFile(user.getUrlAvatar());
+            }
+            Map<String, Object> uploadResult =
+                    cloudinaryFileUploadService.uploadFile(request.getUrlAvatar(), "fluento/avatar");
+            user.setUrlAvatar(uploadResult.get("url").toString());
+            repository.save(user);
+            log.info("Avatar updated for user: {}", user.getUsername());
+            return mapper.toUserResponse(user);
+        } catch (IOException e) {
+            throw new AppException(ErrorCode.UPLOAD_FILE_ERROR);
+        }
     }
 
     public UserResponse getMyInfo() {
