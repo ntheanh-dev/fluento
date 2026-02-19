@@ -38,7 +38,7 @@ public class SecurityConfig {
         "/roles",
         "/auth/outbound/authentication",
     };
-    private final String[] PUBLIC_GET_ENDPOINTS = {};
+    private final String[] PUBLIC_GET_ENDPOINTS = {"/health", "/docs/**", "/swagger-ui/**", "/v3/api-docs/**"};
 
     @NonFinal
     @Value("${spring.security.oauth2.resourceserver.jwt.signer-key}")

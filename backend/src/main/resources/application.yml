@@ -52,13 +52,6 @@ spring:
         completions-path: /v1beta/openai/chat/completions
         options:
           model: ${CHAT_MODEL}
-    elevenlabs:
-      api-key: ${ELEVENLABS_API_KEY}
-      tts:
-        options:
-          model-id: eleven_multilingual_v2
-          output-format: mp3
-
 # CORS Configuration
 app:
   cors:
@@ -67,11 +60,3 @@ app:
     allowed-headers: Authorization,Content-Type
     allow-credentials: true
     max-age: 3600
-
-# Cloudinary Configuration
-cloudinary:
-  cloud-name: dqpo9h5s2
-  api-key: 247473939561997
-  api-secret: lZZWOntBPCDWEnECsmWIalOtl08
-  secure: true
-  folder: fluento
