@@ -8,7 +8,9 @@ import com.nta.domain.writing.Writing;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @org.springframework.stereotype.Service("sentenceService")
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -26,5 +28,6 @@ public class Service {
         sentence.setWriting(writing);
         sentence.setCreatedAt(LocalDateTime.now());
         repository.save(sentence);
+        log.debug("Sentence added for conversation: {}", request.getConversationId());
     }
 }

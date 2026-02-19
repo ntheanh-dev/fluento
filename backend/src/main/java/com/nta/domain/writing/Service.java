@@ -24,7 +24,9 @@ import com.nta.domain.writing.dto.response.SentenceTranslationResponse;
 import com.nta.domain.writing.dto.response.WritingResponse;
 
 import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @org.springframework.stereotype.Service("writingService")
 @FieldDefaults(makeFinal = true, level = lombok.AccessLevel.PRIVATE)
 public class Service {
@@ -122,6 +124,7 @@ public class Service {
                 .build();
 
         repository.save(writing);
+        log.info("Paragraph generated - conversationId: {}, type: {}", conversationId, writingType);
 
         return GenerateParagraphResponse.builder()
                 .conversationId(conversationId)

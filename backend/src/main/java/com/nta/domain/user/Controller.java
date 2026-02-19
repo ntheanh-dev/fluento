@@ -15,7 +15,9 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @RestController("userController")
 @RequestMapping("/users")
 @Tag(name = "User", description = "User management APIs")
@@ -27,6 +29,7 @@ public class Controller {
 
     @PostMapping("/create-password")
     ApiResponse<Void> createPassword(@RequestBody @Valid PasswordCreationRequest request) {
+        log.debug("Create password requested");
         service.createPassword(request);
         return ApiResponse.<Void>builder()
                 .message("Password has been created, you could use it to log-in")
@@ -35,6 +38,7 @@ public class Controller {
 
     @PutMapping("/change-password")
     ApiResponse<Void> changePassword(@RequestBody @Valid ChangePasswordRequest request) {
+        log.debug("Change password requested");
         service.changePassword(request);
         return ApiResponse.<Void>builder()
                 .message("Password has been changed successfully")
@@ -49,6 +53,7 @@ public class Controller {
     // API Key Management Endpoints
     @PostMapping("/api-key")
     ApiResponse<ApiKeyResponse> createApiKey(@RequestBody @Valid CreateApiKeyRequest request) {
+        log.debug("Create API key requested");
         return ApiResponse.<ApiKeyResponse>builder()
                 .result(service.createApiKey(request))
                 .message("API key created successfully")

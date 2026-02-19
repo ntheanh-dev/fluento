@@ -16,7 +16,9 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @RestController("authController")
 @RequestMapping("auth")
 @Tag(name = "Authentication", description = "Authentication and authorization APIs")
@@ -28,6 +30,7 @@ public class Controller {
 
     @PostMapping("/outbound/authentication")
     ApiResponse<AuthenticationResponse> authenticateGoogle(@RequestParam String code) throws JOSEException {
+        log.debug("Google OAuth authentication requested");
         final var res = socialService.authenticateGoogle(code);
         return ApiResponse.<AuthenticationResponse>builder().result(res).build();
     }
@@ -35,12 +38,14 @@ public class Controller {
     @PostMapping("/token")
     ApiResponse<AuthenticationResponse> authenticate(@RequestBody @Valid AuthenticationRequest authenticationRequest)
             throws JOSEException {
+        log.debug("Login attempt for username: {}", authenticationRequest.getUsername());
         var result = service.authenticated(authenticationRequest);
         return ApiResponse.<AuthenticationResponse>builder().result(result).build();
     }
 
     @PostMapping("/register")
     ApiResponse<?> createAccount(@RequestBody @Valid CreateAccountRequest authenticationRequest) {
+        log.debug("Registration requested for username: {}", authenticationRequest.getUsername());
         service.createAccount(authenticationRequest);
         return ApiResponse.<AuthenticationResponse>builder().build();
     }

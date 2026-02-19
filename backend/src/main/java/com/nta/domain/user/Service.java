@@ -38,6 +38,7 @@ public class Service {
 
         user.setPassword(passwordEncoder.encode(passwordCreationRequest.getPassword()));
         repository.save(user);
+        log.info("Password created for user: {}", user.getUsername());
     }
 
     public void changePassword(final ChangePasswordRequest changePasswordRequest) {
@@ -59,6 +60,7 @@ public class Service {
         // Set new password
         user.setPassword(passwordEncoder.encode(changePasswordRequest.getNewPassword()));
         repository.save(user);
+        log.info("Password changed for user: {}", user.getUsername());
     }
 
     public UserResponse getMyInfo() {
@@ -99,6 +101,7 @@ public class Service {
 
         user.setApiKey(request.getApiKey());
         User savedUser = repository.save(user);
+        log.info("API key created for user: {}", user.getUsername());
 
         return ApiKeyResponse.builder()
                 .id(savedUser.getId())
@@ -113,6 +116,7 @@ public class Service {
 
         user.setApiKey(null);
         repository.save(user);
+        log.info("API key deleted for user: {}", user.getUsername());
     }
 
     @Transactional
@@ -127,6 +131,7 @@ public class Service {
 
         user.setApiKey(request.getApiKey());
         User savedUser = repository.save(user);
+        log.info("API key updated for user: {}", user.getUsername());
 
         return ApiKeyResponse.builder()
                 .id(savedUser.getId())

@@ -11,7 +11,9 @@ import com.nta.domain.writing.dto.response.*;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @RestController("writingController")
 @RequestMapping("/writings")
 @Tag(name = "Writing", description = "Writing and translation management APIs")
@@ -22,8 +24,7 @@ public class Controller {
 
     @PostMapping("/generate")
     public ApiResponse<GenerateParagraphResponse> generateParagraph(@RequestBody GenerateParagraphRequest request) {
-        // Compose prompt using topic, language, tone, style, paragraphCount, sentenceCount
-        // For now, use topic name and paragraphCount as in Service
+        log.debug("Generating paragraph - topic: {}, level: {}", request.getTopic(), request.getLevel());
         return ApiResponse.<GenerateParagraphResponse>builder()
                 .result(service.generateParagraph(request))
                 .build();
@@ -32,6 +33,7 @@ public class Controller {
     @PostMapping("/{conversationId}/translation-hints")
     public ApiResponse<HintTranslationResponse> getTranslationHints(
             @RequestBody TranslationHintsRequest request, @PathVariable String conversationId) {
+        log.debug("Translation hints requested for conversation: {}", conversationId);
         final HintTranslationResponse response =
                 service.generateHints(request.getVietnameseSentence(), request.getLevel());
         return ApiResponse.<HintTranslationResponse>builder().result(response).build();
@@ -40,6 +42,7 @@ public class Controller {
     @PostMapping("/{conversationId}/translate")
     public ApiResponse<SentenceTranslationResponse> translate(
             @RequestBody SentenceTranslationRequest request, @PathVariable String conversationId) {
+        log.debug("Translation requested for conversation: {}", conversationId);
         final SentenceTranslationResponse response = service.translateSentence(request, conversationId);
         return ApiResponse.<SentenceTranslationResponse>builder()
                 .result(response)
@@ -48,6 +51,7 @@ public class Controller {
 
     @GetMapping("/{conversationId}")
     public ApiResponse<WritingResponse> getConversation(@PathVariable String conversationId) {
+        log.debug("Fetching conversation: {}", conversationId);
         return ApiResponse.<WritingResponse>builder()
                 .result(service.getConversationById(conversationId))
                 .build();
@@ -63,6 +67,7 @@ public class Controller {
 
         // Get user ID from JWT token
         final Long userId = authService.getUserIdFromSecurityContext();
+        log.debug("Listing writings for user: {}, page: {}, size: {}", userId, page, size);
 
         final Page<WritingResponse> writings = service.getAllWritings(page, size, direction, sortBy, keyword, userId);
 

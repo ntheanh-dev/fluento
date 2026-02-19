@@ -59,6 +59,7 @@ public class Service {
     protected long REFRESH_TOKEN_VALID_DURATION;
 
     public void createAccount(CreateAccountRequest request) {
+        log.info("Creating account for username: {}", request.getUsername());
         PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
         User u = userMapper.toUser(request);
         u.setPassword(passwordEncoder.encode(request.getPassword()));
@@ -66,6 +67,7 @@ public class Service {
         roleRepository.findById(PredefinedRole.USER_ROLE).ifPresent(roles::add);
         u.setRoles(roles);
         userRepository.save(u);
+        log.info("Account created successfully for username: {}", request.getUsername());
     }
 
     public String generateToken(User user, TokenType type) throws JOSEException {
@@ -159,6 +161,7 @@ public class Service {
         var accessToken = generateToken(user, TokenType.ACCESS_TOKEN);
         var refreshToken = generateToken(user, TokenType.FRESH_TOKEN);
 
+        log.info("User authenticated successfully: {}", authenticationRequest.getUsername());
         return AuthenticationResponse.builder()
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
@@ -176,8 +179,9 @@ public class Service {
                     InvalidatedToken.builder().id(jit).expiryTime(expiryTime).build();
 
             invalidatedTokenRepository.save(invalidatedToken);
+            log.debug("Token invalidated successfully");
         } catch (AppException exception) {
-            log.info("Token already expired");
+            log.info("Logout: token already expired");
         }
     }
 
@@ -200,6 +204,7 @@ public class Service {
         var accessToken = generateToken(user, TokenType.ACCESS_TOKEN);
         var newRefreshToken = generateToken(user, TokenType.FRESH_TOKEN);
 
+        log.info("Token refreshed successfully for user: {}", username);
         return AuthenticationResponse.builder()
                 .accessToken(accessToken)
                 .refreshToken(newRefreshToken)

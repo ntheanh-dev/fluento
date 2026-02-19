@@ -26,7 +26,7 @@ public class GlobalExceptionHandler {
         apiResponse.setMessage(e.getMessage());
         apiResponse.setCode(999);
 
-        log.error(e.getMessage());
+        log.error("Unexpected error: {}", e.getMessage(), e);
         return ResponseEntity.internalServerError().body(apiResponse);
     }
 
@@ -40,7 +40,7 @@ public class GlobalExceptionHandler {
         apiResponse.setMessage(errorCode.getMessage());
         apiResponse.setCode(errorCode.getCode());
 
-        log.error(errorCode.getMessage());
+        log.warn("AppException: {} - {}", errorCode.getCode(), errorCode.getMessage());
 
         return ResponseEntity.status(errorCode.getStatusCode()).body(apiResponse);
     }
@@ -63,13 +63,13 @@ public class GlobalExceptionHandler {
         apiResponse.setCode(errorCode.getCode());
         apiResponse.setMessage(errorCode == ErrorCode.ERROR_KEY_INVALID ? enumKey : errorCode.getMessage());
 
-        log.error(errorCode.getMessage());
+        log.warn("Validation failed: {} - {}", errorCode.getCode(), enumKey);
         return ResponseEntity.badRequest().body(apiResponse);
     }
 
     @ExceptionHandler(JwtException.class)
     ResponseEntity<ApiResponse<Object>> jwtExceptionHandler(JwtException e) {
-        log.error(e.getMessage());
+        log.warn("JWT validation failed: {}", e.getMessage());
 
         ApiResponse<Object> apiResponse = new ApiResponse<>();
 
@@ -81,7 +81,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(AuthenticationServiceException.class)
     ResponseEntity<ApiResponse<Object>> authenticationServiceHandler(AuthenticationServiceException e) {
-        log.error(e.getMessage());
+        log.warn("Authentication failed: {}", e.getMessage());
 
         ApiResponse<Object> apiResponse = new ApiResponse<>();
 
@@ -93,13 +93,13 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(FeignException.FeignClientException.class)
     ResponseEntity<ApiResponse<Object>> feignClientExeption(FeignException e) {
-        log.error(e.getMessage());
-
+        log.error("Feign client error: {}", e.getMessage(), e);
         return null;
     }
 
     @ExceptionHandler(value = AccessDeniedException.class)
     ResponseEntity<ApiResponse> handlingAccessDeniedException(AccessDeniedException exception) {
+        log.warn("Access denied: {}", exception.getMessage());
         ErrorCode errorCode = ErrorCode.UNAUTHORIZED;
 
         return ResponseEntity.status(errorCode.getStatusCode())
@@ -111,7 +111,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(value = JsonEOFException.class)
     ResponseEntity<ApiResponse> jsonEOFExceptionHandler(JsonEOFException e) {
-        log.error(e.getMessage());
+        log.warn("JSON parse error: {}", e.getMessage());
 
         ApiResponse<Object> apiResponse = new ApiResponse<>();
 
@@ -123,7 +123,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(value = NonTransientAiException.class)
     ResponseEntity<ApiResponse> nonTransientAiException(NonTransientAiException e) {
-        log.error(e.getMessage());
+        log.error("AI API error: {}", e.getMessage(), e);
 
         ApiResponse<Object> apiResponse = new ApiResponse<>();
 
