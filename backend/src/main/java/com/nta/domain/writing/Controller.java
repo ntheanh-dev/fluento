@@ -9,10 +9,12 @@ import com.nta.domain.writing.dto.request.SentenceTranslationRequest;
 import com.nta.domain.writing.dto.request.TranslationHintsRequest;
 import com.nta.domain.writing.dto.response.*;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 
 @RestController("writingController")
 @RequestMapping("/writings")
+@Tag(name = "Writing", description = "Writing and translation management APIs")
 @AllArgsConstructor
 public class Controller {
     final com.nta.domain.writing.Service service;

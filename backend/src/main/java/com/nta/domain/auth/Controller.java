@@ -12,12 +12,14 @@ import com.nta.domain.auth.dto.request.*;
 import com.nta.domain.auth.dto.response.AuthenticationResponse;
 import com.nta.domain.auth.dto.response.IntrospectResponse;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 
 @RestController("authController")
 @RequestMapping("auth")
+@Tag(name = "Authentication", description = "Authentication and authorization APIs")
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class Controller {

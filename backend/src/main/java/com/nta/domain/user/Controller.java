@@ -11,12 +11,14 @@ import com.nta.domain.user.dto.request.PasswordCreationRequest;
 import com.nta.domain.user.dto.response.ApiKeyResponse;
 import com.nta.domain.user.dto.response.UserResponse;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 
 @RestController("userController")
 @RequestMapping("/users")
+@Tag(name = "User", description = "User management APIs")
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class Controller {

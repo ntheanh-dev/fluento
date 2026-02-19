@@ -8,10 +8,12 @@ import org.springframework.web.bind.annotation.RestController;
 import com.nta.common.dto.ApiResponse;
 import com.nta.domain.sentence.dto.request.SentenceCreationRequest;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 
 @RestController("sentenceController")
 @RequestMapping("/sentences")
+@Tag(name = "Sentence", description = "Sentence management APIs")
 @RequiredArgsConstructor
 public class Controller {
     private final Service service;
