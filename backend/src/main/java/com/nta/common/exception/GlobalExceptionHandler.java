@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import com.fasterxml.jackson.core.io.JsonEOFException;
 import com.nta.common.dto.ApiResponse;
 import com.nta.common.enums.ErrorCode;
-import com.nta.common.enums.ValidationErrorCode;
 
 import feign.FeignException;
 import lombok.extern.slf4j.Slf4j;
@@ -52,17 +51,17 @@ public class GlobalExceptionHandler {
         // getFieldErro() còn có thể xác định lỗi ở filed nào, dữ liệu đầu vào là gi....
         String enumKey = e.getFieldError().getDefaultMessage();
 
-        ValidationErrorCode errorCode = ValidationErrorCode.ERROR_KEY_INVALID;
+        ErrorCode errorCode = ErrorCode.ERROR_KEY_INVALID;
         try {
-            errorCode = ValidationErrorCode.valueOf(enumKey); // Lấy ra enum Errorcode bằng tên mà đã được truyền khi
+            // Lấy ra enum ErrorCode bằng tên mà đã được truyền khi validate
+            errorCode = ErrorCode.valueOf(enumKey);
             // validate
         } catch (IllegalArgumentException iae) {
             // Trong trường hợp validate mà truyền sai enum name
         }
         ApiResponse<Object> apiResponse = new ApiResponse<>();
-
         apiResponse.setCode(errorCode.getCode());
-        apiResponse.setMessage(errorCode.getMessage());
+        apiResponse.setMessage(errorCode == ErrorCode.ERROR_KEY_INVALID ? enumKey : errorCode.getMessage());
 
         log.error(errorCode.getMessage());
         return ResponseEntity.badRequest().body(apiResponse);

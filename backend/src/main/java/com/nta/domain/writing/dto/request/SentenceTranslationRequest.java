@@ -9,7 +9,7 @@ import lombok.Data;
 public class SentenceTranslationRequest {
     @Schema(description = "Vietnamese sentence", example = "Xin chào", defaultValue = "")
     private String vietnameseSentence;
-    
+
     @Schema(description = "English translation", example = "Hello", defaultValue = "")
     private String englishSentence;
 }

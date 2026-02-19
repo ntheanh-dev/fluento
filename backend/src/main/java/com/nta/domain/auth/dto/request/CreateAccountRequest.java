@@ -1,11 +1,11 @@
 package com.nta.domain.auth.dto.request;
 
-import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
 @Getter
@@ -19,7 +19,7 @@ public class CreateAccountRequest {
     @Size(min = 8, max = 20, message = "USERNAME_INVALID")
     @NotNull(message = "NOT_NULL")
     String username;
-    
+
     @Schema(description = "Password (8-20 characters)", example = "password123", defaultValue = "")
     @Size(min = 8, max = 20, message = "PASSWORD_INVALID")
     @NotBlank(message = "NOT_BLANK")

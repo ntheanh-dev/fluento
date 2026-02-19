@@ -1,8 +1,8 @@
 package com.nta.domain.user.dto.request;
 
-import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Size;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
