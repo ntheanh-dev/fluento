@@ -3,7 +3,12 @@ package com.nta.dto.response;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import com.nta.entity.*;
+import com.nta.entity.Sentence;
+import com.nta.enums.Level;
+import com.nta.enums.SentenceCount;
+import com.nta.enums.Tone;
+import com.nta.enums.Topic;
+import com.nta.enums.WritingType;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

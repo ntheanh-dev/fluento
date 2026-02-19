@@ -2,7 +2,7 @@ import axios from "axios";
 import { notify } from "../utils/notify";
 import Cookies from "js-cookie";
 
-const baseURL = import.meta?.env?.VITE_API_BASE_URL || "http://localhost:9000/api";
+const baseURL = import.meta?.env?.VITE_API_BASE_URL || "http://localhost:8080/api";
 const defaultTimeoutMs = Number(import.meta?.env?.VITE_API_TIMEOUT_MS) || 30000;
 
 export const api = axios.create({

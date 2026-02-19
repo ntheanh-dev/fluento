@@ -20,7 +20,7 @@ public interface WritingRepository extends JpaRepository<Writing, Long> {
     @Query("SELECT w FROM Writing w LEFT JOIN FETCH w.englishSentences WHERE w.conversationId = :conversationId")
     Optional<Writing> findByConversationIdWithSentences(@Param("conversationId") String conversationId);
 
-    @Query("SELECT w FROM Writing w JOIN w.topic t WHERE LOWER(t.name) LIKE LOWER(CONCAT('%', :keyword, '%'))")
+    @Query("SELECT w FROM Writing w WHERE w.topic IS NOT NULL AND LOWER(CAST(w.topic AS string)) LIKE LOWER(CONCAT('%', :keyword, '%'))")
     Page<Writing> searchByTopicName(@Param("keyword") String keyword, Pageable pageable);
 
     @Query("SELECT w FROM Writing w WHERE w.user.id = :userId")
@@ -28,8 +28,8 @@ public interface WritingRepository extends JpaRepository<Writing, Long> {
 
     @Query(
             "SELECT w FROM Writing w WHERE w.user.id = :userId AND " +
-            "(w.topic IS NOT NULL AND LOWER(w.topic.name) LIKE LOWER(CONCAT('%', :keyword, '%')) " +
-            "OR w.type = 'CUSTOM_TEXT' AND LOWER('Custom Text') LIKE LOWER(CONCAT('%', :keyword, '%')))")
+            "(w.topic IS NOT NULL AND LOWER(CAST(w.topic AS string)) LIKE LOWER(CONCAT('%', :keyword, '%')) " +
+            "OR w.type = com.nta.enums.WritingType.CUSTOM_TEXT AND LOWER('Custom Text') LIKE LOWER(CONCAT('%', :keyword, '%')))")
     Page<Writing> searchByTopicNameAndUserId(
             @Param("keyword") String keyword, @Param("userId") Long userId, Pageable pageable);
 

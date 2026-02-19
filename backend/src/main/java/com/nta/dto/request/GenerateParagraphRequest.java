@@ -13,4 +13,5 @@ public class GenerateParagraphRequest {
     Integer sentenceCount;
     String tone;
     String customText;
+    String writingType; // e.g., "BASIC", "IELTS_TASK1", "IELTS_TASK2", "EMAIL", "AI_GENERATED", "CUSTOM_TEXT"
 }

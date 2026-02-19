@@ -7,6 +7,11 @@ import java.util.List;
 import jakarta.persistence.*;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.nta.enums.Level;
+import com.nta.enums.SentenceCount;
+import com.nta.enums.Tone;
+import com.nta.enums.Topic;
+import com.nta.enums.WritingType;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -36,20 +41,20 @@ public class Writing {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @ManyToOne
-    @JoinColumn(name = "tone_id")
+    @Enumerated(EnumType.STRING)
+    @Column(name = "tone")
     private Tone tone;
 
-    @ManyToOne
-    @JoinColumn(name = "topic_id")
+    @Enumerated(EnumType.STRING)
+    @Column(name = "topic")
     private Topic topic;
 
-    @ManyToOne
-    @JoinColumn(name = "level_id")
+    @Enumerated(EnumType.STRING)
+    @Column(name = "level")
     private Level level;
 
-    @ManyToOne
-    @JoinColumn(name = "sentence_count_id")
+    @Enumerated(EnumType.STRING)
+    @Column(name = "sentence_count")
     private SentenceCount sentenceCount;
 
     @Column(name = "vietnamese_paragraph", columnDefinition = "TEXT")

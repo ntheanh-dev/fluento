@@ -6,12 +6,15 @@ import com.nta.dto.response.GenerateParagraphResponse;
 import com.nta.dto.response.HintTranslationResponse;
 import com.nta.dto.response.SentenceTranslationResponse;
 import com.nta.dto.response.WritingResponse;
-import com.nta.entity.SentenceCount;
 import com.nta.entity.User;
 import com.nta.entity.Writing;
-import com.nta.entity.WritingType;
+import com.nta.enums.Level;
+import com.nta.enums.SentenceCount;
+import com.nta.enums.Tone;
+import com.nta.enums.Topic;
+import com.nta.enums.WritingType;
 import com.nta.mapper.WritingMapper;
-import com.nta.repository.*;
+import com.nta.repository.WritingRepository;
 
 import com.nta.service.ai.AiChatService;
 import lombok.experimental.FieldDefaults;
@@ -32,22 +35,12 @@ import java.util.UUID;
 public class WritingService {
     AiChatService geminiAiChatService;
     UserService userService;
-
-    TopicRepository topicRepository;
-    LevelRepository levelRepository;
-    SentenceCountRepository sentenceCountRepository;
-    ToneRepository toneRepository;
     WritingRepository writingRepository;
-
     WritingMapper writingMapper;
 
-    public WritingService(AiChatService geminiAiChatService, UserService userService, TopicRepository topicRepository, LevelRepository levelRepository, SentenceCountRepository sentenceCountRepository, ToneRepository toneRepository, WritingRepository writingRepository, WritingMapper writingMapper) {
+    public WritingService(AiChatService geminiAiChatService, UserService userService, WritingRepository writingRepository, WritingMapper writingMapper) {
         this.geminiAiChatService = geminiAiChatService;
         this.userService = userService;
-        this.topicRepository = topicRepository;
-        this.levelRepository = levelRepository;
-        this.sentenceCountRepository = sentenceCountRepository;
-        this.toneRepository = toneRepository;
         this.writingRepository = writingRepository;
         this.writingMapper = writingMapper;
     }
@@ -99,23 +92,33 @@ public class WritingService {
 
         final User user = userService.getUserFromContext();
 
+        final Topic topic = isCustomText ? null : Topic.fromString(request.getTopic());
+        final Level level = isCustomText ? null : Level.fromString(request.getLevel());
+        final SentenceCount sentenceCount = isCustomText ? null : SentenceCount.fromSize(request.getSentenceCount() != null ? request.getSentenceCount() : 10);
+        final Tone tone = isCustomText ? null : Tone.fromString(request.getTone());
+        
+        // Determine writing type: use provided type, or default based on customText flag
+        WritingType writingType;
+        if (request.getWritingType() != null && !request.getWritingType().isBlank()) {
+            writingType = WritingType.fromString(request.getWritingType());
+            if (writingType == null) {
+                // Invalid type provided, default to BASIC
+                writingType = WritingType.BASIC;
+            }
+        } else {
+            // Default behavior: CUSTOM_TEXT if customText provided, otherwise AI_GENERATED
+            writingType = isCustomText ? WritingType.CUSTOM_TEXT : WritingType.AI_GENERATED;
+        }
+
         final Writing writing =
                 Writing.builder()
                         .conversationId(conversationId)
-                        .type(isCustomText ? WritingType.CUSTOM_TEXT : WritingType.AI_GENERATED)
-                        .topic(isCustomText 
-                                ? null // No specific topic for custom text
-                                : topicRepository.findByName(request.getTopic()).orElse(null))
-                        .level(isCustomText
-                                ? null // No specific level for custom text
-                                : levelRepository.findByName(request.getLevel()).orElse(null))
+                        .type(writingType)
+                        .topic(topic)
+                        .level(level)
                         .user(user)
-                        .sentenceCount(isCustomText
-                                ? null // No specific sentence count for custom text
-                                : sentenceCountRepository.findBySize(request.getSentenceCount()).orElse(null))
-                        .tone(isCustomText
-                                ? null // No specific tone for custom text
-                                : toneRepository.findByName(request.getTone()).orElse(null))
+                        .sentenceCount(sentenceCount)
+                        .tone(tone)
                         .vietnameseParagraph(pharagraph)
                         .customText(isCustomText ? request.getCustomText().trim() : null)
                         .createdAt(LocalDateTime.now())
@@ -286,9 +289,8 @@ public class WritingService {
         final WritingResponse response = writingMapper.toWritingResponse(writing);
 		List<String> vietNamesesentences = List.of(writing.getVietnameseParagraph().split("(?<=[.!?])\\s+"));
 
-		if(response.getType() != WritingType.AI_GENERATED) {
-            response.setSentenceCount(
-                    SentenceCount.builder().size(vietNamesesentences.size()).build());
+		if (response.getType() != WritingType.AI_GENERATED && vietNamesesentences.size() > 0) {
+            response.setSentenceCount(SentenceCount.fromSize(vietNamesesentences.size()));
 		}
         response.setVietNamesesentences(vietNamesesentences);
         return response;

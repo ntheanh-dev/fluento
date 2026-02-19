@@ -145,19 +145,6 @@ CREATE TABLE IF NOT EXISTS sentences (
 );
 
 -- ==============================================
--- 14. VOCABULARY_LIBRARY TABLE
--- ==============================================
-CREATE TABLE IF NOT EXISTS vocabulary_library (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    user_id BIGINT NOT NULL,
-    word VARCHAR(255) NOT NULL,
-    meaning TEXT,
-    example TEXT,
-    added_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-);
-
--- ==============================================
 -- 15. SPRING AI CHAT MEMORY TABLE
 -- ==============================================
 CREATE TABLE IF NOT EXISTS spring_ai_chat_memory (
@@ -177,7 +164,6 @@ CREATE INDEX IF NOT EXISTS idx_users_username ON users(username);
 CREATE INDEX IF NOT EXISTS idx_writings_user_id ON writings(user_id);
 CREATE INDEX IF NOT EXISTS idx_writings_conversation_id ON writings(conversation_id);
 CREATE INDEX IF NOT EXISTS idx_sentences_writing_id ON sentences(writing_id);
-CREATE INDEX IF NOT EXISTS idx_vocabulary_user_id ON vocabulary_library(user_id);
 CREATE INDEX IF NOT EXISTS idx_topics_topic_group_id ON topics(topic_group_id);
 
 -- ==============================================
@@ -191,10 +177,7 @@ INSERT IGNORE INTO permission (name, description) VALUES
 ('DELETE_USER', 'Delete user'),
 ('READ_WRITING', 'Read writing content'),
 ('WRITE_WRITING', 'Create and update writing content'),
-('DELETE_WRITING', 'Delete writing content'),
-('READ_VOCABULARY', 'Read vocabulary library'),
-('WRITE_VOCABULARY', 'Add vocabulary to library'),
-('DELETE_VOCABULARY', 'Remove vocabulary from library');
+('DELETE_WRITING', 'Delete writing content');
 
 -- Insert default roles
 INSERT IGNORE INTO role (name, description) VALUES
@@ -207,17 +190,12 @@ INSERT IGNORE INTO role_permissions (role_name, permission_name) VALUES
 ('USER', 'WRITE_USER'),
 ('USER', 'READ_WRITING'),
 ('USER', 'WRITE_WRITING'),
-('USER', 'READ_VOCABULARY'),
-('USER', 'WRITE_VOCABULARY'),
 ('ADMIN', 'READ_USER'),
 ('ADMIN', 'WRITE_USER'),
 ('ADMIN', 'DELETE_USER'),
 ('ADMIN', 'READ_WRITING'),
 ('ADMIN', 'WRITE_WRITING'),
-('ADMIN', 'DELETE_WRITING'),
-('ADMIN', 'READ_VOCABULARY'),
-('ADMIN', 'WRITE_VOCABULARY'),
-('ADMIN', 'DELETE_VOCABULARY');
+('ADMIN', 'DELETE_WRITING');
 
 -- Insert default levels
 INSERT IGNORE INTO levels (name, description) VALUES
