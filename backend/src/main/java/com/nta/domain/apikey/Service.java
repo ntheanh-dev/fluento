@@ -83,8 +83,7 @@ public class Service {
 
     @Transactional
     public void deleteByApiKeyForUserId(String apiKey, Long userId) {
-        String encrypted = apiKeyCrypto.encrypt(apiKey);
-        List<ApiKey> group = repository.findByApiKeyAndUserId(encrypted, userId);
+        List<ApiKey> group = repository.findByApiKeyAndUserId(apiKey, userId);
         if (group.isEmpty()) {
             throw new AppException(ErrorCode.PROVIDER_API_KEY_NOT_FOUND);
         }
