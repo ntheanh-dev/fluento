@@ -9,8 +9,8 @@ import { Button, Input, Select, Tag, message } from 'antd';
 import { useProfile } from '../../../stores/profile';
 import SetPasswordDialog from '../dialogs/SetPasswordDialog';
 import { useUpdateMe } from '../hook/useUpdateMe';
+import { ACCEPT_IMAGE, AVATAR_MAX_BYTES, ALLOWED_IMAGE_TYPES } from '../../../shared/validation/constant';
 
-const ACCEPT_IMAGE = 'image/jpeg,image/png,image/webp,image/gif';
 
 const Profile = () => {
     const { profile } = useProfile();
@@ -36,18 +36,25 @@ const Profile = () => {
 
     const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
-        if (!file || !file.type.startsWith('image/')) {
+        e.target.value = '';
+
+        if (!file) return;
+
+        if (!ALLOWED_IMAGE_TYPES.includes(file.type as (typeof ALLOWED_IMAGE_TYPES)[number])) {
             message.warning('Vui lòng chọn file ảnh (JPEG, PNG, WebP, GIF).');
             return;
         }
+
+        if (file.size > AVATAR_MAX_BYTES) {
+            message.warning(`Ảnh không được vượt quá ${AVATAR_MAX_BYTES / 1024 / 1024}MB.`);
+            return;
+        }
+
         setUploadingAvatar(true);
         updateMeMutation({}, file)
             .then(() => message.success('Đã cập nhật ảnh đại diện.'))
             .catch(() => message.error('Cập nhật ảnh thất bại.'))
-            .finally(() => {
-                setUploadingAvatar(false);
-                e.target.value = '';
-            });
+            .finally(() => setUploadingAvatar(false));
     };
     return (
         <div className="max-w-7xl mx-auto pb-8">

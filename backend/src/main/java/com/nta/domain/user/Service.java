@@ -62,6 +62,14 @@ public class Service {
 
         // Case: avatar
         if (avatar != null && !avatar.isEmpty()) {
+            String contentType = avatar.getContentType();
+            if (contentType == null || !contentType.startsWith("image/")) {
+                throw new AppException(ErrorCode.AVATAR_FILE_TYPE_INVALID);
+            }
+            long maxAvatarSize = 5L * 1024 * 1024; // 5MB
+            if (avatar.getSize() > maxAvatarSize) {
+                throw new AppException(ErrorCode.AVATAR_FILE_SIZE_INVALID);
+            }
             try {
                 if (StringUtils.hasText(user.getUrlAvatar())) {
                     cloudinaryFileUploadService.deleteFile(user.getUrlAvatar());

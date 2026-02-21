@@ -18,6 +18,9 @@ public enum ErrorCode {
     VALIDATION_PASSWORD_INVALID(907, "Mật khẩu phải có từ 8 đến 20 ký tự", HttpStatus.BAD_REQUEST),
     FULL_NAME_INVALID(909, "Họ tên không hợp lệ (tối đa 255 ký tự)", HttpStatus.BAD_REQUEST),
     UPLOAD_FILE_ERROR(908, "Error when uploading file", HttpStatus.INTERNAL_SERVER_ERROR),
+    UPDATE_ME_EMPTY(910, "Cần gửi ít nhất một phần: profile hoặc avatar", HttpStatus.BAD_REQUEST),
+    AVATAR_FILE_TYPE_INVALID(911, "Avatar phải là ảnh (JPEG, PNG, GIF, WebP)", HttpStatus.BAD_REQUEST),
+    AVATAR_FILE_SIZE_INVALID(912, "Kích thước avatar tối đa 5MB", HttpStatus.BAD_REQUEST),
 
     // Authentication & user errors (10xx)
     USERNAME_EXISTED(1002, "This username has already existed", HttpStatus.CONFLICT),
