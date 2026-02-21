@@ -2,19 +2,19 @@ import { useState, useEffect, useRef } from 'react';
 import {
     User, History, CreditCard, LogOut,
     Flame, FileText, Star,
-    Plus, Trash2, Zap, Sparkles,
     Save, Camera
 } from 'lucide-react';
-import { Button, Input, Select, Tag, message } from 'antd';
-import { useProfile } from '../../../stores/profile';
+import { Button, Input, Select, message } from 'antd';
+import { useProfileStore } from '../../../stores/profile';
 import SetPasswordDialog from '../dialogs/SetPasswordDialog';
 import { useUpdateMe } from '../hook/useUpdateMe';
 import { ACCEPT_IMAGE, AVATAR_MAX_BYTES, ALLOWED_IMAGE_TYPES } from '../../../shared/validation/constant';
-
+import ApiKeysSection from './ApiKeysSection';
 
 const Profile = () => {
-    const { profile } = useProfile();
+    const { profile } = useProfileStore();
     const { mutateAsync: updateMeMutation, isPending: savingFullName } = useUpdateMe();
+
     const [passwordDialogOpen, setPasswordDialogOpen] = useState(false);
     const [fullName, setFullName] = useState(profile?.fullName ?? '');
     const [uploadingAvatar, setUploadingAvatar] = useState(false);
@@ -197,51 +197,7 @@ const Profile = () => {
                         </div>
                     </div>
 
-                    {/* AI API Keys */}
-                    <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
-                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-                            <div>
-                                <h3 className="text-lg font-bold text-slate-800">Khóa API AI</h3>
-                                <p className="text-sm text-slate-500">Cấu hình các nhà cung cấp AI bên ngoài.</p>
-                            </div>
-                            <Button type="primary" icon={<Plus size={16} />} className="font-bold bg-primary shadow-sm rounded-lg h-9 w-full sm:w-auto">Thêm khóa</Button>
-                        </div>
-
-                        <div className="overflow-x-auto -mx-6 sm:mx-0">
-                            <div className="inline-block min-w-full align-middle px-6 sm:px-0">
-                                <table className="min-w-full text-sm text-left">
-                                    <thead className="text-xs text-slate-500 uppercase font-bold border-b border-slate-100 bg-slate-50/50">
-                                        <tr>
-                                            <th className="py-3 pl-4 rounded-tl-lg whitespace-nowrap">Tên nhà cung cấp</th>
-                                            <th className="py-3 whitespace-nowrap">Khóa</th>
-                                            <th className="py-3 whitespace-nowrap">Trạng thái</th>
-                                            <th className="py-3 text-right pr-4 rounded-tr-lg whitespace-nowrap">Thao tác</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody className="divide-y divide-slate-50">
-                                        <tr className="hover:bg-slate-50/50 transition-colors">
-                                            <td className="py-4 pl-4 font-bold text-slate-800 flex items-center gap-3 whitespace-nowrap">
-                                                <div className="w-8 h-8 rounded bg-blue-100 text-blue-600 flex items-center justify-center shrink-0"><Zap size={16} fill="currentColor" /></div>
-                                                GPT-4
-                                            </td>
-                                            <td className="py-4 font-mono text-slate-500 text-xs whitespace-nowrap">sk-•••5a2b</td>
-                                            <td className="py-4 whitespace-nowrap"><Tag color="success" className="font-bold border-0 px-2 py-0.5 rounded-full">Đang dùng</Tag></td>
-                                            <td className="py-4 text-right pr-4 whitespace-nowrap"><Trash2 size={16} className="text-slate-400 hover:text-red-500 cursor-pointer inline-block transition-colors" /></td>
-                                        </tr>
-                                        <tr className="hover:bg-slate-50/50 transition-colors">
-                                            <td className="py-4 pl-4 font-bold text-slate-800 flex items-center gap-3 whitespace-nowrap">
-                                                <div className="w-8 h-8 rounded bg-indigo-100 text-indigo-600 flex items-center justify-center shrink-0"><Sparkles size={16} fill="currentColor" /></div>
-                                                Claude 3
-                                            </td>
-                                            <td className="py-4 font-mono text-slate-500 text-xs whitespace-nowrap">sk-•••9x2s</td>
-                                            <td className="py-4 whitespace-nowrap"><Tag className="font-bold text-slate-500 bg-slate-100 border-0 px-2 py-0.5 rounded-full">Không dùng</Tag></td>
-                                            <td className="py-4 text-right pr-4 whitespace-nowrap"><Trash2 size={16} className="text-slate-400 hover:text-red-500 cursor-pointer inline-block transition-colors" /></td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
+                    <ApiKeysSection />
 
                     {/* Security */}
                     <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6">

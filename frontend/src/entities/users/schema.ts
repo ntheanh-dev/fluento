@@ -1,4 +1,6 @@
 import z from "zod";
+import type { Resource } from "../../shared/api/type";
+import { apiKeySchema } from "../apiKey/schema";
 
 const userSchema = z.object({
     id: z.number(),
@@ -9,6 +11,12 @@ const userSchema = z.object({
     urlAvatar: z.string(),
     noPassword: z.boolean(),
     createdAt: z.string(),
+    activeApiKeyId: z.number(),
+    embedded: z
+        .object({
+            apiKey: z.array(apiKeySchema).optional(),
+        })
+        .optional(),
 });
 
-export type User = z.infer<typeof userSchema>;
+export type User = z.infer<typeof userSchema> & Resource;

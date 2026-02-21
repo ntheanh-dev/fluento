@@ -5,7 +5,7 @@ import { message } from "antd";
 import Cookies from "js-cookie";
 import { useLoginMutation } from "../mutation";
 import { loginInputSchema, type LoginInput } from "../../../entities/auth/schema";
-import { useProfile } from "../../profile/query";
+import { useProfileData, PROFILE_EMBED_API_KEY } from "../../profile/query";
 import logo from "../../../assets/image/logo4.png";
 import { useProfileStore } from "../../../stores/profile";
 import { Mail, Lock, Eye, EyeOff } from 'lucide-react';
@@ -16,7 +16,9 @@ const Login = () => {
   const location = useLocation();
   const [showPassword, setShowPassword] = useState(false);
   const { mutateAsync, isPending } = useLoginMutation();
-  const { refetch: refetchProfile } = useProfile();
+  const { refetch: refetchProfile } = useProfileData({
+    queryParams: PROFILE_EMBED_API_KEY,
+  });
   const { setProfile } = useProfileStore();
   const method = useForm<LoginInput>({
     mode: "onBlur",

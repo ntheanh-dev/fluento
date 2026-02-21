@@ -4,15 +4,18 @@ import { Box, CircularProgress, Typography, Alert, Button } from "@mui/material"
 import { message } from "antd";
 import Cookies from "js-cookie";
 import { useOAuthAuthenticateMutation } from "../mutation";
-import { getProfile } from "../../profile/api";
 import { useProfileStore } from "../../../stores/profile";
 import { ACCESS_TOKEN_EXPIRE_TIME } from "../constant";
+import { PROFILE_EMBED_API_KEY, useProfileData } from "../../profile/query";
 
 export default function Authenticate() {
   const navigate = useNavigate();
   const location = useLocation();
   const { setProfile } = useProfileStore();
   const { mutateAsync: oauthAuthenticate } = useOAuthAuthenticateMutation();
+  const { refetch: fetchUserProfile } = useProfileData({
+    queryParams: PROFILE_EMBED_API_KEY,
+  });
   const [error, setError] = useState<string | null>(null);
 
   // Get the page user was trying to access
@@ -58,15 +61,14 @@ export default function Authenticate() {
 
 
         // Load profile and set in store (same as Login)
-        const profile = await getProfile();
-        if (!profile) {
+        const { data: profile } = await fetchUserProfile();
+        if (profile) {
+          setProfile(profile);
+          message.success("Đăng nhập thành công!");
+          navigate(from, { replace: true });
+        } else {
           throw new Error("Không nhận được thông tin người dùng");
         }
-
-        setProfile(profile);
-
-        message.success("Đăng nhập thành công!");
-        navigate(from, { replace: true });
 
       } catch (error: any) {
         let errorMessage = "Lỗi xác thực không xác định";

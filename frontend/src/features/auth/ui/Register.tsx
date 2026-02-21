@@ -2,12 +2,12 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Lock, User, ArrowRight, Eye, EyeOff } from 'lucide-react';
+import { Lock, User, ArrowRight, Eye, EyeOff, UserCircle } from 'lucide-react';
 import { message } from "antd";
 import Cookies from "js-cookie";
 import { useRegisterMutation } from "../mutation";
 import { registerInputSchema, type RegisterInput } from "../../../entities/auth/schema";
-import { useProfile } from "../../profile/query";
+import { useProfileData, PROFILE_EMBED_API_KEY } from "../../profile/query";
 import logo from "../../../assets/image/logo4.png";
 import { useProfileStore } from "../../../stores/profile";
 
@@ -15,12 +15,15 @@ const Register = () => {
     const navigate = useNavigate();
     const [showPassword, setShowPassword] = useState(false);
     const { mutateAsync, isPending } = useRegisterMutation();
-    const { refetch: refetchProfile } = useProfile();
+    const { refetch: refetchProfile } = useProfileData({
+        queryParams: PROFILE_EMBED_API_KEY,
+    });
     const { setProfile } = useProfileStore();
-    
+
     const method = useForm<RegisterInput>({
         mode: "onBlur",
         defaultValues: {
+            fullName: "",
             username: "",
             password: "",
         },
@@ -73,6 +76,23 @@ const Register = () => {
 
                     <form onSubmit={onSubmit} className="space-y-5">
                         <div className="space-y-2">
+                            <label className="text-sm font-bold text-slate-700">Họ và tên</label>
+                            <div className="relative">
+                                <UserCircle className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
+                                <input
+                                    type="text"
+                                    className={`w-full pl-10 pr-4 py-3 rounded-xl border bg-slate-50 focus:ring-2 focus:ring-blue-100 focus:border-blue-400 outline-none transition-all ${errors.fullName ? "border-red-400 focus:border-red-400 focus:ring-red-100" : "border-slate-200"
+                                        }`}
+                                    placeholder="Họ và tên"
+                                    {...method.register("fullName")}
+                                />
+                            </div>
+                            {errors.fullName && (
+                                <p className="text-sm text-red-500 mt-1">{errors.fullName.message}</p>
+                            )}
+                        </div>
+
+                        <div className="space-y-2">
                             <label className="text-sm font-bold text-slate-700">Tên đăng nhập</label>
                             <div className="relative">
                                 <User className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
@@ -113,8 +133,8 @@ const Register = () => {
                             )}
                         </div>
 
-                        <button 
-                            type="submit" 
+                        <button
+                            type="submit"
                             disabled={isPending}
                             className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed text-white font-bold py-3.5 rounded-xl shadow-lg shadow-blue-200 transition-all flex items-center justify-center gap-2 mt-4"
                         >
