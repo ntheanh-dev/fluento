@@ -2,7 +2,9 @@ package com.nta.domain.user;
 
 import jakarta.validation.Valid;
 
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.nta.common.dto.ApiResponse;
 import com.nta.domain.user.dto.request.*;
@@ -25,41 +27,21 @@ public class Controller {
 
     Service service;
 
-    @PostMapping("/me/password")
-    ApiResponse<Void> createPassword(@RequestBody @Valid PasswordCreationRequest request) {
-        log.debug("Create password requested");
-        service.createPassword(request);
-        return ApiResponse.<Void>builder()
-                .message("Password has been created, you could use it to log-in")
-                .build();
-    }
-
-    @PutMapping("/me/password")
-    ApiResponse<Void> changePassword(@RequestBody @Valid ChangePasswordRequest request) {
-        log.debug("Change password requested");
-        service.changePassword(request);
-        return ApiResponse.<Void>builder()
-                .message("Password has been changed successfully")
-                .build();
-    }
-
     @GetMapping("/me")
     ApiResponse<UserResponse> getMyInfo() {
         return ApiResponse.<UserResponse>builder().result(service.getMyInfo()).build();
     }
 
-    @PutMapping("/me")
-    ApiResponse<UserResponse> updateProfile(@RequestBody @Valid UpdateProfileRequest request) {
+    @PutMapping(
+            value = "/me",
+            consumes = {MediaType.MULTIPART_FORM_DATA_VALUE, MediaType.APPLICATION_JSON_VALUE})
+    ApiResponse<UserResponse> updateMe(
+            @RequestPart(value = "profile", required = false) @Valid UpdateMeRequest profile,
+            @RequestPart(value = "avatar", required = false) MultipartFile avatar) {
+        log.debug("Update me requested");
         return ApiResponse.<UserResponse>builder()
-                .result(service.updateProfile(request))
+                .result(service.updateMe(profile, avatar))
                 .message("Profile updated successfully")
-                .build();
-    }
-
-    @PutMapping("/me/avatar")
-    ApiResponse<UserResponse> changeAvatar(@RequestBody @Valid UpdateUserAvatarRequest request) {
-        return ApiResponse.<UserResponse>builder()
-                .result(service.updateAvatar(request))
                 .build();
     }
 

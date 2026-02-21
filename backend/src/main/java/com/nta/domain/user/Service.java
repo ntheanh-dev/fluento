@@ -8,15 +8,13 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.nta.common.enums.ErrorCode;
 import com.nta.common.exception.AppException;
 import com.nta.common.service.cloudinary.CloudinaryFileUploadService;
-import com.nta.domain.user.dto.request.ChangePasswordRequest;
 import com.nta.domain.user.dto.request.CreateApiKeyRequest;
-import com.nta.domain.user.dto.request.PasswordCreationRequest;
-import com.nta.domain.user.dto.request.UpdateProfileRequest;
-import com.nta.domain.user.dto.request.UpdateUserAvatarRequest;
+import com.nta.domain.user.dto.request.UpdateMeRequest;
 import com.nta.domain.user.dto.response.ApiKeyResponse;
 import com.nta.domain.user.dto.response.UserResponse;
 
@@ -35,66 +33,52 @@ public class Service {
     PasswordEncoder passwordEncoder;
     private final CloudinaryFileUploadService cloudinaryFileUploadService;
 
-    public void createPassword(final PasswordCreationRequest passwordCreationRequest) {
-        final User user = this.getUserFromContext();
+    /**
+     * Update current user profile. Handles optional fullName, password change, and avatar upload.
+     * Each field is applied only when provided.
+     */
+    @Transactional
+    public UserResponse updateMe(UpdateMeRequest profile, MultipartFile avatar) {
+        User user = this.getUserFromContext();
 
-        if (StringUtils.hasText(user.getPassword())) {
-            throw new AppException(ErrorCode.PASSWORD_EXISTED);
-        }
-
-        user.setPassword(passwordEncoder.encode(passwordCreationRequest.getPassword()));
-        repository.save(user);
-        log.info("Password created for user: {}", user.getUsername());
-    }
-
-    public void changePassword(final ChangePasswordRequest changePasswordRequest) {
-        final User user = this.getUserFromContext();
-
-        // Check if user has a password
-        if (!StringUtils.hasText(user.getPassword())) {
-            throw new AppException(ErrorCode.UNAUTHENTICATED);
-        }
-
-        // Verify current password
-        boolean isCurrentPasswordValid =
-                passwordEncoder.matches(changePasswordRequest.getCurrentPassword(), user.getPassword());
-
-        if (!isCurrentPasswordValid) {
-            throw new AppException(ErrorCode.CURRENT_PASSWORD_INVALID);
-        }
-
-        // Set new password
-        user.setPassword(passwordEncoder.encode(changePasswordRequest.getNewPassword()));
-        repository.save(user);
-        log.info("Password changed for user: {}", user.getUsername());
-    }
-
-    public UserResponse updateAvatar(final UpdateUserAvatarRequest request) {
-        final User user = this.getUserFromContext();
-        try {
-            if (!StringUtils.hasText(user.getUrlAvatar())) {
-                cloudinaryFileUploadService.deleteFile(user.getUrlAvatar());
+        // Case: profile (fullName, password)
+        if (profile != null) {
+            if (profile.getFullName() != null) {
+                String trimmed = profile.getFullName().trim();
+                user.setFullName(trimmed.isEmpty() ? null : trimmed);
             }
-            Map<String, Object> uploadResult =
-                    cloudinaryFileUploadService.uploadFile(request.getUrlAvatar(), "fluento/avatar");
-            user.setUrlAvatar(uploadResult.get("url").toString());
-            repository.save(user);
-            log.info("Avatar updated for user: {}", user.getUsername());
-            return mapper.toUserResponse(user);
-        } catch (IOException e) {
-            throw new AppException(ErrorCode.UPLOAD_FILE_ERROR);
+            if (StringUtils.hasText(profile.getNewPassword())) {
+                final String currentPassword = profile.getCurrentPassword();
+                final String storedPassword = user.getPassword();
+                if (StringUtils.hasText(storedPassword)) {
+                    if (!StringUtils.hasText(currentPassword)
+                            || !passwordEncoder.matches(currentPassword, storedPassword)) {
+                        throw new AppException(ErrorCode.CURRENT_PASSWORD_INVALID);
+                    }
+                }
+                user.setPassword(passwordEncoder.encode(profile.getNewPassword()));
+            }
         }
-    }
 
-    public UserResponse updateProfile(UpdateProfileRequest request) {
-        final User user = this.getUserFromContext();
-        if (request.getFullName() != null) {
-            String trimmed = request.getFullName().trim();
-            user.setFullName(trimmed.isEmpty() ? null : trimmed);
+        // Case: avatar
+        if (avatar != null && !avatar.isEmpty()) {
+            try {
+                if (StringUtils.hasText(user.getUrlAvatar())) {
+                    cloudinaryFileUploadService.deleteFile(user.getUrlAvatar());
+                }
+                Map<String, Object> uploadResult = cloudinaryFileUploadService.uploadFile(avatar, "fluento/avatar");
+                user.setUrlAvatar(uploadResult.get("url").toString());
+            } catch (IOException e) {
+                throw new AppException(ErrorCode.UPLOAD_FILE_ERROR);
+            }
         }
-        repository.save(user);
+
+        user = repository.save(user);
         log.info("Profile updated for user: {}", user.getUsername());
-        return mapper.toUserResponse(user);
+
+        UserResponse response = mapper.toUserResponse(user);
+        response.setNoPassword(!StringUtils.hasText(user.getPassword()));
+        return response;
     }
 
     public UserResponse getMyInfo() {
