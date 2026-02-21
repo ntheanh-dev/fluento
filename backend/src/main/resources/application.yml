@@ -42,7 +42,7 @@ spring:
         google:
           client-id: 940316326175-8jma9br9b2j1cjgqu992v3a693euvr6c.apps.googleusercontent.com # fixed
           client-secret: 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 # fixed
-          redirect-uri: http://localhost:1234/oauth/authenticate # modify as needed
+          redirect-uri: http://localhost:5173/oauth/authenticate # modify as needed
           scope: openid, profile, email
       provider:
         google:

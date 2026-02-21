@@ -115,7 +115,7 @@ api.interceptors.response.use(
           api.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
           originalRequest.headers.Authorization = `Bearer ${accessToken}`;
 
-          // Dispatch custom event to notify AuthContext about token refresh
+          // Dispatch custom event to notify auth store about token refresh
           window.dispatchEvent(new CustomEvent('tokenRefreshed', {
             detail: { accessToken, refreshToken: newRefreshToken }
           }));

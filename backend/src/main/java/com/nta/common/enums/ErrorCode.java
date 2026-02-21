@@ -20,6 +20,7 @@ public enum ErrorCode {
 
     // Authentication & user errors (10xx)
     USERNAME_EXISTED(1002, "This username has already existed", HttpStatus.CONFLICT),
+    EMAIL_EXISTED(1003, "This email has already existed", HttpStatus.CONFLICT),
     USER_NOT_EXISTED(1006, "User not existed", HttpStatus.NOT_FOUND),
     INVALID_TOKEN(1008, "Invalid token", HttpStatus.BAD_REQUEST),
     INCORRECT_PASSWORD(1009, "Invalid password", HttpStatus.BAD_REQUEST),

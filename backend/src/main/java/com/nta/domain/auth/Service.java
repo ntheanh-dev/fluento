@@ -58,16 +58,22 @@ public class Service {
     @Value("${spring.security.oauth2.resourceserver.jwt.refresh-token-valid-duration}")
     protected long REFRESH_TOKEN_VALID_DURATION;
 
-    public void createAccount(CreateAccountRequest request) {
-        log.info("Creating account for username: {}", request.getUsername());
+    public AuthenticationResponse createAccount(CreateAccountRequest request) throws JOSEException {
+        if (userRepository.existsByUsername(request.getUsername())) {
+            throw new AppException(ErrorCode.USERNAME_EXISTED);
+        }
+
         PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
         User u = userMapper.toUser(request);
         u.setPassword(passwordEncoder.encode(request.getPassword()));
         HashSet<Role> roles = new HashSet<>();
         roleRepository.findById(PredefinedRole.USER_ROLE).ifPresent(roles::add);
         u.setRoles(roles);
-        userRepository.save(u);
-        log.info("Account created successfully for username: {}", request.getUsername());
+        u = userRepository.save(u);
+        return AuthenticationResponse.builder()
+                .accessToken(generateToken(u, TokenType.ACCESS_TOKEN))
+                .refreshToken(generateToken(u, TokenType.FRESH_TOKEN))
+                .build();
     }
 
     public String generateToken(User user, TokenType type) throws JOSEException {
@@ -155,7 +161,7 @@ public class Service {
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
         boolean authenticate = passwordEncoder.matches(authenticationRequest.getPassword(), user.getPassword());
         if (!authenticate) {
-            throw new AppException(ErrorCode.UNAUTHENTICATED);
+            throw new AppException(ErrorCode.PASSWORD_INVALID);
         }
 
         var accessToken = generateToken(user, TokenType.ACCESS_TOKEN);
