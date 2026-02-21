@@ -18,5 +18,5 @@ export const oauthAuthenticate = (code: string): Promise<OAuthOutput> => {
 
 export const logout = (accessToken: string): Promise<void> => {
     const endpoint = `${BASE}/logout`;
-    return createRestClient<void>(endpoint, { accessToken :accessToken });
+    return createRestClient<void>(endpoint, { token :accessToken });
 };

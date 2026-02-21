@@ -11,12 +11,18 @@ export const http = axios.create({
         Accept: 'application/hal+json'
     },
     withCredentials: true,
+    timeout: 10000,
+    timeoutErrorMessage: "Request timed out"
 })
 
 http.interceptors.request.use((config) => {
     const token = Cookies.get('accessToken');
     if (token) {
         config.headers.Authorization = `Bearer ${token}`;
+    }
+    // FormData: bỏ Content-Type để browser tự set multipart/form-data + boundary
+    if (typeof FormData !== "undefined" && config.data instanceof FormData) {
+        delete config.headers["Content-Type"];
     }
     return config;
 });
@@ -39,6 +45,19 @@ http.interceptors.response.use(
         const originalRequest = error.config;
 
         if (error.response?.status !== 401 || originalRequest._retry) {
+            return Promise.reject(error);
+        }
+
+        // Don't try refresh on logout — let the app handle redirect
+        const isLogoutRequest = originalRequest.url?.includes("/auth/logout");
+        if (isLogoutRequest) {
+            Cookies.remove("accessToken");
+            return Promise.reject(error);
+        }
+
+        // Already on login page — avoid redirect to prevent reload loop
+        if (window.location.pathname === "/login") {
+            Cookies.remove("accessToken");
             return Promise.reject(error);
         }
 

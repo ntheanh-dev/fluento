@@ -6,9 +6,8 @@ import PracticeSession from "./features/practice/PracticeSession.tsx";
 import AnalysisResult from "./features/statistic/AnalysisResult.tsx";
 import History from "./features/history/index.tsx";
 import Rankings from "./features/ranking/index.tsx";
-import Profile from "./features/profile/index.tsx";
+import Profile from "./features/profile/ui/index.tsx";
 import Layout from "./layouts/Layout";
-import { RequiredAuth } from "./components/auth";
 
 import "./index.css";
 import { useEffect, useState } from "react";
@@ -20,6 +19,7 @@ import { ReactQueryProvider } from "./app/providers/ReactQueryProvider.tsx";
 import Dashboard from "./features/dashboard/index.tsx";
 import Register from "./features/auth/ui/Register.tsx";
 import Authenticate from "./features/auth/ui/Authenticated.tsx";
+import RequiredAuth from "./features/auth/ui/RequiredAuth.tsx";
 
 // await enableMocks();
 

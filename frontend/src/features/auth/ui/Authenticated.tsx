@@ -62,6 +62,7 @@ export default function Authenticate() {
         if (!profile) {
           throw new Error("Không nhận được thông tin người dùng");
         }
+
         setProfile(profile);
 
         message.success("Đăng nhập thành công!");

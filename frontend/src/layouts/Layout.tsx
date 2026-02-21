@@ -9,6 +9,7 @@ import {
     Flame
 } from 'lucide-react';
 import Sidebar from './Sidebar';
+import { useProfile } from '../stores/profile';
 
 const getPathName = (pathname: string): string => {
     const pathMap: Record<string, string> = {
@@ -27,7 +28,7 @@ const Layout = () => {
     const location = useLocation();
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [isDesktopSidebarOpen, setIsDesktopSidebarOpen] = useState(true);
-
+    const { profile } = useProfile();
     useEffect(() => {
         setIsMobileMenuOpen(false);
     }, [location.pathname]);
@@ -94,12 +95,12 @@ const Layout = () => {
                         <Link to="/profile">
                             <div className="flex items-center gap-3">
                                 <div className="text-right hidden sm:block">
-                                    <p className="text-sm font-bold text-slate-800">Minh Nguyen</p>
+                                    <p className="text-sm font-bold text-slate-800">{profile?.fullName}</p>
                                     <p className="text-xs text-slate-500">Trung cấp</p>
                                 </div>
                                 <img
-                                    src="https://picsum.photos/100/100"
-                                    alt="Người dùng"
+                                    src={profile?.urlAvatar}
+                                    alt={profile?.fullName}
                                     className="w-8 h-8 md:w-10 md:h-10 rounded-full border-2 border-slate-100 shadow-sm"
                                 />
                             </div>
