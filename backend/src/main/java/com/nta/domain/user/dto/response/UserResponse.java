@@ -16,6 +16,7 @@ import lombok.experimental.FieldDefaults;
 public class UserResponse {
     Long id;
     String username;
+    String fullName;
     String urlAvatar;
     Boolean noPassword;
     Set<Role> roles;

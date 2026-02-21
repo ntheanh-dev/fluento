@@ -5,10 +5,7 @@ import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
 import com.nta.common.dto.ApiResponse;
-import com.nta.domain.user.dto.request.ChangePasswordRequest;
-import com.nta.domain.user.dto.request.CreateApiKeyRequest;
-import com.nta.domain.user.dto.request.PasswordCreationRequest;
-import com.nta.domain.user.dto.request.UpdateUserAvatarRequest;
+import com.nta.domain.user.dto.request.*;
 import com.nta.domain.user.dto.response.ApiKeyResponse;
 import com.nta.domain.user.dto.response.UserResponse;
 
@@ -49,6 +46,14 @@ public class Controller {
     @GetMapping("/me")
     ApiResponse<UserResponse> getMyInfo() {
         return ApiResponse.<UserResponse>builder().result(service.getMyInfo()).build();
+    }
+
+    @PutMapping("/me")
+    ApiResponse<UserResponse> updateProfile(@RequestBody @Valid UpdateProfileRequest request) {
+        return ApiResponse.<UserResponse>builder()
+                .result(service.updateProfile(request))
+                .message("Profile updated successfully")
+                .build();
     }
 
     @PutMapping("/me/avatar")

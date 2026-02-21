@@ -15,6 +15,7 @@ import com.nta.common.service.cloudinary.CloudinaryFileUploadService;
 import com.nta.domain.user.dto.request.ChangePasswordRequest;
 import com.nta.domain.user.dto.request.CreateApiKeyRequest;
 import com.nta.domain.user.dto.request.PasswordCreationRequest;
+import com.nta.domain.user.dto.request.UpdateProfileRequest;
 import com.nta.domain.user.dto.request.UpdateUserAvatarRequest;
 import com.nta.domain.user.dto.response.ApiKeyResponse;
 import com.nta.domain.user.dto.response.UserResponse;
@@ -83,6 +84,17 @@ public class Service {
         } catch (IOException e) {
             throw new AppException(ErrorCode.UPLOAD_FILE_ERROR);
         }
+    }
+
+    public UserResponse updateProfile(UpdateProfileRequest request) {
+        final User user = this.getUserFromContext();
+        if (request.getFullName() != null) {
+            String trimmed = request.getFullName().trim();
+            user.setFullName(trimmed.isEmpty() ? null : trimmed);
+        }
+        repository.save(user);
+        log.info("Profile updated for user: {}", user.getUsername());
+        return mapper.toUserResponse(user);
     }
 
     public UserResponse getMyInfo() {

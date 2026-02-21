@@ -2,8 +2,10 @@ package com.nta.domain.auth;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.util.StringUtils;
 
 import com.nimbusds.jose.JOSEException;
 import com.nta.common.client.OutboundIdentityClient;
@@ -64,15 +66,33 @@ public class SocialService {
         Set<Role> roles = new HashSet<>();
         roles.add(roleRepository.findByName(PredefinedRole.USER_ROLE));
 
+        // Build fullName from Google given_name + family_name
+        String fullName = buildFullNameFromGoogle(userInfo.getGivenName(), userInfo.getFamilyName());
+
         // Check if user already exists, if not create a new user
         // Onboard user
         var user = userRepository
                 .findByUsername(userInfo.getEmail())
                 .orElseGet(() -> userRepository.save(User.builder()
                         .username(userInfo.getEmail())
+                        .fullName(fullName)
                         .urlAvatar(userInfo.getPicture())
                         .roles(roles)
                         .build()));
+
+        // Sync fullName/avatar from Google for existing user when not set
+        boolean updated = false;
+        if (StringUtils.hasText(fullName) && !StringUtils.hasText(user.getFullName())) {
+            user.setFullName(fullName);
+            updated = true;
+        }
+        if (StringUtils.hasText(userInfo.getPicture()) && !StringUtils.hasText(user.getUrlAvatar())) {
+            user.setUrlAvatar(userInfo.getPicture());
+            updated = true;
+        }
+        if (updated) {
+            userRepository.save(user);
+        }
 
         // Convert google token to system token
         var token = authService.generateToken(user, TokenType.ACCESS_TOKEN);
@@ -82,5 +102,13 @@ public class SocialService {
                 .accessToken(token)
                 .refreshToken(refreshToken)
                 .build();
+    }
+
+    private static String buildFullNameFromGoogle(String givenName, String familyName) {
+        return Stream.of(givenName, familyName)
+                .filter(StringUtils::hasText)
+                .reduce((a, b) -> a + " " + b)
+                .map(String::trim)
+                .orElse(" ");
     }
 }

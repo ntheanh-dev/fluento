@@ -16,6 +16,7 @@ public enum ErrorCode {
     EMAIL_INVALID(905, "Email không hợp lệ", HttpStatus.BAD_REQUEST),
     CURRENT_PASSWORD_INVALID(906, "Mật khẩu hiện tại không hợp lệ", HttpStatus.BAD_REQUEST),
     VALIDATION_PASSWORD_INVALID(907, "Mật khẩu phải có từ 8 đến 20 ký tự", HttpStatus.BAD_REQUEST),
+    FULL_NAME_INVALID(909, "Họ tên không hợp lệ (tối đa 255 ký tự)", HttpStatus.BAD_REQUEST),
     UPLOAD_FILE_ERROR(908, "Error when uploading file", HttpStatus.INTERNAL_SERVER_ERROR),
 
     // Authentication & user errors (10xx)
