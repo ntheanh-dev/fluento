@@ -11,7 +11,6 @@ import com.nta.common.dto.ApiResponse;
 import com.nta.common.enums.ErrorCode;
 import com.nta.common.exception.AppException;
 import com.nta.domain.user.dto.request.*;
-import com.nta.domain.user.dto.response.ApiKeyResponse;
 import com.nta.domain.user.dto.response.UserResponse;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -31,8 +30,10 @@ public class Controller {
     Service service;
 
     @GetMapping("/me")
-    ApiResponse<UserResponse> getMyInfo() {
-        return ApiResponse.<UserResponse>builder().result(service.getMyInfo()).build();
+    ApiResponse<UserResponse> getMyInfo(@RequestParam(value = "embedded", required = false) String embedded) {
+        return ApiResponse.<UserResponse>builder()
+                .result(service.getMyInfo(embedded))
+                .build();
     }
 
     @PutMapping(
@@ -51,32 +52,6 @@ public class Controller {
         return ApiResponse.<UserResponse>builder()
                 .result(service.updateMe(profile, avatar))
                 .message("Profile updated successfully")
-                .build();
-    }
-
-    // API Key Management Endpoints
-    @PostMapping("/api-key")
-    ApiResponse<ApiKeyResponse> createApiKey(@RequestBody @Valid CreateApiKeyRequest request) {
-        log.debug("Create API key requested");
-        return ApiResponse.<ApiKeyResponse>builder()
-                .result(service.createApiKey(request))
-                .message("API key created successfully")
-                .build();
-    }
-
-    @PutMapping("/api-key")
-    ApiResponse<ApiKeyResponse> updateApiKey(@RequestBody @Valid CreateApiKeyRequest request) {
-        return ApiResponse.<ApiKeyResponse>builder()
-                .result(service.updateApiKey(request))
-                .message("API key updated successfully")
-                .build();
-    }
-
-    @DeleteMapping("/api-key")
-    ApiResponse<Void> deleteApiKey() {
-        service.deleteApiKey();
-        return ApiResponse.<Void>builder()
-                .message("API key deleted successfully")
                 .build();
     }
 }

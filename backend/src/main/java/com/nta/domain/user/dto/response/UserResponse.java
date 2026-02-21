@@ -21,5 +21,7 @@ public class UserResponse {
     Boolean noPassword;
     Set<Role> roles;
     LocalDateTime createdAt;
-    String apiKey;
+    Long activeApiKeyId;
+    /** Điền khi GET /me?embedded=... (vd: embedded=apiKey → embedded.apiKey = [...]) */
+    UserMeEmbeddedResponse embedded;
 }

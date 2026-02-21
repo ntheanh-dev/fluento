@@ -57,8 +57,9 @@ spring:
         completions-path: /v1beta/openai/chat/completions
         options:
           model: ${CHAT_MODEL}
-# CORS Configuration
+# API key stored encrypted in DB; secret must be exactly 32 characters (32 bytes).
 app:
+  api-key-encryption-secret: "0123456789abcdef0123456789abcdef"
   cors:
     allowed-origins: http://localhost:1234
     allowed-methods: GET,POST,PUT,DELETE,OPTIONS

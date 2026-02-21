@@ -43,6 +43,9 @@ public enum ErrorCode {
     // Access & API key errors (20xx)
     ACCESS_DENIED(2003, "Access denied", HttpStatus.FORBIDDEN),
     API_KEY_EXISTED(2008, "API key already exists", HttpStatus.BAD_REQUEST),
+    PROVIDER_API_KEY_NOT_FOUND(2009, "Provider API key not found", HttpStatus.NOT_FOUND),
+    AI_MODEL_NOT_FOUND(2010, "AI model not found", HttpStatus.NOT_FOUND),
+    AI_MODEL_NOT_BELONG_TO_KEY(2011, "AI model does not belong to the selected API key", HttpStatus.BAD_REQUEST),
 
     // File & TTS errors (30xx)
     TEXT_TO_SPEECH_ERROR(3001, "Error during text-to-speech synthesis", HttpStatus.INTERNAL_SERVER_ERROR),
