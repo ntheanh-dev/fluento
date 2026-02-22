@@ -6,6 +6,7 @@ const apiKeySchema = z.object({
     model: z.string(),
     limitPerDay: z.number(),
     requestCountToday: z.number(),
+    isActive: z.boolean(),
     createdAt: z.string().nullable(),
 });
 

@@ -7,10 +7,9 @@ import { maskApiKey } from "../../../entities/apiKey/schema";
 import type { ApiKey } from "../../../entities/apiKey/schema";
 import { useCreateApiKey } from "../hook/useCreateApiKey";
 import { useDeleteApiKey } from "../hook/useDeleteApiKeys";
-import { useUpdateMe } from "../hook/useUpdateMe";
 import AddApiKeyDialog from "../dialogs/AddApiKeyDialog";
 import DeleteApiKeyDialog from "../dialogs/DeleteApiKeyDialog";
-import SetDefaultApiKeyDialog from "../dialogs/SetDefaultApiKeyDialog";
+import { formatCreatedAt } from "../../../shared/utilities";
 
 export default function ApiKeysSection() {
     const { profile, setProfile } = useProfileStore();
@@ -24,15 +23,10 @@ export default function ApiKeysSection() {
         apiKey: string;
         maskedKey: string;
     } | null>(null);
-    const [setDefaultTarget, setSetDefaultTarget] = useState<{
-        id: number;
-        label: string;
-    } | null>(null);
 
     const { mutateAsync: createApiKeyMutation, isPending: addKeyLoading } =
         useCreateApiKey();
     const { mutateAsync: deleteApiKeyMutation } = useDeleteApiKey();
-    const { mutateAsync: updateMeMutation } = useUpdateMe();
 
     useEffect(() => {
         if (!profile?.embedded?.apiKey) {
@@ -81,19 +75,7 @@ export default function ApiKeysSection() {
         }
     };
 
-    const handleSetDefaultConfirm = (): Promise<void> => {
-        if (!setDefaultTarget || !profile) return Promise.resolve();
-        const { id } = setDefaultTarget;
-        const fullName = profile.fullName?.trim() || profile.username || "";
-        return updateMeMutation({ fullName, activeApiKeyId: id })
-            .then(() => {
-                message.success("Đã đặt khóa làm mặc định.");
-            })
-            .catch(() => {
-                message.error("Đặt mặc định thất bại.");
-                throw new Error("Set default failed");
-            });
-    };
+
 
     return (
         <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
@@ -123,7 +105,8 @@ export default function ApiKeysSection() {
                     apiKeyGroups.map(({ apiKeyValue, keys }) => {
                         const groupKey = keys[0].id;
                         const isExpanded = expandedGroups[groupKey] !== false;
-                        const hasActive = keys.some(
+                        const createdAt = keys[0].createdAt;
+                        const isGroupActive = keys.some(
                             (k) => k.id === profile?.activeApiKeyId
                         );
                         return (
@@ -136,10 +119,11 @@ export default function ApiKeysSection() {
                                         <span className="inline-flex items-center rounded-lg bg-slate-200/80 px-2.5 py-1 font-mono text-xs text-slate-600">
                                             {maskApiKey(apiKeyValue)}
                                         </span>
-                                        <span className="text-slate-500 text-sm">
-                                            {keys.length} mô hình
+
+                                        <span className="text-slate-400 text-sm">
+                                            Thêm lúc {formatCreatedAt(createdAt)}
                                         </span>
-                                        {hasActive ? (
+                                        {isGroupActive ? (
                                             <Tag
                                                 color="success"
                                                 className="font-medium border-0 px-2 py-0.5 rounded-full text-xs"
@@ -190,12 +174,6 @@ export default function ApiKeysSection() {
                                 {isExpanded && (
                                     <div className="divide-y divide-slate-50">
                                         {keys.map((key) => {
-                                            const isActive =
-                                                key.requestCountToday <
-                                                key.limitPerDay;
-                                            const isDefault =
-                                                profile?.activeApiKeyId ===
-                                                key.id;
                                             return (
                                                 <div
                                                     key={key.id}
@@ -208,37 +186,6 @@ export default function ApiKeysSection() {
                                                         {key.requestCountToday}{" "}
                                                         / {key.limitPerDay} RPD
                                                     </span>
-                                                    {!isActive && (
-                                                        <Tag
-                                                            color="error"
-                                                            className="font-medium border-0 px-2 py-0.5 rounded-full text-xs"
-                                                        >
-                                                            Vượt quá giới hạn
-                                                        </Tag>
-                                                    )}
-                                                    <div className="ml-auto">
-                                                        {isDefault ? (
-                                                            <span className="text-primary font-medium text-sm">
-                                                                Đang dùng
-                                                            </span>
-                                                        ) : (
-                                                            <button
-                                                                type="button"
-                                                                onClick={() =>
-                                                                    setSetDefaultTarget(
-                                                                        {
-                                                                            id: key.id,
-                                                                            label: `${key.model} (${maskApiKey(apiKeyValue)})`,
-                                                                        }
-                                                                    )
-                                                                }
-                                                                disabled={!isActive}
-                                                                className="text-primary font-medium hover:underline text-sm"
-                                                            >
-                                                                Đặt làm mặc định
-                                                            </button>
-                                                        )}
-                                                    </div>
                                                 </div>
                                             );
                                         })}
@@ -264,13 +211,6 @@ export default function ApiKeysSection() {
                 onConfirm={() =>
                     deleteTarget ? handleDeleteConfirm(deleteTarget.apiKey) : undefined
                 }
-            />
-
-            <SetDefaultApiKeyDialog
-                open={!!setDefaultTarget}
-                label={setDefaultTarget?.label ?? null}
-                onClose={() => setSetDefaultTarget(null)}
-                onConfirm={handleSetDefaultConfirm}
             />
         </div>
     );
