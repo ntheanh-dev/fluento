@@ -1,5 +1,6 @@
 package com.nta.domain.apikey;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -9,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.nta.common.enums.ErrorCode;
 import com.nta.common.exception.AppException;
 import com.nta.common.service.ApiKeyCrypto;
+import com.nta.common.service.CommonUserService;
 import com.nta.domain.apikey.dto.request.CreateApiKeyRequest;
 import com.nta.domain.apikey.dto.request.DeleteApiKeyRequest;
 import com.nta.domain.apikey.dto.response.AiModelResponse;
@@ -25,20 +27,21 @@ public class Service {
     Repository repository;
     Mapper mapper;
     ApiKeyCrypto apiKeyCrypto;
-    com.nta.domain.user.Service userService;
     com.nta.domain.user.Repository userRepository;
+    private final CommonUserService commonUserService;
 
     public Service(
             Repository repository,
             Mapper mapper,
             ApiKeyCrypto apiKeyCrypto,
             @Lazy com.nta.domain.user.Service userService,
-            com.nta.domain.user.Repository userRepository) {
+            com.nta.domain.user.Repository userRepository,
+            CommonUserService commonUserService) {
         this.repository = repository;
         this.mapper = mapper;
         this.apiKeyCrypto = apiKeyCrypto;
-        this.userService = userService;
         this.userRepository = userRepository;
+        this.commonUserService = commonUserService;
     }
 
     public List<AiModelResponse> listMyKeysForUserId(Long userId) {
@@ -49,7 +52,7 @@ public class Service {
 
     @Transactional
     public List<AiModelResponse> create(CreateApiKeyRequest request) {
-        User user = userService.getUserFromContext();
+        User user = commonUserService.getUserFromContext();
         String encrypted = apiKeyCrypto.encrypt(request.getApiKey());
         if (repository.existsByApiKey(encrypted)) {
             throw new AppException(ErrorCode.API_KEY_EXISTED);
@@ -61,7 +64,9 @@ public class Service {
                     .user(user)
                     .apiKey(encrypted)
                     .model(modelName)
-                    .limitPerDay(LimitPerDay.STANDARD)
+                    .limitPerDay(LimitPerDay.FREE)
+                    .isActive(true)
+                    .createdAt(LocalDateTime.now())
                     .build();
             row = repository.save(row);
             if (isFirstKey) {
@@ -76,23 +81,31 @@ public class Service {
     }
 
     @Transactional
-    public void delete(DeleteApiKeyRequest request) {
-        User user = userService.getUserFromContext();
-        deleteByApiKeyForUserId(request.getApiKey(), user.getId());
+    public void switchActiveKeyAfterDeactivate(Long userId, Long deactivatedApiKeyId) {
+        repository.deactivateApiKey(deactivatedApiKeyId);
+        var otherActive = repository.findActiveByUserIdAndId(userId, deactivatedApiKeyId);
+        Long newActiveId = otherActive.isEmpty() ? null : otherActive.getFirst().getId();
+        userRepository.findById(userId).ifPresent(user -> {
+            user.setActiveApiKeyId(newActiveId);
+            userRepository.save(user);
+            log.info(
+                    "User {} activeApiKeyId updated to {}",
+                    userId,
+                    newActiveId != null ? newActiveId : "null (no other active key)");
+        });
     }
 
     @Transactional
-    public void deleteByApiKeyForUserId(String apiKey, Long userId) {
-        List<ApiKey> group = repository.findByApiKeyAndUserId(apiKey, userId);
+    public void delete(DeleteApiKeyRequest request) {
+        Long userId = commonUserService.getCurrentUserIdFromContext();
+        List<ApiKey> group = repository.findByApiKeyAndUserId(request.getApiKey(), userId);
         if (group.isEmpty()) {
             throw new AppException(ErrorCode.PROVIDER_API_KEY_NOT_FOUND);
         }
-        User user = group.get(0).getUser();
-        if (user.getActiveApiKeyId() != null
-                && group.stream().anyMatch(r -> r.getId().equals(user.getActiveApiKeyId()))) {
-            user.setActiveApiKeyId(null);
-            userRepository.save(user);
-        }
+
+        List<ApiKey> activeKeys = repository.findActiveByUserIdAndKey(userId, request.getApiKey());
+        Long activeKeyId = activeKeys.isEmpty() ? null : activeKeys.getFirst().getId();
+        userRepository.updateActiveApiKeyIdById(userId, activeKeyId);
         repository.deleteAll(group);
         log.info("API key deleted for user {}: {} rows", userId, group.size());
     }

@@ -14,7 +14,8 @@ import com.nta.common.enums.Level;
 import com.nta.common.enums.SentenceCount;
 import com.nta.common.enums.Tone;
 import com.nta.common.enums.Topic;
-import com.nta.domain.ai.ChatService;
+import com.nta.common.service.CommonUserService;
+import com.nta.common.service.ai.ChatService;
 import com.nta.domain.user.User;
 import com.nta.domain.writing.dto.request.GenerateParagraphRequest;
 import com.nta.domain.writing.dto.request.SentenceTranslationRequest;
@@ -31,16 +32,20 @@ import lombok.extern.slf4j.Slf4j;
 @FieldDefaults(makeFinal = true, level = lombok.AccessLevel.PRIVATE)
 public class Service {
     ChatService chatService;
-    com.nta.domain.user.Service userService;
     Repository repository;
     Mapper mapper;
+    private final CommonUserService commonUserService;
 
     public Service(
-            ChatService chatService, com.nta.domain.user.Service userService, Repository repository, Mapper mapper) {
+            ChatService chatService,
+            com.nta.domain.user.Service userService,
+            Repository repository,
+            Mapper mapper,
+            CommonUserService commonUserService) {
         this.chatService = chatService;
-        this.userService = userService;
         this.repository = repository;
         this.mapper = mapper;
+        this.commonUserService = commonUserService;
     }
 
     public GenerateParagraphResponse generateParagraph(final GenerateParagraphRequest request) {
@@ -71,6 +76,9 @@ public class Service {
                             + "- Ensure sentences are connected logically with appropriate transitions\n"
                             + "- Make the content engaging and educational for Vietnamese learners\n"
                             + "- Focus on practical, real-world applications of the topic\n"
+                            + "- Output ONLY the paragraph content.\n"
+                            + "- Do NOT include any introduction, explanation, or extra commentary.\n"
+                            + "- Return plain text only.\n"
                             + "- Use varied sentence structures to enhance learning value\n\n"
                             + "Topic: %s\nLanguage: %s\nLevel: %s\nTone: %s\nSentences: %d",
                     request.getLanguage(),
@@ -84,11 +92,12 @@ public class Service {
                     request.getTone(),
                     request.getSentenceCount());
 
-            final String apiKey = userService.getApiKeyFromContext();
-            pharagraph = chatService.sendMessage(apiKey, systemMessage, promptText, String.class);
+            pharagraph = chatService
+                    .sendMessage(systemMessage, promptText, String.class)
+                    .getResult();
         }
 
-        final User user = userService.getUserFromContext();
+        final User user = commonUserService.getUserFromContext();
 
         final Topic topic = isCustomText ? null : Topic.fromString(request.getTopic());
         final Level level = isCustomText ? null : Level.fromString(request.getLevel());
@@ -176,9 +185,9 @@ public class Service {
                         + "Return only the JSON response with exact property names as specified.",
                 level, vietnameseSentence, level, level);
 
-        final String apiKey = userService.getApiKeyFromContext();
-
-        return chatService.sendMessage(apiKey, SYSTEM_MESSAGE_TEXT, promptText, HintTranslationResponse.class);
+        return chatService
+                .sendMessage(SYSTEM_MESSAGE_TEXT, promptText, HintTranslationResponse.class)
+                .getResult();
     }
 
     public SentenceTranslationResponse translateSentence(
@@ -277,9 +286,9 @@ public class Service {
 						""",
                 request.getVietnameseSentence(), request.getEnglishSentence());
 
-        final String apiKey = userService.getApiKeyFromContext();
-
-        return chatService.sendMessage(apiKey, SYSTEM_MESSAGE_TEXT, promptText, SentenceTranslationResponse.class);
+        return chatService
+                .sendMessage(SYSTEM_MESSAGE_TEXT, promptText, SentenceTranslationResponse.class)
+                .getResult();
     }
 
     public WritingResponse getConversationById(String conversationId) {

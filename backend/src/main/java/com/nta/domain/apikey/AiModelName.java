@@ -4,9 +4,9 @@ import lombok.Getter;
 
 @Getter
 public enum AiModelName {
-    GEMINI_1_5_PRO("gemini-1.5-pro"),
-    GEMINI_1_5_FLASH("gemini-1.5-flash"),
-    GEMINI_1_0_PRO("gemini-1.0-pro");
+    GEMINI_2_5_FLASH("gemini-2.5-flash"),
+    GEMINI_2_5_FLASH_LITE("gemini-2.5-flash-lite"),
+    GEMINI_2_5_PRO("gemini-2.5-pro");
 
     private final String apiValue;
 

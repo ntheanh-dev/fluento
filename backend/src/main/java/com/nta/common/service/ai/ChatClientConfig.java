@@ -1,4 +1,4 @@
-package com.nta.domain.ai;
+package com.nta.common.service.ai;
 
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.context.annotation.Bean;

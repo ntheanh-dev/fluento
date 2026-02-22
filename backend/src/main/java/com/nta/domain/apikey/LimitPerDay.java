@@ -4,10 +4,7 @@ import lombok.Getter;
 
 @Getter
 public enum LimitPerDay {
-    FREE(10),
-    BASIC(50),
-    STANDARD(100),
-    PRO(500),
+    FREE(20),
     UNLIMITED(null);
 
     private final Integer maxRequests;
