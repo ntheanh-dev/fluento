@@ -13,6 +13,7 @@ export type UpdateMePayload = {
     fullName?: string;
     newPassword?: string;
     currentPassword?: string;
+    activeApiKeyId?: number;
 };
 
 export function updateMe(payload: UpdateMePayload, avatar?: File): Promise<User> {

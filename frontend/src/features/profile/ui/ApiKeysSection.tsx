@@ -1,14 +1,16 @@
 import { useState, useMemo, useEffect } from "react";
-import { Plus, Trash2, ChevronDown, ChevronUp } from "lucide-react";
-import { Button, Tag, message } from "antd";
+import { Plus, Trash2, ChevronDown, ChevronUp, Zap } from "lucide-react";
+import { Button, message } from "antd";
 import { useProfileStore } from "../../../stores/profile";
 import { useProfileData, PROFILE_EMBED_API_KEY } from "../query";
-import { maskApiKey } from "../../../entities/apiKey/schema";
+import { maskApiKey, getProviderFromModel } from "../../../entities/apiKey/schema";
 import type { ApiKey } from "../../../entities/apiKey/schema";
 import { useCreateApiKey } from "../hook/useCreateApiKey";
 import { useDeleteApiKey } from "../hook/useDeleteApiKeys";
+import { useUpdateMe } from "../hook/useUpdateMe";
 import AddApiKeyDialog from "../dialogs/AddApiKeyDialog";
 import DeleteApiKeyDialog from "../dialogs/DeleteApiKeyDialog";
+import SetDefaultApiKeyDialog from "../dialogs/SetDefaultApiKeyDialog";
 import { formatCreatedAt } from "../../../shared/utilities";
 
 export default function ApiKeysSection() {
@@ -23,10 +25,15 @@ export default function ApiKeysSection() {
         apiKey: string;
         maskedKey: string;
     } | null>(null);
+    const [setDefaultTarget, setSetDefaultTarget] = useState<{
+        id: number;
+        label: string;
+    } | null>(null);
 
     const { mutateAsync: createApiKeyMutation, isPending: addKeyLoading } =
         useCreateApiKey();
     const { mutateAsync: deleteApiKeyMutation } = useDeleteApiKey();
+    const { mutateAsync: updateMeMutation } = useUpdateMe();
 
     useEffect(() => {
         if (!profile?.embedded?.apiKey) {
@@ -75,7 +82,19 @@ export default function ApiKeysSection() {
         }
     };
 
-
+    const handleSetDefaultConfirm = (): Promise<void> => {
+        if (!setDefaultTarget || !profile) return Promise.resolve();
+        const { id } = setDefaultTarget;
+        const fullName = profile.fullName?.trim() || profile.username || "";
+        return updateMeMutation({ fullName, activeApiKeyId: id })
+            .then(() => {
+                message.success("Đã đặt khóa làm mặc định.");
+            })
+            .catch(() => {
+                message.error("Đặt mặc định thất bại.");
+                throw new Error("Set default failed");
+            });
+    };
 
     return (
         <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
@@ -96,9 +115,9 @@ export default function ApiKeysSection() {
                 </Button>
             </div>
 
-            <div className="space-y-4">
+            <div className="border border-slate-200 rounded-xl overflow-hidden">
                 {apiKeyGroups.length === 0 ? (
-                    <div className="rounded-xl border border-dashed border-slate-200 bg-slate-50/50 py-12 text-center text-slate-500 text-sm">
+                    <div className="py-12 text-center text-slate-500 text-sm bg-white">
                         Chưa có khóa API. Bấm &quot;Thêm khóa mới&quot; để thêm.
                     </div>
                 ) : (
@@ -109,42 +128,47 @@ export default function ApiKeysSection() {
                         const isGroupActive = keys.some(
                             (k) => k.id === profile?.activeApiKeyId
                         );
+                        const providerName =
+                            getProviderFromModel(keys[0].model);
                         return (
                             <div
                                 key={groupKey}
-                                className="rounded-xl border border-slate-200 bg-white overflow-hidden shadow-sm"
+                                className="border-b border-slate-100 last:border-b-0 bg-white"
                             >
-                                <div className="flex flex-wrap items-center gap-3 px-4 py-3 bg-slate-50/80 border-b border-slate-100">
-                                    <div className="flex items-center gap-3 min-w-0">
-                                        <span className="inline-flex items-center rounded-lg bg-slate-200/80 px-2.5 py-1 font-mono text-xs text-slate-600">
+                                {/* Primary API key row */}
+                                <div className="flex flex-wrap items-center gap-4 px-4 py-3.5 hover:bg-slate-50/50 transition-colors">
+                                    <button
+                                        type="button"
+                                        onClick={() => toggleGroup(groupKey)}
+                                        className="flex items-center gap-3 min-w-0 flex-1 text-left"
+                                    >
+                                        <span className="flex items-center justify-center w-8 h-8 rounded-lg bg-amber-100 text-amber-600 shrink-0">
+                                            <Zap size={18} strokeWidth={2} />
+                                        </span>
+                                        <span className="font-semibold text-slate-800">
+                                            {providerName}
+                                        </span>
+                                        <span className="font-mono text-sm text-slate-500">
                                             {maskApiKey(apiKeyValue)}
                                         </span>
-
-                                        <span className="text-slate-400 text-sm">
-                                            Thêm lúc {formatCreatedAt(createdAt)}
+                                        <span className="text-slate-400 text-sm hidden sm:inline">
+                                            {formatCreatedAt(createdAt)}
                                         </span>
-                                        {isGroupActive ? (
-                                            <Tag
-                                                color="success"
-                                                className="font-medium border-0 px-2 py-0.5 rounded-full text-xs"
-                                            >
-                                                Đang dùng
-                                            </Tag>
-                                        ) : (
-                                            <Tag
-                                                className="font-medium text-slate-500 bg-slate-100 border-0 px-2 py-0.5 rounded-full text-xs"
-                                            >
-                                                Không dùng
-                                            </Tag>
-                                        )}
-                                    </div>
-                                    <div className="flex items-center gap-1 ml-auto">
+                                    </button>
+                                    {isGroupActive && (
+                                        <span className="inline-flex items-center rounded-md bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-700 border border-emerald-200/80">
+                                            Active
+                                        </span>
+                                    )}
+                                    <div className="flex items-center gap-1 shrink-0">
                                         <button
                                             type="button"
                                             onClick={() => toggleGroup(groupKey)}
                                             className="p-2 rounded-lg text-slate-500 hover:bg-slate-200/80 hover:text-slate-700 transition-colors"
                                             title={
-                                                isExpanded ? "Thu gọn" : "Mở rộng"
+                                                isExpanded
+                                                    ? "Thu gọn"
+                                                    : "Mở rộng"
                                             }
                                         >
                                             {isExpanded ? (
@@ -164,31 +188,77 @@ export default function ApiKeysSection() {
                                                 })
                                             }
                                             className="p-2 rounded-lg text-slate-500 hover:bg-red-50 hover:text-red-500 transition-colors"
-                                            title="Xóa toàn bộ khóa này"
+                                            title="Xóa khóa API"
                                         >
                                             <Trash2 size={18} />
                                         </button>
                                     </div>
                                 </div>
 
+                                {/* Supported models */}
                                 {isExpanded && (
-                                    <div className="divide-y divide-slate-50">
-                                        {keys.map((key) => {
-                                            return (
-                                                <div
-                                                    key={key.id}
-                                                    className="flex flex-wrap items-center gap-4 px-4 py-3 hover:bg-slate-50/50 transition-colors"
-                                                >
-                                                    <span className="font-medium text-slate-800 min-w-[140px]">
-                                                        {key.model}
-                                                    </span>
-                                                    <span className="text-slate-600 text-sm tabular-nums">
-                                                        {key.requestCountToday}{" "}
-                                                        / {key.limitPerDay} RPD
-                                                    </span>
-                                                </div>
-                                            );
-                                        })}
+                                    <div className="bg-slate-50/60 border-t border-slate-100">
+                                        <div className="px-4 pt-3 pb-1">
+                                            <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">
+                                                Models
+                                            </p>
+                                        </div>
+                                        <div className="px-4 pb-3">
+                                            <div className="rounded-lg border border-slate-200 bg-white overflow-hidden">
+                                                {keys.map((key) => {
+                                                    const underLimit =
+                                                        key.requestCountToday <
+                                                        key.limitPerDay;
+                                                    const isDefault =
+                                                        profile?.activeApiKeyId ===
+                                                        key.id;
+                                                    return (
+                                                        <div
+                                                            key={key.id}
+                                                            className="flex flex-wrap items-center gap-4 px-4 py-2.5 border-b border-slate-100 last:border-b-0 hover:bg-slate-50/50"
+                                                        >
+                                                            <span className="font-medium text-slate-800 min-w-[140px] text-sm">
+                                                                {key.model}
+                                                            </span>
+                                                            <span className="text-slate-600 text-sm tabular-nums">
+                                                                {key.requestCountToday}{" "}
+                                                                / {key.limitPerDay} RPD
+                                                            </span>
+                                                            {underLimit ? (
+                                                                <span className="inline-flex items-center rounded-md bg-emerald-50 px-2 py-0.5 text-xs font-medium text-emerald-700 border border-emerald-200/80">
+                                                                    Active
+                                                                </span>
+                                                            ) : (
+                                                                <span className="inline-flex items-center rounded-md bg-red-50 px-2 py-0.5 text-xs font-medium text-red-600 border border-red-200/80">
+                                                                    Over limit
+                                                                </span>
+                                                            )}
+                                                            <div className="ml-auto">
+                                                                {isDefault ? (
+                                                                    <span className="text-primary font-medium text-sm text-blue-500">
+                                                                        Đang dùng
+                                                                    </span>
+                                                                ) : (
+                                                                    <button
+                                                                        type="button"
+                                                                        onClick={() =>
+                                                                            setSetDefaultTarget({
+                                                                                id: key.id,
+                                                                                label: `${key.model} (${maskApiKey(apiKeyValue)})`,
+                                                                            })
+                                                                        }
+                                                                        disabled={!underLimit}
+                                                                        className="text-primary font-medium hover:underline text-sm disabled:opacity-50 disabled:cursor-not-allowed disabled:no-underline"
+                                                                    >
+                                                                        Đặt làm mặc định
+                                                                    </button>
+                                                                )}
+                                                            </div>
+                                                        </div>
+                                                    );
+                                                })}
+                                            </div>
+                                        </div>
                                     </div>
                                 )}
                             </div>
@@ -211,6 +281,13 @@ export default function ApiKeysSection() {
                 onConfirm={() =>
                     deleteTarget ? handleDeleteConfirm(deleteTarget.apiKey) : undefined
                 }
+            />
+
+            <SetDefaultApiKeyDialog
+                open={!!setDefaultTarget}
+                label={setDefaultTarget?.label ?? null}
+                onClose={() => setSetDefaultTarget(null)}
+                onConfirm={handleSetDefaultConfirm}
             />
         </div>
     );
