@@ -20,7 +20,6 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class CommonUserService {
     Repository repository;
-    ApiKeyCrypto apiKeyCrypto;
     com.nta.domain.apikey.Repository apiKeyRepository;
 
     public Long getCurrentUserIdFromContext() {
@@ -53,16 +52,6 @@ public class CommonUserService {
             log.error("API key not found for user ID: {}", userId);
             throw new AppException(ErrorCode.AI_API_KEY_MISSING_FOR_USER);
         }
-
-        // verify api key is not reached limit
-        if (apiKey.getRequestCountToday() >= apiKey.getLimitPerDay().getMaxRequests()) {
-            log.warn("API key {} has reached its daily limit", apiKey.getApiKey());
-            throw new AppException(ErrorCode.AI_API_KEY_REACHED_DAILY_LIMIT);
-        }
-
-        // encrypted api key is stored in database, we need to decrypt it before returning
-        String decryptedApiKey = apiKeyCrypto.decrypt(apiKey.getApiKey());
-        apiKey.setApiKey(decryptedApiKey);
 
         return apiKey;
     }

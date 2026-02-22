@@ -20,11 +20,11 @@ import com.nta.common.constant.ChatCacheConstants;
 import com.nta.common.enums.ErrorCode;
 import com.nta.common.exception.AppException;
 import com.nta.common.service.CommonUserService;
+import com.nta.common.service.TokenUtils;
 import com.nta.common.service.ai.ChatResponse;
 import com.nta.common.service.ai.ChatService;
 import com.nta.common.service.ai.ClientKey;
 import com.nta.domain.apikey.ApiKey;
-import com.nta.domain.apikey.Repository;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -36,8 +36,8 @@ public class GeminiChatService implements ChatService {
 
     private final CommonUserService commonUserService;
     private final ObjectMapper objectMapper;
-    private final Repository repository;
     private final com.nta.domain.apikey.Service apiKeyService;
+    private final com.nta.common.service.ApiKeyCrypto apiKeyCrypto;
     private final Cache<String, OpenAiApi> apiCache = Caffeine.newBuilder()
             .maximumSize(ChatCacheConstants.API_CACHE_MAX_SIZE)
             .expireAfterAccess(Duration.ofMinutes(ChatCacheConstants.CACHE_EXPIRE_AFTER_ACCESS_MINUTES))
@@ -50,11 +50,13 @@ public class GeminiChatService implements ChatService {
 
     @Override
     public <T> ChatResponse<T> sendMessage(String systemMessage, String userMessage, Class<T> responseType) {
-
         ApiKey apiKey = commonUserService.getApiKeyFromContext();
 
+        // encrypted api key is stored in database, we need to decrypt it before returning
+        String decryptedApiKey = apiKeyCrypto.decrypt(apiKey.getApiKey());
+
         ChatClient chatClient =
-                getOrCreateClient(apiKey.getApiKey(), apiKey.getModel().getApiValue());
+                getOrCreateClient(decryptedApiKey, apiKey.getModel().getApiValue());
 
         String outputText = "";
 
@@ -73,6 +75,9 @@ public class GeminiChatService implements ChatService {
 
             outputText = response.getResult().getOutput().getText();
 
+            log.info(
+                    "Tokens used - Prompt: {}, Completion: {}, Total: {}", promptTokens, completionTokens, totalTokens);
+
             T result = parseResponse(outputText, responseType);
 
             return ChatResponse.<T>builder()
@@ -86,7 +91,7 @@ public class GeminiChatService implements ChatService {
             if (exception.getMessage().contains("429") && exception.getMessage().contains("RESOURCE_EXHAUSTED")) {
                 handleApiReachLimit(apiKey);
             }
-            throw exception;
+            throw new AppException(ErrorCode.AI_EXHAUSTED);
         } catch (Exception e) {
             log.error("Failed to parse AI response: {}", outputText, e);
             throw new AppException(ErrorCode.AI_RESPONSE_PARSE_ERROR);
@@ -102,7 +107,10 @@ public class GeminiChatService implements ChatService {
 
             OpenAiChatModel geminiModel = OpenAiChatModel.builder()
                     .openAiApi(openAiApi)
-                    .defaultOptions(OpenAiChatOptions.builder().model(k.model()).build())
+                    .defaultOptions(OpenAiChatOptions.builder()
+                            .model(k.model())
+                            .maxCompletionTokens(4000)
+                            .build())
                     .build();
 
             return ChatClient.builder(geminiModel).build();
@@ -118,6 +126,10 @@ public class GeminiChatService implements ChatService {
     }
 
     private Prompt buildPrompt(String systemMessageText, String userMessageText) {
+        int inputToken = TokenUtils.countTokens(systemMessageText) + TokenUtils.countTokens(userMessageText);
+        if (inputToken > ChatCacheConstants.MAX_INPUT_TOKENS) {
+            throw new AppException(ErrorCode.AI_INPUT_TOO_LONG);
+        }
         return new Prompt(new SystemMessage(systemMessageText), new UserMessage(userMessageText));
     }
 

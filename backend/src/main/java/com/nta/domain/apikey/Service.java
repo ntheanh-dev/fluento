@@ -45,7 +45,7 @@ public class Service {
     }
 
     public List<AiModelResponse> listMyKeysForUserId(Long userId) {
-        return repository.findByUserIdOrderByCreatedAtDesc(userId).stream()
+        return repository.findByUserIdOrderByCreatedAtAsc(userId).stream()
                 .map(mapper::toAiModelResponse)
                 .toList();
     }
@@ -104,8 +104,9 @@ public class Service {
         }
 
         List<ApiKey> activeKeys = repository.findActiveByUserIdAndKey(userId, request.getApiKey());
-        Long activeKeyId = activeKeys.isEmpty() ? null : activeKeys.getFirst().getId();
-        userRepository.updateActiveApiKeyIdById(userId, activeKeyId);
+        Long newActiveId = activeKeys.isEmpty() ? null : activeKeys.getFirst().getId();
+        userRepository.updateActiveApiKeyIdById(userId, newActiveId);
+
         repository.deleteAll(group);
         log.info("API key deleted for user {}: {} rows", userId, group.size());
     }

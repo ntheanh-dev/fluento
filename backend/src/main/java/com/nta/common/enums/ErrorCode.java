@@ -42,6 +42,12 @@ public enum ErrorCode {
     AI_API_KEY_MISSING_FOR_USER(1102, "Hãy thêm API Key để sử dụng tính năng này", HttpStatus.BAD_REQUEST),
     AI_API_KEY_REACHED_DAILY_LIMIT(1103, "API key đã đạt giới hạn hàng ngày", HttpStatus.BAD_REQUEST),
     AI_RESPONSE_PARSE_ERROR(1104, "Lỗi khi parse phản hồi từ AI, hãy thử lại", HttpStatus.INTERNAL_SERVER_ERROR),
+    TRY_AGAIN_LATER(1105, "Đã có lỗi xảy ra, vui lòng thử lại", HttpStatus.INTERNAL_SERVER_ERROR),
+    AI_EXHAUSTED(
+            1106,
+            "AI model đã hết khả năng phản hồi trong ngày, vui lòng chuyển sang model khác hoặc thử lại vào ngày hôm sau",
+            HttpStatus.BAD_REQUEST),
+    AI_INPUT_TOO_LONG(1107, "Đầu vào quá dài, vui lòng rút ngắn để sử dụng", HttpStatus.BAD_REQUEST),
     // Access & API key errors (20xx)
     ACCESS_DENIED(2003, "Access denied", HttpStatus.FORBIDDEN),
     API_KEY_EXISTED(2008, "API key already exists", HttpStatus.BAD_REQUEST),

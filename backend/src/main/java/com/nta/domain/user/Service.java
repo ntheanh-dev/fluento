@@ -85,6 +85,15 @@ public class Service {
             }
         }
 
+        // Case: update activeApiKey
+        if (profile != null && profile.getActiveApiKeyId() != null) {
+            var apiKey = apiKeyRepository.findById(profile.getActiveApiKeyId()).orElse(null);
+            if (apiKey == null || !apiKey.getUser().getId().equals(user.getId())) {
+                throw new AppException(ErrorCode.AI_MODEL_NOT_FOUND);
+            }
+            user.setActiveApiKeyId(apiKey.getId());
+        }
+
         user = repository.save(user);
         log.info("Profile updated for user: {}", user.getUsername());
 
