@@ -16,7 +16,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "paragraphs")
+@Table(name = "paragraph")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -33,7 +33,7 @@ public class Paragraph {
     private String title;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "type")
+    @Column(name = "taskType")
     private Type type;
 
     @Enumerated(EnumType.STRING)
@@ -47,6 +47,10 @@ public class Paragraph {
     @Enumerated(EnumType.STRING)
     @Column(name = "level")
     private Level level;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "sentenceCount")
+    private SentenceCount sentenceCount;
 
     @CreationTimestamp
     @Column(name = "created_at")

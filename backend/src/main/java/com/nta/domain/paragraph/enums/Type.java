@@ -2,15 +2,13 @@ package com.nta.domain.paragraph.enums;
 
 import java.util.Arrays;
 
-/**
- * Enum representing different types of writing exercises/practices
- */
 public enum Type {
-    BASIC("BASIC", "Basic Writing Practice"),
-    IELTS_TASK1("IELTS_TASK1", "IELTS Task 1"),
-    IELTS_TASK2("IELTS_TASK2", "IELTS Task 2"),
+    BASIC("WRITING_BASIC", "Basic Writing Practice"),
+    IELTS_TASK1("IELTS_TASK1", "IELTS Writing Task 1"),
+    IELTS_TASK2("IELTS_TASK2", "IELTS Writing Task 2"),
     EMAIL("EMAIL", "Email Writing"),
-    CUSTOM_TEXT("CUSTOM_TEXT", "Custom Text");
+    STORY("STORY", "Story Writing"),
+    CUSTOM_TEXT("CUSTOM_TEXT", "Custom Writing Text");
 
     private final String code;
     private final String displayName;
@@ -29,13 +27,13 @@ public enum Type {
     }
 
     /**
-     * Parse from request string (e.g. "basic", "ielts_task1") to enum.
+     * Parse from request string (e.g. "ielts_task1", "speaking-part2")
      */
     public static Type fromString(String s) {
         if (s == null || s.isBlank()) return null;
         String normalized = s.trim().toUpperCase().replace("-", "_");
         return Arrays.stream(values())
-                .filter(wt -> wt.name().equals(normalized) || wt.code.equals(normalized))
+                .filter(tt -> tt.name().equals(normalized) || tt.code.equals(normalized))
                 .findFirst()
                 .orElse(null);
     }
