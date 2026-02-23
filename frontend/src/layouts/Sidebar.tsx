@@ -42,7 +42,7 @@ const Sidebar = ({ activePath, onClose }: { activePath: string, onClose?: () => 
 
             <nav className="flex-1 px-4 space-y-2 mt-4 overflow-y-auto">
                 <SidebarItem icon={LayoutDashboard} label="Bảng điều khiển" to="/" active={activePath === '/'} />
-                <SidebarItem icon={BookOpen} label="Luyện tập" to="/setup" active={activePath.startsWith('/setup') || activePath.startsWith('/session')} />
+                <SidebarItem icon={BookOpen} label="Luyện tập" to="/practice" active={activePath.startsWith('/practice') || activePath.startsWith('/session')} />
                 <SidebarItem icon={History} label="Lịch sử" to="/history" active={activePath === '/history'} />
                 <SidebarItem icon={Trophy} label="Bảng xếp hạng" to="/rankings" active={activePath === '/rankings'} />
                 <SidebarItem icon={User} label="Hồ sơ" to="/profile" active={activePath === '/profile'} />

@@ -28,7 +28,7 @@ const Dashboard = () => {
           <p className="text-slate-500 mt-2 text-sm md:text-base">You've completed 80% of your weekly goal. Keep it up!</p>
         </div>
         <button
-          onClick={() => navigate('/setup')}
+          onClick={() => navigate('/practice')}
           className="w-full md:w-auto bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl font-semibold shadow-lg shadow-blue-200 transition-all flex items-center justify-center gap-2"
         >
           <PenTool size={18} />

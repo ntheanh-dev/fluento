@@ -57,6 +57,7 @@ function App() {
               <Route index element={<Dashboard />} />
               <Route path="practice" element={<PracticeSetup />} />
               <Route path="practice/session" element={<PracticeSession />} />
+              <Route path="practice/" element={<PracticeSetup />} />
               <Route path="practice/result" element={<AnalysisResult />} />
               <Route path="history" element={<History />} />
               <Route path="rankings" element={<Rankings />} />
