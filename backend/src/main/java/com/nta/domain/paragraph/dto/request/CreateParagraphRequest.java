@@ -36,7 +36,7 @@ public class CreateParagraphRequest {
     private Topic topic;
 
     @NotNull
-    @Schema(description = "Difficulty level", example = "INTERMEDIATE")
+    @Schema(description = "Difficulty level", example = "A2")
     private Level level;
 
     @Schema(description = "Sentence count", example = "10")

@@ -5,6 +5,7 @@ import jakarta.transaction.Transactional;
 import com.nta.common.service.CommonUserService;
 import com.nta.domain.paragraph.Paragraph;
 import com.nta.domain.paragraph.dto.request.CreateParagraphRequest;
+import com.nta.domain.userPractice.dto.response.UserPracticeResponse;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -19,9 +20,10 @@ public class Service {
     com.nta.domain.paragraph.Service paragraphService;
     Repository repository;
     CommonUserService commonUserService;
+    Mapper mapper;
 
     @Transactional
-    UserPractice create(CreateParagraphRequest request) {
+    UserPracticeResponse create(CreateParagraphRequest request) {
         // NOTE: Sau khi có một lượng data paragraph rồi thì ko cần dùng ai để tạo nữa mà sẽ query trong db
         Paragraph paragraph = paragraphService.findOrcreate(request);
 
@@ -36,6 +38,6 @@ public class Service {
                 .attemptNumber(1)
                 .build();
 
-        return repository.save(practice);
+        return mapper.toUserPracticeResponse(repository.save(practice));
     }
 }

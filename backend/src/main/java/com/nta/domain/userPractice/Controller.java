@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.*;
 
 import com.nta.common.dto.ApiResponse;
 import com.nta.domain.paragraph.dto.request.CreateParagraphRequest;
+import com.nta.domain.userPractice.dto.response.UserPracticeResponse;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AccessLevel;
@@ -23,8 +24,8 @@ public class Controller {
     Service service;
 
     @PostMapping
-    ApiResponse<UserPractice> create(@RequestBody @Valid CreateParagraphRequest request) {
-        return ApiResponse.<UserPractice>builder()
+    ApiResponse<UserPracticeResponse> create(@RequestBody @Valid CreateParagraphRequest request) {
+        return ApiResponse.<UserPracticeResponse>builder()
                 .result(service.create(request))
                 .build();
     }
