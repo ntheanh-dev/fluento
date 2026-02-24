@@ -1,8 +1,8 @@
 import { Routes, Route, BrowserRouter, Navigate } from "react-router-dom";
 // removed unused ThemeProvider/createTheme
 import { ConfigProvider } from "antd";
-import PracticeSetup from "./features/practice/PracticeSetup.tsx";
-import PracticeSession from "./features/practice/PracticeSession.tsx";
+import PracticeSetup from "./features/practice/ui/PracticeSetup.tsx";
+import PracticeSession from "./features/practice/ui/PracticeSession.tsx";
 import AnalysisResult from "./features/statistic/AnalysisResult.tsx";
 import History from "./features/history/index.tsx";
 import Rankings from "./features/ranking/index.tsx";
