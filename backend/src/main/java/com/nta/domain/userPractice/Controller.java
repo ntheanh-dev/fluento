@@ -1,5 +1,7 @@
 package com.nta.domain.userPractice;
 
+import java.util.List;
+
 import jakarta.validation.Valid;
 
 import org.springframework.web.bind.annotation.*;
@@ -22,6 +24,20 @@ import lombok.extern.slf4j.Slf4j;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class Controller {
     Service service;
+
+    @GetMapping
+    ApiResponse<List<UserPracticeResponse>> getAll() {
+        return ApiResponse.<List<UserPracticeResponse>>builder()
+                .result(service.getAll())
+                .build();
+    }
+
+    @GetMapping("/{id}")
+    ApiResponse<UserPracticeResponse> get(@PathVariable Long id) {
+        return ApiResponse.<UserPracticeResponse>builder()
+                .result(service.get(id))
+                .build();
+    }
 
     @PostMapping
     ApiResponse<UserPracticeResponse> create(@RequestBody @Valid CreateParagraphRequest request) {

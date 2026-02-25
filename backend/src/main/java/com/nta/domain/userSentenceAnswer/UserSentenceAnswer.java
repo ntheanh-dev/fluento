@@ -6,6 +6,7 @@ import jakarta.persistence.*;
 
 import org.hibernate.annotations.CreationTimestamp;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.nta.domain.userPractice.UserPractice;
 
 import lombok.AllArgsConstructor;
@@ -39,7 +40,8 @@ public class UserSentenceAnswer {
     @Column(columnDefinition = "TEXT")
     private String feedback;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JsonIgnore
     @JoinColumn(name = "practice_id")
     private UserPractice practice;
 

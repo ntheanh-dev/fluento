@@ -7,6 +7,7 @@ import jakarta.persistence.*;
 
 import org.hibernate.annotations.CreationTimestamp;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.nta.domain.paragraph.enums.*;
 import com.nta.domain.userPractice.UserPractice;
 
@@ -56,6 +57,7 @@ public class Paragraph {
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
-    @OneToMany(mappedBy = "paragraph")
+    @OneToMany(mappedBy = "paragraph", fetch = FetchType.LAZY)
+    @JsonIgnore
     private List<UserPractice> practices;
 }

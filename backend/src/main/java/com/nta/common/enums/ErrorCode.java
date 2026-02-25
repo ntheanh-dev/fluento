@@ -8,6 +8,7 @@ import lombok.Getter;
 @Getter
 public enum ErrorCode {
     // Validation errors (9xx)
+    RESOURCE_NOT_FOUND(899, "Resource not found", HttpStatus.NOT_FOUND),
     ERROR_KEY_INVALID(900, "Không tìm thấy errorcode tương ứng", HttpStatus.INTERNAL_SERVER_ERROR),
     NOT_BLANK(901, "Trường này không được để trống", HttpStatus.BAD_REQUEST),
     USERNAME_INVALID(902, "Tên đăng nhập không hợp lệ", HttpStatus.BAD_REQUEST),

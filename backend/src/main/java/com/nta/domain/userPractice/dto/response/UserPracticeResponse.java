@@ -1,10 +1,12 @@
 package com.nta.domain.userPractice.dto.response;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import jakarta.persistence.*;
 
 import com.nta.domain.paragraph.Paragraph;
+import com.nta.domain.userSentenceAnswer.UserSentenceAnswer;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -27,4 +29,6 @@ public class UserPracticeResponse {
     private LocalDateTime createdAt;
 
     private Paragraph paragraph;
+
+    private List<UserSentenceAnswer> sentenceAnswers;
 }

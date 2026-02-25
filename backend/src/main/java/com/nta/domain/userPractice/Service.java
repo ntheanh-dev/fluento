@@ -1,7 +1,11 @@
 package com.nta.domain.userPractice;
 
+import java.util.List;
+
 import jakarta.transaction.Transactional;
 
+import com.nta.common.enums.ErrorCode;
+import com.nta.common.exception.AppException;
 import com.nta.common.service.CommonUserService;
 import com.nta.domain.paragraph.Paragraph;
 import com.nta.domain.paragraph.dto.request.CreateParagraphRequest;
@@ -39,5 +43,19 @@ public class Service {
                 .build();
 
         return mapper.toUserPracticeResponse(repository.save(practice));
+    }
+
+    UserPracticeResponse get(Long id) {
+        Long userId = commonUserService.getCurrentUserIdFromContext();
+        UserPractice userPractice = repository
+                .findByIdAndUserId(id, userId)
+                .orElseThrow(() -> new AppException(ErrorCode.RESOURCE_NOT_FOUND));
+        return mapper.toUserPracticeResponse(userPractice);
+    }
+
+    List<UserPracticeResponse> getAll() {
+        Long userId = commonUserService.getCurrentUserIdFromContext();
+        List<UserPractice> userPractices = repository.findByUserId(userId);
+        return mapper.toUserPracticeResponses(userPractices);
     }
 }
