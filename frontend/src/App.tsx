@@ -20,6 +20,7 @@ import Dashboard from "./features/dashboard/index.tsx";
 import Register from "./features/auth/ui/Register.tsx";
 import Authenticate from "./features/auth/ui/Authenticated.tsx";
 import RequiredAuth from "./features/auth/ui/RequiredAuth.tsx";
+import SentencePracticePage from "./features/practice/ui/[id]/index.tsx";
 
 // await enableMocks();
 
@@ -58,6 +59,7 @@ function App() {
               <Route path="practice" element={<PracticeSetup />} />
               <Route path="practice/session" element={<PracticeSession />} />
               <Route path="practice/" element={<PracticeSetup />} />
+              <Route path="practice/:id" element={<SentencePracticePage />} />
               <Route path="practice/result" element={<AnalysisResult />} />
               <Route path="history" element={<History />} />
               <Route path="rankings" element={<Rankings />} />
