@@ -1,889 +1,507 @@
-import React, { useState, useEffect } from 'react';
-import { Typography, TextField } from '@mui/material';
-import { useParams, useNavigate } from 'react-router-dom';
-import { FaPen, FaLightbulb, FaCheck, FaComment, FaThumbsUp, FaHome, FaHeadphones } from 'react-icons/fa';
-
+import React, { useState, useEffect } from "react";
+import { Typography, TextField } from "@mui/material";
+import { useParams, useNavigate } from "react-router-dom";
+import {
+  FaPen,
+  FaLightbulb,
+  FaCheck,
+  FaComment,
+  FaThumbsUp,
+  FaHome,
+  FaHeadphones,
+} from "react-icons/fa";
+import {
+  ArrowLeft,
+  ChevronRight,
+  Send,
+  BookOpen,
+  TrendingUp,
+  Settings,
+  Menu,
+  MoreVertical,
+  CheckCircle2,
+  AlertCircle,
+  Lightbulb,
+  Sparkles,
+  RefreshCw,
+} from "lucide-react";
 // Common API response interface
 export interface ApiResponse<T = any> {
-    code: number;
-    result: T;
+  code: number;
+  result: T;
 }
 
 // Common API error interface
 export interface ApiError {
-    message: string;
-    code?: number;
-    details?: any;
+  message: string;
+  code?: number;
+  details?: any;
 }
 
 // Generic API response wrapper
 export interface ApiResult<T> {
-    success: boolean;
-    data?: T;
-    error?: ApiError;
+  success: boolean;
+  data?: T;
+  error?: ApiError;
 }
 
 // Common pagination interface
 export interface PaginationParams {
-    page: number;
-    limit: number;
-    total?: number;
+  page: number;
+  limit: number;
+  total?: number;
 }
 
 // Common paginated response
 export interface PaginatedResponse<T> extends ApiResponse<T[]> {
-    pagination: PaginationParams;
+  pagination: PaginationParams;
 }
 
 // Translation hints response types
 export interface VocabularyHint {
-    vietnamese: string;
-    english: string[];
+  vietnamese: string;
+  english: string[];
 }
 
 export interface StructureHint {
-    kindsOfSentencesAccordingToStructure: {
-        vietnamese: string;
-        english: string;
-    };
-    tenses: {
-        vietnamese: string;
-        english: string;
-        form: string;
-    };
+  kindsOfSentencesAccordingToStructure: {
+    vietnamese: string;
+    english: string;
+  };
+  tenses: {
+    vietnamese: string;
+    english: string;
+    form: string;
+  };
 }
 
 export interface TranslationHintsResponse {
-    vocabularyHints: VocabularyHint[];
-    structureHints: StructureHint;
+  vocabularyHints: VocabularyHint[];
+  structureHints: StructureHint;
 }
 
 // Translation check response types
 export interface SpellingMistake {
-    word: string;
-    suggestion: string;
+  word: string;
+  suggestion: string;
 }
 
 export interface GrammarError {
-    issue: string;
-    example: string;
+  issue: string;
+  example: string;
 }
 
 export interface VocabularyIssue {
-    word: string;
-    suggestion: string[];
+  word: string;
+  suggestion: string[];
 }
 
 export interface SentenceStructure {
-    problem: string;
-    suggestion: string;
+  problem: string;
+  suggestion: string;
 }
 
 export interface TranslationFeedback {
-    weaknesses: string[];
+  weaknesses: string[];
 }
 
 export interface TranslationCheckResponse {
-    originalVietnamese: string;
-    learnerEnglish: string;
-    corrections: {
-        spellingMistakes: SpellingMistake[];
-        vocabularyIssues: VocabularyIssue[];
-        grammarErrors: GrammarError[];
-        sentenceStructure: SentenceStructure[];
-    };
-    feedback: TranslationFeedback;
-    score: number;
-    improvedTranslation: string;
+  originalVietnamese: string;
+  learnerEnglish: string;
+  corrections: {
+    spellingMistakes: SpellingMistake[];
+    vocabularyIssues: VocabularyIssue[];
+    grammarErrors: GrammarError[];
+    sentenceStructure: SentenceStructure[];
+  };
+  feedback: TranslationFeedback;
+  score: number;
+  improvedTranslation: string;
 }
 
 export interface SentenceCreationResponse {
-    vietnamese: string;
-    englishTranslation: string;
-    orderIndex: number;
-    score: number;
-    feedback: string
-    conversationId: string;
+  vietnamese: string;
+  englishTranslation: string;
+  orderIndex: number;
+  score: number;
+  feedback: string;
+  conversationId: string;
 }
 
 export interface Sentence {
-    englishTranslation: string;
-    vietnamese: string;
-    score: number;
-    feedback: string;
+  englishTranslation: string;
+  vietnamese: string;
+  score: number;
+  feedback: string;
 }
 
 const SentencePracticePage = () => {
-    const [translation, setTranslation] = useState('');
-    const { conversationId } = useParams();
-    const navigate = useNavigate();
+  const [translation, setTranslation] = useState("");
+  const { conversationId } = useParams();
+  const navigate = useNavigate();
 
-    const [vietNameseSentences, setVietNameseSentences] = useState<string[]>([]);
-    const [englishTranslations, setEnglishTranslations] = useState<Sentence[]>([]);
-    const [currentLevel, setCurrentLevel] = useState<string>('');
-    const [currentTopic, setCurrentTopic] = useState<string>('');
-    const [currentTone, setCurrentTone] = useState<string>('');
-    const [type, setType] = useState<string>('');
+  const [vietNameseSentences, setVietNameseSentences] = useState<string[]>([]);
+  const [englishTranslations, setEnglishTranslations] = useState<Sentence[]>(
+    [],
+  );
+  const [currentLevel, setCurrentLevel] = useState<string>("");
+  const [currentTopic, setCurrentTopic] = useState<string>("");
+  const [currentTone, setCurrentTone] = useState<string>("");
+  const [type, setType] = useState<string>("");
 
-    // New state for translation hints
-    const [translationHints, setTranslationHints] = useState<TranslationHintsResponse | null>(null);
-    const [showHints, setShowHints] = useState(false);
+  // New state for translation hints
+  const [translationHints, setTranslationHints] =
+    useState<TranslationHintsResponse | null>(null);
+  const [showHints, setShowHints] = useState(false);
 
-    // New state for translation check
-    const [translationCheck, setTranslationCheck] = useState<TranslationCheckResponse | null>(null);
-    const [showCheck, setShowCheck] = useState(false);
-    const [showDetailModal, setShowDetailModal] = useState(false);
+  // New state for translation check
+  const [translationCheck, setTranslationCheck] =
+    useState<TranslationCheckResponse | null>(null);
+  const [showCheck, setShowCheck] = useState(false);
+  const [showDetailModal, setShowDetailModal] = useState(false);
 
-    // Calculate average score from englishTranslations
-    const calculateAverageScore = () => {
-        if (englishTranslations.length === 0) return 0;
-        const totalScore = englishTranslations.reduce((sum, sentence) => sum + sentence.score, 0);
-        return Math.round(totalScore / englishTranslations.length);
-    };
+  // Calculate average score from englishTranslations
+  const calculateAverageScore = () => {
+    if (englishTranslations.length === 0) return 0;
+    const totalScore = englishTranslations.reduce(
+      (sum, sentence) => sum + sentence.score,
+      0,
+    );
+    return Math.round(totalScore / englishTranslations.length);
+  };
 
+  // Handle Enter key events for buttons
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      // Only handle Enter key
+      if (event.key !== "Enter") return;
 
-    // Handle Enter key events for buttons
-    useEffect(() => {
-        const handleKeyDown = (event: KeyboardEvent) => {
-            // Only handle Enter key
-            if (event.key !== 'Enter') return;
+      // Don't trigger if user is typing in the translation input
+      const activeElement = document.activeElement;
+      if (activeElement && activeElement.tagName === "TEXTAREA") {
+        return;
+      }
 
-            // Don't trigger if user is typing in the translation input
-            const activeElement = document.activeElement;
-            if (activeElement && activeElement.tagName === 'TEXTAREA') {
-                return;
-            }
+      // Don't trigger if modals are open
+      if (showDetailModal) {
+        return;
+      }
 
-            // Don't trigger if modals are open
-            if (showDetailModal) {
-                return;
-            }
+      // Determine which button should be triggered based on current state
+      if (showCheck && translationCheck) {
+        // Check if there are no errors in corrections
+        const hasErrors =
+          translationCheck.corrections.spellingMistakes.length > 0 ||
+          translationCheck.corrections.grammarErrors.length > 0 ||
+          translationCheck.corrections.sentenceStructure.length > 0 ||
+          translationCheck.corrections.vocabularyIssues.length > 0;
 
-            // Determine which button should be triggered based on current state
-            if (showCheck && translationCheck) {
-                // Check if there are no errors in corrections
-                const hasErrors = translationCheck.corrections.spellingMistakes.length > 0 ||
-                    translationCheck.corrections.grammarErrors.length > 0 ||
-                    translationCheck.corrections.sentenceStructure.length > 0 ||
-                    translationCheck.corrections.vocabularyIssues.length > 0;
-
-                if (hasErrors) {
-                    // Has errors - trigger "Viết lại" button
-                    handleCheckTranslation();
-                } else {
-                    // No errors - trigger "Câu tiếp" button
-                    handleNextSentence();
-                }
-            } else {
-                // Default state - trigger "Kiểm tra" button
-                handleCheckTranslation();
-            }
-        };
-
-        // Add event listener
-        document.addEventListener('keydown', handleKeyDown);
-
-        // Cleanup
-        return () => {
-            document.removeEventListener('keydown', handleKeyDown);
-        };
-    }, [showCheck, translationCheck, showDetailModal]);
-
-    // Function to call translation hints API
-    const handleGetTranslationHints = async () => {
-
-    };
-
-    // Function to clean and format translation text
-    const formatTranslationText = (text: string): string => {
-        let cleaned = text.trim();
-
-        // Remove multiple spaces between words
-        cleaned = cleaned.replace(/\s+/g, ' ');
-
-        // Add punctuation if missing
-        if (cleaned && !/[.!?]$/.test(cleaned)) {
-            cleaned = cleaned + ".";
+        if (hasErrors) {
+          // Has errors - trigger "Viết lại" button
+          handleCheckTranslation();
+        } else {
+          // No errors - trigger "Câu tiếp" button
+          handleNextSentence();
         }
-
-        // Capitalize first letter of each sentence
-        cleaned = cleaned.replace(/(^|\.\s+)([a-z])/g, (_, p1, p2) => {
-            return p1 + p2.toUpperCase();
-        });
-
-        return cleaned;
+      } else {
+        // Default state - trigger "Kiểm tra" button
+        handleCheckTranslation();
+      }
     };
 
-    // Function to call translation check API
-    const handleCheckTranslation = async () => {
+    // Add event listener
+    document.addEventListener("keydown", handleKeyDown);
 
+    // Cleanup
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
     };
+  }, [showCheck, translationCheck, showDetailModal]);
 
-    const handleNextSentence = async () => {
+  // Function to call translation hints API
+  const handleGetTranslationHints = async () => {};
 
-    };
+  // Function to clean and format translation text
+  const formatTranslationText = (text: string): string => {
+    let cleaned = text.trim();
 
-    return (
-        <div className="h-[calc(100vh-4rem)] bg-gray-50 p-4">
-            <div className="max-w-7xl mx-auto h-full">
-                <div className="flex gap-4 h-full">
-                    {/* Main Content Area */}
-                    <div className="flex-1 bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden flex flex-col">
-                        {/* Header */}
-                        <div className="px-8 py-6 bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 border-b border-blue-200 flex-shrink-0 shadow-lg">
-                            {/* Main Content Row */}
-                            <div className="flex items-center justify-between mb-4">
-                                {/* Main Title - Left Side */}
+    // Remove multiple spaces between words
+    cleaned = cleaned.replace(/\s+/g, " ");
 
-                                <div className="flex-1">
-                                    <h1 className="text-2xl font-bold text-blue-700 leading-tight max-w-2xl">
-                                        {currentTopic || 'Loading topic...'}
-                                    </h1>
-                                    {type === 'AI_GENERATED' && (
-                                        <div className="text-lg font-medium text-blue-600/80 mt-1">
-                                            Level: {currentLevel || 'Loading level...'} - Tone: {currentTone || 'Loading tone...'}
-                                        </div>
-                                    )}
-                                </div>
+    // Add punctuation if missing
+    if (cleaned && !/[.!?]$/.test(cleaned)) {
+      cleaned = cleaned + ".";
+    }
 
+    // Capitalize first letter of each sentence
+    cleaned = cleaned.replace(/(^|\.\s+)([a-z])/g, (_, p1, p2) => {
+      return p1 + p2.toUpperCase();
+    });
 
-                                {/* Metrics - Right Side */}
-                                <div className="flex items-center gap-6">
+    return cleaned;
+  };
 
+  // Function to call translation check API
+  const handleCheckTranslation = async () => {};
 
-                                    {/* Progress */}
-                                    <div className="text-right">
-                                        <div className="text-gray-700 text-sm font-medium">
-                                            Tiến độ: {englishTranslations.length}/{vietNameseSentences.length} câu
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+  const handleNextSentence = async () => {};
 
-                            {/* Progress Bar - Below */}
-                            <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden shadow-inner">
-                                <div
-                                    className="h-full bg-gradient-to-r from-blue-500 to-purple-600 transition-all duration-700 ease-out rounded-full shadow-sm relative"
-                                    style={{
-                                        width: `${vietNameseSentences.length > 0 ? ((englishTranslations.length / vietNameseSentences.length) * 100) : 0}%`
-                                    }}
-                                >
-                                    <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent"></div>
-                                </div>
-                            </div>
-                        </div>
+  const [input, setInput] = useState("");
 
-                        {/* Vietnamese Text */}
-                        <div className="p-4 flex-1 overflow-hidden">
-                            <div className=" p-4 h-full overflow-y-auto relative">
-                                <div className="leading-7 text-base text-gray-800">
-                                    {vietNameseSentences.map((sentence, index) => (
-                                        <React.Fragment key={index}>
-                                            {index <= englishTranslations.length - 1 ? (
-                                                // Completed sentences - show English translation
-                                                <span key={index} className="relative inline">
-                                                    <span className="text-black py-1 font-bold">
-                                                        {" " + englishTranslations[index]?.englishTranslation}
-                                                    </span>
-                                                </span>
-                                            ) : (
-                                                // Current and upcoming sentences
-                                                index === englishTranslations.length ? (
-                                                    // Current sentence to translate
-                                                    <span key={index} className="relative inline">
-                                                        <span className="py-2 text-blue-600 font-bold">
-                                                            {" " + sentence}
-                                                        </span>
-                                                    </span>
-                                                ) : (
-                                                    // Upcoming sentences
-                                                    <span key={index} className="relative inline">
-                                                        <span className="text-gray-600 opacity-60">
-                                                            {" " + sentence}
-                                                        </span>
-                                                    </span>
-                                                )
-                                            )}
-                                        </React.Fragment>
-                                    ))}
-                                </div>
-                            </div>
-                        </div>
+  return (
+    <div className="max-w-screen-2xl mx-auto max-h-[calc(100vh-130px+4rem)] -mt-8 -mb-8 flex flex-col overflow-hidden">
+      {/* Top Bar for Task Info */}
+      <div className="flex items-center justify-between py-4 mb-2 shrink-0">
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => navigate("/practice")}
+            className="p-2 hover:bg-slate-100 rounded-lg text-slate-500 transition-colors"
+          >
+            <ArrowLeft size={20} />
+          </button>
+          <div className="flex items-start gap-4">
+            <div>
+              <h2 className="text-base font-bold text-slate-900 mb-1">
+                Writing Task: Email Draft
+              </h2>
+              <p className="text-sm text-slate-500">
+                Translate the following Vietnamese paragraph sentence by
+                sentence.
+              </p>
+            </div>
+          </div>
+        </div>
+        <div className="hidden md:flex items-center gap-6">
+          <div className="flex items-center gap-6">
+            <span className="text-sm font-medium text-slate-500">
+              Section 2/5
+            </span>
+            <div className="w-48 h-2.5 bg-slate-200 rounded-full overflow-hidden">
+              <div className="h-full bg-blue-600 w-[40%] rounded-full"></div>
+            </div>
+            <span className="text-xs font-bold text-blue-600">40%</span>
+          </div>
+        </div>
+      </div>
 
-                        {/* Translation Input */}
-                        <div className="px-4 mb-4">
-                            <div className="relative">
-                                <TextField
-                                    fullWidth
-                                    multiline
-                                    minRows={2}
-                                    maxRows={4}
-                                    variant="outlined"
-                                    placeholder="Nhập bản dịch của bạn..."
-                                    value={translation}
-                                    onChange={(e) => setTranslation(e.target.value)}
-                                    className="bg-white"
-                                    InputProps={{
-                                        style: {
-                                            borderRadius: 16,
-                                            borderColor: '#E5E7EB',
-                                            fontSize: '18px',
-                                            lineHeight: '1.6',
-                                            padding: '16px',
-                                            paddingRight: '48px',
-                                            overflow: 'auto',
-                                            wordBreak: 'break-word',
-                                            whiteSpace: 'pre-line',
-                                        }
-                                    }}
-                                />
-                            </div>
-                        </div>
-
-                        {/* Action Buttons */}
-                        <div className="px-4 pb-4">
-                            <div className="flex gap-4 justify-center">
-                                <button
-                                    className="w-52 py-3.5 px-6 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 text-base border-0"
-                                    onClick={handleGetTranslationHints}
-                                >
-                                    💡 Xem gợi ý
-                                </button>
-
-                                {showCheck && translationCheck ? (
-                                    <>
-                                        {
-                                            translationCheck.score <= 9 && (
-                                                <button
-                                                    className="w-52 py-3.5 px-6 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 text-base border-0"
-                                                    onClick={handleCheckTranslation}
-                                                >
-                                                    ✏️ Viết lại
-                                                </button>
-                                            )
-                                        }
-                                        {translationCheck.score >= 7 && (
-                                            <button
-                                                className="w-52 py-3.5 px-6 bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 text-base border-0"
-                                                onClick={handleNextSentence}
-                                            >
-                                                ✓ Tiếp tục
-                                            </button>
-                                        )}
-                                    </>
-                                ) : (
-                                    // Default state - show "Kiểm tra" button
-                                    <button
-                                        className="w-52 py-3.5 px-6 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 text-base border-0"
-                                        onClick={handleCheckTranslation}
-                                    >
-                                        🔍 Kiểm tra
-                                    </button>
-                                )}
-
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* AI Assistant Sidebar */}
-                    <div className="w-96 bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden flex flex-col">
-
-                        {/* Content Area - Shows either instructions, translation hints, or translation check */}
-                        <div className="p-4 flex-1 overflow-y-auto">
-                            {showCheck && translationCheck ? (
-                                // Translation Check Display
-                                <div className="space-y-4">
-                                    {/* Header with gradient background */}
-                                    <div className="relative overflow-hidden rounded-lg bg-gradient-to-r from-green-500 via-emerald-500 to-teal-600 p-3 text-white shadow-md">
-                                        <div className="absolute inset-0 bg-black/10"></div>
-                                        <div className="relative flex items-center gap-2">
-                                            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white/20 backdrop-blur-sm border border-white/30">
-                                                <FaCheck className="text-lg text-white" />
-                                            </div>
-                                            <div>
-                                                <Typography variant="h6" className="font-bold text-white text-base mb-0.5">
-                                                    Kết quả kiểm tra
-                                                </Typography>
-                                                <Typography variant="body2" className="text-white/90 text-xs">
-                                                    AI đã đánh giá và đưa ra gợi ý cải thiện
-                                                </Typography>
-                                            </div>
-                                            {translationCheck.score && (
-                                                <div className="rounded-xl text-center">
-                                                    <Typography variant="h6" className="font-bold text-white">
-                                                        {translationCheck.score} điểm
-                                                    </Typography>
-                                                </div>
-                                            )}
-                                        </div>
-                                    </div>
-
-
-                                    {/* Corrections */}
-                                    <div className="space-y-3">
-                                        <div className="flex items-center gap-2">
-                                            <div className="h-0.5 w-6 rounded-full bg-gradient-to-r from-red-500 to-orange-500"></div>
-                                            <Typography variant="h6" className="font-bold text-gray-800 text-sm">
-                                                Sửa lỗi
-                                            </Typography>
-                                        </div>
-
-                                        {/* Spelling Mistakes */}
-                                        {translationCheck?.corrections.spellingMistakes.length > 0 && (
-                                            <div className="relative rounded-lg border border-red-200 bg-white p-3 shadow-sm">
-                                                <div className="relative">
-                                                    <div className="flex items-center gap-2 mb-2">
-                                                        <div className="h-1.5 w-1.5 rounded-full bg-red-500"></div>
-                                                        <Typography variant="body2" className="font-semibold text-red-800 text-sm">
-                                                            Lỗi chính tả
-                                                        </Typography>
-                                                    </div>
-                                                    <div className="space-y-1.5">
-                                                        {translationCheck?.corrections.spellingMistakes.map((mistake, index) => (
-                                                            <div key={index} className="flex items-center gap-2 p-1.5 bg-white rounded-md border border-red-100">
-                                                                <span className="text-red-600 font-semibold text-sm px-1.5 py-0.5 bg-red-100 rounded">{mistake.word}</span>
-                                                                <span className="text-gray-400 text-sm">→</span>
-                                                                <span className="text-green-600 font-semibold text-sm px-1.5 py-0.5 bg-green-100 rounded">{mistake.suggestion}</span>
-                                                            </div>
-                                                        ))}
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        )}
-
-                                        {/* Grammar Errors */}
-                                        {translationCheck?.corrections.grammarErrors.length > 0 && (
-                                            <div className="relative rounded-lg border border-orange-200 bg-white p-3 shadow-sm">
-                                                <div className="relative">
-                                                    <div className="flex items-center gap-2 mb-2">
-                                                        <div className="h-1.5 w-1.5 rounded-full bg-orange-500"></div>
-                                                        <Typography variant="body2" className="font-semibold text-orange-800 text-sm">
-                                                            Lỗi ngữ pháp
-                                                        </Typography>
-                                                    </div>
-                                                    <div className="space-y-1.5">
-                                                        {translationCheck.corrections.grammarErrors.map((error, index) => (
-                                                            <div key={index} className="p-2 bg-white rounded-md border border-orange-100">
-                                                                <div className="text-orange-700 font-semibold text-sm mb-1">{error.issue}</div>
-                                                                <div className="text-orange-600 text-sm bg-orange-50 px-1.5 py-0.5 rounded border border-orange-200 font-mono">{error.example}</div>
-                                                            </div>
-                                                        ))}
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        )}
-
-                                        {/* Sentence Structure */}
-                                        {translationCheck.corrections.sentenceStructure.length > 0 && (
-                                            <div className="relative rounded-lg border border-yellow-200 bg-white p-3 shadow-sm">
-                                                <div className="relative">
-                                                    <div className="flex items-center gap-2 mb-2">
-                                                        <div className="h-1.5 w-1.5 rounded-full bg-yellow-500"></div>
-                                                        <Typography variant="body2" className="font-semibold text-yellow-800 text-sm">
-                                                            Cấu trúc câu
-                                                        </Typography>
-                                                    </div>
-                                                    <div className="space-y-1.5">
-                                                        {translationCheck?.corrections?.sentenceStructure.map((structure, index) => (
-                                                            <div key={index} className="p-2 bg-white rounded-md border border-yellow-100">
-                                                                <div className="text-yellow-700 font-semibold text-sm mb-1">{structure.problem}</div>
-                                                                <div className="text-yellow-600 text-sm bg-yellow-50 px-1.5 py-0.5 rounded border border-yellow-200">{structure.suggestion}</div>
-                                                            </div>
-                                                        ))}
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        )}
-
-                                        {/* Vocabulary Issues */}
-                                        {translationCheck?.corrections.vocabularyIssues.length > 0 && (
-                                            <div className="relative rounded-lg border border-blue-200 bg-white p-3 shadow-sm">
-                                                <div className="relative">
-                                                    <div className="flex items-center gap-2 mb-2">
-                                                        <div className="h-1.5 w-1.5 rounded-full bg-blue-500"></div>
-                                                        <Typography variant="body2" className="font-semibold text-blue-800 text-sm">
-                                                            Từ vựng có thay thế
-                                                        </Typography>
-                                                    </div>
-                                                    <div className="space-y-1.5">
-                                                        {translationCheck.corrections.vocabularyIssues.map((issue, index) => (
-                                                            <div key={index} className="p-2 bg-white rounded-md border border-blue-100">
-                                                                <div className="flex items-center gap-2 mb-1">
-                                                                    <span className="text-blue-700 font-semibold text-sm px-1.5 py-0.5 bg-blue-50 rounded border border-blue-200">{issue.word}</span>
-                                                                    <span className="text-gray-400 text-sm">→</span>
-                                                                    <div className="flex flex-wrap gap-1.5">
-                                                                        {issue.suggestion.map((s, i) => (
-                                                                            <span key={i} className="inline-flex items-center text-blue-700 text-xs font-medium bg-blue-50 px-2 py-0.5 rounded border border-blue-200">
-                                                                                {s}
-                                                                            </span>
-                                                                        ))}
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        ))}
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        )}
-                                    </div>
-
-                                    {/* Feedback */}
-                                    {(translationCheck?.feedback?.weaknesses.length > 0) && (
-                                        <div className="space-y-3">
-
-                                            <div className="flex items-center gap-2">
-                                                <div className="h-0.5 w-6 rounded-full bg-gradient-to-r from-green-500 to-blue-500"></div>
-                                                <Typography variant="h6" className="font-bold text-gray-800 text-sm">
-                                                    Chi tiết đánh giá
-                                                </Typography>
-                                            </div>
-
-
-
-                                            {/* Weaknesses */}
-                                            {translationCheck?.feedback.weaknesses.length > 0 && (
-                                                <div className="relative rounded-lg border border-red-200 bg-white p-3 shadow-sm">
-                                                    <div className="relative">
-                                                        <div className="flex items-center gap-2 mb-2">
-                                                            <div className="h-1.5 w-1.5 rounded-full bg-red-500"></div>
-                                                            <Typography variant="body2" className="font-semibold text-red-800 text-sm">
-                                                                Cần cải thiện
-                                                            </Typography>
-                                                        </div>
-                                                        <ul className="space-y-1.5">
-                                                            {translationCheck?.feedback.weaknesses.map((weakness, index) => (
-                                                                <li key={index} className="text-red-700 text-sm flex items-start gap-2 p-1.5 bg-white rounded-md border border-red-100">
-                                                                    <span className="text-red-500 mt-0.5 text-sm">⚠</span>
-                                                                    <span className="flex-1">{weakness}</span>
-                                                                </li>
-                                                            ))}
-                                                        </ul>
-                                                    </div>
-                                                </div>
-                                            )}
-                                        </div>
-                                    )}
-
-
-                                    {/* Improved Translation */}
-                                    <div className="space-y-3">
-                                        <div className="flex items-center gap-2">
-                                            <div className="h-0.5 w-6 rounded-full bg-gradient-to-r from-emerald-500 to-teal-500"></div>
-                                            <Typography variant="h6" className="font-bold text-gray-800 text-sm">
-                                                Bản dịch cải thiện
-                                            </Typography>
-                                        </div>
-                                        <div className="relative rounded-lg border border-emerald-200 bg-white p-3 shadow-sm">
-                                            <div className="relative">
-                                                <div className="flex items-center gap-2 mb-2">
-                                                    <Typography variant="body2" className="text-emerald-800 text-sm font-medium leading-relaxed">
-                                                        {translationCheck?.improvedTranslation}
-                                                    </Typography>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                </div>
-                            ) : showHints && translationHints ? (
-                                // Translation Hints Display
-                                <div className="space-y-4">
-                                    {/* Header with gradient background */}
-                                    <div className="relative overflow-hidden rounded-lg bg-gradient-to-r from-purple-500 to-blue-600 p-3 text-white shadow-md">
-                                        <div className="absolute inset-0 bg-black/10"></div>
-                                        <div className="relative flex items-center gap-2">
-                                            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white/20 backdrop-blur-sm">
-                                                <FaComment className="text-lg text-white" />
-                                            </div>
-                                            <div>
-                                                <Typography variant="h6" className="font-bold text-white text-base mb-0.5">
-                                                    Gợi ý dịch thuật
-                                                </Typography>
-                                                <Typography variant="body2" className="text-white/90 text-sm">
-                                                    AI đã phân tích và đưa ra gợi ý cho bạn
-                                                </Typography>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    {/* Vocabulary Hints */}
-                                    <div className="space-y-2">
-                                        <div className="flex items-center gap-2">
-                                            <div className="h-0.5 w-6 rounded-full bg-gradient-to-r from-blue-500 to-purple-500"></div>
-                                            <Typography variant="h6" className="font-bold text-gray-800 text-sm">
-                                                Gợi ý từ vựng
-                                            </Typography>
-                                        </div>
-                                        <div className="space-y-2">
-                                            {translationHints.vocabularyHints.map((hint, index) => (
-                                                <div
-                                                    key={index}
-                                                    className="rounded-lg border border-gray-200 bg-white p-3 shadow-sm"
-                                                >
-                                                    <div className="flex items-start justify-between gap-3">
-                                                        <Typography variant="body2" className="font-semibold text-gray-800 text-base flex-shrink-0">
-                                                            {hint.vietnamese}
-                                                        </Typography>
-                                                        <div className="flex flex-wrap gap-1.5 justify-end flex-1">
-                                                            {hint.english.map((eng, engIndex) => (
-                                                                <span
-                                                                    className="inline-flex items-center px-2 py-1 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 text-white text-sm font-medium shadow-sm whitespace-nowrap cursor-pointer"
-                                                                >
-                                                                    {eng}
-                                                                </span>
-                                                            ))}
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </div>
-
-                                    {/* Structure Hints */}
-                                    <div className="space-y-2">
-                                        <div className="flex items-center gap-2">
-                                            <div className="h-0.5 w-6 rounded-full bg-gradient-to-r from-green-500 to-emerald-500"></div>
-                                            <Typography variant="h6" className="font-bold text-gray-800 text-sm">
-                                                Gợi ý cấu trúc
-                                            </Typography>
-                                        </div>
-
-                                        {/* Sentence Type */}
-                                        <div className="group relative overflow-hidden rounded-lg border border-gray-200 bg-white p-3 shadow-sm transition-all duration-200 hover:shadow-md hover:border-green-300">
-                                            <div className="absolute inset-0 bg-gradient-to-r from-green-50 to-emerald-50 opacity-0 transition-opacity duration-200 group-hover:opacity-100"></div>
-                                            <div className="relative">
-                                                <div className="flex items-center gap-2 mb-2">
-                                                    <div className="h-1.5 w-1.5 rounded-full bg-green-500"></div>
-                                                    <Typography variant="body2" className="font-semibold text-gray-800 text-sm">
-                                                        Loại câu
-                                                    </Typography>
-                                                </div>
-                                                <div className="flex items-center justify-between gap-3">
-                                                    <Typography variant="body2" className="text-gray-700 font-medium text-sm">
-                                                        {translationHints.structureHints.kindsOfSentencesAccordingToStructure.vietnamese}
-                                                    </Typography>
-                                                    <Typography variant="body2" className="text-green-600 text-sm font-medium bg-green-50 px-2 py-1 rounded-md border border-green-200">
-                                                        {translationHints.structureHints.kindsOfSentencesAccordingToStructure.english}
-                                                    </Typography>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        {/* Tense */}
-                                        <div className="group relative overflow-hidden rounded-lg border border-gray-200 bg-white p-3 shadow-sm transition-all duration-200 hover:shadow-md hover:border-purple-300">
-                                            <div className="absolute inset-0 bg-gradient-to-r from-purple-50 to-pink-50 opacity-0 transition-opacity duration-200 group-hover:opacity-100"></div>
-                                            <div className="relative">
-                                                <div className="flex items-center gap-2 mb-2">
-                                                    <div className="h-1.5 w-1.5 rounded-full bg-purple-500"></div>
-                                                    <Typography variant="body2" className="font-semibold text-gray-800 text-sm">
-                                                        Thì ngữ pháp
-                                                    </Typography>
-                                                </div>
-                                                <div className="space-y-2">
-                                                    <div className="flex items-center justify-between gap-3">
-                                                        <Typography variant="body2" className="text-gray-700 font-medium text-sm">
-                                                            {translationHints.structureHints.tenses.vietnamese}
-                                                        </Typography>
-                                                        <Typography variant="body2" className="text-purple-600 text-sm font-medium bg-purple-50 px-2 py-1 rounded-md border border-purple-200">
-                                                            {translationHints.structureHints.tenses.english}
-                                                        </Typography>
-                                                    </div>
-                                                    <div className="flex justify-end">
-                                                        <div className="inline-block rounded-md bg-gradient-to-r from-purple-100 to-pink-100 px-2 py-1.5 border border-purple-200">
-                                                            <Typography variant="body2" className="text-purple-800 text-sm font-mono font-semibold">
-                                                                {translationHints.structureHints.tenses.form}
-                                                            </Typography>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                </div>
-                            ) : (
-                                // Instructions Display
-                                <div className="space-y-4">
-                                    <div className="flex items-center gap-3 mb-4">
-                                        <FaThumbsUp className="text-green-500 text-xl" />
-                                        <Typography variant="h6" className="font-bold text-gray-800 text-lg">
-                                            Hướng dẫn luyện tập
-                                        </Typography>
-                                    </div>
-
-                                    <div className="space-y-3">
-                                        <div className="flex items-start gap-4 p-4 bg-blue-50 rounded-xl border border-blue-200 shadow-sm hover:shadow-md transition-all duration-200">
-                                            <FaLightbulb className="text-blue-500 mt-1 flex-shrink-0 text-lg" />
-                                            <Typography variant="body2" className="text-gray-700 leading-6">
-                                                Các câu đã dịch sẽ hiển thị bản dịch tiếng Anh với font đậm
-                                            </Typography>
-                                        </div>
-
-                                        <div className="flex items-start gap-4 p-4 bg-green-50 rounded-xl border border-green-200 shadow-sm hover:shadow-md transition-all duration-200">
-                                            <FaCheck className="text-green-500 mt-1 flex-shrink-0 text-lg" />
-                                            <Typography variant="body2" className="text-gray-700 leading-6">
-                                                Hãy click vào button "Kiểm tra" để AI review và đánh giá câu dịch của bạn
-                                            </Typography>
-                                        </div>
-
-                                        <div className="flex items-start gap-4 p-4 bg-purple-50 rounded-xl border border-purple-200 shadow-sm hover:shadow-md transition-all duration-200">
-                                            <FaPen className="text-purple-500 mt-1 flex-shrink-0 text-lg" />
-                                            <Typography variant="body2" className="text-gray-700 leading-6">
-                                                Câu hiện tại cần dịch sẽ có viền xanh dương
-                                            </Typography>
-                                        </div>
-
-                                        <div className="flex items-start gap-4 p-4 bg-orange-50 rounded-xl border border-orange-200 shadow-sm hover:shadow-md transition-all duration-200">
-                                            <FaComment className="text-orange-500 mt-1 flex-shrink-0 text-lg" />
-                                            <Typography variant="body2" className="text-gray-700 leading-6">
-                                                Click vào button "Xem gợi ý" để nhận gợi ý dịch thuật từ AI
-                                            </Typography>
-                                        </div>
-
-                                        <div className="flex items-start gap-4 p-4 bg-indigo-50 rounded-xl border border-indigo-200 shadow-sm hover:shadow-md transition-all duration-200">
-                                            <span className="text-indigo-500 mt-1 flex-shrink-0 text-lg">📝</span>
-                                            <Typography variant="body2" className="text-gray-700 leading-6">
-                                                <strong>Mẹo mới:</strong> Highlight từ tiếng Anh bất kỳ để thêm nhanh vào deck từ vựng của bạn!
-                                            </Typography>
-                                        </div>
-                                    </div>
-                                </div>
-                            )}
-                        </div>
-
-                    </div>
+      <main className="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-4 overflow-hidden pb-4">
+        {/* Left Column: Workspace (Source & Input) */}
+        <section className="lg:col-span-8 flex flex-col gap-4 h-full overflow-y-auto pr-2 custom-scrollbar">
+          {/* Source Context View */}
+          <div className="flex-[10] min-h-0 overflow-y-auto bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden flex flex-col shrink-0">
+            <div className="bg-slate-50 border-b border-slate-200 px-5 py-3 flex justify-between items-center">
+              <span className="text-xs font-bold text-slate-500 uppercase tracking-wider flex items-center gap-2">
+                <img
+                  src="https://flagcdn.com/w20/vn.png"
+                  className="w-5 rounded-sm shadow-sm"
+                  alt="VN"
+                />
+                Vietnamese Source
+              </span>
+            </div>
+            <div className="p-4 bg-slate-50/50">
+              <div className="text-lg leading-relaxed text-slate-800 font-medium space-y-4">
+                <div className="opacity-50 text-slate-500 text-base">
+                  Tôi viết thư này để hỏi về tiến độ của dự án trang web mới.
                 </div>
+
+                <div className="relative pl-4 border-l-4 border-blue-500 py-1">
+                  <p className="text-slate-900 font-bold">
+                    Chúng tôi cần{" "}
+                    <span className="text-blue-600 underline decoration-blue-300 decoration-2 underline-offset-2">
+                      đảm bảo
+                    </span>{" "}
+                    rằng mọi thứ đang diễn ra đúng kế hoạch.
+                  </p>
+                  <div className="absolute -right-2 top-0">
+                    <span className="flex h-3 w-3">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-3 w-3 bg-blue-500"></span>
+                    </span>
+                  </div>
+                </div>
+
+                <div className="opacity-50 text-slate-500 text-base">
+                  Ngoài ra, hãy cho tôi biết nếu bạn cần thêm bất kỳ nguồn lực
+                  nào để hoàn thành công việc đúng hạn.
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* English Translation Flow (Input) */}
+          <div className="flex-[2] bg-white rounded-xl border border-slate-200 shadow-lg shadow-slate-200/50 flex flex-col flex-1">
+            <div className="bg-white border-b border-slate-200 px-5 py-3 flex justify-between items-center rounded-t-xl">
+              <span className="text-xs font-bold text-slate-500 uppercase tracking-wider flex items-center gap-2">
+                <img
+                  src="https://flagcdn.com/w20/us.png"
+                  className="w-5 rounded-sm shadow-sm"
+                  alt="US"
+                />
+                English Translation Flow
+              </span>
+            </div>
+            <div className="p-2 flex-1 flex flex-col">
+              <div className="mt-auto">
+                <textarea
+                  className="w-full p-4 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:ring-2 focus:ring-blue-100 focus:border-blue-400 outline-none text-base transition-all resize-none"
+                  placeholder="Type your translation here..."
+                  rows={3}
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                />
+                <div className="flex justify-between items-center mt-3">
+                  <button className="text-slate-400 hover:text-slate-600 text-sm font-medium flex items-center gap-1">
+                    <RefreshCw size={14} /> Reset
+                  </button>
+                  <button className="bg-slate-900 text-white px-6 py-2 rounded-lg font-bold text-sm hover:bg-slate-800 transition-colors flex items-center gap-2">
+                    Confirm Sentence{" "}
+                    <ArrowLeft size={16} className="rotate-180" />
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Right Column: Sidebar (Hints & Analysis) */}
+        <aside className="lg:col-span-4 flex flex-col h-full overflow-hidden">
+          <div className="bg-white rounded-xl border border-slate-200 shadow-sm flex flex-col h-full overflow-hidden">
+            {/* Tabs */}
+            <div className="flex border-b border-slate-200 bg-slate-50">
+              <button className="flex-1 py-3 px-4 text-sm font-bold text-blue-600 border-b-2 border-blue-600 bg-white flex items-center justify-center gap-2">
+                <BookOpen size={16} />
+                Vocabulary Hints
+              </button>
+              <button className="flex-1 py-3 px-4 text-sm font-medium text-slate-500 hover:text-slate-700 flex items-center justify-center gap-2">
+                <TrendingUp size={16} />
+                AI Analysis
+              </button>
             </div>
 
-            {/* Completion Overlay removed */}
-
-            {/* Detail Modal */}
-            {showDetailModal && (
-                <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
-                    <div className="bg-white rounded-2xl shadow-2xl max-w-5xl w-full max-h-[95vh] overflow-hidden">
-                        {/* Header */}
-                        <div className="relative bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600 px-4 py-3 text-white">
-                            <div className="flex items-center justify-between">
-                                <div className="flex items-center gap-2">
-                                    <div className="w-8 h-8 bg-white/15 rounded-lg flex items-center justify-center border border-white/20">
-                                        <span className="text-base">📊</span>
-                                    </div>
-                                    <Typography variant="h6" className="font-bold text-white text-xl">
-                                        Chi tiết lịch sử luyện tập
-                                    </Typography>
-                                </div>
-                            </div>
-
-                            {/* Summary */}
-                            <div className="mt-2 flex flex-wrap items-center gap-2 text-sm">
-                                <div className="px-2 py-1 rounded-md bg-white/10 border border-white/20">Topic: {currentTopic}</div>
-                                <div className="px-2 py-1 rounded-md bg-white/10 border border-white/20">Level: {currentLevel}</div>
-                                <div className="px-2 py-1 rounded-md bg-white/10 border border-white/20">Tone: {currentTone}</div>
-                                <div className="px-2 py-1 rounded-md bg-white/10 border border-white/20">{calculateAverageScore()}/10</div>
-                                <div className="px-2 py-1 rounded-md bg-white/10 border border-white/20">{new Date().toLocaleDateString('vi-VN')}</div>
-                            </div>
-                        </div>
-
-                        {/* Content */}
-                        <div className="p-4 overflow-y-auto max-h-[70vh] bg-white">
-                            <div className="space-y-3">
-                                {englishTranslations.map((sentence, index) => (
-                                    <div key={index} className="relative bg-white rounded-lg p-4 border border-gray-200">
-                                        {/* Header with score */}
-                                        <div className="flex items-center justify-between mb-3">
-                                            <div className="text-xs text-gray-500">#{index + 1}</div>
-                                            <div className={`px-2 py-0.5 rounded-md text-xs font-medium border ${sentence.score >= 9
-                                                ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                                                : sentence.score >= 7
-                                                    ? 'bg-yellow-50 text-yellow-700 border-yellow-200'
-                                                    : 'bg-red-50 text-red-700 border-red-200'
-                                                }`}>
-                                                {sentence.score}/10
-                                            </div>
-                                        </div>
-
-                                        {/* Original Vietnamese sentence */}
-                                        <div className="mb-3">
-                                            <Typography variant="body2" className="font-semibold text-gray-700 text-sm mb-1">
-                                                Câu gốc
-                                            </Typography>
-                                            <div className="p-3 rounded-md border border-indigo-100 bg-indigo-50">
-                                                <Typography variant="body2" className="text-gray-800 leading-relaxed text-sm">
-                                                    {sentence.vietnamese}
-                                                </Typography>
-                                            </div>
-                                        </div>
-
-                                        {/* User's translation */}
-                                        <div>
-                                            <Typography variant="body2" className="font-semibold text-gray-700 text-sm mb-1">
-                                                Bản dịch của bạn
-                                            </Typography>
-                                            <div className="p-3 rounded-md border border-blue-100 bg-blue-50">
-                                                <Typography variant="body2" className="text-gray-800 leading-relaxed text-sm">
-                                                    {sentence.englishTranslation}
-                                                </Typography>
-                                            </div>
-                                        </div>
-
-                                        {/* Feedback */}
-                                        {sentence.feedback && sentence.score < 9 && (
-                                            <div className="mt-3">
-                                                <Typography variant="body2" className="font-semibold text-gray-700 text-sm mb-1">
-                                                    Nhận xét
-                                                </Typography>
-                                                <div className="p-3 rounded-md border border-amber-200 bg-amber-50">
-                                                    <Typography variant="body2" className="text-gray-800 leading-relaxed text-sm">
-                                                        {sentence.feedback}
-                                                    </Typography>
-                                                </div>
-                                            </div>
-                                        )}
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-
-                        {/* Footer */}
-                        <div className="px-4 py-3 bg-white border-t">
-                            <div className="flex justify-between items-center">
-                                <div className="text-gray-600 text-sm">
-                                    <span className="font-medium">Tổng cộng:</span> {englishTranslations.length} câu đã dịch
-                                </div>
-                                <div className="flex gap-2">
-                                    <button
-                                        className="px-4 py-2 border border-gray-300 hover:bg-gray-50 text-gray-700 font-medium rounded-md text-sm cursor-pointer"
-                                        onClick={() => {
-                                            setShowDetailModal(false);
-                                            navigate('/');
-                                        }}
-                                    >
-                                        <span className="flex items-center gap-2">
-                                            <FaHome className="text-base" />
-                                            <span>Về Trang Chủ</span>
-                                        </span>
-                                    </button>
-                                    <button
-                                        className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-md text-sm cursor-pointer"
-                                        onClick={() => {
-                                            setShowDetailModal(false);
-                                            navigate('/writing');
-                                        }}
-                                    >
-                                        <span className="flex items-center gap-2">
-                                            <FaHeadphones className="text-base" />
-                                            <span>Luyện Tập Khác</span>
-                                        </span>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+            {/* Content */}
+            <div className="flex-1 overflow-y-auto p-5 space-y-6 custom-scrollbar bg-white">
+              {/* Score Card */}
+              <div className="text-center bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl py-6 border border-blue-100">
+                <div className="inline-flex items-center justify-center w-16 h-16 rounded-full border-4 border-white shadow-sm bg-blue-600 text-white relative mb-3">
+                  <span className="text-xl font-bold">85</span>
                 </div>
-            )}
-        </div>
-    );
+                <h4 className="font-bold text-slate-800">Quality Score</h4>
+                <p className="text-xs text-slate-500 px-8 mt-1">
+                  Your translation is professional and clear with minor areas
+                  for natural improvement.
+                </p>
+              </div>
+
+              {/* Polished Model */}
+              <div>
+                <h4 className="text-sm font-bold text-slate-800 mb-3 flex items-center gap-2">
+                  <Sparkles size={16} className="text-purple-500" />
+                  Polished Model
+                </h4>
+                <div className="space-y-3">
+                  {/* Hint 1 */}
+                  <div className="p-3 rounded-lg bg-green-50 border border-green-100">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="px-1.5 py-0.5 rounded bg-green-500 text-[10px] text-white font-bold">
+                        GRAMMAR
+                      </span>
+                      <span className="text-xs font-bold text-green-700">
+                        Good Usage
+                      </span>
+                    </div>
+                    <p className="text-xs text-slate-600">
+                      Sử dụng cấu trúc "We need to..." rất chính xác cho văn
+                      phong công việc.
+                    </p>
+                  </div>
+
+                  {/* Hint 2 */}
+                  <div className="p-3 rounded-lg bg-amber-50 border border-amber-100">
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="px-1.5 py-0.5 rounded bg-amber-500 text-[10px] text-white font-bold">
+                        VOCABULARY
+                      </span>
+                      <span className="text-xs font-bold text-amber-700">
+                        Refinement Needed
+                      </span>
+                    </div>
+                    <div className="space-y-2">
+                      <div className="flex items-baseline gap-2">
+                        <span className="text-[10px] font-bold text-amber-600/60 uppercase">
+                          Your word:
+                        </span>
+                        <span className="text-xs font-medium line-through decoration-amber-500/50 text-slate-500">
+                          ensure everything
+                        </span>
+                      </div>
+                      <div className="flex items-baseline gap-2">
+                        <span className="text-[10px] font-bold text-green-600/60 uppercase">
+                          Better:
+                        </span>
+                        <span className="text-xs font-bold text-slate-800">
+                          "ensure all aspects", "guarantee every detail"
+                        </span>
+                      </div>
+                      <div className="mt-2 pt-2 border-t border-amber-200/50">
+                        <p className="text-xs text-slate-600 leading-relaxed">
+                          Trong văn phong công việc,{" "}
+                          <span className="font-bold text-amber-700">
+                            "all aspects"
+                          </span>{" "}
+                          tạo cảm giác chuyên nghiệp hơn là{" "}
+                          <span className="italic">"everything"</span>.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Hint 3 */}
+                  <div className="p-3 rounded-lg bg-blue-50 border border-blue-100">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="px-1.5 py-0.5 rounded bg-blue-500 text-[10px] text-white font-bold">
+                        STRUCTURE
+                      </span>
+                      <span className="text-xs font-bold text-blue-700">
+                        Strength
+                      </span>
+                    </div>
+                    <p className="text-xs text-slate-600">
+                      Sự kết nối giữa hai câu rất mạch lạc, giữ được giọng điệu
+                      của email gốc.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Footer Actions */}
+              <div className="pt-4 border-t border-slate-100">
+                <h4 className="text-sm font-bold text-slate-800 mb-3 flex items-center gap-2">
+                  <CheckCircle2 size={16} className="text-blue-500" />
+                  Correct Answer
+                </h4>
+                <div className="bg-slate-50 p-4 rounded-lg italic text-sm text-slate-700 leading-relaxed border border-slate-100">
+                  "We must ensure that everything is proceeding according to
+                  plan."
+                </div>
+              </div>
+            </div>
+
+            {/* Sidebar Bottom Nav */}
+            <div className="p-4 border-t border-slate-200 bg-slate-50 flex gap-3 shrink-0">
+              <button className="flex-1 py-2.5 rounded-lg border border-slate-300 text-slate-700 font-bold text-xs hover:bg-white transition-colors flex items-center justify-center gap-2">
+                <BookOpen size={14} />
+                Review Vocab
+              </button>
+              <button className="flex-1 py-2.5 rounded-lg bg-white border border-slate-200 text-slate-600 font-bold text-xs hover:bg-slate-50 transition-colors">
+                Previous Task
+              </button>
+            </div>
+          </div>
+        </aside>
+      </main>
+    </div>
+  );
 };
 
 export default SentencePracticePage;
-

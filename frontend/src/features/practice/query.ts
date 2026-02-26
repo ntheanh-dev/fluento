@@ -4,9 +4,8 @@ import type { PracticeSetupOutput } from "./schema";
 import { getUserPracticeById } from "./api";
 
 export function useUserPracticeData(id: number) {
-    return useQuery<PracticeSetupOutput>({
-        queryKey: [OK.USER_PRACTICE, id],
-        queryFn: () => getUserPracticeById(id),
-        enabled: !!id,
-    });
+  return useQuery<PracticeSetupOutput>({
+    queryKey: OK.userPractice(id),
+    queryFn: () => getUserPracticeById(id),
+  });
 }
