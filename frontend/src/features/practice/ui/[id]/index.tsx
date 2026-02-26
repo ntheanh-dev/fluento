@@ -24,7 +24,9 @@ import {
   Lightbulb,
   Sparkles,
   RefreshCw,
+  X,
 } from "lucide-react";
+import { useDeviceType } from "@/shared/utilities/useDeviceType";
 // Common API response interface
 export interface ApiResponse<T = any> {
   code: number;
@@ -138,6 +140,7 @@ export interface Sentence {
 const SentencePracticePage = () => {
   const [translation, setTranslation] = useState("");
   const { conversationId } = useParams();
+  const { isMobile, isTablet, isDesktop } = useDeviceType();
   const navigate = useNavigate();
 
   const [vietNameseSentences, setVietNameseSentences] = useState<string[]>([]);
@@ -247,27 +250,44 @@ const SentencePracticePage = () => {
   const handleNextSentence = async () => {};
 
   const [input, setInput] = useState("");
+  const [showMobileSidebar, setShowMobileSidebar] = useState(false);
 
+  useEffect(() => {
+    if (!isMobile) {
+      setShowMobileSidebar(false);
+    }
+  }, [isMobile]);
   return (
     <div className="max-w-screen-2xl mx-auto max-h-[calc(100vh-130px+4rem)] -mt-8 -mb-8 flex flex-col overflow-hidden">
       {/* Top Bar for Task Info */}
       <div className="flex items-center justify-between py-4 mb-2 shrink-0">
         <div className="flex items-center gap-3">
           <button
-            onClick={() => navigate("/practice")}
-            className="p-2 hover:bg-slate-100 rounded-lg text-slate-500 transition-colors"
+            onClick={() => navigate("/setup")}
+            className="group p-2.5 hover:bg-slate-100 rounded-xl text-slate-400 hover:text-slate-700 transition-all border border-slate-200 shadow-sm bg-white"
           >
-            <ArrowLeft size={20} />
+            <ArrowLeft
+              size={20}
+              className="group-hover:-translate-x-0.5 transition-transform"
+            />
           </button>
-          <div className="flex items-start gap-4">
-            <div>
-              <h2 className="text-base font-bold text-slate-900 mb-1">
-                Writing Task: Email Draft
-              </h2>
-              <p className="text-sm text-slate-500">
-                Translate the following Vietnamese paragraph sentence by
-                sentence.
-              </p>
+          <div>
+            <h1 className="text-lg md:text-xl font-bold text-slate-900 leading-tight">
+              Project Status Inquiry
+            </h1>
+            <div className="flex flex-wrap items-center gap-2 mt-2">
+              <span className="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-slate-100 text-slate-700 border border-slate-200">
+                Topic: Business
+              </span>
+              <span className="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-blue-50 text-blue-700 border border-blue-100">
+                Tone: Formal
+              </span>
+              <span className="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-purple-50 text-purple-700 border border-purple-100">
+                Level: B2
+              </span>
+              <span className="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-orange-50 text-orange-700 border border-orange-100">
+                Type: Paragraph
+              </span>
             </div>
           </div>
         </div>
@@ -354,6 +374,12 @@ const SentencePracticePage = () => {
                   <button className="text-slate-400 hover:text-slate-600 text-sm font-medium flex items-center gap-1">
                     <RefreshCw size={14} /> Reset
                   </button>
+                  <button
+                    onClick={() => setShowMobileSidebar(true)}
+                    className="text-blue-600 hover:text-blue-700 text-sm font-bold flex items-center gap-1 ml-auto sm:ml-0"
+                  >
+                    <Lightbulb size={16} /> Hints & Answer
+                  </button>
                   <button className="bg-slate-900 text-white px-6 py-2 rounded-lg font-bold text-sm hover:bg-slate-800 transition-colors flex items-center gap-2">
                     Confirm Sentence{" "}
                     <ArrowLeft size={16} className="rotate-180" />
@@ -365,140 +391,155 @@ const SentencePracticePage = () => {
         </section>
 
         {/* Right Column: Sidebar (Hints & Analysis) */}
-        <aside className="lg:col-span-4 flex flex-col h-full overflow-hidden">
-          <div className="bg-white rounded-xl border border-slate-200 shadow-sm flex flex-col h-full overflow-hidden">
-            {/* Tabs */}
-            <div className="flex border-b border-slate-200 bg-slate-50">
-              <button className="flex-1 py-3 px-4 text-sm font-bold text-blue-600 border-b-2 border-blue-600 bg-white flex items-center justify-center gap-2">
-                <BookOpen size={16} />
-                Vocabulary Hints
-              </button>
-              <button className="flex-1 py-3 px-4 text-sm font-medium text-slate-500 hover:text-slate-700 flex items-center justify-center gap-2">
-                <TrendingUp size={16} />
-                AI Analysis
-              </button>
-            </div>
-
-            {/* Content */}
-            <div className="flex-1 overflow-y-auto p-5 space-y-6 custom-scrollbar bg-white">
-              {/* Score Card */}
-              <div className="text-center bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl py-6 border border-blue-100">
-                <div className="inline-flex items-center justify-center w-16 h-16 rounded-full border-4 border-white shadow-sm bg-blue-600 text-white relative mb-3">
-                  <span className="text-xl font-bold">85</span>
-                </div>
-                <h4 className="font-bold text-slate-800">Quality Score</h4>
-                <p className="text-xs text-slate-500 px-8 mt-1">
-                  Your translation is professional and clear with minor areas
-                  for natural improvement.
-                </p>
+        {showMobileSidebar && (
+          <div
+            className="fixed inset-0 bg-black/50 z-40 lg:hidden backdrop-blur-sm transition-opacity"
+            onClick={() => setShowMobileSidebar(false)}
+          />
+        )}
+        {(isDesktop || isTablet) && (
+          <aside
+            className={`
+              lg:col-span-4 flex flex-col lg:h-full transition-all duration-300 ease-in-out
+              ${
+                showMobileSidebar
+                  ? "fixed inset-x-0 bottom-0 top-20 z-50 bg-white rounded-t-2xl shadow-[0_-10px_40px_-15px_rgba(0,0,0,0.3)] p-4 lg:static lg:p-0 lg:shadow-none lg:bg-transparent lg:rounded-none"
+                  : "hidden lg:flex"
+              }
+          `}
+          >
+            <div className="bg-white rounded-xl border border-slate-200 shadow-sm flex flex-col h-full overflow-hidden relative">
+              {/* Mobile Close Button */}
+              <div className="lg:hidden absolute top-4 right-4 z-10">
+                <button
+                  onClick={() => setShowMobileSidebar(false)}
+                  className="p-2 bg-slate-100 hover:bg-slate-200 rounded-full text-slate-500 transition-colors"
+                >
+                  <X size={20} />
+                </button>
               </div>
 
-              {/* Polished Model */}
-              <div>
-                <h4 className="text-sm font-bold text-slate-800 mb-3 flex items-center gap-2">
-                  <Sparkles size={16} className="text-purple-500" />
-                  Polished Model
-                </h4>
-                <div className="space-y-3">
-                  {/* Hint 1 */}
-                  <div className="p-3 rounded-lg bg-green-50 border border-green-100">
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="px-1.5 py-0.5 rounded bg-green-500 text-[10px] text-white font-bold">
-                        GRAMMAR
-                      </span>
-                      <span className="text-xs font-bold text-green-700">
-                        Good Usage
-                      </span>
-                    </div>
-                    <p className="text-xs text-slate-600">
-                      Sử dụng cấu trúc "We need to..." rất chính xác cho văn
-                      phong công việc.
-                    </p>
+              {/* Content */}
+              <div className="flex-1 overflow-y-auto p-5 space-y-6 custom-scrollbar bg-white">
+                {/* Score Card */}
+                <div className="text-center bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl py-6 border border-blue-100">
+                  <div className="inline-flex items-center justify-center w-16 h-16 rounded-full border-4 border-white shadow-sm bg-blue-600 text-white relative mb-3">
+                    <span className="text-xl font-bold">85</span>
                   </div>
+                  <h4 className="font-bold text-slate-800">Quality Score</h4>
+                  <p className="text-xs text-slate-500 px-8 mt-1">
+                    Your translation is professional and clear with minor areas
+                    for natural improvement.
+                  </p>
+                </div>
 
-                  {/* Hint 2 */}
-                  <div className="p-3 rounded-lg bg-amber-50 border border-amber-100">
-                    <div className="flex items-center gap-2 mb-2">
-                      <span className="px-1.5 py-0.5 rounded bg-amber-500 text-[10px] text-white font-bold">
-                        VOCABULARY
-                      </span>
-                      <span className="text-xs font-bold text-amber-700">
-                        Refinement Needed
-                      </span>
+                {/* Polished Model */}
+                <div>
+                  <h4 className="text-sm font-bold text-slate-800 mb-3 flex items-center gap-2">
+                    <Sparkles size={16} className="text-purple-500" />
+                    Polished Model
+                  </h4>
+                  <div className="space-y-3">
+                    {/* Hint 1 */}
+                    <div className="p-3 rounded-lg bg-green-50 border border-green-100">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="px-1.5 py-0.5 rounded bg-green-500 text-[10px] text-white font-bold">
+                          GRAMMAR
+                        </span>
+                        <span className="text-xs font-bold text-green-700">
+                          Good Usage
+                        </span>
+                      </div>
+                      <p className="text-xs text-slate-600">
+                        Sử dụng cấu trúc "We need to..." rất chính xác cho văn
+                        phong công việc.
+                      </p>
                     </div>
-                    <div className="space-y-2">
-                      <div className="flex items-baseline gap-2">
-                        <span className="text-[10px] font-bold text-amber-600/60 uppercase">
-                          Your word:
+
+                    {/* Hint 2 */}
+                    <div className="p-3 rounded-lg bg-amber-50 border border-amber-100">
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="px-1.5 py-0.5 rounded bg-amber-500 text-[10px] text-white font-bold">
+                          VOCABULARY
                         </span>
-                        <span className="text-xs font-medium line-through decoration-amber-500/50 text-slate-500">
-                          ensure everything
-                        </span>
-                      </div>
-                      <div className="flex items-baseline gap-2">
-                        <span className="text-[10px] font-bold text-green-600/60 uppercase">
-                          Better:
-                        </span>
-                        <span className="text-xs font-bold text-slate-800">
-                          "ensure all aspects", "guarantee every detail"
+                        <span className="text-xs font-bold text-amber-700">
+                          Refinement Needed
                         </span>
                       </div>
-                      <div className="mt-2 pt-2 border-t border-amber-200/50">
-                        <p className="text-xs text-slate-600 leading-relaxed">
-                          Trong văn phong công việc,{" "}
-                          <span className="font-bold text-amber-700">
-                            "all aspects"
-                          </span>{" "}
-                          tạo cảm giác chuyên nghiệp hơn là{" "}
-                          <span className="italic">"everything"</span>.
-                        </p>
+                      <div className="space-y-2">
+                        <div className="flex items-baseline gap-2">
+                          <span className="text-[10px] font-bold text-amber-600/60 uppercase">
+                            Your word:
+                          </span>
+                          <span className="text-xs font-medium line-through decoration-amber-500/50 text-slate-500">
+                            ensure everything
+                          </span>
+                        </div>
+                        <div className="flex items-baseline gap-2">
+                          <span className="text-[10px] font-bold text-green-600/60 uppercase">
+                            Better:
+                          </span>
+                          <span className="text-xs font-bold text-slate-800">
+                            "ensure all aspects", "guarantee every detail"
+                          </span>
+                        </div>
+                        <div className="mt-2 pt-2 border-t border-amber-200/50">
+                          <p className="text-xs text-slate-600 leading-relaxed">
+                            Trong văn phong công việc,{" "}
+                            <span className="font-bold text-amber-700">
+                              "all aspects"
+                            </span>{" "}
+                            tạo cảm giác chuyên nghiệp hơn là{" "}
+                            <span className="italic">"everything"</span>.
+                          </p>
+                        </div>
                       </div>
+                    </div>
+
+                    {/* Hint 3 */}
+                    <div className="p-3 rounded-lg bg-blue-50 border border-blue-100">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="px-1.5 py-0.5 rounded bg-blue-500 text-[10px] text-white font-bold">
+                          STRUCTURE
+                        </span>
+                        <span className="text-xs font-bold text-blue-700">
+                          Strength
+                        </span>
+                      </div>
+                      <p className="text-xs text-slate-600">
+                        Sự kết nối giữa hai câu rất mạch lạc, giữ được giọng
+                        điệu của email gốc.
+                      </p>
                     </div>
                   </div>
+                </div>
 
-                  {/* Hint 3 */}
-                  <div className="p-3 rounded-lg bg-blue-50 border border-blue-100">
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="px-1.5 py-0.5 rounded bg-blue-500 text-[10px] text-white font-bold">
-                        STRUCTURE
-                      </span>
-                      <span className="text-xs font-bold text-blue-700">
-                        Strength
-                      </span>
-                    </div>
-                    <p className="text-xs text-slate-600">
-                      Sự kết nối giữa hai câu rất mạch lạc, giữ được giọng điệu
-                      của email gốc.
-                    </p>
+                {/* Footer Actions */}
+                <div className="pt-4 border-t border-slate-100">
+                  <h4 className="text-sm font-bold text-slate-800 mb-3 flex items-center gap-2">
+                    <CheckCircle2 size={16} className="text-blue-500" />
+                    Correct Answer
+                  </h4>
+                  <div className="bg-slate-50 p-4 rounded-lg italic text-sm text-slate-700 leading-relaxed border border-slate-100">
+                    "We must ensure that everything is proceeding according to
+                    plan."
                   </div>
                 </div>
               </div>
 
-              {/* Footer Actions */}
-              <div className="pt-4 border-t border-slate-100">
-                <h4 className="text-sm font-bold text-slate-800 mb-3 flex items-center gap-2">
-                  <CheckCircle2 size={16} className="text-blue-500" />
-                  Correct Answer
-                </h4>
-                <div className="bg-slate-50 p-4 rounded-lg italic text-sm text-slate-700 leading-relaxed border border-slate-100">
-                  "We must ensure that everything is proceeding according to
-                  plan."
-                </div>
+              {/* Sidebar Bottom Nav */}
+              <div className="p-4 border-t border-slate-200 bg-slate-50 flex gap-3 shrink-0">
+                <button className="flex-1 py-2.5 rounded-lg border border-slate-300 text-slate-700 font-bold text-xs hover:bg-white transition-colors flex items-center justify-center gap-2">
+                  <BookOpen size={14} />
+                  Review Vocab
+                </button>
+                <button className="flex-1 py-2.5 rounded-lg bg-white border border-slate-200 text-slate-600 font-bold text-xs hover:bg-slate-50 transition-colors">
+                  Previous Task
+                </button>
               </div>
             </div>
-
-            {/* Sidebar Bottom Nav */}
-            <div className="p-4 border-t border-slate-200 bg-slate-50 flex gap-3 shrink-0">
-              <button className="flex-1 py-2.5 rounded-lg border border-slate-300 text-slate-700 font-bold text-xs hover:bg-white transition-colors flex items-center justify-center gap-2">
-                <BookOpen size={14} />
-                Review Vocab
-              </button>
-              <button className="flex-1 py-2.5 rounded-lg bg-white border border-slate-200 text-slate-600 font-bold text-xs hover:bg-slate-50 transition-colors">
-                Previous Task
-              </button>
-            </div>
-          </div>
-        </aside>
+          </aside>
+        )}
       </main>
     </div>
   );
