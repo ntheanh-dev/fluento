@@ -1,15 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Typography, TextField } from "@mui/material";
 import { useParams, useNavigate } from "react-router-dom";
-import {
-  FaPen,
-  FaLightbulb,
-  FaCheck,
-  FaComment,
-  FaThumbsUp,
-  FaHome,
-  FaHeadphones,
-} from "react-icons/fa";
 import {
   ArrowLeft,
   ChevronRight,
@@ -143,7 +133,7 @@ const SentencePracticePage = () => {
   const { isMobile, isTablet, isDesktop } = useDeviceType();
   const navigate = useNavigate();
 
-  const [vietNameseSentences, setVietNameseSentences] = useState<string[]>([]);
+  const [vietNameseSentences, setVietNameseSentences] = useState<string[]>(["Kính gửi Quý cơ quan quản lý giao thông,\n\nTôi viết thư này để bày tỏ ý kiến của mình về lịch trình xe buýt công cộng mới được đưa ra gần đây tại thành phố của chúng ta. Tôi hiểu rằng những thay đổi này được thực hiện nhằm cải thiện dịch vụ vận tải chung.\n\nTuy nhiên, tôi muốn nêu lên một vài lo ngại liên quan đến tuyến đường 15. Lịch trình mới dường như đã loại bỏ một số điểm dừng quan trọng mà nhiều cư dân, bao gồm cả tôi, thường xuyên sử dụng. Đặc biệt, điểm dừng gần khu thương mại đã bị dời đi xa hơn, gây bất tiện đáng kể cho việc đi lại hàng ngày của chúng tôi.\n\nNgoài ra, tần suất của tuyến xe buýt 15 vào giờ cao điểm buổi sáng dường như đã giảm xuống. Điều này dẫn đến tình trạng xe buýt thường xuyên quá tải, khiến hành khách cảm thấy không thoải mái và đôi khi không thể lên xe.\n\nTôi đề xuất xem xét lại các điểm dừng của tuyến 15, đặc biệt là những điểm gần các khu vực dân cư và thương mại sầm uất. Đồng thời, tôi cũng hy vọng quý cơ quan có thể tăng cường tần suất hoạt động của tuyến xe buýt này trong giờ cao điểm để đáp ứng nhu cầu đi lại của người dân.\n\nTôi tin rằng việc lắng nghe phản hồi từ cộng đồng sẽ giúp quý cơ quan đưa ra những quyết định tốt hơn cho hệ thống giao thông công cộng của chúng ta. Cảm ơn quý cơ quan đã dành thời gian xem xét thư này.\n\nTrân trọng,\n\nMột cư dân quan tâm, Kính gửi Quý cơ quan quản lý giao thông,\n\nTôi viết thư này để bày tỏ ý kiến của mình về lịch trình xe buýt công cộng mới được đưa ra gần đây tại thành phố của chúng ta. Tôi hiểu rằng những thay đổi này được thực hiện nhằm cải thiện dịch vụ vận tải chung.\n\nTuy nhiên, tôi muốn nêu lên một vài lo ngại liên quan đến tuyến đường 15. Lịch trình mới dường như đã loại bỏ một số điểm dừng quan trọng mà nhiều cư dân, bao gồm cả tôi, thường xuyên sử dụng. Đặc biệt, điểm dừng gần khu thương mại đã bị dời đi xa hơn, gây bất tiện đáng kể cho việc đi lại hàng ngày của chúng tôi.\n\nNgoài ra, tần suất của tuyến xe buýt 15 vào giờ cao điểm buổi sáng dường như đã giảm xuống. Điều này dẫn đến tình trạng xe buýt thường xuyên quá tải, khiến hành khách cảm thấy không thoải mái và đôi khi không thể lên xe.\n\nTôi đề xuất xem xét lại các điểm dừng của tuyến 15, đặc biệt là những điểm gần các khu vực dân cư và thương mại sầm uất. Đồng thời, tôi cũng hy vọng quý cơ quan có thể tăng cường tần suất hoạt động của tuyến xe buýt này trong giờ cao điểm để đáp ứng nhu cầu đi lại của người dân.\n\nTôi tin rằng việc lắng nghe phản hồi từ cộng đồng sẽ giúp quý cơ quan đưa ra những quyết định tốt hơn cho hệ thống giao thông công cộng của chúng ta. Cảm ơn quý cơ quan đã dành thời gian xem xét thư này.\n\nTrân trọng,\n\nMột cư dân quan tâm"]);
   const [englishTranslations, setEnglishTranslations] = useState<Sentence[]>(
     [],
   );
@@ -222,7 +212,7 @@ const SentencePracticePage = () => {
   }, [showCheck, translationCheck, showDetailModal]);
 
   // Function to call translation hints API
-  const handleGetTranslationHints = async () => {};
+  const handleGetTranslationHints = async () => { };
 
   // Function to clean and format translation text
   const formatTranslationText = (text: string): string => {
@@ -245,9 +235,9 @@ const SentencePracticePage = () => {
   };
 
   // Function to call translation check API
-  const handleCheckTranslation = async () => {};
+  const handleCheckTranslation = async () => { };
 
-  const handleNextSentence = async () => {};
+  const handleNextSentence = async () => { };
 
   const [input, setInput] = useState("");
   const [showMobileSidebar, setShowMobileSidebar] = useState(false);
@@ -308,7 +298,7 @@ const SentencePracticePage = () => {
         {/* Left Column: Workspace (Source & Input) */}
         <section className="lg:col-span-8 flex flex-col gap-4 h-full overflow-y-auto pr-2 custom-scrollbar">
           {/* Source Context View */}
-          <div className="flex-[10] min-h-0 overflow-y-auto bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden flex flex-col shrink-0">
+          <div className="flex-[10] min-h-0 bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden flex flex-col shrink-0">
             <div className="bg-slate-50 border-b border-slate-200 px-5 py-3 flex justify-between items-center">
               <span className="text-xs font-bold text-slate-500 uppercase tracking-wider flex items-center gap-2">
                 <img
@@ -319,31 +309,38 @@ const SentencePracticePage = () => {
                 Vietnamese Source
               </span>
             </div>
-            <div className="p-4 bg-slate-50/50">
-              <div className="text-lg leading-relaxed text-slate-800 font-medium space-y-4">
-                <div className="opacity-50 text-slate-500 text-base">
-                  Tôi viết thư này để hỏi về tiến độ của dự án trang web mới.
-                </div>
-
-                <div className="relative pl-4 border-l-4 border-blue-500 py-1">
-                  <p className="text-slate-900 font-bold">
-                    Chúng tôi cần{" "}
-                    <span className="text-blue-600 underline decoration-blue-300 decoration-2 underline-offset-2">
-                      đảm bảo
-                    </span>{" "}
-                    rằng mọi thứ đang diễn ra đúng kế hoạch.
-                  </p>
-                  <div className="absolute -right-2 top-0">
-                    <span className="flex h-3 w-3">
-                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
-                      <span className="relative inline-flex rounded-full h-3 w-3 bg-blue-500"></span>
-                    </span>
-                  </div>
-                </div>
-
-                <div className="opacity-50 text-slate-500 text-base">
-                  Ngoài ra, hãy cho tôi biết nếu bạn cần thêm bất kỳ nguồn lực
-                  nào để hoàn thành công việc đúng hạn.
+            <div className="p-4 bg-slate-50/50 h-full overflow-y-auto">
+              <div className="text-lg leading-relaxed text-slate-800 font-medium space-y-4 px-4 ">
+                <div className="leading-7 text-base text-gray-800">
+                  {vietNameseSentences.map((sentence, index) => (
+                    <React.Fragment key={index}>
+                      {index <= englishTranslations.length - 1 ? (
+                        // Completed sentences - show English translation
+                        <span key={index} className="relative inline">
+                          <span className="text-black py-1 font-bold">
+                            {" " + englishTranslations[index]?.englishTranslation}
+                          </span>
+                        </span>
+                      ) : (
+                        // Current and upcoming sentences
+                        index === englishTranslations.length ? (
+                          // Current sentence to translate
+                          <span key={index} className="relative inline">
+                            <span className="py-2 text-blue-600 font-bold">
+                              {" " + sentence}
+                            </span>
+                          </span>
+                        ) : (
+                          // Upcoming sentences
+                          <span key={index} className="relative inline">
+                            <span className="text-gray-600 opacity-60">
+                              {" " + sentence}
+                            </span>
+                          </span>
+                        )
+                      )}
+                    </React.Fragment>
+                  ))}
                 </div>
               </div>
             </div>
@@ -361,19 +358,16 @@ const SentencePracticePage = () => {
                 English Translation Flow
               </span>
             </div>
-            <div className="p-2 flex-1 flex flex-col">
+            <div className="p-4 flex-1 flex flex-col">
               <div className="mt-auto">
                 <textarea
                   className="w-full p-4 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:ring-2 focus:ring-blue-100 focus:border-blue-400 outline-none text-base transition-all resize-none"
                   placeholder="Type your translation here..."
-                  rows={3}
+                  rows={2}
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                 />
                 <div className="flex justify-between items-center mt-3">
-                  <button className="text-slate-400 hover:text-slate-600 text-sm font-medium flex items-center gap-1">
-                    <RefreshCw size={14} /> Reset
-                  </button>
                   <button
                     onClick={() => setShowMobileSidebar(true)}
                     className="text-blue-600 hover:text-blue-700 text-sm font-bold flex items-center gap-1 ml-auto sm:ml-0"
@@ -400,11 +394,10 @@ const SentencePracticePage = () => {
         {(isDesktop || isTablet) && (
           <aside
             className={`
-              lg:col-span-4 flex flex-col lg:h-full transition-all duration-300 ease-in-out
-              ${
-                showMobileSidebar
-                  ? "fixed inset-x-0 bottom-0 top-20 z-50 bg-white rounded-t-2xl shadow-[0_-10px_40px_-15px_rgba(0,0,0,0.3)] p-4 lg:static lg:p-0 lg:shadow-none lg:bg-transparent lg:rounded-none"
-                  : "hidden lg:flex"
+              lg:col-span-4 flex flex-col lg:h-full transition-all duration-300 ease-in-out overflow-hidden
+              ${showMobileSidebar
+                ? "fixed inset-x-0 bottom-0 top-20 z-50 bg-white rounded-t-2xl shadow-[0_-10px_40px_-15px_rgba(0,0,0,0.3)] p-4 lg:static lg:p-0 lg:shadow-none lg:bg-transparent lg:rounded-none"
+                : "hidden lg:flex"
               }
           `}
           >
