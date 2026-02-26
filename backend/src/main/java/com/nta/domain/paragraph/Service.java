@@ -5,6 +5,7 @@ import jakarta.transaction.Transactional;
 import com.nta.common.service.ai.ChatService;
 import com.nta.common.service.ai.ParagraphPromptFactory;
 import com.nta.common.service.ai.PromptMessage;
+import com.nta.domain.hint.dto.response.HintTranslationResponse;
 import com.nta.domain.paragraph.dto.request.CreateParagraphRequest;
 import com.nta.domain.paragraph.dto.response.ParagraphWithTitleAiResponse;
 
@@ -23,6 +24,7 @@ public class Service {
     Repository repository;
     ParagraphPromptFactory promptFactory;
     ChatService chatService;
+    com.nta.domain.hint.Repository hintRepository;
     Mapper mapper;
 
     // NOTE: Sau khi có một lượng data paragraph rồi thì không cần dùng AI để tạo nữa
@@ -70,4 +72,6 @@ public class Service {
         paragraph.setContent(response.getContent());
         return repository.save(paragraph);
     }
+
+    private HintTranslationResponse getOrCreateHint(Long id, Integer orderIndex) {}
 }

@@ -8,6 +8,7 @@ import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.nta.domain.hint.Hint;
 import com.nta.domain.paragraph.enums.*;
 import com.nta.domain.userPractice.UserPractice;
 
@@ -60,4 +61,8 @@ public class Paragraph {
     @OneToMany(mappedBy = "paragraph", fetch = FetchType.LAZY)
     @JsonIgnore
     private List<UserPractice> practices;
+
+    @OneToMany(mappedBy = "paragraph", fetch = FetchType.LAZY)
+    @JsonIgnore
+    private List<Hint> hints;
 }

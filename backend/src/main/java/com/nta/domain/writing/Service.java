@@ -158,7 +158,7 @@ public class Service {
                         + "JSON Schema (use EXACTLY these property names in camelCase):\n"
                         + "{\n"
                         + "  \"vocabularyHints\": [\n"
-                        + "    { \"vietnamese\": \"word/phrase\", \"english\": [\"translation1\", \"translation2\"] }\n"
+                        + "    { \"vietnamese\": \"word/phrase\", \"english\": [{\"english\": \"translation1\", \"partsOfSpeech\": \"part of speech\", \"ipaPronunciation\": \"ipa pronunciation\"}, {\"english\": \"translation2\", \"partsOfSpeech\": \"part of speech\", \"ipaPronunciation\": \"ipa pronunciation\"}] }\n"
                         + "  ],\n"
                         + "  \"structureHints\": {\n"
                         + "    \"kindsOfSentencesAccordingToStructure\": { \"vietnamese\": \"loại câu\", \"english\": \"sentence type\" },\n"

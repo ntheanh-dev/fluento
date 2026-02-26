@@ -1,4 +1,4 @@
-package com.nta.domain.writing.dto.response;
+package com.nta.domain.hint.dto.response;
 
 import java.util.List;
 
