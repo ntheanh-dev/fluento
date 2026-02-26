@@ -4,38 +4,36 @@ import { ConfigProvider, Spin } from "antd";
 import { LoadingOutlined } from "@ant-design/icons";
 import "./index.css";
 import { enableMocks } from "./mocks/index.ts";
-import { ReactQueryProvider } from "./app/providers/ReactQueryProvider.tsx";
+import { ReactQueryProvider } from "@/app/providers/ReactQueryProvider.tsx";
 import { lazy } from "react";
 // Auth
-const Login = lazy(() => import("./features/auth/ui/Login"));
-const Register = lazy(() => import("./features/auth/ui/Register"));
-const Authenticate = lazy(() => import("./features/auth/ui/Authenticated"));
-const RequiredAuth = lazy(() => import("./features/auth/ui/RequiredAuth"));
+const Login = lazy(() => import("@/features/auth/ui/Login"));
+const Register = lazy(() => import("@/features/auth/ui/Register"));
+const Authenticate = lazy(() => import("@/features/auth/ui/Authenticated"));
+const RequiredAuth = lazy(() => import("@/features/auth/ui/RequiredAuth"));
 
 // Dashboard
-const Dashboard = lazy(() => import("./features/dashboard"));
+const Dashboard = lazy(() => import("@/features/dashboard"));
 
 // Practice
-const PracticeSetup = lazy(
-  () => import("./features/practice/ui/PracticeSetup"),
-);
+import PracticeSetup from "@/features/practice/ui/PracticeSetup";
 const PracticeSession = lazy(
-  () => import("./features/practice/ui/PracticeSession"),
+  () => import("@/features/practice/ui/PracticeSession"),
 );
-const SentencePracticePage = lazy(() => import("./features/practice/ui/[id]"));
+const SentencePracticePage = lazy(() => import("@/features/practice/ui/[id]"));
 
 // Statistic
 const AnalysisResult = lazy(
-  () => import("./features/statistic/AnalysisResult"),
+  () => import("@/features/statistic/AnalysisResult"),
 );
 
 // History / Ranking / Profile
-const History = lazy(() => import("./features/history"));
-const Rankings = lazy(() => import("./features/ranking"));
-const Profile = lazy(() => import("./features/profile/ui"));
+const History = lazy(() => import("@/features/history"));
+const Rankings = lazy(() => import("@/features/ranking"));
+const Profile = lazy(() => import("@/features/profile/ui"));
 
 // Layout
-const Layout = lazy(() => import("./layouts/Layout"));
+const Layout = lazy(() => import("@/layouts/Layout"));
 import { Suspense } from "react";
 
 // await enableMocks();
