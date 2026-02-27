@@ -1,4 +1,4 @@
-package com.nta.domain.hint.dto.response;
+package com.nta.domain.hint;
 
 import java.util.List;
 
@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class HintTranslationResponse {
+public class HintContent {
     private List<VocabularyHint> vocabularyHints;
 
     private StructureHints structureHints;

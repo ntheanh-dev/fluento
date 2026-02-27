@@ -8,7 +8,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
-import com.nta.domain.hint.dto.response.HintTranslationResponse;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.nta.domain.paragraph.Paragraph;
 
 import lombok.AllArgsConstructor;
@@ -17,7 +17,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "hints")
+@Table(
+        name = "hints",
+        uniqueConstraints = {@UniqueConstraint(columnNames = {"paragraph_id", "order_index"})})
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -28,15 +30,16 @@ public class Hint {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JsonIgnore
     @JoinColumn(name = "paragraph_id")
     private Paragraph paragraph;
 
-    @Column(nullable = false)
+    @Column(name = "order_index", nullable = false)
     private Integer orderIndex;
 
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(columnDefinition = "json")
-    private HintTranslationResponse hints;
+    private HintContent hints;
 
     @CreationTimestamp
     @Column(name = "created_at")

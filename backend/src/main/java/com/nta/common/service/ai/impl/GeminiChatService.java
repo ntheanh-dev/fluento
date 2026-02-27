@@ -5,7 +5,6 @@ import java.time.Duration;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.messages.SystemMessage;
 import org.springframework.ai.chat.messages.UserMessage;
-import org.springframework.ai.chat.metadata.ChatResponseMetadata;
 import org.springframework.ai.chat.prompt.Prompt;
 import org.springframework.ai.openai.OpenAiChatModel;
 import org.springframework.ai.openai.OpenAiChatOptions;
@@ -65,26 +64,27 @@ public class GeminiChatService implements ChatService {
             var response = chatClient
                     .prompt(buildPrompt(systemMessage, userMessage))
                     .call()
-                    .chatResponse();
+                    .entity(responseType);
 
-            ChatResponseMetadata metadata = response.getMetadata();
+            // ChatResponseMetadata metadata = response.getMetadata();
 
-            int promptTokens = safe(metadata.getUsage().getPromptTokens());
-            int completionTokens = safe(metadata.getUsage().getCompletionTokens());
-            int totalTokens = safe(metadata.getUsage().getTotalTokens());
+            // int promptTokens = safe(metadata.getUsage().getPromptTokens());
+            // int completionTokens = safe(metadata.getUsage().getCompletionTokens());
+            // int totalTokens = safe(metadata.getUsage().getTotalTokens());
 
-            outputText = response.getResult().getOutput().getText();
+            // outputText = response.getResult().getOutput().getText();
 
-            log.info(
-                    "Tokens used - Prompt: {}, Completion: {}, Total: {}", promptTokens, completionTokens, totalTokens);
+            // log.info(
+            //         "Tokens used - Prompt: {}, Completion: {}, Total: {}", promptTokens, completionTokens,
+            // totalTokens);
 
-            T result = parseResponse(outputText, responseType);
+            // T result = parseResponse(outputText, responseType);
 
             return ChatResponse.<T>builder()
-                    .result(result)
-                    .promptTokens(promptTokens)
-                    .completionTokens(completionTokens)
-                    .totalTokens(totalTokens)
+                    .result(response)
+                    .promptTokens(0)
+                    .completionTokens(0)
+                    .totalTokens(0)
                     .build();
         } catch (NonTransientAiException exception) {
             log.error("AI call failed: {}", exception.getMessage(), exception);

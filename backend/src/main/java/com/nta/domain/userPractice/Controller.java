@@ -8,7 +8,10 @@ import org.springframework.web.bind.annotation.*;
 
 import com.nta.common.dto.ApiResponse;
 import com.nta.domain.paragraph.dto.request.CreateParagraphRequest;
+import com.nta.domain.userPractice.dto.request.SentenceTranslationRequest;
+import com.nta.domain.userPractice.dto.request.SubmitAnswerRequest;
 import com.nta.domain.userPractice.dto.response.UserPracticeResponse;
+import com.nta.domain.userSentenceAnswer.SentenceFeedback;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AccessLevel;
@@ -44,5 +47,19 @@ public class Controller {
         return ApiResponse.<UserPracticeResponse>builder()
                 .result(service.create(request))
                 .build();
+    }
+
+    @PostMapping("/{practiceId}/answers/preview")
+    ApiResponse<SentenceFeedback> checkAnswer(
+            @PathVariable Long practiceId, @RequestBody SentenceTranslationRequest request) {
+        return ApiResponse.<SentenceFeedback>builder()
+                .result(service.translate(practiceId, request))
+                .build();
+    }
+
+    @PostMapping("/{practiceId}/answers")
+    ApiResponse<?> submitAnswer(@PathVariable Long practiceId, @RequestBody @Valid SubmitAnswerRequest request) {
+        service.submitAnswer(practiceId, request);
+        return ApiResponse.builder().build();
     }
 }

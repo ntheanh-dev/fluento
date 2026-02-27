@@ -5,6 +5,8 @@ import java.time.LocalDateTime;
 import jakarta.persistence.*;
 
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.nta.domain.userPractice.UserPractice;
@@ -27,18 +29,16 @@ public class UserSentenceAnswer {
     private Long id;
 
     @Column(columnDefinition = "TEXT")
-    private String paragraphText;
-
-    @Column(columnDefinition = "TEXT")
     private String originalText;
 
     @Column(columnDefinition = "TEXT")
-    private String learnerAnswer;
+    private String userTranslation;
 
     private Double score;
 
-    @Column(columnDefinition = "TEXT")
-    private String feedback;
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(columnDefinition = "json")
+    private SentenceFeedback feedback;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JsonIgnore

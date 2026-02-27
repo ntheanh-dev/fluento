@@ -60,6 +60,9 @@ public enum ErrorCode {
     TEXT_TO_SPEECH_ERROR(3001, "Error during text-to-speech synthesis", HttpStatus.INTERNAL_SERVER_ERROR),
     FILE_WRITE_ERROR(3002, "Error writing audio bytes to file", HttpStatus.INTERNAL_SERVER_ERROR),
 
+    // PARAGRAPH, USERPRACTICE
+    NOT_OWN_PRACTICE(4000, "You don't own this practice", HttpStatus.NOT_ACCEPTABLE),
+
     // Generic errors (90xx)
     THIS_METHOD_DOES_NOTE_SUPPORT_YET(9001, "This method does not support yet", HttpStatus.BAD_REQUEST);
     private int code;
