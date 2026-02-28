@@ -40,7 +40,6 @@ public class Service {
             return existing.get().getHints();
         }
 
-        // 3. split sentences
         List<String> sentences = SentenceUtils.splitSentences(paragraph.getContent());
 
         if (orderIndex >= sentences.size()) {
