@@ -15,8 +15,13 @@ import {
   Sparkles,
   RefreshCw,
   X,
+  Check,
 } from "lucide-react";
 import { useDeviceType } from "@/shared/utilities/useDeviceType";
+import { useParagraphHints, useUserPracticeData } from "../../hooks/useUserPractice";
+import { splitIntoSentences } from "@/utils/utils";
+import type { HintContent } from "@/entities/hints/schema";
+import { message } from "antd";
 // Common API response interface
 export interface ApiResponse<T = any> {
   code: number;
@@ -129,23 +134,43 @@ export interface Sentence {
 
 const SentencePracticePage = () => {
   const [translation, setTranslation] = useState("");
-  const { conversationId } = useParams();
+  const { id } = useParams();
   const { isMobile, isTablet, isDesktop } = useDeviceType();
   const navigate = useNavigate();
 
-  const [vietNameseSentences, setVietNameseSentences] = useState<string[]>(["Kính gửi Quý cơ quan quản lý giao thông,\n\nTôi viết thư này để bày tỏ ý kiến của mình về lịch trình xe buýt công cộng mới được đưa ra gần đây tại thành phố của chúng ta. Tôi hiểu rằng những thay đổi này được thực hiện nhằm cải thiện dịch vụ vận tải chung.\n\nTuy nhiên, tôi muốn nêu lên một vài lo ngại liên quan đến tuyến đường 15. Lịch trình mới dường như đã loại bỏ một số điểm dừng quan trọng mà nhiều cư dân, bao gồm cả tôi, thường xuyên sử dụng. Đặc biệt, điểm dừng gần khu thương mại đã bị dời đi xa hơn, gây bất tiện đáng kể cho việc đi lại hàng ngày của chúng tôi.\n\nNgoài ra, tần suất của tuyến xe buýt 15 vào giờ cao điểm buổi sáng dường như đã giảm xuống. Điều này dẫn đến tình trạng xe buýt thường xuyên quá tải, khiến hành khách cảm thấy không thoải mái và đôi khi không thể lên xe.\n\nTôi đề xuất xem xét lại các điểm dừng của tuyến 15, đặc biệt là những điểm gần các khu vực dân cư và thương mại sầm uất. Đồng thời, tôi cũng hy vọng quý cơ quan có thể tăng cường tần suất hoạt động của tuyến xe buýt này trong giờ cao điểm để đáp ứng nhu cầu đi lại của người dân.\n\nTôi tin rằng việc lắng nghe phản hồi từ cộng đồng sẽ giúp quý cơ quan đưa ra những quyết định tốt hơn cho hệ thống giao thông công cộng của chúng ta. Cảm ơn quý cơ quan đã dành thời gian xem xét thư này.\n\nTrân trọng,\n\nMột cư dân quan tâm, Kính gửi Quý cơ quan quản lý giao thông,\n\nTôi viết thư này để bày tỏ ý kiến của mình về lịch trình xe buýt công cộng mới được đưa ra gần đây tại thành phố của chúng ta. Tôi hiểu rằng những thay đổi này được thực hiện nhằm cải thiện dịch vụ vận tải chung.\n\nTuy nhiên, tôi muốn nêu lên một vài lo ngại liên quan đến tuyến đường 15. Lịch trình mới dường như đã loại bỏ một số điểm dừng quan trọng mà nhiều cư dân, bao gồm cả tôi, thường xuyên sử dụng. Đặc biệt, điểm dừng gần khu thương mại đã bị dời đi xa hơn, gây bất tiện đáng kể cho việc đi lại hàng ngày của chúng tôi.\n\nNgoài ra, tần suất của tuyến xe buýt 15 vào giờ cao điểm buổi sáng dường như đã giảm xuống. Điều này dẫn đến tình trạng xe buýt thường xuyên quá tải, khiến hành khách cảm thấy không thoải mái và đôi khi không thể lên xe.\n\nTôi đề xuất xem xét lại các điểm dừng của tuyến 15, đặc biệt là những điểm gần các khu vực dân cư và thương mại sầm uất. Đồng thời, tôi cũng hy vọng quý cơ quan có thể tăng cường tần suất hoạt động của tuyến xe buýt này trong giờ cao điểm để đáp ứng nhu cầu đi lại của người dân.\n\nTôi tin rằng việc lắng nghe phản hồi từ cộng đồng sẽ giúp quý cơ quan đưa ra những quyết định tốt hơn cho hệ thống giao thông công cộng của chúng ta. Cảm ơn quý cơ quan đã dành thời gian xem xét thư này.\n\nTrân trọng,\n\nMột cư dân quan tâm"]);
+  const [vietNameseSentences, setVietNameseSentences] = useState<string[]>([]);
   const [englishTranslations, setEnglishTranslations] = useState<Sentence[]>(
     [],
   );
-  const [currentLevel, setCurrentLevel] = useState<string>("");
-  const [currentTopic, setCurrentTopic] = useState<string>("");
-  const [currentTone, setCurrentTone] = useState<string>("");
-  const [type, setType] = useState<string>("");
+
+  const { data, isLoading, error: errorUserPracticeData } = useUserPracticeData(Number(id));
+
+  useEffect(() => {
+    if (data && !errorUserPracticeData) {
+      setVietNameseSentences(splitIntoSentences(data.paragraph.content));
+    }
+    if (errorUserPracticeData) {
+      message.error(errorUserPracticeData.message);
+    }
+  }, [data, errorUserPracticeData]);
 
   // New state for translation hints
   const [translationHints, setTranslationHints] =
-    useState<TranslationHintsResponse | null>(null);
+    useState<HintContent | null>(null);
   const [showHints, setShowHints] = useState(false);
+  const [orderIndex, setOrderIndex] = useState<number>(0);
+
+  const { data: translationHintsData, isLoading: isLoadingTranslationHints, error: errorTranslationHints } = useParagraphHints(Number(id), orderIndex, showHints);
+
+  useEffect(() => {
+    if (translationHintsData) {
+      setTranslationHints(translationHintsData);
+    }
+    if (errorTranslationHints) {
+      message.error(errorTranslationHints.message);
+    }
+  }, [translationHintsData, errorTranslationHints]);
+
 
   // New state for translation check
   const [translationCheck, setTranslationCheck] =
@@ -263,20 +288,17 @@ const SentencePracticePage = () => {
           </button>
           <div>
             <h1 className="text-lg md:text-xl font-bold text-slate-900 leading-tight">
-              Project Status Inquiry
+              {data?.paragraph.type} - {data?.paragraph.title}
             </h1>
             <div className="flex flex-wrap items-center gap-2 mt-2">
               <span className="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-slate-100 text-slate-700 border border-slate-200">
-                Topic: Business
+                Topic: {data?.paragraph.topic}
               </span>
               <span className="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-blue-50 text-blue-700 border border-blue-100">
-                Tone: Formal
+                Tone: {data?.paragraph.tone}
               </span>
               <span className="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-purple-50 text-purple-700 border border-purple-100">
-                Level: B2
-              </span>
-              <span className="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-medium bg-orange-50 text-orange-700 border border-orange-100">
-                Type: Paragraph
+                Level: {data?.paragraph.level}
               </span>
             </div>
           </div>
@@ -306,8 +328,14 @@ const SentencePracticePage = () => {
                   className="w-5 rounded-sm shadow-sm"
                   alt="VN"
                 />
-                Vietnamese Source
+                Nội dung dịch
               </span>
+              <button
+                onClick={() => setShowMobileSidebar(true)}
+                className="text-blue-600 hover:text-blue-700 text-sm font-bold flex items-center gap-1 ml-auto sm:ml-0"
+              >
+                <Lightbulb size={16} /> Gợi ý từ vựng
+              </button>
             </div>
             <div className="p-4 bg-slate-50/50 h-full overflow-y-auto">
               <div className="text-lg leading-relaxed text-slate-800 font-medium space-y-4 px-4 ">
@@ -317,7 +345,7 @@ const SentencePracticePage = () => {
                       {index <= englishTranslations.length - 1 ? (
                         // Completed sentences - show English translation
                         <span key={index} className="relative inline">
-                          <span className="text-black py-1 font-bold">
+                          <span className="text-black py-1 font-bold whitespace-pre-line">
                             {" " + englishTranslations[index]?.englishTranslation}
                           </span>
                         </span>
@@ -325,14 +353,14 @@ const SentencePracticePage = () => {
                         // Current and upcoming sentences
                         index === englishTranslations.length ? (
                           // Current sentence to translate
-                          <span key={index} className="relative inline">
+                          <span key={index} className="relative inline whitespace-pre-line">
                             <span className="py-2 text-blue-600 font-bold">
                               {" " + sentence}
                             </span>
                           </span>
                         ) : (
                           // Upcoming sentences
-                          <span key={index} className="relative inline">
+                          <span key={index} className="relative inline whitespace-pre-line">
                             <span className="text-gray-600 opacity-60">
                               {" " + sentence}
                             </span>
@@ -355,27 +383,25 @@ const SentencePracticePage = () => {
                   className="w-5 rounded-sm shadow-sm"
                   alt="US"
                 />
-                English Translation Flow
+                Dịch câu tiếp theo
               </span>
             </div>
             <div className="p-4 flex-1 flex flex-col">
               <div className="mt-auto">
                 <textarea
                   className="w-full p-4 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:ring-2 focus:ring-blue-100 focus:border-blue-400 outline-none text-base transition-all resize-none"
-                  placeholder="Type your translation here..."
+                  placeholder="Nhập câu dịch của bạn ở đây..."
                   rows={2}
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                 />
-                <div className="flex justify-between items-center mt-3">
-                  <button
-                    onClick={() => setShowMobileSidebar(true)}
-                    className="text-blue-600 hover:text-blue-700 text-sm font-bold flex items-center gap-1 ml-auto sm:ml-0"
-                  >
-                    <Lightbulb size={16} /> Hints & Answer
+                <div className="flex justify-end items-center mt-3 gap-2">
+                  <button className="bg-green-600 text-white px-6 py-2 rounded-lg font-bold text-sm hover:bg-slate-800 transition-colors flex items-center gap-2">
+                    Kiểm tra
+                    <Check size={16} />
                   </button>
-                  <button className="bg-slate-900 text-white px-6 py-2 rounded-lg font-bold text-sm hover:bg-slate-800 transition-colors flex items-center gap-2">
-                    Confirm Sentence{" "}
+                  <button className="bg-blue-600 text-white px-6 py-2 rounded-lg font-bold text-sm hover:bg-slate-800 transition-colors flex items-center gap-2">
+                    Tiếp theo
                     <ArrowLeft size={16} className="rotate-180" />
                   </button>
                 </div>

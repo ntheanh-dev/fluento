@@ -3,4 +3,5 @@ export const OK = {
   PROFILE: "profile",
   OAUTH_AUTHENTICATE: "oauth_authenticate",
   userPractice: (id: number) => ["userPractice", id] as const,
+  usePracticeParagraphHints: (id: number, orderIndex: number) => ["usePracticeParagraphHints", id, orderIndex] as const,
 };
