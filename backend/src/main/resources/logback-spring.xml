@@ -3,8 +3,8 @@
 	<include resource="org/springframework/boot/logging/logback/defaults.xml"/>
 
 	<property name="LOG_FILE" value="${LOG_FILE:-${LOG_PATH:-${java.io.tmpdir:-/tmp}}/fluento.log}"/>
-	<property name="LOG_PATTERN" value="%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"/>
-
+	<property name="LOG_PATTERN"
+			  value="%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] [reqId:%X{reqId}] [user:%X{userId}] %-5level %logger{36} - %msg%n"/>
 	<!-- Console appender -->
 	<appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
 		<encoder>

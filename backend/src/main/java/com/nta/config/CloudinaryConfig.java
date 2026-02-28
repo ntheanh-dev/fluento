@@ -1,4 +1,4 @@
-package com.nta.common.config;
+package com.nta.config;
 
 import java.util.HashMap;
 import java.util.Map;
