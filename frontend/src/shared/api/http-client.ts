@@ -11,7 +11,7 @@ export const http = axios.create({
         Accept: 'application/hal+json'
     },
     withCredentials: true,
-    timeout: 10000,
+    timeout: 30000,
     timeoutErrorMessage: "Request timed out"
 })
 

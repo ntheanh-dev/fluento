@@ -4,15 +4,13 @@ import {
   AlignLeft,
   FileText,
   PenLine,
-  BarChart2,
   Globe,
   Brain,
   MessageSquare,
   ListOrdered,
   Info,
-  ArrowRight,
   Clock,
-  ChevronUp,
+  Loader2,
 } from "lucide-react";
 import {
   LEVELS,
@@ -23,7 +21,7 @@ import {
 } from "../constants";
 import { useCreateUserPracticeMutation } from "../mutation";
 import type { PracticeSetupInput } from "../schema";
-import { message } from "antd";
+import { message, Spin } from "antd";
 
 const PracticeSetup = () => {
   const navigate = useNavigate();
@@ -56,7 +54,7 @@ const PracticeSetup = () => {
 
     try {
       const { id } = await createUserPractice(payload);
-      navigate(`/session/${id}`);
+      navigate(`/practice/${id}`);
     } catch (error: unknown) {
       const err = error as {
         response?: { data?: { message?: string; code?: number } };
@@ -108,11 +106,10 @@ const PracticeSetup = () => {
           <div className="bg-slate-100 p-1.5 rounded-xl flex text-sm font-medium">
             <button
               onClick={() => setMode("paragraph")}
-              className={`flex-1 px-4 py-2.5 rounded-lg flex items-center justify-center gap-2 ${
-                mode === "paragraph"
-                  ? "bg-white text-blue-600 shadow-sm font-bold"
-                  : "text-slate-500"
-              }`}
+              className={`flex-1 px-4 py-2.5 rounded-lg flex items-center justify-center gap-2 ${mode === "paragraph"
+                ? "bg-white text-blue-600 shadow-sm font-bold"
+                : "text-slate-500"
+                }`}
             >
               <FileText size={16} />
               Viết đoạn văn
@@ -120,11 +117,10 @@ const PracticeSetup = () => {
 
             <button
               onClick={() => setMode("sentence")}
-              className={`flex-1 px-4 py-2.5 rounded-lg flex items-center justify-center gap-2 ${
-                mode === "sentence"
-                  ? "bg-white text-blue-600 shadow-sm font-bold"
-                  : "text-slate-500"
-              }`}
+              className={`flex-1 px-4 py-2.5 rounded-lg flex items-center justify-center gap-2 ${mode === "sentence"
+                ? "bg-white text-blue-600 shadow-sm font-bold"
+                : "text-slate-500"
+                }`}
             >
               <AlignLeft size={16} />
               Dịch theo câu
@@ -132,11 +128,10 @@ const PracticeSetup = () => {
 
             <button
               onClick={() => setMode("custom")}
-              className={`flex-1 px-4 py-2.5 rounded-lg flex items-center justify-center gap-2 ${
-                mode === "custom"
-                  ? "bg-white text-blue-600 shadow-sm font-bold"
-                  : "text-slate-500"
-              }`}
+              className={`flex-1 px-4 py-2.5 rounded-lg flex items-center justify-center gap-2 ${mode === "custom"
+                ? "bg-white text-blue-600 shadow-sm font-bold"
+                : "text-slate-500"
+                }`}
             >
               <PenLine size={16} />
               Tự do
@@ -162,11 +157,10 @@ const PracticeSetup = () => {
                         setSelectedGroup(group.group);
                         setTopic(group.topics[0].value);
                       }}
-                      className={`w-full text-left px-4 py-3 rounded-xl text-sm font-medium flex justify-between items-center transition-all ${
-                        selectedGroup === group.group
-                          ? "bg-slate-100 text-slate-900 font-bold"
-                          : "text-slate-500 hover:bg-slate-50 hover:text-slate-700"
-                      }`}
+                      className={`w-full text-left px-4 py-3 rounded-xl text-sm font-medium flex justify-between items-center transition-all ${selectedGroup === group.group
+                        ? "bg-slate-100 text-slate-900 font-bold"
+                        : "text-slate-500 hover:bg-slate-50 hover:text-slate-700"
+                        }`}
                     >
                       {group.label}
                       {selectedGroup === group.group}
@@ -183,11 +177,10 @@ const PracticeSetup = () => {
                       <button
                         key={t.value}
                         onClick={() => setTopic(t.value)}
-                        className={`px-4 py-3 rounded-lg border text-sm transition-all text-left ${
-                          topic === t.value
-                            ? "bg-white border-blue-500 text-blue-700 shadow-sm ring-1 ring-blue-500 font-medium"
-                            : "bg-white border-slate-200 text-slate-600 hover:border-blue-300"
-                        }`}
+                        className={`px-4 py-3 rounded-lg border text-sm transition-all text-left ${topic === t.value
+                          ? "bg-white border-blue-500 text-blue-700 shadow-sm ring-1 ring-blue-500 font-medium"
+                          : "bg-white border-slate-200 text-slate-600 hover:border-blue-300"
+                          }`}
                       >
                         {t.label}
                       </button>
@@ -214,11 +207,10 @@ const PracticeSetup = () => {
                         <button
                           key={item.value}
                           onClick={() => setType(item.value)}
-                          className={`px-3 py-2 rounded-lg text-xs font-bold border ${
-                            type === item.value
-                              ? "border-blue-500 bg-blue-50 text-blue-600"
-                              : "border-slate-200 text-slate-600"
-                          }`}
+                          className={`px-3 py-2 rounded-lg text-xs font-bold border ${type === item.value
+                            ? "border-blue-500 bg-blue-50 text-blue-600"
+                            : "border-slate-200 text-slate-600"
+                            }`}
                         >
                           {item.label}
                         </button>
@@ -238,11 +230,10 @@ const PracticeSetup = () => {
                       <button
                         key={item.value}
                         onClick={() => setLevel(item.value)}
-                        className={`py-2 rounded-lg text-sm font-bold border ${
-                          level === item.value
-                            ? "bg-orange-50 border-orange-200 text-orange-700 font-bold"
-                            : "border-slate-200 text-slate-600"
-                        }`}
+                        className={`py-2 rounded-lg text-sm font-bold border ${level === item.value
+                          ? "bg-orange-50 border-orange-200 text-orange-700 font-bold"
+                          : "border-slate-200 text-slate-600"
+                          }`}
                       >
                         {item.label}
                       </button>
@@ -343,15 +334,15 @@ const PracticeSetup = () => {
 
             <button
               onClick={handleStart}
-              disabled={mode === "custom" && customText.length < 10}
+              disabled={mode === "custom" && customText.length < 10 || isPending}
               className="px-8 py-3 bg-blue-600 text-white rounded-xl font-bold flex items-center gap-2 disabled:opacity-50"
             >
-              {isPending ? "Đang tạo bài dịch..." : "Bắt đầu"}
-              <ArrowRight size={18} />
+              Bắt đầu
             </button>
           </div>
         </div>
       </div>
+      {isPending && <Spin indicator={<Loader2 className="animate-spin w-4 h-4" size={32} />} description="AI đang tạo bài luyện tập" fullscreen />}
     </div>
   );
 };

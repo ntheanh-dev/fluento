@@ -31,64 +31,6 @@ function showApiError(error: unknown, fallback = DEFAULT_ERROR_MESSAGE) {
   }
 }
 
-export const sentenceFeedbackData: SentenceFeedback = {
-  originalVietnamese:
-    "Tôi viết thư này để bày tỏ ý kiến của mình về lịch trình xe buýt công cộng mới được đưa ra gần đây tại thành phố của chúng ta.",
-
-  learnerEnglish:
-    "Them are writing this letters to expres my option on the new public bus schedule recently introduced in city.",
-
-  corrections: {
-    spellingMistakes: [
-      { word: "Them", suggestion: "I" },
-      { word: "letters", suggestion: "letter" },
-      { word: "expres", suggestion: "express" },
-      { word: "option", suggestion: "opinion" }
-    ],
-
-    vocabularyIssues: [
-      { word: "option", suggestion: ["opinion"] }
-    ],
-
-    grammarErrors: [
-      {
-        issue: "Sai chủ ngữ và động từ",
-        suggestion: "Them are → I am"
-      },
-      {
-        issue: "Sai số lượng danh từ",
-        suggestion: "letters → letter"
-      },
-      {
-        issue: "Thiếu mạo từ",
-        suggestion: "in city → in our city"
-      }
-    ],
-
-    sentenceStructure: [
-      {
-        problem: "Cấu trúc câu còn lủng củng, thiếu tự nhiên",
-        suggestion:
-          "Sắp xếp lại câu theo cấu trúc: I am writing this letter to express..."
-      }
-    ]
-  },
-
-  feedback: {
-    weaknesses: [
-      "Bạn cần chú ý hơn đến việc chia chủ ngữ và động từ cho phù hợp.",
-      "Hãy cẩn thận với lỗi chính tả, đặc biệt là các từ dễ nhầm lẫn như 'expres' và 'option'.",
-      "Việc sử dụng mạo từ (articles) 'a', 'an', 'the' rất quan trọng trong tiếng Anh.",
-      "Cấu trúc câu còn mang tính dịch từng từ từ tiếng Việt."
-    ]
-  },
-
-  improvedTranslation:
-    "I am writing this letter to express my opinion on the new public bus schedule recently introduced in our city.",
-
-  score: 5.0
-};
-
 export type RenderAsideType = "hints" | "sentenceFeedback" | null;
 
 const SentencePracticePage = () => {
@@ -105,7 +47,6 @@ const SentencePracticePage = () => {
     useState<HintContent | null>(null);
   const [renderAsideType, setRenderAsideType] = useState<RenderAsideType>(null);
   const { data, error: errorUserPracticeData } = useUserPracticeData(Number(id));
-  const initializedForPracticeId = useRef<number | null>(null);
 
   const answerPreviewPayload = useMemo(
     () => ({ translatedSentence: translation, orderIndex }),
@@ -125,15 +66,10 @@ const SentencePracticePage = () => {
   const { mutateAsync: submitUserSentence, isPending: isLoadingSubmitUserSentence } = useSubmitUserSentence(Number(id), submitPayload);
 
   useEffect(() => {
-    const practiceId = Number(id);
     if (data && !errorUserPracticeData) {
-      const isFirstLoad = initializedForPracticeId.current !== practiceId;
-      if (isFirstLoad) {
-        initializedForPracticeId.current = practiceId;
-        setVietNameseSentences(splitIntoSentences(data.paragraph.content));
-        setEnglishTranslations(data.sentenceAnswers.map((a) => a.userTranslation));
-        setOrderIndex(data.sentenceAnswers.length);
-      }
+      setVietNameseSentences(splitIntoSentences(data.paragraph.content));
+      setEnglishTranslations(data.sentenceAnswers?.map((a) => a.userTranslation));
+      setOrderIndex(data.sentenceAnswers?.length || 0);
     }
     if (errorUserPracticeData) {
       message.error((errorUserPracticeData as unknown as ApiError).message);
@@ -217,9 +153,12 @@ const SentencePracticePage = () => {
             />
           </button>
           <div className="min-w-0 flex-1">
-            <h1 className="text-base sm:text-lg font-bold text-slate-900 leading-tight truncate sm:whitespace-normal">
-              {data?.paragraph.type} : {data?.paragraph.title}
-            </h1>
+            {data?.paragraph.type !== "BASIC" && (
+              <h1 className="text-base sm:text-lg font-bold text-slate-900 leading-tight truncate sm:whitespace-normal">
+                {data?.paragraph.type} : {data?.paragraph.title}
+              </h1>
+            )}
+
             <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 mt-1 sm:mt-1.5 sm:mt-2">
               <span className="inline-flex items-center px-2 sm:px-2.5 py-0.5 rounded-md text-[10px] sm:text-[11px] md:text-xs font-medium bg-slate-100 text-slate-600 sm:text-slate-700 border border-slate-200">
                 Chủ đề: {data?.paragraph.topic}

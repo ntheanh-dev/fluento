@@ -53,6 +53,7 @@ public class Service {
                 .user(commonUserService.getUserFromContext())
                 .paragraph(paragraph)
                 .attemptNumber(1)
+                .sentenceAnswers(List.of())
                 .build();
 
         return mapper.toUserPracticeResponse(repository.save(practice));
