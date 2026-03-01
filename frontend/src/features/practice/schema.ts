@@ -24,4 +24,14 @@ const practiceSetupOutputSchema = z.object({
 
 export type PracticeSetupInput = z.infer<typeof practiceSetupSchema>;
 export type PracticeSetupOutput = z.infer<typeof practiceSetupOutputSchema>;
+
+export const answerPreviewInputSchema = z.object({
+    translatedSentence: z.string(),
+    orderIndex: z.number(),
+});
+
+        
+export type AnswerPreviewInput = z.infer<typeof answerPreviewInputSchema>;
 export { practiceSetupSchema, practiceSetupOutputSchema };
+
+

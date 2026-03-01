@@ -35,7 +35,7 @@ export interface SentenceFeedback {
   
   export interface GrammarError {
     issue: string;
-    example: string;
+    suggestion: string;
   }
   
   export interface SentenceStructure {

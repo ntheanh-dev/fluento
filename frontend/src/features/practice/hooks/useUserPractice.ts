@@ -1,8 +1,7 @@
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { getParagraphHints, getUserPracticeById } from "../api";
 import type { UserPractice } from "../../../entities/userPractice/schema";
 import { OK } from "../../../shared/api/query-keys";
-import type { HintContent } from "@/entities/hints/schema";
 
 
 export function useUserPracticeData(id: number) {
@@ -14,12 +13,14 @@ export function useUserPracticeData(id: number) {
   return { data, isLoading, error };
 }
 
-export function useParagraphHints(id: number, orderIndex: number, enable: boolean) {
-    const { data, isLoading, error } = useQuery<HintContent>({
-        queryKey: OK.usePracticeParagraphHints(id, orderIndex),
-        queryFn: () => getParagraphHints(id, orderIndex),
-        enabled: enable,
-    });
+export function useParagraphHints(id: number, orderIndex: number) {
+   const mutation = useMutation({
+    mutationFn: () => getParagraphHints(id, orderIndex),
+   });
 
-    return { data, isLoading, error };
+   return {
+    mutateAsync: mutation.mutateAsync,
+    isPending: mutation.isPending,
+    error: mutation.error,
+   };
 }
