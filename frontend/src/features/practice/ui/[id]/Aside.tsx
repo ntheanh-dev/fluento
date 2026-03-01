@@ -4,27 +4,26 @@ import { Analyzing } from "./Analyzing";
 import { SentenceFeedbackAside } from "./SentenceFeedbackAside";
 import { HintsAside } from "./HintsAside";
 import { Lightbulb } from "lucide-react";
+import type { RenderAsideType } from ".";
 type AsideProps = {
     isLoadingAnswerPreview: boolean;
     isLoadingTranslationHints: boolean;
     sentenceFeedback: SentenceFeedback | null;
     translationHints: HintContent | null;
+    renderAsideType: RenderAsideType;
 }
-export const Aside = ({ isLoadingAnswerPreview, isLoadingTranslationHints, sentenceFeedback, translationHints }: AsideProps) => {
-
-    console.log(translationHints);
-
+export const Aside = ({ isLoadingAnswerPreview, isLoadingTranslationHints, sentenceFeedback, translationHints, renderAsideType }: AsideProps) => {
 
     if (isLoadingAnswerPreview || isLoadingTranslationHints) {
         return <Analyzing />
     }
 
-    if (sentenceFeedback) {
-        return <SentenceFeedbackAside {...sentenceFeedback} />
+    if (renderAsideType === "hints" && translationHints) {
+        return <HintsAside {...translationHints} />
     }
 
-    if (translationHints) {
-        return <HintsAside {...translationHints} />
+    if (renderAsideType === "sentenceFeedback" && sentenceFeedback) {
+        return <SentenceFeedbackAside {...sentenceFeedback} />
     }
 
     return (

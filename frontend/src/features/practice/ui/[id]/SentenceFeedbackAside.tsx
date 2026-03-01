@@ -149,8 +149,8 @@ export const SentenceFeedbackAside = (sentenceFeedback: SentenceFeedback) => {
                                     </span>
                                 </div>
                                 <div className="bg-white rounded-xl border border-red-100 p-4 shadow-sm">
-                                    {sentenceFeedback.corrections.spellingMistakes.map((spellingMistake) => (
-                                        <div className="flex items-start justify-between gap-4 border-b border-dashed border-slate-100 pb-3 mb-3 last:border-0 last:pb-0 last:mb-0">
+                                    {sentenceFeedback.corrections.spellingMistakes.map((spellingMistake, index) => (
+                                        <div key={index} className="flex items-start justify-between gap-4 border-b border-dashed border-slate-100 pb-3 mb-3 last:border-0 last:pb-0 last:mb-0">
                                             <div className="flex flex-col">
                                                 <span className="text-red-500 line-through decoration-red-300 text-sm font-medium">
                                                     {spellingMistake.word}
@@ -188,8 +188,8 @@ export const SentenceFeedbackAside = (sentenceFeedback: SentenceFeedback) => {
                                     </span>
                                 </div>
                                 <div className="bg-white rounded-xl border border-red-100 p-4 shadow-sm">
-                                    {sentenceFeedback.corrections.vocabularyIssues.map((vocabularyIssue) => (
-                                        <div className="flex items-start justify-between gap-4 border-b border-dashed border-slate-100 pb-3 mb-3 last:border-0 last:pb-0 last:mb-0">
+                                    {sentenceFeedback.corrections.vocabularyIssues.map((vocabularyIssue, index) => (
+                                        <div key={index} className="flex items-start justify-between gap-4 border-b border-dashed border-slate-100 pb-3 mb-3 last:border-0 last:pb-0 last:mb-0">
                                             <div className="flex flex-col">
                                                 <span className="text-red-500 line-through decoration-red-300 text-sm font-medium">
                                                     {vocabularyIssue.word}
@@ -224,12 +224,12 @@ export const SentenceFeedbackAside = (sentenceFeedback: SentenceFeedback) => {
                             </div>
                             <div className="space-y-2">
 
-                                {sentenceFeedback.corrections.grammarErrors.map((grammarError) => {
+                                {sentenceFeedback.corrections.grammarErrors.map((grammarError, index) => {
 
                                     const [originalText, correctedText] = grammarError.suggestion.split(" → ");
 
                                     return (
-                                        <div className="bg-white rounded-xl border border-orange-100 p-4 shadow-sm group hover:border-orange-200 transition-colors">
+                                        <div key={index} className="bg-white rounded-xl border border-orange-100 p-4 shadow-sm group hover:border-orange-200 transition-colors">
                                             <div className="flex items-center gap-2 mb-2">
                                                 <History className="text-orange-500 size-4" />
                                                 <span className="text-xs font-bold text-slate-700">
@@ -271,8 +271,8 @@ export const SentenceFeedbackAside = (sentenceFeedback: SentenceFeedback) => {
                                         <h4 className="text-xs font-bold text-slate-800 mb-1">
                                             Naturalness & Flow
                                         </h4>
-                                        {sentenceFeedback.corrections.sentenceStructure.map((sentenceStructure) => (
-                                            <p className="text-xs text-slate-600 leading-relaxed mb-2">
+                                        {sentenceFeedback.corrections.sentenceStructure.map((sentenceStructure, index) => (
+                                            <p key={index} className="text-xs text-slate-600 leading-relaxed mb-2">
                                                 {sentenceStructure.problem}
                                                 <ArrowRight className="text-slate-300 size-3 inline-block" />
                                                 {sentenceStructure.suggestion}
@@ -292,8 +292,8 @@ export const SentenceFeedbackAside = (sentenceFeedback: SentenceFeedback) => {
                             <div className="h-px bg-slate-100 flex-1 ml-2"></div>
                         </div>
                         <div className="text-sm text-slate-600 space-y-2">
-                            {sentenceFeedback.feedback.weaknesses.map((weakness) => (
-                                <div className="flex gap-2">
+                            {sentenceFeedback.feedback.weaknesses.map((weakness, index) => (
+                                <div key={index} className="flex gap-2">
                                     {sentenceFeedback.score >= 9 ? (
                                         <CheckCircle2 className="text-green-500 size-4 mt-0.5 shrink-0" />
                                     ) : (
