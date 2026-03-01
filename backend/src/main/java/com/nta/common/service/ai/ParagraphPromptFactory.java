@@ -237,7 +237,7 @@ public class ParagraphPromptFactory {
 					{ "word": "problematic word/phrase", "suggestion": ["better option 1", "better option 2"] }
 					],
 					"grammarErrors": [
-					{ "issue": "specific grammar problem in Vietnamese", "example": "incorrect form → correct form" }
+					{ "issue": "specific grammar problem in Vietnamese", "suggestion": "incorrect form → correct form" }
 					],
 					"sentenceStructure": [
 					{ "problem": "structural issue description in Vietnamese", "suggestion": "how to improve structure in Vietnamese" }

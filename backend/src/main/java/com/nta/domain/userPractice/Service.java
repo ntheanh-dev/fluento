@@ -18,6 +18,7 @@ import com.nta.domain.userPractice.dto.request.SubmitAnswerRequest;
 import com.nta.domain.userPractice.dto.response.UserPracticeResponse;
 import com.nta.domain.userSentenceAnswer.SentenceFeedback;
 import com.nta.domain.userSentenceAnswer.UserSentenceAnswer;
+import com.nta.domain.userSentenceAnswer.dto.response.UserSentenceAnswerResponse;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -36,6 +37,7 @@ public class Service {
     ParagraphPromptFactory paragraphPromptFactory;
     ChatService chatService;
     com.nta.domain.userSentenceAnswer.Repository userSentenceAnswerRepo;
+    com.nta.domain.userSentenceAnswer.Mapper userSentenceAnswerMapper;
 
     @Transactional
     UserPracticeResponse create(CreateParagraphRequest request) {
@@ -96,7 +98,7 @@ public class Service {
 
         // 5. Gọi AI chấm điểm
         PromptMessage prompt = paragraphPromptFactory.buildFeedbackTranslationPrompt(
-                originalSentence, request.getVietnameseSentence());
+                originalSentence, request.getTranslatedSentence());
 
         SentenceFeedback response = chatService
                 .sendMessage(prompt.systemMessage(), prompt.userMessage(), SentenceFeedback.class)
@@ -106,7 +108,7 @@ public class Service {
     }
 
     @Transactional
-    void submitAnswer(Long practiceId, SubmitAnswerRequest request) {
+    UserSentenceAnswerResponse submitAnswer(Long practiceId, SubmitAnswerRequest request) {
         // 1. Lấy practice
         UserPractice practice =
                 repository.findById(practiceId).orElseThrow(() -> new AppException(ErrorCode.RESOURCE_NOT_FOUND));
@@ -138,5 +140,7 @@ public class Service {
                 .build();
 
         userSentenceAnswerRepo.save(answer);
+
+        return userSentenceAnswerMapper.toUserSentenceAnswerResponse(answer);
     }
 }

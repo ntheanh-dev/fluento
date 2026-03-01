@@ -5,6 +5,7 @@ import java.time.Duration;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.messages.SystemMessage;
 import org.springframework.ai.chat.messages.UserMessage;
+import org.springframework.ai.chat.metadata.ChatResponseMetadata;
 import org.springframework.ai.chat.prompt.Prompt;
 import org.springframework.ai.openai.OpenAiChatModel;
 import org.springframework.ai.openai.OpenAiChatOptions;
@@ -59,41 +60,67 @@ public class GeminiChatService implements ChatService {
 
         String outputText = "";
 
+        long startTime = System.currentTimeMillis();
+
         try {
 
             var response = chatClient
                     .prompt(buildPrompt(systemMessage, userMessage))
                     .call()
-                    .entity(responseType);
+                    .chatResponse();
 
-            // ChatResponseMetadata metadata = response.getMetadata();
+            long duration = System.currentTimeMillis() - startTime;
+            log.info(
+                    "AI call success - model={} duration={}ms",
+                    apiKey.getModel().getApiValue(),
+                    duration);
 
-            // int promptTokens = safe(metadata.getUsage().getPromptTokens());
-            // int completionTokens = safe(metadata.getUsage().getCompletionTokens());
-            // int totalTokens = safe(metadata.getUsage().getTotalTokens());
+            ChatResponseMetadata metadata = response.getMetadata();
 
-            // outputText = response.getResult().getOutput().getText();
+            int promptTokens = safe(metadata.getUsage().getPromptTokens());
+            int completionTokens = safe(metadata.getUsage().getCompletionTokens());
+            int totalTokens = safe(metadata.getUsage().getTotalTokens());
 
-            // log.info(
-            //         "Tokens used - Prompt: {}, Completion: {}, Total: {}", promptTokens, completionTokens,
-            // totalTokens);
+            outputText = response.getResult().getOutput().getText();
 
-            // T result = parseResponse(outputText, responseType);
+            log.info(
+                    "Tokens used - Prompt: {}, Completion: {}, Total: {}", promptTokens, completionTokens, totalTokens);
+
+            T result = parseResponse(outputText, responseType);
 
             return ChatResponse.<T>builder()
-                    .result(response)
+                    .result(result)
                     .promptTokens(0)
                     .completionTokens(0)
                     .totalTokens(0)
                     .build();
         } catch (NonTransientAiException exception) {
-            log.error("AI call failed: {}", exception.getMessage(), exception);
-            if (exception.getMessage().contains("429") && exception.getMessage().contains("RESOURCE_EXHAUSTED")) {
+            long duration = System.currentTimeMillis() - startTime;
+
+            log.error(
+                    "AI call failed - model={} duration={}ms error={}",
+                    apiKey.getModel().getApiValue(),
+                    duration,
+                    exception.getMessage(),
+                    exception);
+
+            if (exception.getMessage() != null
+                    && exception.getMessage().contains("429")
+                    && exception.getMessage().contains("RESOURCE_EXHAUSTED")) {
+
                 handleApiReachLimit(apiKey);
             }
+
             throw new AppException(ErrorCode.AI_EXHAUSTED);
         } catch (Exception e) {
-            log.error("Failed to parse AI response: {}", outputText, e);
+            long duration = System.currentTimeMillis() - startTime;
+
+            log.error(
+                    "AI response parsing failed - model={} duration={}ms",
+                    apiKey.getModel().getApiValue(),
+                    duration,
+                    e);
+
             throw new AppException(ErrorCode.AI_RESPONSE_PARSE_ERROR);
         }
     }
@@ -109,7 +136,7 @@ public class GeminiChatService implements ChatService {
                     .openAiApi(openAiApi)
                     .defaultOptions(OpenAiChatOptions.builder()
                             .model(k.model())
-                            .maxCompletionTokens(4000)
+                            .maxCompletionTokens(5000)
                             .build())
                     .build();
 

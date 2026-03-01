@@ -48,7 +48,7 @@ public class SentenceFeedback {
     @AllArgsConstructor
     public static class GrammarError {
         private String issue;
-        private String example;
+        private String suggestion;
     }
 
     @Data

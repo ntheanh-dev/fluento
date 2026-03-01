@@ -1,5 +1,7 @@
 package com.nta.common.exception;
 
+import jakarta.servlet.http.HttpServletRequest;
+
 import org.springframework.ai.retry.NonTransientAiException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
@@ -8,6 +10,7 @@ import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import com.fasterxml.jackson.core.io.JsonEOFException;
 import com.nta.common.dto.ApiResponse;
@@ -21,15 +24,21 @@ import lombok.extern.slf4j.Slf4j;
 public class GlobalExceptionHandler {
     // Bắt exception trung trung
     @ExceptionHandler(Exception.class)
-    ResponseEntity<ApiResponse<Object>> runtimeExceptionHandler(Exception e) {
+    ResponseEntity<ApiResponse<Object>> handleUnexpected(Exception e, HttpServletRequest request) {
+        log.error(
+                "Unhandled exception at {} {} - type={} message={}",
+                request.getMethod(),
+                request.getRequestURI(),
+                e.getClass().getSimpleName(),
+                e.getMessage(),
+                e);
+
         ApiResponse<Object> apiResponse = new ApiResponse<>();
-        apiResponse.setMessage(e.getMessage());
+        apiResponse.setMessage("Something went wrong");
         apiResponse.setCode(999);
 
-        log.error("Unexpected error: {}", e.getMessage(), e);
         return ResponseEntity.internalServerError().body(apiResponse);
     }
-
     // Exception tự tạo
     @ExceptionHandler(AppException.class)
     ResponseEntity<ApiResponse<Object>> appExceptionHandler(AppException e) {
@@ -131,5 +140,16 @@ public class GlobalExceptionHandler {
         apiResponse.setMessage(ErrorCode.AI_API_KEY_INVALID.getMessage());
 
         return ResponseEntity.badRequest().body(apiResponse);
+    }
+
+    @ExceptionHandler(value = NoResourceFoundException.class)
+    ResponseEntity<ApiResponse> noResourceFoundExceptionHandler(NoResourceFoundException e) {
+        ApiResponse<Object> apiResponse = new ApiResponse<>();
+
+        apiResponse.setCode(ErrorCode.RESOURCE_NOT_FOUND.getCode());
+        apiResponse.setMessage(ErrorCode.RESOURCE_NOT_FOUND.getMessage());
+
+        return ResponseEntity.status(ErrorCode.RESOURCE_NOT_FOUND.getStatusCode())
+                .body(apiResponse);
     }
 }
