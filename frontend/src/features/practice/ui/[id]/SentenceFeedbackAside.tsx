@@ -8,6 +8,19 @@ import {
     Info,
     Copy,
 } from "lucide-react";
+
+/** Tách chuỗi theo nội dung trong ' ', trả về mảng phần tử để render (phần trong ' ' được tô màu). */
+function highlightQuoted(text: string) {
+    const parts = text.split(/'([^']*)'/g);
+    return parts.map((part, i) =>
+        i % 2 === 1 ? (
+            <span key={i} className="text-blue-600 font-medium">'{part}'</span>
+        ) : (
+            part
+        )
+    );
+}
+
 export const SentenceFeedbackAside = (sentenceFeedback: SentenceFeedback) => {
 
     const renderScore = (score: number) => {
@@ -273,9 +286,9 @@ export const SentenceFeedbackAside = (sentenceFeedback: SentenceFeedback) => {
                                         </h4>
                                         {sentenceFeedback.corrections.sentenceStructure.map((sentenceStructure, index) => (
                                             <p key={index} className="text-xs text-slate-600 leading-relaxed mb-2">
-                                                {sentenceStructure.problem}
-                                                <ArrowRight className="text-slate-300 size-3 inline-block" />
-                                                {sentenceStructure.suggestion}
+                                                {highlightQuoted(sentenceStructure.problem)}
+                                                <ArrowRight className="text-green-500 size-3 inline-block mx-1" />
+                                                {highlightQuoted(sentenceStructure.suggestion)}
                                             </p>
                                         ))}
                                     </div>
@@ -311,25 +324,27 @@ export const SentenceFeedbackAside = (sentenceFeedback: SentenceFeedback) => {
             </div>
 
             {/* Suggested Translation */}
-            <div className="mt-auto bg-slate-50/80 border-t border-slate-200 backdrop-blur-sm p-4 shrink-0">
-                <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl border border-green-200/50 p-4 shadow-sm">
-                    <div className="flex items-center justify-between mb-2">
-                        <h5 className="text-[10px] font-bold text-green-700 uppercase tracking-widest flex items-center gap-1.5">
-                            <Sparkles className="size-3.5" />
-                            Bản dịch gợi ý
-                        </h5>
-                        <button
-                            className="text-green-600 hover:text-green-700 transition-colors"
-                            title="Copy"
-                        >
-                            <Copy className="size-3.5" onClick={() => navigator.clipboard.writeText(sentenceFeedback.improvedTranslation)} />
-                        </button>
+            {sentenceFeedback.score < 9 && (
+                <div className="mt-auto bg-slate-50/80 border-t border-slate-200 backdrop-blur-sm p-4 shrink-0">
+                    <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl border border-green-200/50 p-4 shadow-sm">
+                        <div className="flex items-center justify-between mb-2">
+                            <h5 className="text-[10px] font-bold text-green-700 uppercase tracking-widest flex items-center gap-1.5">
+                                <Sparkles className="size-3.5" />
+                                Bản dịch gợi ý
+                            </h5>
+                            <button
+                                className="text-green-600 hover:text-green-700 transition-colors"
+                                title="Copy"
+                            >
+                                <Copy className="size-3.5" onClick={() => navigator.clipboard.writeText(sentenceFeedback.improvedTranslation)} />
+                            </button>
+                        </div>
+                        <p className="text-sm text-slate-800 font-medium leading-relaxed italic">
+                            {sentenceFeedback.improvedTranslation}
+                        </p>
                     </div>
-                    <p className="text-sm text-slate-800 font-medium leading-relaxed italic">
-                        {sentenceFeedback.improvedTranslation}
-                    </p>
                 </div>
-            </div>
+            )}
         </>
     );
 };

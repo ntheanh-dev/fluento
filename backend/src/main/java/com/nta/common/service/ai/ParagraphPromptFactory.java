@@ -244,7 +244,7 @@ public class ParagraphPromptFactory {
 					]
 				},
 				"feedback": {
-					"weaknesses": ["areas for improvement in Vietnamese"]
+					"weaknesses": ["areas for improvement in Vietnamese as short phrases"]
 				},
 				"improvedTranslation": "polished, natural English translation",
 				"score": "number (1.0-10.0 scale)"

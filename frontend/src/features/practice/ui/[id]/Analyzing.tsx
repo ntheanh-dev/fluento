@@ -11,7 +11,7 @@ export const Analyzing = () => (
         </div>
 
         <div className="p-6 space-y-6 flex-1 overflow-y-auto">
-            {[1, 2, 3].map((i) => (
+            {[1, 2, 3, 4, 5].map((i) => (
                 <div key={i} className="space-y-3 animate-pulse">
                     <div className="flex items-center gap-2 mb-2">
                         <div className="h-4 w-24 bg-slate-100 rounded"></div>

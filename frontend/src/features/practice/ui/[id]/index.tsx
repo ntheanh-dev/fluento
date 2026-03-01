@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
   ArrowLeft,
+  ArrowRight,
   Lightbulb,
   X,
   Check,
@@ -139,79 +140,62 @@ const SentencePracticePage = () => {
     }
   }, [isMobile]);
   return (
-    <div className="max-w-screen-2xl mx-auto max-h-[calc(100vh-130px+4rem)] -mt-4 sm:-mt-6 md:-mt-8 -mb-4 sm:-mb-6 md:-mb-8 flex flex-col overflow-hidden">
+    <div className="max-w-screen-2xl mx-auto h-[calc(100vh-130px+4rem)] -mt-4 sm:-mt-6 md:-mt-8 -mb-4 sm:-mb-6 md:-mb-8 flex flex-col overflow-hidden">
       {/* Top Bar for Task Info */}
-      <div className="flex items-center justify-between py-3 md:py-4 mb-2 shrink-0 px-1 sm:px-0">
-        <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
-          <button
-            onClick={() => navigate("/setup")}
-            className="shrink-0 group p-2 sm:p-2.5 hover:bg-slate-100 active:bg-slate-200 rounded-lg sm:rounded-xl text-slate-400 hover:text-slate-700 transition-all border border-slate-200 shadow-sm bg-white touch-manipulation"
-          >
-            <ArrowLeft
-              size={20}
-              className="group-hover:-translate-x-0.5 transition-transform w-5 h-5"
-            />
-          </button>
-          <div className="min-w-0 flex-1">
-            {data?.paragraph.type !== "BASIC" && (
-              <h1 className="text-base sm:text-lg font-bold text-slate-900 leading-tight truncate sm:whitespace-normal">
-                {data?.paragraph.type} : {data?.paragraph.title}
-              </h1>
-            )}
-
-            <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 mt-1 sm:mt-1.5 sm:mt-2">
-              <span className="inline-flex items-center px-2 sm:px-2.5 py-0.5 rounded-md text-[10px] sm:text-[11px] md:text-xs font-medium bg-slate-100 text-slate-600 sm:text-slate-700 border border-slate-200">
-                Chủ đề: {data?.paragraph.topic}
-              </span>
-              <span className="inline-flex items-center px-2 sm:px-2.5 py-0.5 rounded-md text-[10px] sm:text-[11px] md:text-xs font-medium bg-purple-50 text-purple-600 sm:text-purple-700 border border-purple-100">
-                Độ khó: {data?.paragraph.level}
-              </span>
+      <div className="flex items-center justify-between py-3 md:py-4 mb-2 shrink-0 px-1 sm:px-0 gap-4">
+        <div className="flex-[10] flex flex-row items-center justify-between gap-4">
+          {data?.paragraph.type !== "BASIC" && (
+            <div>
+              <h1 className="text-2xl font-bold text-slate-900 mb-2">{data?.paragraph.type}</h1>
+              <p className="text-slate-600 text-sm max-w-xl">
+                {data?.paragraph.title}
+              </p>
+            </div>
+          )}
+          <div className="flex flex-row items-center gap-1.5 sm:gap-4">
+            <div className="flex flex-col items-start">
+              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Topic</span>
+              <span className="text-xs font-semibold text-slate-700">{data?.paragraph.topic.toLowerCase()}</span>
+            </div>
+            <div className="h-8 w-px bg-slate-100"></div>
+            <div className="flex flex-col items-start">
+              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Tone</span>
+              <span className="text-xs font-semibold text-slate-700">{data?.paragraph.tone.toLowerCase()}</span>
+            </div>
+            <div className="h-8 w-px bg-slate-100"></div>
+            <div className="flex flex-col items-start">
+              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Level</span>
+              <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-50 text-blue-700">{data?.paragraph.level}</span>
             </div>
           </div>
         </div>
-        <div className="hidden md:flex items-center gap-4 lg:gap-6">
-          <div className="flex items-center gap-4 lg:gap-6">
-            <span className="text-xs md:text-sm font-medium text-slate-500">
-              Câu {orderIndex}/{vietNameseSentences.length}
-            </span>
-            <div className="w-36 md:w-44 lg:w-48 h-2 md:h-2.5 bg-slate-200 rounded-full overflow-hidden">
-              <div className="h-full bg-blue-600 rounded-full" style={{ width: `${progressPercent}%` }}></div>
-            </div>
-            <span className="text-[10px] md:text-xs font-bold text-blue-600">{progressPercent}%</span>
+        <div className="flex-[2] hidden md:flex items-center gap-4 lg:gap-6 w-full">
+          <span className="text-xs md:text-sm font-medium text-slate-500 whitespace-nowrap">
+            Câu {orderIndex}/{vietNameseSentences.length}
+          </span>
+          <div className="w-36 md:w-44 lg:w-48 h-2 md:h-2.5 bg-slate-200 rounded-full overflow-hidden">
+            <div className="h-full bg-blue-600 rounded-full" style={{ width: `${progressPercent}%` }}></div>
           </div>
+          <span className="text-[10px] md:text-xs font-bold text-blue-600">{progressPercent}%</span>
         </div>
       </div>
 
-      <main className="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-3 sm:gap-4 overflow-hidden pb-3 sm:pb-4 px-1 sm:px-0">
+
+
+      <main className="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-3 sm:gap-4 overflow-hidden sm:pb-4 sm:px-0">
         {/* Left Column: Workspace (Source & Input) */}
-        <section className="lg:col-span-8 flex flex-col gap-3 sm:gap-4 h-full overflow-y-auto pr-1 sm:pr-2 custom-scrollbar">
+        <section className="lg:col-span-8 flex flex-col gap-3 sm:gap-4 overflow-y-auto pr-1 sm:pr-2 custom-scrollbar">
           {/* Source Context View */}
           <div className="flex-[10] min-h-0 bg-white rounded-lg sm:rounded-xl border border-slate-200 shadow-sm overflow-hidden flex flex-col shrink-0">
-            <div className="bg-slate-50 border-b border-slate-200 px-3 sm:px-4 md:px-5 py-2.5 sm:py-3 flex justify-between items-center">
-              <span className="text-[10px] sm:text-xs font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1.5 sm:gap-2">
-                <img
-                  src="https://flagcdn.com/w20/vn.png"
-                  className="w-4 sm:w-5 rounded-sm shadow-sm"
-                  alt="VN"
-                />
-                Nội dung dịch
-              </span>
-              <button
-                onClick={handleGetTranslationHints}
-                className="text-blue-600 hover:text-blue-700 hover:cursor-pointer text-xs sm:text-sm font-bold flex items-center gap-1 ml-auto sm:ml-0"
-              >
-                <Lightbulb size={14} className="sm:w-4 sm:h-4" /> Xem gợi ý
-              </button>
-            </div>
             <div className="p-3 sm:p-4 md:p-5 bg-slate-50/50 h-full overflow-y-auto">
-              <div className="text-base sm:text-lg leading-relaxed text-slate-800 font-medium space-y-3 sm:space-y-4 px-2 sm:px-3 md:px-4">
-                <div className="leading-6 sm:leading-7 text-sm sm:text-base text-gray-800">
+              <div className=" leading-relaxed text-slate-800 font-medium space-y-3 sm:space-y-4 md:px-4">
+                <div className="leading-6 sm:leading-7">
                   {vietNameseSentences.map((sentence, index) => (
                     <React.Fragment key={index}>
                       {index <= englishTranslations.length - 1 ? (
                         // Completed sentences - show English translation
                         <span key={index} className="relative inline">
-                          <span className="text-black py-1 font-bold whitespace-pre-line">
+                          <span className="text-black py-1 font-bold whitespace-pre-line text-base">
                             {" " + englishTranslations[index]}
                           </span>
                         </span>
@@ -219,14 +203,14 @@ const SentencePracticePage = () => {
                         // Current and upcoming sentences
                         index === englishTranslations.length ? (
                           // Current sentence to translate
-                          <span key={index} className="relative inline whitespace-pre-line">
+                          <span key={index} className="relative inline whitespace-pre-line text-base">
                             <span className="py-2 text-blue-600 font-bold">
                               {" " + sentence}
                             </span>
                           </span>
                         ) : (
                           // Upcoming sentences
-                          <span key={index} className="relative inline whitespace-pre-line">
+                          <span key={index} className="relative inline whitespace-pre-line text-base">
                             <span className="text-gray-600 opacity-60">
                               {" " + sentence}
                             </span>
@@ -241,49 +225,66 @@ const SentencePracticePage = () => {
           </div>
 
           {/* English Translation Flow (Input) */}
-          <div className="flex-[2] bg-white rounded-lg sm:rounded-xl border border-slate-200 shadow-lg shadow-slate-200/50 flex flex-col flex-1">
-            <div className="bg-white border-b border-slate-200 px-3 sm:px-4 md:px-5 py-2.5 sm:py-3 flex justify-between items-center rounded-t-lg sm:rounded-t-xl">
-              <span className="text-[10px] sm:text-xs font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1.5 sm:gap-2">
-                <img
-                  src="https://flagcdn.com/w20/us.png"
-                  className="w-4 sm:w-5 rounded-sm shadow-sm"
-                  alt="US"
-                />
-                Dịch câu tiếp theo
-              </span>
-            </div>
-            <div className="p-3 sm:p-4 md:p-5 flex-1 flex flex-col">
-              <div className="mt-auto">
-                <textarea
-                  className="w-full p-3 sm:p-4 rounded-lg sm:rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:ring-2 focus:ring-blue-100 focus:border-blue-400 outline-none text-sm sm:text-base transition-all resize-none min-h-[72px] sm:min-h-[80px]"
-                  placeholder="Nhập câu dịch của bạn ở đây..."
-                  rows={2}
-                  value={translation}
-                  onChange={(e) => setTranslation(e.target.value)}
-                />
-                <div className="flex justify-end items-center mt-2 sm:mt-3 gap-2">
-                  <button
-                    disabled={isLoadingAnswerPreview || !translation}
-                    onClick={handleGetAnswerPreview}
-                    className={`text-slate-700 border-slate-300 transition-colors border px-4 sm:px-5 md:px-6 py-1.5 sm:py-2 rounded-lg font-bold text-xs sm:text-sm flex items-center gap-1.5 sm:gap-2 ${isLoadingAnswerPreview || !translation ? "opacity-30 cursor-not-allowed" : ""}`}
-                  >
-                    Kiểm tra
-                    {isLoadingAnswerPreview ? (
-                      <Loader2 className="animate-spin w-4 h-4" size={16} />
-                    ) : (
-                      <Check className="w-4 h-4" size={16} />
-                    )}
-                  </button>
-                  {sentenceFeedback && (
-                    <button disabled={isLoadingSubmitUserSentence || translation.trim() !== sentenceFeedback?.learnerEnglish} onClick={handleNextSentence}
-                      className={`bg-blue-600 text-white px-4 sm:px-5 md:px-6 py-1.5 sm:py-2 rounded-lg font-bold text-xs sm:text-sm transition-colors flex items-center gap-1.5 sm:gap-2 ${isLoadingSubmitUserSentence || translation.trim() !== sentenceFeedback?.learnerEnglish ? "opacity-30 cursor-not-allowed" : ""}`}
-                    >
-                      Tiếp theo
-                      {isLoadingSubmitUserSentence ? <Loader2 className="animate-spin w-4 h-4" size={16} /> : <ArrowLeft size={16} className="rotate-180 w-4 h-4" />}
-                    </button>
-                  )}
-                </div>
+          <div className="flex-[2] flex flex-col flex-1">
+            <textarea
+              className="w-full p-3 sm:p-4 rounded-lg sm:rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:ring-2 focus:ring-blue-100 focus:border-blue-400 outline-none text-sm sm:text-base transition-all resize-none min-h-[72px] sm:min-h-[80px]"
+              placeholder="Nhập câu dịch của bạn ở đây..."
+              rows={2}
+              value={translation}
+              onChange={(e) => setTranslation(e.target.value)}
+            />
+
+            <div className="flex justify-between items-center mt-2 sm:mt-3 gap-2">
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => navigate("/setup")}
+                  className="shrink-0 group p-2 sm:p-2.5 hover:bg-slate-100 active:bg-slate-200 rounded-lg sm:rounded-xl text-slate-400 hover:text-slate-700 transition-all border border-slate-200 shadow-sm bg-white touch-manipulation"
+                >
+                  <ArrowLeft
+                    size={20}
+                    className="group-hover:-translate-x-0.5 transition-transform w-5 h-5"
+                  />
+                </button>
+                <button
+                  onClick={handleGetTranslationHints}
+                  disabled={isLoadingTranslationHints}
+                  className="inline-flex items-center gap-2 rounded-lg border border-slate-300 bg-white px-4 py-1.5 font-bold text-slate-700 shadow-sm transition-colors hover:bg-slate-50 disabled:opacity-30 disabled:cursor-not-allowed sm:px-5 sm:py-2 sm:text-sm md:px-6 text-xs"
+                >
+                  <Lightbulb size={16} className="size-4 shrink-0" />
+                  Xem gợi ý
+                </button>
               </div>
+
+              <div className="flex items-center gap-2">
+                <button
+                  disabled={isLoadingAnswerPreview || !translation}
+                  onClick={handleGetAnswerPreview}
+                  className="inline-flex items-center gap-2 rounded-lg border-0 bg-blue-600 px-4 py-1.5 font-bold text-white shadow-sm transition-colors hover:bg-blue-700 disabled:opacity-30 disabled:cursor-not-allowed sm:px-5 sm:py-2 sm:text-sm md:px-6 text-xs"
+                >
+                  {isLoadingAnswerPreview ? (
+                    <Loader2 size={16} className="size-4 shrink-0 animate-spin" />
+                  ) : (
+                    <Check size={16} className="size-4 shrink-0" />
+                  )}
+                  Kiểm tra
+                </button>
+                {sentenceFeedback && (
+                  <button
+                    disabled={isLoadingSubmitUserSentence || translation.trim() !== sentenceFeedback?.learnerEnglish}
+                    onClick={handleNextSentence}
+                    className="inline-flex items-center gap-2 rounded-lg border-0 bg-blue-600 px-4 py-1.5 font-bold text-white shadow-sm transition-colors hover:bg-blue-700 disabled:opacity-30 disabled:cursor-not-allowed sm:px-5 sm:py-2 sm:text-sm md:px-6 text-xs"
+                  >
+                    {isLoadingSubmitUserSentence ? (
+                      <Loader2 size={16} className="size-4 shrink-0 animate-spin" />
+                    ) : (
+                      <ArrowRight size={16} className="size-4 shrink-0" />
+                    )}
+                    Tiếp theo
+                  </button>
+                )}
+
+              </div>
+
             </div>
           </div>
         </section>
@@ -297,7 +298,7 @@ const SentencePracticePage = () => {
         )}
         <aside
           className={`
-              lg:col-span-4 flex flex-col lg:h-full transition-all duration-300 ease-in-out overflow-hidden
+              lg:col-span-4 flex flex-col transition-all duration-300 ease-in-out overflow-hidden
               ${showMobileSidebar
               ? "fixed inset-x-0 bottom-0 top-20 z-50 bg-white rounded-t-2xl shadow-[0_-10px_40px_-15px_rgba(0,0,0,0.3)] p-3 sm:p-4 lg:static lg:p-0 lg:shadow-none lg:bg-transparent lg:rounded-none"
               : "hidden lg:flex"
@@ -305,7 +306,7 @@ const SentencePracticePage = () => {
           `}
         >
 
-          <div className="bg-white rounded-lg sm:rounded-xl border border-slate-200 shadow-sm flex flex-col h-full overflow-hidden relative">
+          <div className="bg-white rounded-lg sm:rounded-xl border border-slate-200 shadow-sm flex flex-col overflow-hidden relative">
             {/* Mobile Close Button */}
             <div className="lg:hidden absolute top-3 right-3 sm:top-4 sm:right-4 z-10">
               <button
