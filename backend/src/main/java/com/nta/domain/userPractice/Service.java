@@ -1,5 +1,7 @@
 package com.nta.domain.userPractice;
 
+import java.time.LocalDate;
+import java.time.ZoneOffset;
 import java.util.List;
 
 import jakarta.transaction.Transactional;
@@ -13,9 +15,11 @@ import com.nta.common.service.ai.ParagraphPromptFactory;
 import com.nta.common.service.ai.PromptMessage;
 import com.nta.domain.paragraph.Paragraph;
 import com.nta.domain.paragraph.dto.request.CreateParagraphRequest;
+import com.nta.domain.user.User;
 import com.nta.domain.userPractice.dto.request.SentenceTranslationRequest;
 import com.nta.domain.userPractice.dto.request.SubmitAnswerRequest;
 import com.nta.domain.userPractice.dto.response.UserPracticeResponse;
+import com.nta.domain.userPractice.projection.PracticeSubmitProjection;
 import com.nta.domain.userSentenceAnswer.SentenceFeedback;
 import com.nta.domain.userSentenceAnswer.UserSentenceAnswer;
 import com.nta.domain.userSentenceAnswer.dto.response.UserSentenceAnswerResponse;
@@ -38,6 +42,7 @@ public class Service {
     ChatService chatService;
     com.nta.domain.userSentenceAnswer.Repository userSentenceAnswerRepo;
     com.nta.domain.userSentenceAnswer.Mapper userSentenceAnswerMapper;
+    com.nta.domain.user.Repository userRepository;
 
     @Transactional
     UserPracticeResponse create(CreateParagraphRequest request) {
@@ -110,30 +115,29 @@ public class Service {
 
     @Transactional
     UserSentenceAnswerResponse submitAnswer(Long practiceId, SubmitAnswerRequest request) {
-        // 1. Lấy practice
-        UserPractice practice =
-                repository.findById(practiceId).orElseThrow(() -> new AppException(ErrorCode.RESOURCE_NOT_FOUND));
-
-        // 2. (Quan trọng) Validate user sở hữu practice
         Long currentUserId = commonUserService.getCurrentUserIdFromContext();
-        if (!practice.getUser().getId().equals(currentUserId)) {
+
+        // 1 query duy nhất
+        PracticeSubmitProjection data =
+                repository.findSubmitData(practiceId).orElseThrow(() -> new AppException(ErrorCode.RESOURCE_NOT_FOUND));
+
+        // validate owner
+        if (!data.getUserId().equals(currentUserId)) {
             throw new AppException(ErrorCode.NOT_OWN_PRACTICE);
         }
 
-        // 3. Lấy paragraph
-        Paragraph paragraph = practice.getParagraph();
+        // split sentence
+        List<String> sentences = SentenceUtils.splitSentences(data.getParagraphContent());
 
-        // 4. Tách câu
-        List<String> sentences = SentenceUtils.splitSentences(paragraph.getContent());
-
-        if (request.getOrderIndex() >= sentences.size()) {
+        if (request.getOrderIndex() < 0 || request.getOrderIndex() >= sentences.size()) {
             throw new IllegalArgumentException("Invalid sentence index");
         }
 
         String originalSentence = sentences.get(request.getOrderIndex());
 
+        // build answer (chỉ set practiceId)
         UserSentenceAnswer answer = UserSentenceAnswer.builder()
-                .practice(practice)
+                .practice(UserPractice.builder().id(practiceId).build()) // không load entity
                 .originalText(originalSentence)
                 .userTranslation(request.getVietnameseSentence())
                 .score(request.getFeedback().getScore())
@@ -142,6 +146,46 @@ public class Service {
 
         userSentenceAnswerRepo.save(answer);
 
+        updateDailyStreak(currentUserId);
+
         return userSentenceAnswerMapper.toUserSentenceAnswerResponse(answer);
+    }
+
+    @Transactional
+    public void updateDailyStreak(Long userId) {
+
+        User user = userRepository.findByIdForUpdate(userId).orElseThrow(() -> new RuntimeException("User not found"));
+
+        LocalDate today = LocalDate.now(ZoneOffset.UTC);
+        LocalDate lastDate = user.getLastSubmissionDate();
+
+        // Case 1: first time submit
+        if (lastDate == null) {
+            user.setCurrentStreak(1);
+            user.setLongestStreak(1);
+            user.setLastSubmissionDate(today);
+            return;
+        }
+
+        // Case 2: already submitted today -> do nothing
+        if (lastDate.isEqual(today)) {
+            return;
+        }
+
+        // Case 3: yesterday -> continue streak
+        if (lastDate.plusDays(1).isEqual(today)) {
+            int newStreak = user.getCurrentStreak() + 1;
+            user.setCurrentStreak(newStreak);
+
+            if (newStreak > user.getLongestStreak()) {
+                user.setLongestStreak(newStreak);
+            }
+
+        } else {
+            // Case 4: missed day -> reset
+            user.setCurrentStreak(1);
+        }
+
+        user.setLastSubmissionDate(today);
     }
 }

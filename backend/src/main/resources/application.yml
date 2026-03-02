@@ -14,6 +14,8 @@ spring:
     username: "root"
     password: "Admin@123"
     driverClassName: com.mysql.cj.jdbc.Driver
+  jackson:
+    time-zone: UTC
   jpa:
     show-sql: false
     hibernate:
@@ -22,6 +24,8 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.MySQLDialect
         format_sql: true
+        jdbc:
+          time_zone: UTC
   servlet:
     multipart:
       max-file-size: 10MB

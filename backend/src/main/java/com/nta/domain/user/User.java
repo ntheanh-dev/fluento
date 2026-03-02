@@ -1,5 +1,6 @@
 package com.nta.domain.user;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
@@ -52,4 +53,14 @@ public class User {
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Writing> writings;
+
+    // ===== STREAK =====
+    @Column(name = "current_streak")
+    private Integer currentStreak = 0;
+
+    @Column(name = "longest_streak")
+    private Integer longestStreak = 0;
+
+    @Column(name = "last_submission_date")
+    private LocalDate lastSubmissionDate;
 }
