@@ -1,6 +1,7 @@
 package com.nta.common.service.ai.impl;
 
 import java.time.Duration;
+import java.util.function.Consumer;
 
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.messages.SystemMessage;
@@ -125,6 +126,60 @@ public class GeminiChatService implements ChatService {
         }
     }
 
+    @Override
+    public void streamMessage(String systemMessage, String userMessage, Consumer<String> onChunk) {
+        ApiKey apiKey = commonUserService.getApiKeyFromContext();
+
+        String decryptedApiKey = apiKeyCrypto.decrypt(apiKey.getApiKey());
+
+        ChatClient chatClient =
+                getOrCreateClient(decryptedApiKey, apiKey.getModel().getApiValue());
+
+        long startTime = System.currentTimeMillis();
+
+        try {
+            chatClient.prompt(buildPrompt(systemMessage, userMessage)).stream()
+                    .content()
+                    .doOnNext(text -> {
+                        if (text != null && !text.isBlank()) {
+                            onChunk.accept(text);
+                        }
+                    })
+                    .blockLast();
+
+            long duration = System.currentTimeMillis() - startTime;
+            log.info(
+                    "AI streaming call success - model={} duration={}ms",
+                    apiKey.getModel().getApiValue(),
+                    duration);
+
+        } catch (NonTransientAiException exception) {
+            long duration = System.currentTimeMillis() - startTime;
+            log.error(
+                    "AI streaming call failed - model={} duration={}ms error={}",
+                    apiKey.getModel().getApiValue(),
+                    duration,
+                    exception.getMessage(),
+                    exception);
+
+            if (exception.getMessage() != null
+                    && exception.getMessage().contains("429")
+                    && exception.getMessage().contains("RESOURCE_EXHAUSTED")) {
+                handleApiReachLimit(apiKey);
+            }
+
+            throw new AppException(ErrorCode.AI_EXHAUSTED);
+        } catch (Exception e) {
+            long duration = System.currentTimeMillis() - startTime;
+            log.error(
+                    "AI streaming response failed - model={} duration={}ms",
+                    apiKey.getModel().getApiValue(),
+                    duration,
+                    e);
+            throw new AppException(ErrorCode.AI_RESPONSE_PARSE_ERROR);
+        }
+    }
+
     private ChatClient getOrCreateClient(String apiKey, String model) {
 
         ClientKey key = new ClientKey(apiKey, model);
@@ -137,6 +192,8 @@ public class GeminiChatService implements ChatService {
                     .defaultOptions(OpenAiChatOptions.builder()
                             .model(k.model())
                             .maxCompletionTokens(5000)
+                            .temperature(0.2)
+                            .topP(0.9)
                             .build())
                     .build();
 

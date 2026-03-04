@@ -24,4 +24,7 @@ public class UserResponse {
     Long activeApiKeyId;
     /** Điền khi GET /me?embedded=... (vd: embedded=apiKey → embedded.apiKey = [...]) */
     UserMeEmbeddedResponse embedded;
+
+    Integer currentStreak;
+    Integer longestStreak;
 }

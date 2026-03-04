@@ -1,17 +1,21 @@
 package com.nta.domain.userPractice;
 
+import java.io.IOException;
+import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 import jakarta.validation.Valid;
 
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
 import com.nta.common.dto.ApiResponse;
 import com.nta.domain.paragraph.dto.request.CreateParagraphRequest;
 import com.nta.domain.userPractice.dto.request.SentenceTranslationRequest;
 import com.nta.domain.userPractice.dto.request.SubmitAnswerRequest;
 import com.nta.domain.userPractice.dto.response.UserPracticeResponse;
-import com.nta.domain.userSentenceAnswer.SentenceFeedback;
 import com.nta.domain.userSentenceAnswer.dto.response.UserSentenceAnswerResponse;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -50,12 +54,16 @@ public class Controller {
                 .build();
     }
 
-    @PostMapping("/{practiceId}/answers/preview")
-    ApiResponse<SentenceFeedback> checkAnswer(
+    @PostMapping(value = "/{practiceId}/answers/preview/stream-markdown", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public StreamingResponseBody checkAnswerMarkdownStream(
             @PathVariable Long practiceId, @RequestBody @Valid SentenceTranslationRequest request) {
-        return ApiResponse.<SentenceFeedback>builder()
-                .result(service.translate(practiceId, request))
-                .build();
+        return outputStream -> service.streamFeedbackMarkdown(practiceId, request, chunk -> {
+            try {
+                writeChunk(outputStream, chunk);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
     }
 
     @PostMapping("/{practiceId}/answers")
@@ -64,5 +72,10 @@ public class Controller {
         return ApiResponse.<UserSentenceAnswerResponse>builder()
                 .result(service.submitAnswer(practiceId, request))
                 .build();
+    }
+
+    private void writeChunk(OutputStream outputStream, String content) throws IOException {
+        outputStream.write(content.getBytes(StandardCharsets.UTF_8));
+        outputStream.flush();
     }
 }

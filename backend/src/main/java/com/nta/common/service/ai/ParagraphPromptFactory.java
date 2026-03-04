@@ -210,100 +210,63 @@ public class ParagraphPromptFactory {
         return new PromptMessage(system, user);
     }
 
-    public PromptMessage buildFeedbackTranslationPrompt(String vietnamese, String translate) {
-        final String SYSTEM_MESSAGE_TEXT =
+    public PromptMessage buildFeedbackTranslationMarkdownPrompt(String vietnamese, String translate) {
+        String system =
                 """
-				You are an expert English language instructor specializing in helping Vietnamese learners improve their translation skills.
-				Your role is to provide comprehensive, constructive feedback that helps learners understand their mistakes and improve their English proficiency.
+			Bạn là giáo viên tiếng Anh đang hỗ trợ người học Việt Nam cải thiện kỹ năng dịch câu.
 
-				Core Principles:
-				- Be encouraging and supportive while being thorough in corrections
-				- Focus on educational value and practical learning outcomes
-				- Provide specific, actionable feedback that learners can apply immediately
-				- Consider Vietnamese language patterns that may influence translation choices
-				- Recognize cultural and linguistic differences between Vietnamese and English
+			QUY TẮC CHUNG:
+			- Trả lời HOÀN TOÀN bằng TIẾNG VIỆT, ngoại trừ ví dụ câu tiếng Anh.
+			- LUÔN trả về DUY NHẤT một JSON HỢP LỆ, KHÔNG thêm bất kỳ text, markdown hay giải thích bên ngoài JSON.
+			- Output phải BẮT ĐẦU bằng { và KẾT THÚC bằng }.
+			- KHÔNG dùng ``` hoặc bất kỳ ký hiệu code block nào.
+			- Không lặp lại cùng một lỗi nhiều lần.
+			- Ưu tiên câu ngắn, súc tích, dễ đọc, tập trung vào các lỗi quan trọng.
 
-				Response Format: Return ONLY valid JSON with no additional text or markdown.
+			JSON SCHEMA (dùng đúng key, đúng kiểu dữ liệu):
+			{
+			"correction": "string",
+			"suggestions": ["string", "string"],
+			"summary": "string",
+			"score": 0.0
+			}
 
-				JSON Schema (use exact property names):
-				{
-				"originalVietnamese": "string",
-				"learnerEnglish": "string",
-				"corrections": {
-					"spellingMistakes": [
-					{ "word": "incorrect spelling", "suggestion": "correct spelling" }
-					],
-					"vocabularyIssues": [
-					{ "word": "problematic word/phrase", "suggestion": ["better option 1", "better option 2"] }
-					],
-					"grammarErrors": [
-					{ "issue": "specific grammar problem in Vietnamese", "suggestion": "incorrect form → correct form" }
-					],
-					"sentenceStructure": [
-					{ "problem": "structural issue description in Vietnamese", "suggestion": "how to improve structure in Vietnamese" }
-					]
-				},
-				"feedback": {
-					"weaknesses": ["areas for improvement in Vietnamese as short phrases"]
-				},
-				"improvedTranslation": "polished, natural English translation",
-				"score": "number (1.0-10.0 scale)"
-				}
+			DIỄN GIẢI CHI TIẾT:
+			- correction: Câu tiếng Anh đã CHỈNH SỬA, dạng gợi ý tổng quát giống như phần "Suggestion".
+			+ Viết lại toàn bộ câu theo bản dịch đúng và tự nhiên hơn.
+			- suggestions: Danh sách 2–5 gợi ý chi tiết bằng tiếng Việt, mỗi phần tử là MỘT câu hoàn chỉnh.
+			+ Giải thích ngắn gọn từng lỗi (thì, số ít/số nhiều, từ vựng, cấu trúc câu...).
+			+ Có thể dùng `backtick` để làm nổi bật từ/cụm từ tiếng Anh hoặc thuật ngữ như `past tense`, `was`, `friends`...
+			- summary: 1 đoạn nhận xét ngắn gọn bằng tiếng Việt (1–3 câu) tổng kết các lỗi chính và lời khuyên chung.
+			- score: Điểm số tổng quan từ 1–10 (số thực, ví dụ 7.5) đánh giá chất lượng câu dịch.
 
-				Evaluation Criteria:
-				- Spelling: Check for typos and incorrect word forms
-				- Vocabulary: Assess word choice, collocation, and appropriateness
-				- Grammar: Review tense usage, subject-verb agreement, article usage, prepositions
-				- Structure: Evaluate sentence flow, word order, and natural English patterns
-				- Overall fluency: Consider how natural and idiomatic the translation sounds
+			YÊU CẦU QUAN TRỌNG:
+			- Nội dung phải phù hợp cho người học tiếng Anh trình độ phổ thông.
+			- Không chèn xuống dòng hoặc ký tự lạ bên ngoài cấu trúc JSON.
+			- Đảm bảo JSON hợp lệ: không dấu phẩy thừa, escape đúng ký tự đặc biệt.
+			""";
 
-				Corrections Language Requirements:
-				- grammarErrors.issue: Describe the grammar problem in Vietnamese (e.g., "Sử dụng sai giới từ")
-				- grammarErrors.example: Show correction in format "wrong → correct" (English examples)
-				- sentenceStructure.problem: Describe structural issue in Vietnamese (e.g., "Câu hơi cứng nhắc và có thể cải thiện")
-				- sentenceStructure.suggestion: Provide improvement suggestion in Vietnamese (e.g., "Viết lại để có luồng tiếng Anh tự nhiên hơn")
-
-				Scoring System (1-10 scale):
-				- 9-10: Excellent translation with minimal errors, natural English flow
-				- 7-8: Good translation with minor issues, mostly accurate
-				- 5-6: Adequate translation with some errors but understandable
-				- 3-4: Poor translation with significant errors affecting comprehension
-				- 1-2: Very poor translation with major errors and poor understanding
-
-				Feedback Guidelines:
-				- Weaknesses: Identify specific areas needing improvement with gentle, educational tone in Vietnamese
-				- Use Vietnamese for all explanations and comments to be user-friendly
-				- Keep English words/phrases only as examples when necessary
-				- Make feedback warm and encouraging while being constructive
-				- Score: Provide fair assessment based on overall quality and error frequency
-				""";
-
-        final String promptText = String.format(
+        String user =
                 """
-						Please evaluate the following Vietnamese-to-English translation attempt:
+				Hãy đánh giá bản dịch sau và TRẢ LỜI DUY NHẤT bằng JSON đúng theo schema đã cho.
 
-						Original Vietnamese: "%s"
-						Learner's English Translation: "%s"
+				Câu gốc (TIẾNG VIỆT):
+				\"%s\"
 
-						Analysis Tasks:
-						1. Compare the learner's translation with the original Vietnamese meaning
-						2. Identify any spelling errors and provide corrections
-						3. Evaluate vocabulary choices and suggest improvements where needed
-						4. Check grammar accuracy and highlight specific errors with examples (describe issues in Vietnamese, show corrections in English)
-						5. Assess sentence structure and suggest improvements for natural English flow (describe problems in Vietnamese, show corrections in English)
-						6. Provide encouraging feedback highlighting what the learner did well (write in Vietnamese, use English only for specific word/phrase examples)
-						7. Identify specific areas for improvement with constructive guidance (write in Vietnamese, use English only for specific word/phrase examples)
-						8. Create an improved version that maintains the original meaning while sounding natural in English
-						9. Assign a score from 1-10 based on overall translation quality
+				Bản dịch của người học (TIẾNG ANH):
+				\"%s\"
 
-						LANGUAGE GUIDELINES:
-						- Corrections descriptions: Use Vietnamese (e.g., "Sử dụng sai giới từ", "Câu hơi cứng nhắc")
-						- Correction examples: Use English format "wrong → correct"
-						- Feedback: Use Vietnamese explanations with English word/phrase examples in quotes
+				Nhiệm vụ:
+				1. Phân tích các lỗi chính về thì, từ vựng, cấu trúc câu, độ tự nhiên.
+				2. Viết lại câu tiếng Anh đã chỉnh sửa vào trường "correction".
+				3. Tạo danh sách các gợi ý chi tiết bằng tiếng Việt trong "suggestions".
+				4. Viết phần tổng kết ngắn gọn, động viên người học trong "summary".
+				5. Gán điểm tổng quan (1–10, có thể số lẻ) vào trường "score".
 
-						Return your analysis in the specified JSON format with detailed, educational feedback including score.
-						""",
-                vietnamese, translate);
-        return new PromptMessage(SYSTEM_MESSAGE_TEXT, promptText);
+				CHỈ TRẢ VỀ JSON, KHÔNG THÊM BẤT KỲ NỘI DUNG NÀO BÊN NGOÀI.
+				"""
+                        .formatted(vietnamese, translate);
+
+        return new PromptMessage(system, user);
     }
 }

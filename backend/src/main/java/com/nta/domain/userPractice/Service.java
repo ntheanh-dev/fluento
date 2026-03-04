@@ -3,6 +3,7 @@ package com.nta.domain.userPractice;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
 import java.util.List;
+import java.util.function.Consumer;
 
 import jakarta.transaction.Transactional;
 
@@ -20,7 +21,6 @@ import com.nta.domain.userPractice.dto.request.SentenceTranslationRequest;
 import com.nta.domain.userPractice.dto.request.SubmitAnswerRequest;
 import com.nta.domain.userPractice.dto.response.UserPracticeResponse;
 import com.nta.domain.userPractice.projection.PracticeSubmitProjection;
-import com.nta.domain.userSentenceAnswer.SentenceFeedback;
 import com.nta.domain.userSentenceAnswer.UserSentenceAnswer;
 import com.nta.domain.userSentenceAnswer.dto.response.UserSentenceAnswerResponse;
 
@@ -79,38 +79,13 @@ public class Service {
     }
 
     @Transactional
-    SentenceFeedback translate(Long practiceId, SentenceTranslationRequest request) {
-        // 1. Lấy practice
-        UserPractice practice =
-                repository.findById(practiceId).orElseThrow(() -> new AppException(ErrorCode.RESOURCE_NOT_FOUND));
+    void streamFeedbackMarkdown(Long practiceId, SentenceTranslationRequest request, Consumer<String> onChunk) {
+        String originalSentence = validateAndGetOriginalSentence(practiceId, request.getOrderIndex());
 
-        // 2. (Quan trọng) Validate user sở hữu practice
-        Long currentUserId = commonUserService.getCurrentUserIdFromContext();
-        if (!practice.getUser().getId().equals(currentUserId)) {
-            throw new AppException(ErrorCode.NOT_OWN_PRACTICE);
-        }
-
-        // 3. Lấy paragraph
-        Paragraph paragraph = practice.getParagraph();
-
-        // 4. Tách câu
-        List<String> sentences = SentenceUtils.splitSentences(paragraph.getContent());
-
-        if (request.getOrderIndex() >= sentences.size()) {
-            throw new IllegalArgumentException("Invalid sentence index");
-        }
-
-        String originalSentence = sentences.get(request.getOrderIndex());
-
-        // 5. Gọi AI chấm điểm
-        PromptMessage prompt = paragraphPromptFactory.buildFeedbackTranslationPrompt(
+        PromptMessage prompt = paragraphPromptFactory.buildFeedbackTranslationMarkdownPrompt(
                 originalSentence, request.getTranslatedSentence());
 
-        SentenceFeedback response = chatService
-                .sendMessage(prompt.systemMessage(), prompt.userMessage(), SentenceFeedback.class)
-                .getResult();
-
-        return response;
+        chatService.streamMessage(prompt.systemMessage(), prompt.userMessage(), onChunk);
     }
 
     @Transactional
@@ -187,5 +162,24 @@ public class Service {
         }
 
         user.setLastSubmissionDate(today);
+    }
+
+    private String validateAndGetOriginalSentence(Long practiceId, int orderIndex) {
+        UserPractice practice =
+                repository.findById(practiceId).orElseThrow(() -> new AppException(ErrorCode.RESOURCE_NOT_FOUND));
+
+        Long currentUserId = commonUserService.getCurrentUserIdFromContext();
+        if (!practice.getUser().getId().equals(currentUserId)) {
+            throw new AppException(ErrorCode.NOT_OWN_PRACTICE);
+        }
+
+        Paragraph paragraph = practice.getParagraph();
+        List<String> sentences = SentenceUtils.splitSentences(paragraph.getContent());
+
+        if (orderIndex < 0 || orderIndex >= sentences.size()) {
+            throw new IllegalArgumentException("Invalid sentence index");
+        }
+
+        return sentences.get(orderIndex);
     }
 }
