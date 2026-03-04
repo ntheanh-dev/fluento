@@ -5,12 +5,12 @@ const loginInputSchema = z
     .object({
         username: z
             .string()
-            .min(3, "Tên đăng nhập phải có ít nhất 3 ký tự")
-            .max(30, "Tên đăng nhập không được vượt quá 30 ký tự"),
+            .min(8, "Tên đăng nhập phải có ít nhất 8 ký tự")
+            .max(20, "Tên đăng nhập không được vượt quá 20 ký tự"),
         password: z
             .string()
             .min(PASSWORD_MIN, `Mật khẩu phải có ít nhất ${PASSWORD_MIN} ký tự`)
-            .max(PASSWORD_MAX, `Mật khẩu không được vượt quá ${PASSWORD_MAX} ký tự`),
+            .max(20, "Mật khẩu không được vượt quá 20 ký tự"),
     })
     .strict()
     .passthrough();
@@ -36,12 +36,12 @@ const registerInputSchema = z
             .max(100, "Họ tên không được vượt quá 100 ký tự"),
         username: z
             .string()
-            .min(3, "Tên đăng nhập phải có ít nhất 3 ký tự")
-            .max(30, "Tên đăng nhập không được vượt quá 30 ký tự"),
+            .min(8, "Tên đăng nhập phải có ít nhất 8 ký tự")
+            .max(20, "Tên đăng nhập không được vượt quá 20 ký tự"),
         password: z
             .string()
             .min(PASSWORD_MIN, `Mật khẩu phải có ít nhất ${PASSWORD_MIN} ký tự`)
-            .max(PASSWORD_MAX, `Mật khẩu không được vượt quá ${PASSWORD_MAX} ký tự`),
+            .max(20, "Mật khẩu không được vượt quá 20 ký tự"),
     })
     .strict()
     .passthrough();

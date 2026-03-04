@@ -95,7 +95,7 @@ const Login = () => {
         <div className="p-8">
           <form onSubmit={onSubmit} className="space-y-6">
             <div className="space-y-2">
-              <label className="text-sm font-bold text-slate-700">Địa chỉ email</label>
+              <label className="text-sm font-bold text-slate-700">Tên đăng nhập</label>
               <div className="relative">
                 <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
                 <input

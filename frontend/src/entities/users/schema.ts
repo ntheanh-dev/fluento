@@ -17,6 +17,8 @@ const userSchema = z.object({
             apiKey: z.array(apiKeySchema).optional(),
         })
         .optional(),
+    currentStreak: z.number(),
+    longestStreak: z.number(),
 });
 
 export type User = z.infer<typeof userSchema> & Resource;
