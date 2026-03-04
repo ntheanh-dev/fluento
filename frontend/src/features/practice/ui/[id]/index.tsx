@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useRef } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
   ArrowLeft,
@@ -14,11 +14,11 @@ import { splitIntoSentences } from "@/utils/utils";
 import type { HintContent } from "@/entities/hints/schema";
 import { message } from "antd";
 import type { SentenceFeedback } from "@/entities/userPracticeAnswer/schema";
-import { useAnswerPreviewData } from "../../hooks/useAnswerPreviewData";
 import { useSubmitUserSentence } from "../../hooks/useSubmitUserSentence";
 import { Aside } from "./Aside";
 import type { ApiError } from "@/shared/api/type";
 import { AxiosError } from "axios";
+import { useAnswerPreviewFeedbackStream } from "../../hooks/useAnswerPreviewFeedbackStream";
 
 const DEFAULT_ERROR_MESSAGE =
   "Đã xảy ra lỗi không xác định. Vui lòng thử lại sau.";
@@ -32,7 +32,7 @@ function showApiError(error: unknown, fallback = DEFAULT_ERROR_MESSAGE) {
   }
 }
 
-export type RenderAsideType = "hints" | "sentenceFeedback" | null;
+export type RenderAsideType = "hints" | "markdownFeedback" | null;
 
 const SentencePracticePage = () => {
   const { id } = useParams();
@@ -42,7 +42,6 @@ const SentencePracticePage = () => {
   const [orderIndex, setOrderIndex] = useState<number>(0);
   const [translation, setTranslation] = useState("");
   const [vietNameseSentences, setVietNameseSentences] = useState<string[]>([]);
-  const [sentenceFeedback, setSentenceFeedback] = useState<SentenceFeedback | null>();
   const [englishTranslations, setEnglishTranslations] = useState<string[]>([]);
   const [translationHints, setTranslationHints] =
     useState<HintContent | null>(null);
@@ -53,17 +52,24 @@ const SentencePracticePage = () => {
     () => ({ translatedSentence: translation, orderIndex }),
     [translation, orderIndex]
   );
+
+  const {
+    feedback,
+    isStreaming,
+    start: startFeedbackStream,
+    reset: resetFeedbackStream,
+  } = useAnswerPreviewFeedbackStream(Number(id), answerPreviewPayload);
+
   const submitPayload = useMemo(
     () => ({
       vietnameseSentence: translation,
       orderIndex,
-      feedback: sentenceFeedback as SentenceFeedback,
+      feedback: feedback as SentenceFeedback,
     }),
-    [translation, orderIndex, sentenceFeedback]
+    [translation, orderIndex, feedback]
   );
 
   const { mutateAsync: getTranslationHints, isPending: isLoadingTranslationHints } = useParagraphHints(Number(id), orderIndex);
-  const { mutateAsync: getAnswerPreview, isPending: isLoadingAnswerPreview } = useAnswerPreviewData(Number(id), answerPreviewPayload);
   const { mutateAsync: submitUserSentence, isPending: isLoadingSubmitUserSentence } = useSubmitUserSentence(Number(id), submitPayload);
 
   useEffect(() => {
@@ -95,17 +101,18 @@ const SentencePracticePage = () => {
     }
   };
 
+  const isLoadingAnswerPreview = isStreaming;
+
   const handleGetAnswerPreview = async () => {
     if (!translation.trim()) return;
-    if (isLoadingAnswerPreview) return;
-    setRenderAsideType("sentenceFeedback");
+    if (isStreaming) return;
+    setRenderAsideType("markdownFeedback");
     if (isMobile || isTablet) {
       setShowMobileSidebar(true);
     }
-    if (translation.trim() === sentenceFeedback?.learnerEnglish) return;
+    resetFeedbackStream();
     try {
-      const answerPreview = await getAnswerPreview();
-      setSentenceFeedback(answerPreview);
+      await startFeedbackStream();
     } catch (error) {
       setShowMobileSidebar(false);
       showApiError(error);
@@ -113,16 +120,16 @@ const SentencePracticePage = () => {
   };
 
   const handleNextSentence = async () => {
-    if (isLoadingSubmitUserSentence || !sentenceFeedback) return;
+    if (isLoadingSubmitUserSentence || !feedback) return;
 
     try {
       const userSentenceAnswer = await submitUserSentence();
       setEnglishTranslations([...englishTranslations, userSentenceAnswer.userTranslation]);
       setOrderIndex(orderIndex + 1);
       setTranslation("");
-      setSentenceFeedback(null);
       setTranslationHints(null);
       setRenderAsideType(null);
+      resetFeedbackStream();
     } catch (error) {
       showApiError(error);
     }
@@ -186,48 +193,34 @@ const SentencePracticePage = () => {
         {/* Left Column: Workspace (Source & Input) */}
         <section className="lg:col-span-8 flex flex-col gap-3 sm:gap-4 overflow-y-auto pr-1 sm:pr-2 custom-scrollbar">
           {/* Source Context View */}
-          <div className="flex-[10] min-h-0 bg-white rounded-lg sm:rounded-xl border border-slate-200 shadow-sm overflow-hidden flex flex-col shrink-0">
-            <div className="p-3 sm:p-4 md:p-5 bg-slate-50/50 h-full overflow-y-auto">
-              <div className=" leading-relaxed text-slate-800 font-medium space-y-3 sm:space-y-4 md:px-4">
-                <div className="leading-6 sm:leading-7">
-                  {vietNameseSentences.map((sentence, index) => (
-                    <React.Fragment key={index}>
-                      {index <= englishTranslations.length - 1 ? (
-                        // Completed sentences - show English translation
-                        <span key={index} className="relative inline">
-                          <span className="text-black py-1 font-bold whitespace-pre-line text-base">
-                            {" " + englishTranslations[index]}
-                          </span>
-                        </span>
-                      ) : (
-                        // Current and upcoming sentences
-                        index === englishTranslations.length ? (
-                          // Current sentence to translate
-                          <span key={index} className="relative inline whitespace-pre-line text-base">
-                            <span className="py-2 text-blue-600 font-bold">
-                              {" " + sentence}
-                            </span>
-                          </span>
-                        ) : (
-                          // Upcoming sentences
-                          <span key={index} className="relative inline whitespace-pre-line text-base">
-                            <span className="text-gray-600 opacity-60">
-                              {" " + sentence}
-                            </span>
-                          </span>
-                        )
-                      )}
-                    </React.Fragment>
-                  ))}
-                </div>
-              </div>
-            </div>
+          <div className="flex-[10] min-h-0 bg-slate-50/50 rounded-lg sm:rounded-xl border border-slate-200 shadow-sm overflow-hidden p-3 md:px-6 text-slate-800 font-medium h-full overflow-y-auto leading-6 sm:leading-7 space-y-3 sm:space-y-4">
+            {vietNameseSentences.map((sentence, index) => (
+              <React.Fragment key={index}>
+                {index <= englishTranslations.length - 1 ? (
+                  // Completed sentences - show English translation
+                  <span className="relative inline text-black py-1 whitespace-pre-line text-sm">
+                    {" " + englishTranslations[index]}
+                  </span>
+                ) : // Current and upcoming sentences
+                  index === englishTranslations.length ? (
+                    // Current sentence to translate
+                    <span className="relative inline whitespace-pre-line text-sm py-2 text-blue-600 font-bold">
+                      {" " + sentence}
+                    </span>
+                  ) : (
+                    // Upcoming sentences
+                    <span className="relative inline whitespace-pre-line text-sm text-gray-600 opacity-60">
+                      {" " + sentence}
+                    </span>
+                  )}
+              </React.Fragment>
+            ))}
           </div>
 
           {/* English Translation Flow (Input) */}
           <div className="flex-[2] flex flex-col flex-1">
             <textarea
-              className="w-full p-3 sm:p-4 rounded-lg sm:rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:ring-2 focus:ring-blue-100 focus:border-blue-400 outline-none text-sm sm:text-base transition-all resize-none min-h-[72px] sm:min-h-[80px]"
+              className="w-full p-4 rounded-lg sm:rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:ring-2 focus:ring-blue-100 focus:border-blue-400 outline-none text-sm sm:text-sm transition-all resize-none min-h-[72px] sm:min-h-[80px]"
               placeholder="Nhập câu dịch của bạn ở đây..."
               rows={2}
               value={translation}
@@ -268,9 +261,9 @@ const SentencePracticePage = () => {
                   )}
                   Kiểm tra
                 </button>
-                {sentenceFeedback && (
+                {feedback && (
                   <button
-                    disabled={isLoadingSubmitUserSentence || translation.trim() !== sentenceFeedback?.learnerEnglish}
+                    disabled={isLoadingSubmitUserSentence || !feedback}
                     onClick={handleNextSentence}
                     className="inline-flex items-center gap-2 rounded-lg border-0 bg-blue-600 px-4 py-1.5 font-bold text-white shadow-sm transition-colors hover:bg-blue-700 disabled:opacity-30 disabled:cursor-not-allowed sm:px-5 sm:py-2 sm:text-sm md:px-6 text-xs"
                   >
@@ -316,7 +309,14 @@ const SentencePracticePage = () => {
                 <X size={18} className="sm:w-5 sm:h-5" />
               </button>
             </div>
-            <Aside renderAsideType={renderAsideType} isLoadingAnswerPreview={isLoadingAnswerPreview} isLoadingTranslationHints={isLoadingTranslationHints} sentenceFeedback={sentenceFeedback as SentenceFeedback | null} translationHints={translationHints as HintContent | null} />
+            <Aside
+              renderAsideType={renderAsideType}
+              isLoadingAnswerPreview={isLoadingAnswerPreview}
+              isLoadingTranslationHints={isLoadingTranslationHints}
+              translationHints={translationHints as HintContent | null}
+              feedback={feedback}
+              isStreaming={isStreaming}
+            />
           </div>
         </aside>
       </main>

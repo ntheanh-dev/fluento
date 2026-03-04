@@ -43,7 +43,7 @@ const VocabularyItem = ({ word, type, pronunciation }: { word: string, type: str
     return (
         <div className="bg-white rounded-lg p-2.5 sm:p-3 border border-slate-200 shadow-sm hover:border-blue-200 transition-colors cursor-pointer">
             <div className="flex items-center justify-between gap-2 mb-1">
-                <span className="font-bold text-slate-800 text-sm sm:text-[15px] min-w-0 truncate">{word.toLocaleLowerCase()}</span>
+                <span className="text-slate-800 text-sm sm:text-[15px] min-w-0 truncate">{word.toLocaleLowerCase()}</span>
                 <button className="shrink-0 text-slate-500 hover:text-blue-700 hover:bg-blue-50 rounded-full p-1 transition-colors touch-manipulation" onClick={() => {
                     const utterance = new SpeechSynthesisUtterance(
                         word
