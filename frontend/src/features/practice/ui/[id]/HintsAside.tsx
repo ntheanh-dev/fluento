@@ -66,41 +66,48 @@ const VocabularyItem = ({ word, type, pronunciation }: { word: string, type: str
 export const HintsAside = (translationHints: HintContent | null) => {
     if (!translationHints) return null;
     return (
-        <div className="flex-1 overflow-y-auto sm:p-4 space-y-4 sm:space-y-6 custom-scrollbar bg-white my-3">
-            {translationHints.vocabularyHints.map((hint, index) => (
-                <div className="group" key={index}>
-                    <div className="flex items-center gap-2 mb-2">
-                        <h3 className="text-base sm:text-md font-bold text-slate-900 truncate">{hint.vietnamese.toLocaleLowerCase()}</h3>
-                        <div className="h-px bg-slate-200 flex-1 min-w-0" />
+        <>
+            <div>
+                <h3 className="text-base sm:text-md font-bold text-slate-900 truncate px-4 py-3">Gợi ý từ vựng & cấu trúc ngữ pháp</h3>
+                <div className="h-px bg-slate-200 flex-1 min-w-0" />
+            </div>
+            <div className="flex-1 overflow-y-auto sm:p-4 custom-scrollbar bg-white mb-2">
+                {translationHints.vocabularyHints.map((hint, index) => (
+                    <div className="group" key={index}>
+                        <div className="flex items-center gap-2 mb-2">
+                            <h3 className="text-base sm:text-md font-bold text-slate-900 truncate">{hint.vietnamese.toLocaleLowerCase()}</h3>
+                            <div className="h-px bg-slate-200 flex-1 min-w-0" />
+                        </div>
+                        <div className="space-y-2 sm:space-y-2">
+                            {hint.english.map((word, idx) => (
+                                <VocabularyItem key={idx} word={word.english} type={word.partsOfSpeech} pronunciation={word.ipaPronunciation} />
+                            ))}
+                        </div>
                     </div>
+                ))}
+                <div className="p-3 sm:p-4">
+                    <h5 className="text-xs font-bold text-blue-600 uppercase tracking-widest mb-2 flex items-center gap-2">
+                        <span className="material-symbols-outlined text-base sm:text-sm">Cấu trúc câu</span>
+                    </h5>
                     <div className="space-y-2 sm:space-y-3">
-                        {hint.english.map((word, idx) => (
-                            <VocabularyItem key={idx} word={word.english} type={word.partsOfSpeech} pronunciation={word.ipaPronunciation} />
-                        ))}
-                    </div>
-                </div>
-            ))}
-            <div className="p-3 sm:p-4">
-                <h5 className="text-xs font-bold text-blue-600 uppercase tracking-widest mb-2 flex items-center gap-2">
-                    <span className="material-symbols-outlined text-base sm:text-sm">Cấu trúc câu</span>
-                </h5>
-                <div className="space-y-2 sm:space-y-3">
-                    <div className="flex justify-between items-center gap-2 text-xs sm:text-sm">
-                        <span className="text-slate-500 shrink-0">Loại câu</span>
-                        <span className="font-semibold text-slate-900 text-right min-w-0 truncate">{translationHints?.structureHints.kindsOfSentencesAccordingToStructure.english}</span>
-                    </div>
-                    <div className="flex justify-between items-center gap-2 text-xs sm:text-sm">
-                        <span className="text-slate-500 shrink-0">Thì</span>
-                        <span className="font-semibold text-slate-900 text-right min-w-0 truncate">{translationHints?.structureHints.tenses.english}</span>
-                    </div>
-                    <div className="mt-2 sm:mt-3 p-2.5 sm:p-3 bg-blue-50/50 rounded-lg border border-blue-100">
-                        <p className="text-xs uppercase font-bold text-blue-500 sm:text-blue-400 mb-1">Target Form</p>
-                        <div className="font-mono text-[11px] sm:text-xs text-slate-700 font-medium tracking-wide break-words">
-                            {translationHints?.structureHints.tenses.form}
+                        <div className="flex justify-between items-center gap-2 text-xs sm:text-sm">
+                            <span className="text-slate-500 shrink-0">Loại câu</span>
+                            <span className="font-semibold text-slate-900 text-right min-w-0 truncate">{translationHints?.structureHints.kindsOfSentencesAccordingToStructure.english}</span>
+                        </div>
+                        <div className="flex justify-between items-center gap-2 text-xs sm:text-sm">
+                            <span className="text-slate-500 shrink-0">Thì</span>
+                            <span className="font-semibold text-slate-900 text-right min-w-0 truncate">{translationHints?.structureHints.tenses.english}</span>
+                        </div>
+                        <div className="mt-2 sm:mt-3 p-2.5 sm:p-3 bg-blue-50/50 rounded-lg border border-blue-100">
+                            <p className="text-xs uppercase font-bold text-blue-500 sm:text-blue-400 mb-1">Target Form</p>
+                            <div className="font-mono text-[11px] sm:text-xs text-slate-700 font-medium tracking-wide break-words">
+                                {translationHints?.structureHints.tenses.form}
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
+        </>
+
     )
 }

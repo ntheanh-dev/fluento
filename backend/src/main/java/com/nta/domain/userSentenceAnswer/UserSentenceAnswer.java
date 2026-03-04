@@ -36,6 +36,10 @@ public class UserSentenceAnswer {
 
     private Double score;
 
+    private Integer orderIndex;
+
+    private Boolean isSubmitted;
+
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(columnDefinition = "json")
     private SentenceFeedback feedback;

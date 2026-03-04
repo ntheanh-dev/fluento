@@ -193,7 +193,7 @@ const SentencePracticePage = () => {
         {/* Left Column: Workspace (Source & Input) */}
         <section className="lg:col-span-8 flex flex-col gap-3 sm:gap-4 overflow-y-auto pr-1 sm:pr-2 custom-scrollbar">
           {/* Source Context View */}
-          <div className="flex-[10] min-h-0 bg-slate-50/50 rounded-lg sm:rounded-xl border border-slate-200 shadow-sm overflow-hidden p-3 md:px-6 text-slate-800 font-medium h-full overflow-y-auto leading-6 sm:leading-7 space-y-3 sm:space-y-4">
+          <div className="flex-[10] min-h-0 bg-slate-50/50 rounded-lg bg-white sm:rounded-xl border border-slate-200 shadow-sm overflow-hidden p-3 md:px-6 text-slate-800 font-medium h-full overflow-y-auto leading-6 sm:leading-7 space-y-3 sm:space-y-4">
             {vietNameseSentences.map((sentence, index) => (
               <React.Fragment key={index}>
                 {index <= englishTranslations.length - 1 ? (

@@ -7,6 +7,7 @@ import java.util.function.Consumer;
 
 import jakarta.transaction.Transactional;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nta.common.enums.ErrorCode;
 import com.nta.common.exception.AppException;
 import com.nta.common.service.CommonUserService;
@@ -21,6 +22,7 @@ import com.nta.domain.userPractice.dto.request.SentenceTranslationRequest;
 import com.nta.domain.userPractice.dto.request.SubmitAnswerRequest;
 import com.nta.domain.userPractice.dto.response.UserPracticeResponse;
 import com.nta.domain.userPractice.projection.PracticeSubmitProjection;
+import com.nta.domain.userSentenceAnswer.SentenceFeedback;
 import com.nta.domain.userSentenceAnswer.UserSentenceAnswer;
 import com.nta.domain.userSentenceAnswer.dto.response.UserSentenceAnswerResponse;
 
@@ -85,7 +87,49 @@ public class Service {
         PromptMessage prompt = paragraphPromptFactory.buildFeedbackTranslationMarkdownPrompt(
                 originalSentence, request.getTranslatedSentence());
 
-        chatService.streamMessage(prompt.systemMessage(), prompt.userMessage(), onChunk);
+        StringBuilder buffer = new StringBuilder();
+
+        chatService.streamMessage(prompt.systemMessage(), prompt.userMessage(), chunk -> {
+            buffer.append(chunk);
+            onChunk.accept(chunk);
+        });
+
+        try {
+            // Sau khi stream xong, parse JSON feedback đơn giản
+            ObjectMapper mapper = new ObjectMapper();
+            SentenceFeedback feedback = mapper.readValue(buffer.toString().trim(), SentenceFeedback.class);
+
+            // Tìm bản nháp trước đó cho cùng practice + orderIndex (chưa submit)
+            var existingDraft = userSentenceAnswerRepo.findLatestDraft(practiceId, request.getOrderIndex());
+
+            if (existingDraft.isPresent()) {
+                UserSentenceAnswer answer = existingDraft.get();
+                answer.setOriginalText(originalSentence);
+                answer.setUserTranslation(request.getTranslatedSentence());
+                answer.setScore(feedback.getScore());
+                answer.setFeedback(feedback);
+                answer.setOrderIndex(request.getOrderIndex());
+                answer.setIsSubmitted(false);
+            } else {
+                UserSentenceAnswer answer = UserSentenceAnswer.builder()
+                        .practice(UserPractice.builder().id(practiceId).build())
+                        .originalText(originalSentence)
+                        .userTranslation(request.getTranslatedSentence())
+                        .score(feedback.getScore())
+                        .feedback(feedback)
+                        .orderIndex(request.getOrderIndex())
+                        .isSubmitted(false)
+                        .build();
+                userSentenceAnswerRepo.save(answer);
+            }
+
+        } catch (Exception e) {
+            log.error(
+                    "Failed to parse or persist AI feedback for practiceId={}, orderIndex={}",
+                    practiceId,
+                    request.getOrderIndex(),
+                    e);
+        }
     }
 
     @Transactional
@@ -110,16 +154,15 @@ public class Service {
 
         String originalSentence = sentences.get(request.getOrderIndex());
 
-        // build answer (chỉ set practiceId)
-        UserSentenceAnswer answer = UserSentenceAnswer.builder()
-                .practice(UserPractice.builder().id(practiceId).build()) // không load entity
-                .originalText(originalSentence)
-                .userTranslation(request.getVietnameseSentence())
-                .score(request.getFeedback().getScore())
-                .feedback(request.getFeedback())
-                .build();
+        // Lấy bản nháp feedback gần nhất cho câu này (đã được AI chấm)
+        UserSentenceAnswer answer = userSentenceAnswerRepo
+                .findLatestDraft(practiceId, request.getOrderIndex())
+                .orElseThrow(() -> new AppException(ErrorCode.THIS_METHOD_DOES_NOTE_SUPPORT_YET));
 
-        userSentenceAnswerRepo.save(answer);
+        // Đảm bảo lưu bản dịch cuối cùng của user
+        answer.setOriginalText(originalSentence);
+        answer.setUserTranslation(request.getVietnameseSentence());
+        answer.setIsSubmitted(true);
 
         updateDailyStreak(currentUserId);
 
