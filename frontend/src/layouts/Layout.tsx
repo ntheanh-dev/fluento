@@ -100,8 +100,8 @@ const Layout = () => {
 
                     <div className="flex items-center gap-3 md:gap-6">
                         <div className="hidden md:flex items-center gap-2 bg-orange-50 px-3 py-1.5 rounded-full border border-orange-100 text-orange-600">
-                            <span className="text-sm font-bold">Chuỗi 12 ngày</span>
-                            <Flame size={16} />
+                            <span className="text-sm font-bold">Chuỗi {profile?.currentStreak || 0} ngày</span>
+                            <Flame size={16} fill="currentColor" />
                         </div>
                         <Link to="/profile">
                             <div className="flex items-center gap-3">

@@ -149,7 +149,7 @@ const Profile = () => {
                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
                   Chuỗi hiện tại
                 </p>
-                <p className="text-xl font-bold text-slate-800">12 ngày</p>
+                <p className="text-xl font-bold text-slate-800">{profile?.currentStreak} ngày</p>
               </div>
             </div>
             <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center gap-4">
