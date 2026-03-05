@@ -1,6 +1,8 @@
 package com.nta.domain.user;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -35,7 +37,9 @@ public class Service {
     @org.springframework.context.annotation.Lazy
     com.nta.domain.apikey.Service apiKeyService;
 
-    private final CommonUserService commonUserService;
+    com.nta.domain.userSentenceAnswer.Repository userSentenceAnswerRepository;
+
+    CommonUserService commonUserService;
 
     /**
      * Update current user profile. Handles optional fullName, password change, and avatar upload.
@@ -108,14 +112,29 @@ public class Service {
         final UserResponse userResponse = mapper.toUserResponse(user);
         userResponse.setNoPassword(!StringUtils.hasText(user.getPassword()));
 
-        if (embedded != null
-                && java.util.Arrays.stream(embedded.split(","))
-                        .map(String::trim)
-                        .anyMatch("apiKey"::equals)) {
-            userResponse.setEmbedded(UserMeEmbeddedResponse.builder()
-                    .apiKey(apiKeyService.listMyKeysForUserId(user.getId()))
-                    .build());
+        if (embedded == null || embedded.isBlank()) {
+            return userResponse;
         }
+
+        List<String> flags =
+                Arrays.stream(embedded.split(",")).map(String::trim).toList();
+
+        UserMeEmbeddedResponse.UserMeEmbeddedResponseBuilder embeddedBuilder = UserMeEmbeddedResponse.builder();
+
+        if (flags.contains("apiKey")) {
+            embeddedBuilder.apiKey(apiKeyService.listMyKeysForUserId(user.getId()));
+        }
+
+        if (flags.contains("practiceStats")) {
+            Object[] stats = userSentenceAnswerRepository.getUserSentenceAnswerStats(user.getId());
+            if (stats != null && stats.length >= 2) {
+                Long totalAnswers = stats[0] instanceof Number ? ((Number) stats[0]).longValue() : 0L;
+                Double avgScore = stats[1] instanceof Number ? ((Number) stats[1]).doubleValue() : 0.0;
+                embeddedBuilder.totalUserSentenceAnswers(totalAnswers).avgUserSentenceAnswerScore(avgScore);
+            }
+        }
+
+        userResponse.setEmbedded(embeddedBuilder.build());
         return userResponse;
     }
 }

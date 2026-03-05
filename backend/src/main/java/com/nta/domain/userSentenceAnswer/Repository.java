@@ -19,4 +19,17 @@ public interface Repository extends JpaRepository<UserSentenceAnswer, Long> {
 			""")
     Optional<UserSentenceAnswer> findLatestDraft(
             @Param("practiceId") Long practiceId, @Param("orderIndex") Integer orderIndex);
+
+    /**
+     * Thống kê tổng số câu trả lời và điểm trung bình cho toàn bộ UserSentenceAnswer đã submit
+     * của một user (thông qua quan hệ UserPractice.user.id).
+     */
+    @Query(
+            """
+			SELECT COUNT(a), COALESCE(AVG(a.score), 0)
+			FROM UserSentenceAnswer a
+			WHERE a.isSubmitted = TRUE
+			AND a.practice.user.id = :userId
+			""")
+    Object[] getUserSentenceAnswerStats(@Param("userId") Long userId);
 }

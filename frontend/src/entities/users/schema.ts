@@ -15,6 +15,8 @@ const userSchema = z.object({
     embedded: z
         .object({
             apiKey: z.array(apiKeySchema).optional(),
+            totalUserSentenceAnswers: z.number().optional(),
+            avgUserSentenceAnswerScore: z.number().optional(),
         })
         .optional(),
     currentStreak: z.number(),

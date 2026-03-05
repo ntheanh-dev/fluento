@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import {
   User,
   History,
@@ -30,6 +30,25 @@ const Profile = () => {
   const [fullName, setFullName] = useState(profile?.fullName ?? "");
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const avatarInputRef = useRef<HTMLInputElement>(null);
+
+  const totalTranslated = useMemo(
+    () => profile?.embedded?.totalUserSentenceAnswers ?? 0,
+    [profile?.embedded?.totalUserSentenceAnswers],
+  );
+
+  const avgScorePercent = useMemo(() => {
+    if (!profile?.embedded?.avgUserSentenceAnswerScore) return 0;
+    // backend trả điểm dạng 0-10 hoặc 0-100? Giả sử 0-10 -> convert sang %
+    const score = profile.embedded.avgUserSentenceAnswerScore;
+    if (score <= 1.0) {
+      // nếu backend dùng 0-1 thì nhân 100
+      return Math.round(score * 100);
+    }
+    if (score <= 10) {
+      return Math.round((score / 10) * 100);
+    }
+    return Math.round(score);
+  }, [profile?.embedded?.avgUserSentenceAnswerScore]);
 
   useEffect(() => {
     setFullName(profile?.fullName ?? "");
@@ -160,7 +179,9 @@ const Profile = () => {
                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
                   Đã dịch
                 </p>
-                <p className="text-xl font-bold text-slate-800">1,248</p>
+                <p className="text-xl font-bold text-slate-800">
+                  {totalTranslated.toLocaleString("vi-VN")}
+                </p>
               </div>
             </div>
             <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center gap-4">
@@ -171,7 +192,9 @@ const Profile = () => {
                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
                   Điểm trung bình
                 </p>
-                <p className="text-xl font-bold text-slate-800">92%</p>
+                <p className="text-xl font-bold text-slate-800">
+                  {avgScorePercent}%
+                </p>
               </div>
             </div>
           </div>
