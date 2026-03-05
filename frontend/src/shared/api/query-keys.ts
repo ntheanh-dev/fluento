@@ -5,4 +5,5 @@ export const OK = {
   userPractice: (id: number) => ["userPractice", id] as const,
   usePracticeParagraphHints: (id: number, orderIndex: number) => ["usePracticeParagraphHints", id, orderIndex] as const,
   usePracticeAnswerPreview: (id: number, orderIndex: number) => ["usePracticeAnswerPreview", id, orderIndex] as const,
+  RANKINGS: "rankings",
 };
