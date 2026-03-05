@@ -1,10 +1,14 @@
 package com.nta.domain.user;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -16,7 +20,9 @@ import com.nta.common.service.CommonUserService;
 import com.nta.common.service.cloudinary.CloudinaryFileUploadService;
 import com.nta.domain.user.dto.request.UpdateMeRequest;
 import com.nta.domain.user.dto.response.UserMeEmbeddedResponse;
+import com.nta.domain.user.dto.response.UserRankingResponse;
 import com.nta.domain.user.dto.response.UserResponse;
+import com.nta.domain.user.projection.UserRankingProjection;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -136,5 +142,28 @@ public class Service {
 
         userResponse.setEmbedded(embeddedBuilder.build());
         return userResponse;
+    }
+
+    public Page<UserRankingResponse> getRankings(int page, int size, String keyword) {
+        PageRequest pageable = PageRequest.of(page, size);
+        Page<UserRankingProjection> rawPage = repository.findUserRankings(keyword, pageable);
+
+        List<UserRankingResponse> content = new ArrayList<>();
+        long startRank = (long) rawPage.getNumber() * rawPage.getSize() + 1;
+        int index = 0;
+
+        for (UserRankingProjection p : rawPage.getContent()) {
+            long rank = startRank + index++;
+            content.add(UserRankingResponse.builder()
+                    .rank(rank)
+                    .fullName(p.getFullName())
+                    .urlAvatar(p.getUrlAvatar())
+                    .avgScore(p.getAvgScore())
+                    .totalUserSentenceAnswers(p.getTotalUserSentenceAnswers())
+                    .currentStreak(p.getCurrentStreak())
+                    .build());
+        }
+
+        return new PageImpl<>(content, rawPage.getPageable(), rawPage.getTotalElements());
     }
 }

@@ -2,6 +2,7 @@ package com.nta.domain.user;
 
 import jakarta.validation.Valid;
 
+import org.springframework.data.domain.Page;
 import org.springframework.http.MediaType;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
@@ -11,6 +12,7 @@ import com.nta.common.dto.ApiResponse;
 import com.nta.common.enums.ErrorCode;
 import com.nta.common.exception.AppException;
 import com.nta.domain.user.dto.request.*;
+import com.nta.domain.user.dto.response.UserRankingResponse;
 import com.nta.domain.user.dto.response.UserResponse;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -52,6 +54,16 @@ public class Controller {
         return ApiResponse.<UserResponse>builder()
                 .result(service.updateMe(profile, avatar))
                 .message("Profile updated successfully")
+                .build();
+    }
+
+    @GetMapping("/rankings")
+    ApiResponse<Page<UserRankingResponse>> getRankings(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) String keyword) {
+        return ApiResponse.<Page<UserRankingResponse>>builder()
+                .result(service.getRankings(page, size, keyword))
                 .build();
     }
 }

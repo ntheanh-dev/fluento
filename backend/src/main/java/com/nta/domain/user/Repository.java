@@ -1,13 +1,18 @@
 package com.nta.domain.user;
 
+import java.time.LocalDate;
 import java.util.Optional;
 
 import jakarta.persistence.LockModeType;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+
+import com.nta.domain.user.projection.UserRankingProjection;
 
 import feign.Param;
 
@@ -24,4 +29,32 @@ public interface Repository extends JpaRepository<User, Long> {
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("select u from User u where u.id = :id")
     Optional<User> findByIdForUpdate(@Param("id") Long id);
+
+    @Query(
+            value =
+                    """
+					SELECT u.id AS id,
+						u.fullName AS fullName,
+						u.urlAvatar AS urlAvatar,
+						COALESCE(COUNT(a), 0) AS totalUserSentenceAnswers,
+						COALESCE(AVG(a.score), 0) AS avgScore,
+						u.currentStreak AS currentStreak
+					FROM User u
+					LEFT JOIN UserPractice p ON p.user.id = u.id
+					LEFT JOIN UserSentenceAnswer a ON a.practice.id = p.id AND a.isSubmitted = TRUE
+					WHERE (:keyword IS NULL OR :keyword = '' OR LOWER(u.fullName) LIKE LOWER(CONCAT('%', :keyword, '%')))
+					GROUP BY u.id, u.fullName, u.urlAvatar, u.currentStreak
+					ORDER BY avgScore DESC, totalUserSentenceAnswers DESC, u.currentStreak DESC
+					""",
+            countQuery =
+                    """
+					SELECT COUNT(u)
+					FROM User u
+					WHERE (:keyword IS NULL OR :keyword = '' OR LOWER(u.fullName) LIKE LOWER(CONCAT('%', :keyword, '%')))
+					""")
+    Page<UserRankingProjection> findUserRankings(@Param("keyword") String keyword, Pageable pageable);
+
+    @Modifying
+    @Query("UPDATE User u SET u.currentStreak = 0 WHERE u.lastSubmissionDate IS NULL OR u.lastSubmissionDate < ?1")
+    int resetBrokenStreaks(LocalDate thresholdDate);
 }
