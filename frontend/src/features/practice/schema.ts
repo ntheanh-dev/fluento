@@ -7,7 +7,6 @@ const practiceSetupSchema = z.object({
     level: z.enum(LEVELS.map((level) => level.value)),
     tone: z.enum(TONES.flatMap((tone) => tone.value)),
     sentenceCount: z.enum(SENTENCE_COUNTS.map((sentenceCount) => sentenceCount.value)),
-    customText: z.string().optional(),
 });
 
 

@@ -15,10 +15,7 @@ public class ParagraphPromptFactory {
 
         return switch (request.getType()) {
             case BASIC -> buildBasicPrompt(request);
-
             case STORY, EMAIL, IELTS_TASK1, IELTS_TASK2 -> buildWritingPrompt(request);
-
-            case CUSTOM_TEXT -> buildCustomPrompt(request);
         };
     }
 
@@ -141,24 +138,6 @@ public class ParagraphPromptFactory {
                 sentenceCount,
                 typeInstruction,
                 request.getLevel());
-
-        return new PromptMessage(system, user);
-    }
-
-    private PromptMessage buildCustomPrompt(CreateParagraphRequest request) {
-
-        String system = """
-				You are a language detector.
-				Answer ONLY "YES" or "NO".
-				""";
-
-        String user = """
-				Is the following text written in English?
-
-				Text:
-				%s
-				"""
-                .formatted(request.getCustomText());
 
         return new PromptMessage(system, user);
     }

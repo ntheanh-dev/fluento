@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import {
   AlignLeft,
   FileText,
-  PenLine,
   Globe,
   Brain,
   MessageSquare,
@@ -26,9 +25,7 @@ import { message, Spin } from "antd";
 const PracticeSetup = () => {
   const navigate = useNavigate();
 
-  const [mode, setMode] = useState<"sentence" | "paragraph" | "custom">(
-    "paragraph",
-  );
+  const [mode, setMode] = useState<"sentence" | "paragraph">("paragraph");
 
   const { mutateAsync: createUserPractice, isPending } =
     useCreateUserPracticeMutation();
@@ -40,7 +37,6 @@ const PracticeSetup = () => {
   const [tone, setTone] = useState<string>("FORMAL");
   const [type, setType] = useState<string>("BASIC");
   const [sentenceCount, setSentenceCount] = useState<string>("FIVE");
-  const [customText, setCustomText] = useState<string>("");
 
   const handleStart = async () => {
     const payload: PracticeSetupInput = {
@@ -49,7 +45,6 @@ const PracticeSetup = () => {
       level: level,
       tone: tone,
       sentenceCount: sentenceCount,
-      customText: mode === "custom" ? customText : undefined,
     };
 
     try {
@@ -85,7 +80,6 @@ const PracticeSetup = () => {
     setTone("FORMAL");
     setType("BASIC");
     setSentenceCount("FIVE");
-    setCustomText("");
   };
 
   return (
@@ -124,17 +118,6 @@ const PracticeSetup = () => {
             >
               <AlignLeft size={16} />
               Dịch theo câu
-            </button>
-
-            <button
-              onClick={() => setMode("custom")}
-              className={`flex-1 px-4 py-2.5 rounded-lg flex items-center justify-center gap-2 ${mode === "custom"
-                ? "bg-white text-blue-600 shadow-sm font-bold"
-                : "text-slate-500"
-                }`}
-            >
-              <PenLine size={16} />
-              Tự do
             </button>
           </div>
         </div>
@@ -201,9 +184,7 @@ const PracticeSetup = () => {
                       Loại bài
                     </label>
                     <div className="grid grid-cols-2 gap-2">
-                      {PRACTICE_TYPES.filter(
-                        (t) => t.value !== "CUSTOM_TEXT",
-                      ).map((item) => (
+                      {PRACTICE_TYPES.map((item) => (
                         <button
                           key={item.value}
                           onClick={() => setType(item.value)}
@@ -299,24 +280,6 @@ const PracticeSetup = () => {
           </>
         )}
 
-        {/* ================= CUSTOM MODE ================= */}
-        {mode === "custom" && (
-          <div className="space-y-6">
-            <h2 className="text-xl font-bold">Đoạn văn tiếng Việt của bạn</h2>
-
-            <textarea
-              value={customText}
-              onChange={(e) => setCustomText(e.target.value)}
-              className="w-full min-h-[300px] rounded-xl border-2 border-slate-200 p-5"
-              placeholder="Dán đoạn văn tiếng Việt vào đây..."
-            />
-
-            <div className="text-sm text-slate-400">
-              {customText.length} ký tự
-            </div>
-          </div>
-        )}
-
         {/* FOOTER */}
         <div className="flex justify-between items-center pt-6 border-t mt-8">
           <div className="flex items-center gap-2 text-slate-400">
@@ -334,7 +297,7 @@ const PracticeSetup = () => {
 
             <button
               onClick={handleStart}
-              disabled={mode === "custom" && customText.length < 10 || isPending}
+              disabled={isPending}
               className="px-8 py-3 bg-blue-600 text-white rounded-xl font-bold flex items-center gap-2 disabled:opacity-50"
             >
               Bắt đầu

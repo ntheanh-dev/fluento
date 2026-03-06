@@ -1,7 +1,5 @@
 package com.nta.domain.hint.dto.request;
 
-import com.nta.domain.paragraph.validation.ValidParagraphRequest;
-
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -13,7 +11,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 @Schema(description = "Request to generate a paragraph based on given constraints")
-@ValidParagraphRequest
 public class HintTranslationRequest {
     @Schema(description = "Vietnamese sentence to translate", example = "Xin chào", defaultValue = "")
     private String vietnameseSentence;

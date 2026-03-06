@@ -52,7 +52,6 @@ export interface WritingGenerationRequest {
   language: string;
   sentenceCount: number;
   tone: string;
-  customText?: string;
 }
 
 // Writing generation response interface

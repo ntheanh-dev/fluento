@@ -115,7 +115,6 @@ export const TOPIC_GROUPS = [
     { value: "IELTS_TASK2", label: "IELTS Writing Task 2" },
     { value: "EMAIL", label: "Viết Email" },
     { value: "STORY", label: "Viết Câu chuyện" },
-    { value: "CUSTOM_TEXT", label: "Đoạn văn tự nhập" },
   ];
   
   // ======================

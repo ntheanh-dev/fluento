@@ -32,24 +32,8 @@ public class Service {
     public Paragraph findOrcreate(CreateParagraphRequest request) {
         return switch (request.getType()) {
             case BASIC -> handleBasicParagraph(request);
-            case CUSTOM_TEXT -> handleCustomParagraph(request);
             case STORY, EMAIL, IELTS_TASK1, IELTS_TASK2 -> handleOtherParagraph(request);
         };
-    }
-
-    private Paragraph handleCustomParagraph(CreateParagraphRequest request) {
-        PromptMessage prompt = promptFactory.buildPrompt(request);
-        String response = chatService
-                .sendMessage(prompt.systemMessage(), prompt.userMessage(), String.class)
-                .getResult();
-
-        boolean isEnglish = response.trim().equalsIgnoreCase("YES");
-
-        if (!isEnglish) {
-            throw new IllegalArgumentException("Custom text must be written in English");
-        }
-        Paragraph paragraph = mapper.toParagraph(request);
-        return repository.save(paragraph);
     }
 
     private Paragraph handleBasicParagraph(CreateParagraphRequest request) {
