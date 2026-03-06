@@ -36,21 +36,8 @@ export interface VocabularyHint {
   english: string[];
 }
 
-export interface StructureHint {
-  kindsOfSentencesAccordingToStructure: {
-    vietnamese: string;
-    english: string;
-  };
-  tenses: {
-    vietnamese: string;
-    english: string;
-    form: string;
-  };
-}
-
 export interface TranslationHintsResponse {
   vocabularyHints: VocabularyHint[];
-  structureHints: StructureHint;
 }
 
 // Translation check response types

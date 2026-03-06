@@ -2,12 +2,9 @@ package com.nta.domain.user;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Set;
 
 import jakarta.persistence.*;
-
-import com.nta.domain.writing.Writing;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -51,10 +48,6 @@ public class User {
     @Column(name = "created_at")
     private LocalDateTime createdAt = LocalDateTime.now();
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Writing> writings;
-
-    // ===== STREAK =====
     @Column(name = "current_streak")
     private Integer currentStreak = 0;
 

@@ -165,7 +165,7 @@ public class ParagraphPromptFactory {
 
     public PromptMessage buildHintTranslationPrompt(String sentence, String level) {
         final String system =
-                "You are an expert English learning assistant specializing in helping Vietnamese learners understand sentence structure and vocabulary. "
+                "You are an expert English learning assistant specializing in helping Vietnamese learners understand vocabulary. "
                         + "Your role is to provide comprehensive, educational hints that help learners translate Vietnamese sentences to English effectively. "
                         + "You must return ONLY valid JSON with no additional text, markdown, or explanations outside the JSON structure. "
                         + "Be precise, educational, and focus on practical learning insights.\n\n"
@@ -181,17 +181,11 @@ public class ParagraphPromptFactory {
                         + "{\n"
                         + "  \"vocabularyHints\": [\n"
                         + "    { \"vietnamese\": \"word/phrase\", \"english\": [{\"english\": \"translation1\", \"partsOfSpeech\": \"part of speech\", \"ipaPronunciation\": \"ipa pronunciation\"}, {\"english\": \"translation2\", \"partsOfSpeech\": \"part of speech\", \"ipaPronunciation\": \"ipa pronunciation\"}] }\n"
-                        + "  ],\n"
-                        + "  \"structureHints\": {\n"
-                        + "    \"kindsOfSentencesAccordingToStructure\": { \"vietnamese\": \"loại câu\", \"english\": \"sentence type\" },\n"
-                        + "    \"tenses\": { \"vietnamese\": \"thì trong tiếng Việt\", \"english\": \"English tense\", \"form\": \"grammar pattern\" }\n"
-                        + "  }\n"
+                        + "  ]\n"
                         + "}\n\n"
                         + "Detailed Requirements:\n"
                         + "- vocabularyHints: Extract ALL key words/phrases with their most appropriate English translations for "
                         + level + " level. Include multiple translations when relevant.\n"
-                        + "- kindsOfSentencesAccordingToStructure: Identify sentence type (simple/compound/complex) in both languages with proper Vietnamese terminology.\n"
-                        + "- tenses: Identify the main tense/aspect with Vietnamese name, English equivalent, and grammatical pattern (e.g., 'S + V + O', 'S + have/has + V3').\n"
                         + "- Provide educational value by choosing translations that help learners understand context and usage appropriate for "
                         + level + " level.\n"
                         + "- Maintain JSON validity - no trailing commas, proper escaping, exact property names.";

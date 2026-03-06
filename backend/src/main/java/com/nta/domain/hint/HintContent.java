@@ -12,8 +12,6 @@ import lombok.NoArgsConstructor;
 public class HintContent {
     private List<VocabularyHint> vocabularyHints;
 
-    private StructureHints structureHints;
-
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
@@ -31,30 +29,7 @@ public class HintContent {
         private String ipaPronunciation;
     }
 
-    @Data
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class StructureHints {
-        private SentenceStructure kindsOfSentencesAccordingToStructure;
-        private Tense tenses;
-    }
-
-    @Data
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class SentenceStructure {
-        private String vietnamese;
-        private String english;
-    }
-
-    @Data
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class Tense {
-        private String vietnamese;
-        private String english;
-        private String form;
-    }
+    // Structure-related hints (sentence types, tenses, etc.) have been removed.
 }
 // example
 /*
