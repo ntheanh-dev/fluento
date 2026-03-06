@@ -32,6 +32,19 @@ function showApiError(error: unknown, fallback = DEFAULT_ERROR_MESSAGE) {
   }
 }
 
+function normalizeSentence(text: string): string {
+  const trimmed = text.trim();
+  if (!trimmed) return text;
+
+  let result = trimmed.charAt(0).toUpperCase() + trimmed.slice(1);
+
+  if (!/[.!?]["']?$/.test(result)) {
+    result = `${result}.`;
+  }
+
+  return result;
+}
+
 export type RenderAsideType = "hints" | "markdownFeedback" | null;
 
 const SentencePracticePage = () => {
@@ -46,10 +59,14 @@ const SentencePracticePage = () => {
   const [translationHints, setTranslationHints] =
     useState<HintContent | null>(null);
   const [renderAsideType, setRenderAsideType] = useState<RenderAsideType>(null);
+  const [lastCheckedTranslation, setLastCheckedTranslation] = useState<string | null>(null);
   const { data, error: errorUserPracticeData } = useUserPracticeData(Number(id));
 
   const answerPreviewPayload = useMemo(
-    () => ({ translatedSentence: translation, orderIndex }),
+    () => ({
+      translatedSentence: normalizeSentence(translation),
+      orderIndex,
+    }),
     [translation, orderIndex]
   );
 
@@ -62,7 +79,7 @@ const SentencePracticePage = () => {
 
   const submitPayload = useMemo(
     () => ({
-      vietnameseSentence: translation,
+      vietnameseSentence: normalizeSentence(translation),
       orderIndex,
       feedback: feedback as SentenceFeedback,
     }),
@@ -106,6 +123,13 @@ const SentencePracticePage = () => {
   const handleGetAnswerPreview = async () => {
     if (!translation.trim()) return;
     if (isStreaming) return;
+
+    const normalized = normalizeSentence(translation);
+    if (normalized !== translation) {
+      setTranslation(normalized);
+    }
+    setLastCheckedTranslation(normalized);
+
     setRenderAsideType("markdownFeedback");
     if (isMobile || isTablet) {
       setShowMobileSidebar(true);
@@ -122,6 +146,15 @@ const SentencePracticePage = () => {
   const handleNextSentence = async () => {
     if (isLoadingSubmitUserSentence || !feedback) return;
 
+    if (!lastCheckedTranslation || lastCheckedTranslation !== translation) {
+      return;
+    }
+
+    const normalized = normalizeSentence(translation);
+    if (normalized !== translation) {
+      setTranslation(normalized);
+    }
+
     try {
       const userSentenceAnswer = await submitUserSentence();
       setEnglishTranslations([...englishTranslations, userSentenceAnswer.userTranslation]);
@@ -129,6 +162,7 @@ const SentencePracticePage = () => {
       setTranslation("");
       setTranslationHints(null);
       setRenderAsideType(null);
+      setLastCheckedTranslation(null);
       resetFeedbackStream();
     } catch (error) {
       showApiError(error);
@@ -186,9 +220,6 @@ const SentencePracticePage = () => {
           <span className="text-[10px] md:text-xs font-bold text-blue-600">{progressPercent}%</span>
         </div>
       </div>
-
-
-
       <main className="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-3 sm:gap-4 overflow-hidden sm:pb-4 sm:px-0">
         {/* Left Column: Workspace (Source & Input) */}
         <section className="lg:col-span-8 flex flex-col gap-3 sm:gap-4 overflow-y-auto pr-1 sm:pr-2 custom-scrollbar">
@@ -263,7 +294,12 @@ const SentencePracticePage = () => {
                 </button>
                 {feedback && (
                   <button
-                    disabled={isLoadingSubmitUserSentence || !feedback}
+                    disabled={
+                      isLoadingSubmitUserSentence ||
+                      !feedback ||
+                      !lastCheckedTranslation ||
+                      lastCheckedTranslation !== translation
+                    }
                     onClick={handleNextSentence}
                     className="inline-flex items-center gap-2 rounded-lg border-0 bg-blue-600 px-4 py-1.5 font-bold text-white shadow-sm transition-colors hover:bg-blue-700 disabled:opacity-30 disabled:cursor-not-allowed sm:px-5 sm:py-2 sm:text-sm md:px-6 text-xs"
                   >
@@ -299,7 +335,7 @@ const SentencePracticePage = () => {
           `}
         >
 
-          <div className="bg-white rounded-lg sm:rounded-xl border border-slate-200 shadow-sm flex flex-col overflow-hidden relative">
+          <div className="bg-white rounded-lg h-full sm:rounded-xl border border-slate-200 shadow-sm flex flex-col overflow-hidden relative">
             {/* Mobile Close Button */}
             <div className="lg:hidden absolute top-3 right-3 sm:top-4 sm:right-4 z-10">
               <button
