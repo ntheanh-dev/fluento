@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
   ArrowLeft,
@@ -7,6 +7,7 @@ import {
   X,
   Check,
   Loader2,
+  Clock,
 } from "lucide-react";
 import { useDeviceType } from "@/shared/utilities/useDeviceType";
 import { useParagraphHints, useUserPracticeData } from "../../hooks/useUserPractice";
@@ -45,6 +46,12 @@ function normalizeSentence(text: string): string {
   return result;
 }
 
+function formatElapsed(seconds: number): string {
+  const m = Math.floor(seconds / 60);
+  const s = seconds % 60;
+  return `${m}:${s.toString().padStart(2, "0")}`;
+}
+
 export type RenderAsideType = "hints" | "markdownFeedback" | null;
 
 const SentencePracticePage = () => {
@@ -60,6 +67,8 @@ const SentencePracticePage = () => {
     useState<HintContent | null>(null);
   const [renderAsideType, setRenderAsideType] = useState<RenderAsideType>(null);
   const [lastCheckedTranslation, setLastCheckedTranslation] = useState<string | null>(null);
+  const [elapsedSeconds, setElapsedSeconds] = useState(0);
+  const startedAtRef = useRef<number | null>(null);
   const { data, error: errorUserPracticeData } = useUserPracticeData(Number(id));
 
   const answerPreviewPayload = useMemo(
@@ -82,6 +91,9 @@ const SentencePracticePage = () => {
       vietnameseSentence: normalizeSentence(translation),
       orderIndex,
       feedback: feedback as SentenceFeedback,
+      ...(startedAtRef.current != null
+        ? { learningTime: Date.now() - startedAtRef.current }
+        : {}),
     }),
     [translation, orderIndex, feedback]
   );
@@ -94,11 +106,25 @@ const SentencePracticePage = () => {
       setVietNameseSentences(splitIntoSentences(data.paragraph.content));
       setEnglishTranslations(data.sentenceAnswers?.map((a) => a.userTranslation));
       setOrderIndex(data.sentenceAnswers?.length || 0);
+      if (startedAtRef.current === null) {
+        // Resume from saved learningTime on refresh; backend stores ms
+        const baseMs = Number(data.learningTime ?? 0);
+        startedAtRef.current = Date.now() - baseMs;
+        setElapsedSeconds(Math.floor(baseMs / 1000));
+      }
     }
     if (errorUserPracticeData) {
       message.error((errorUserPracticeData as unknown as ApiError).message);
     }
   }, [id, data, errorUserPracticeData]);
+
+  useEffect(() => {
+    if (startedAtRef.current === null) return;
+    const interval = setInterval(() => {
+      setElapsedSeconds(Math.floor((Date.now() - startedAtRef.current!) / 1000));
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [data, errorUserPracticeData]);
 
   const [showMobileSidebar, setShowMobileSidebar] = useState(false);
 
@@ -211,6 +237,18 @@ const SentencePracticePage = () => {
               <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Level</span>
               <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-50 text-blue-700">{data?.paragraph.level}</span>
             </div>
+            {data && (
+              <div className="h-8 w-px bg-slate-100"></div>
+            )}
+            {data && (
+              <div className="flex flex-col items-start">
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Thời gian</span>
+                <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-700">
+                  <Clock size={14} className="text-slate-500" />
+                  {formatElapsed(elapsedSeconds)}
+                </span>
+              </div>
+            )}
           </div>
         </div>
         <div className="flex-[2] hidden md:flex items-center gap-4 lg:gap-6 w-full">

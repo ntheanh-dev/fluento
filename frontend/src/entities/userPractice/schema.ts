@@ -15,4 +15,6 @@ export interface SubmitAnswerRequest {
   vietnameseSentence: string;
   orderIndex: number;
   feedback: SentenceFeedback;
+  /** Time spent in ms (optional, sent when submitting last sentence) */
+  learningTime?: number;
 }

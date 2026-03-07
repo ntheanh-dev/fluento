@@ -164,6 +164,14 @@ public class Service {
         answer.setUserTranslation(request.getVietnameseSentence());
         answer.setIsSubmitted(true);
 
+        // Save learningTime on every submit
+        if (request.getLearningTime() != null) {
+            UserPractice practice =
+                    repository.findById(practiceId).orElseThrow(() -> new AppException(ErrorCode.RESOURCE_NOT_FOUND));
+            practice.setLearningTime(request.getLearningTime());
+            repository.save(practice);
+        }
+
         updateDailyStreak(currentUserId);
 
         return userSentenceAnswerMapper.toUserSentenceAnswerResponse(answer);

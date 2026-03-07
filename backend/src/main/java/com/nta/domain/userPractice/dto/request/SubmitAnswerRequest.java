@@ -35,4 +35,7 @@ public class SubmitAnswerRequest {
     @Schema(description = "Feedback")
     @NotNull(message = "Feedback is required")
     private SentenceFeedback feedback;
+
+    @Schema(description = "Time spent in milliseconds (optional, sent when submitting last sentence)")
+    private Long learningTime;
 }
