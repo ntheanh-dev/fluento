@@ -3,7 +3,6 @@ package com.nta.domain.paragraph.enums;
 import java.util.Arrays;
 
 public enum SentenceCount {
-    FIVE(5),
     TEN(10),
     FIFTEEN(15),
     TWENTY(20),

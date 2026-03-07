@@ -98,7 +98,6 @@ export const TOPIC_GROUPS = [
   // ======================
   
   export const SENTENCE_COUNTS = [
-    { value: "FIVE", label: "5 câu" },
     { value: "TEN", label: "10 câu" },
     { value: "FIFTEEN", label: "15 câu" },
     { value: "TWENTY", label: "20 câu" },

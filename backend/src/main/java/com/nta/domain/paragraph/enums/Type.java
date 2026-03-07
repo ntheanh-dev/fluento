@@ -7,7 +7,8 @@ public enum Type {
     IELTS_TASK1("IELTS_TASK1", "IELTS Writing Task 1"),
     IELTS_TASK2("IELTS_TASK2", "IELTS Writing Task 2"),
     EMAIL("EMAIL", "Email Writing"),
-    STORY("STORY", "Story Writing");
+    STORY("STORY", "Story Writing"),
+    SINGLE_SENTENCE("SINGLE_SENTENCE", "Single Sentence");
 
     private final String code;
     private final String displayName;

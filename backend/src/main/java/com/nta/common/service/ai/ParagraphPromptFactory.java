@@ -16,6 +16,7 @@ public class ParagraphPromptFactory {
         return switch (request.getType()) {
             case BASIC -> buildBasicPrompt(request);
             case STORY, EMAIL, IELTS_TASK1, IELTS_TASK2 -> buildWritingPrompt(request);
+            case SINGLE_SENTENCE -> buildSingleSentencePrompt(request);
         };
     }
 
@@ -138,6 +139,40 @@ public class ParagraphPromptFactory {
                 sentenceCount,
                 typeInstruction,
                 request.getLevel());
+
+        return new PromptMessage(system, user);
+    }
+
+    private PromptMessage buildSingleSentencePrompt(CreateParagraphRequest request) {
+        String system =
+                """
+				You are an expert English teacher creating learning materials for Vietnamese learners.
+				Your task is to generate Vietnamese sentences that students will translate into English.
+				Sentences must be natural, grammatically correct, and appropriate for the given English level.
+				Only output the sentences with no explanations.
+				""";
+
+        String user = String.format(
+                """
+				Generate about %d Vietnamese sentences for English translation practice.
+
+				Topic: %s
+				English level: %s
+				Tone: %s
+
+				Requirements:
+				- Use a variety of sentence types:
+				* statements
+				* questions
+				* exclamations
+				* requests
+				* suggestions
+				- Sentences should feel natural in daily life
+				- Keep vocabulary suitable for the specified level
+				- Each sentence must be on a new line
+				- Do NOT include numbering, bullet points, or explanations
+				""",
+                request.getSentenceCount().getSize(), request.getTopic(), request.getLevel(), request.getTone());
 
         return new PromptMessage(system, user);
     }

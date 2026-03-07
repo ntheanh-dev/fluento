@@ -33,6 +33,7 @@ public class Service {
         return switch (request.getType()) {
             case BASIC -> handleBasicParagraph(request);
             case STORY, EMAIL, IELTS_TASK1, IELTS_TASK2 -> handleOtherParagraph(request);
+            case SINGLE_SENTENCE -> handleSingleSentence(request);
         };
     }
 
@@ -59,5 +60,15 @@ public class Service {
 
     public HintContent getOrCreateHint(Long paraId, Integer orderIndex) {
         return hintService.getOrCreateByParagraphId(paraId, orderIndex);
+    }
+
+    private Paragraph handleSingleSentence(CreateParagraphRequest request) {
+        PromptMessage prompt = promptFactory.buildPrompt(request);
+        String response = chatService
+                .sendMessage(prompt.systemMessage(), prompt.userMessage(), String.class)
+                .getResult();
+        Paragraph paragraph = mapper.toParagraph(request);
+        paragraph.setContent(response);
+        return repository.save(paragraph);
     }
 }

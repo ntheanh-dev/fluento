@@ -37,6 +37,6 @@ public class CreateParagraphRequest {
     @Schema(description = "Difficulty level", example = "A2")
     private Level level;
 
-    @Schema(description = "Sentence count", example = "10")
+    @Schema(description = "Sentence count", example = "TEN")
     private SentenceCount sentenceCount;
 }

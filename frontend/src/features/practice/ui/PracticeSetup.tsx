@@ -36,7 +36,7 @@ const PracticeSetup = () => {
   const [level, setLevel] = useState<string>("B1");
   const [tone, setTone] = useState<string>("FORMAL");
   const [type, setType] = useState<string>("BASIC");
-  const [sentenceCount, setSentenceCount] = useState<string>("FIVE");
+  const [sentenceCount, setSentenceCount] = useState<string>("TEN");
 
   const handleStart = async () => {
     const payload: PracticeSetupInput = {
@@ -79,7 +79,7 @@ const PracticeSetup = () => {
     setLevel("A2");
     setTone("FORMAL");
     setType("BASIC");
-    setSentenceCount("FIVE");
+    setSentenceCount("TEN");
   };
 
   return (
@@ -100,7 +100,7 @@ const PracticeSetup = () => {
           <div className="bg-slate-100 p-1.5 rounded-xl flex text-sm font-medium">
             <button
               onClick={() => setMode("paragraph")}
-              className={`flex-1 px-4 py-2.5 rounded-lg flex items-center justify-center gap-2 ${mode === "paragraph"
+              className={`flex-1 px-4 py-2.5 rounded-lg flex items-center justify-center whitespace-nowrap gap-2 ${mode === "paragraph"
                 ? "bg-white text-blue-600 shadow-sm font-bold"
                 : "text-slate-500"
                 }`}
@@ -111,7 +111,7 @@ const PracticeSetup = () => {
 
             <button
               onClick={() => setMode("sentence")}
-              className={`flex-1 px-4 py-2.5 rounded-lg flex items-center justify-center gap-2 ${mode === "sentence"
+              className={`flex-1 px-4 py-2.5 rounded-lg flex items-center whitespace-nowrap justify-center gap-2 ${mode === "sentence"
                 ? "bg-white text-blue-600 shadow-sm font-bold"
                 : "text-slate-500"
                 }`}
@@ -249,7 +249,7 @@ const PracticeSetup = () => {
                   <div className="space-y-3">
                     <label className="text-sm font-bold flex items-center gap-2">
                       <ListOrdered size={16} />
-                      Số câu
+                      Số câu (khoảng)
                     </label>
                     <select
                       value={sentenceCount}

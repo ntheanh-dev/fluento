@@ -175,6 +175,9 @@ const SentencePracticePage = () => {
     [orderIndex, totalSentences]
   );
 
+  const isSingleSentenceMode = data?.paragraph?.type === "SINGLE_SENTENCE";
+  const currentSentenceOnly = isSingleSentenceMode ? vietNameseSentences[orderIndex] : null;
+
   useEffect(() => {
     if (!isMobile) {
       setShowMobileSidebar(false);
@@ -185,7 +188,7 @@ const SentencePracticePage = () => {
       {/* Top Bar for Task Info */}
       <div className="flex items-center justify-between py-3 md:py-4 mb-2 shrink-0 px-1 sm:px-0 gap-4">
         <div className="flex-[10] flex flex-row items-center justify-between gap-4">
-          {data?.paragraph.type !== "BASIC" && (
+          {data?.paragraph.type !== "BASIC" && data?.paragraph.type !== "SINGLE_SENTENCE" && (
             <div>
               <h1 className="text-2xl font-bold text-slate-900 mb-2">{data?.paragraph.type}</h1>
               <p className="text-slate-600 text-sm max-w-xl">
@@ -220,33 +223,48 @@ const SentencePracticePage = () => {
           <span className="text-[10px] md:text-xs font-bold text-blue-600">{progressPercent}%</span>
         </div>
       </div>
+
+
+
       <main className="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-3 sm:gap-4 overflow-hidden sm:pb-4 sm:px-0">
         {/* Left Column: Workspace (Source & Input) */}
         <section className="lg:col-span-8 flex flex-col gap-3 sm:gap-4 overflow-y-auto pr-1 sm:pr-2 custom-scrollbar">
           {/* Source Context View */}
-          <div className="flex-[10] min-h-0 bg-slate-50/50 rounded-lg bg-white sm:rounded-xl border border-slate-200 shadow-sm overflow-hidden p-3 md:px-6 text-slate-800 font-medium h-full overflow-y-auto leading-6 sm:leading-7 space-y-3 sm:space-y-4">
-            {vietNameseSentences.map((sentence, index) => (
-              <React.Fragment key={index}>
-                {index <= englishTranslations.length - 1 ? (
-                  // Completed sentences - show English translation
-                  <span className="relative inline text-black py-1 whitespace-pre-line text-sm">
-                    {" " + englishTranslations[index]}
-                  </span>
-                ) : // Current and upcoming sentences
-                  index === englishTranslations.length ? (
-                    // Current sentence to translate
-                    <span className="relative inline whitespace-pre-line text-sm py-2 text-blue-600 font-bold">
-                      {" " + sentence}
-                    </span>
-                  ) : (
-                    // Upcoming sentences
-                    <span className="relative inline whitespace-pre-line text-sm text-gray-600 opacity-60">
-                      {" " + sentence}
-                    </span>
-                  )}
-              </React.Fragment>
-            ))}
-          </div>
+          {isSingleSentenceMode ? (
+            <div className="bg-slate-50/50 rounded-lg bg-white sm:rounded-xl border border-slate-200 shadow-sm overflow-hidden p-3 md:px-6 text-slate-800 font-medium leading-6 sm:leading-7 space-y-3 sm:space-y-4">
+              <span className="relative inline whitespace-pre-line text-sm py-2 text-blue-600 font-bold">
+                {currentSentenceOnly}
+              </span>
+
+            </div>
+          ) : (
+            <div className="flex-[10] min-h-0 bg-slate-50/50 rounded-lg bg-white sm:rounded-xl border border-slate-200 shadow-sm overflow-hidden p-3 md:px-6 text-slate-800 font-medium h-full overflow-y-auto leading-6 sm:leading-7 space-y-3 sm:space-y-4">
+              {
+                vietNameseSentences.map((sentence, index) => (
+                  <React.Fragment key={index}>
+                    {index <= englishTranslations.length - 1 ? (
+                      // Completed sentences - show English translation
+                      <span className="relative inline text-black py-1 whitespace-pre-line text-sm">
+                        {" " + englishTranslations[index]}
+                      </span>
+                    ) : // Current and upcoming sentences
+                      index === englishTranslations.length ? (
+                        // Current sentence to translate
+                        <span className="relative inline whitespace-pre-line text-sm py-2 text-blue-600 font-bold">
+                          {" " + sentence}
+                        </span>
+                      ) : (
+                        // Upcoming sentences
+                        <span className="relative inline whitespace-pre-line text-sm text-gray-600 opacity-60">
+                          {" " + sentence}
+                        </span>
+                      )}
+                  </React.Fragment>
+                ))
+              }
+
+            </div>
+          )}
 
           {/* English Translation Flow (Input) */}
           <div className="flex-[2] flex flex-col flex-1">
@@ -335,7 +353,7 @@ const SentencePracticePage = () => {
           `}
         >
 
-          <div className="bg-white rounded-lg h-full sm:rounded-xl border border-slate-200 shadow-sm flex flex-col overflow-hidden relative">
+          <div className="bg-white rounded-lg sm:rounded-xl border border-slate-200 shadow-sm flex flex-col overflow-hidden relative">
             {/* Mobile Close Button */}
             <div className="lg:hidden absolute top-3 right-3 sm:top-4 sm:right-4 z-10">
               <button
