@@ -20,12 +20,10 @@ import PracticeSetup from "@/features/practice/ui/PracticeSetup";
 const PracticeSession = lazy(
   () => import("@/features/practice/ui/PracticeSession"),
 );
+const ResultScreen = lazy(() => import("@/features/practice/ui/[id]/ResultScreen.tsx"));
+const ResultDetailScreen = lazy(() => import("@/features/practice/ui/[id]/ResultDetailScreen.tsx"));
 const SentencePracticePage = lazy(() => import("@/features/practice/ui/[id]"));
 
-// Statistic
-const AnalysisResult = lazy(
-  () => import("@/features/statistic/AnalysisResult"),
-);
 
 // History / Ranking / Profile
 const History = lazy(() => import("@/features/history"));
@@ -35,6 +33,7 @@ const Profile = lazy(() => import("@/features/profile/ui"));
 // Layout
 const Layout = lazy(() => import("@/layouts/Layout"));
 import { Suspense } from "react";
+
 
 // await enableMocks();
 
@@ -63,7 +62,8 @@ function App() {
                 <Route path="practice" element={<PracticeSetup />} />
                 <Route path="practice/session" element={<PracticeSession />} />
                 <Route path="practice/:id" element={<SentencePracticePage />} />
-                <Route path="practice/result" element={<AnalysisResult />} />
+                <Route path="practice/:id/result" element={<ResultScreen />} />
+                <Route path="practice/:id/result/detail" element={<ResultDetailScreen />} />
                 <Route path="history" element={<History />} />
                 <Route path="rankings" element={<Rankings />} />
                 <Route path="profile" element={<Profile />} />

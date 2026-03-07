@@ -9,6 +9,7 @@ export interface UserSentenceAnswer {
 
 export interface SentenceFeedback {
   correction: string;
+  improved: string;
   suggestions: string[];
   summary: string;
   score: number;

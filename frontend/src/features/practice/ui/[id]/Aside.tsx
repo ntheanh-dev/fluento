@@ -4,6 +4,7 @@ import { Analyzing } from "./Analyzing";
 import { HintsAside } from "./HintsAside";
 import { Copy, Lightbulb, Sparkles } from "lucide-react";
 import type { RenderAsideType } from ".";
+import { renderCorrectionLine } from "../../fnc";
 
 type AsideProps = {
   isLoadingAnswerPreview: boolean;
@@ -38,7 +39,7 @@ const DetailedSuggestionCard = ({
     );
   }
 
-  const { correction, suggestions, summary, score } = feedback;
+  const { correction, suggestions, summary, score, improved } = feedback;
 
   return (
     <div className="flex flex-col p-4 gap-4 text-[11px] leading-relaxed text-slate-800 overflow-y-auto scrollbar-thin scrollbar-thumb-slate-200">
@@ -91,6 +92,13 @@ const DetailedSuggestionCard = ({
         </div>
       )}
 
+      <p className="text-[11px] font-bold text-teal-600">
+        Chỉnh sửa:
+        <span className="ml-1 font-semibold text-slate-100">
+          {renderCorrectionLine(correction ?? '')}
+        </span>
+      </p>
+
       {/* Suggested improvements */}
       {suggestions?.length > 0 && (
         <div>
@@ -117,7 +125,7 @@ const DetailedSuggestionCard = ({
         </div>
       )}
 
-      {correction && (
+      {improved && (
         <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl border border-green-200/50 p-4 shadow-sm">
           <div className="flex items-center justify-between mb-2">
             <span className="text-[12px] font-bold text-green-700 flex items-center gap-1.5">
@@ -128,11 +136,11 @@ const DetailedSuggestionCard = ({
               className="text-green-600 hover:text-green-700 transition-colors"
               title="Copy"
             >
-              <Copy className="size-3.5" onClick={() => navigator.clipboard.writeText(correction)} />
+              <Copy className="size-3.5" onClick={() => navigator.clipboard.writeText(improved)} />
             </button>
           </div>
           <p className="text-[12px] text-slate-700">
-            {correction}
+            {improved}
           </p>
         </div>
       )}

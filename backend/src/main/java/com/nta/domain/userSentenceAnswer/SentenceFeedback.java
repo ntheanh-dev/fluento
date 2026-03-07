@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class SentenceFeedback {
     private String correction;
+    private String improved;
     private java.util.List<String> suggestions;
     private String summary;
     private Double score;

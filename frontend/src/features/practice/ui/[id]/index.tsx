@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 import { useDeviceType } from "@/shared/utilities/useDeviceType";
 import { useParagraphHints, useUserPracticeData } from "../../hooks/useUserPractice";
-import { splitIntoSentences } from "@/utils/utils";
+import { formatElapsed, splitIntoSentences } from "@/utils/utils";
 import type { HintContent } from "@/entities/hints/schema";
 import { message } from "antd";
 import type { SentenceFeedback } from "@/entities/userPracticeAnswer/schema";
@@ -46,11 +46,7 @@ function normalizeSentence(text: string): string {
   return result;
 }
 
-function formatElapsed(seconds: number): string {
-  const m = Math.floor(seconds / 60);
-  const s = seconds % 60;
-  return `${m}:${s.toString().padStart(2, "0")}`;
-}
+
 
 export type RenderAsideType = "hints" | "markdownFeedback" | null;
 
@@ -70,6 +66,11 @@ const SentencePracticePage = () => {
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
   const startedAtRef = useRef<number | null>(null);
   const { data, error: errorUserPracticeData } = useUserPracticeData(Number(id));
+
+  if (data?.sentenceAnswers?.length === vietNameseSentences.length) {
+    navigate(`/practice/${id}/result`);
+    return;
+  }
 
   const answerPreviewPayload = useMemo(
     () => ({
@@ -100,6 +101,7 @@ const SentencePracticePage = () => {
 
   const { mutateAsync: getTranslationHints, isPending: isLoadingTranslationHints } = useParagraphHints(Number(id), orderIndex);
   const { mutateAsync: submitUserSentence, isPending: isLoadingSubmitUserSentence } = useSubmitUserSentence(Number(id), submitPayload);
+
 
   useEffect(() => {
     if (data && !errorUserPracticeData) {
@@ -183,6 +185,10 @@ const SentencePracticePage = () => {
 
     try {
       const userSentenceAnswer = await submitUserSentence();
+      if (orderIndex === vietNameseSentences.length - 1) {
+        navigate(`/practice/${id}/result`);
+        return;
+      }
       setEnglishTranslations([...englishTranslations, userSentenceAnswer.userTranslation]);
       setOrderIndex(orderIndex + 1);
       setTranslation("");

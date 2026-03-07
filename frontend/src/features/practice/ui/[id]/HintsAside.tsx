@@ -1,6 +1,7 @@
 import type { HintContent } from "@/entities/hints/schema";
 import { Lightbulb, Sparkles, Volume2 } from "lucide-react";
 import { useMemo } from "react";
+import { motion, AnimatePresence } from 'motion/react';
 
 const getColorByType = (type: string) => {
     switch (type) {
@@ -41,6 +42,7 @@ const VocabularyItem = ({ word, type, pronunciation }: { word: string, type: str
     const typeClasses = useMemo(() => getColorByType(type), [type]);
 
     return (
+
         <div className="bg-white rounded-lg p-2 sm:p-3 border border-slate-200 shadow-sm hover:border-blue-200 transition-colors cursor-pointer">
             <div className="flex items-center justify-between gap-2 mb-1">
                 <span className="text-slate-800 text-[12px] font-semibold min-w-0 truncate">{word.toLocaleLowerCase()}</span>
@@ -59,6 +61,7 @@ const VocabularyItem = ({ word, type, pronunciation }: { word: string, type: str
                 <span className={`shrink-0 px-1.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wide ${typeClasses}`}>{type}</span>
             </div>
         </div>
+
     );
 };
 
@@ -80,11 +83,18 @@ export const HintsAside = (translationHints: HintContent | null) => {
                             <h3 className="text-[12px] sm:text-xs text-slate-500 truncate">{hint.vietnamese.toLocaleLowerCase()}</h3>
                             <div className="h-px bg-slate-200 flex-1 min-w-0" />
                         </div>
-                        <div className="space-y-1.5">
-                            {hint.english.map((word, idx) => (
-                                <VocabularyItem key={idx} word={word.english} type={word.partsOfSpeech} pronunciation={word.ipaPronunciation} />
-                            ))}
-                        </div>
+                        <motion.div
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -10 }}
+                            transition={{ duration: 0.1 }}
+                        >
+                            <div className="space-y-1.5">
+                                {hint.english.map((word, idx) => (
+                                    <VocabularyItem key={idx} word={word.english} type={word.partsOfSpeech} pronunciation={word.ipaPronunciation} />
+                                ))}
+                            </div>
+                        </motion.div>
                     </div>
                 ))}
             </div>
