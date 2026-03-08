@@ -27,6 +27,7 @@ export default function DeleteApiKeyDialog({
 
     return (
         <Modal
+            centered
             title="Xóa khóa API"
             open={open}
             onCancel={onClose}

@@ -33,6 +33,7 @@ export default function AddApiKeyDialog({
 
     return (
         <Modal
+            centered
             title="Thêm khóa API"
             open={open}
             onCancel={handleCancel}

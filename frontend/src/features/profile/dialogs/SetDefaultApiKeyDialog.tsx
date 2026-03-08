@@ -27,6 +27,7 @@ export default function SetDefaultApiKeyDialog({
 
     return (
         <Modal
+            centered
             title="Đặt khóa làm mặc định"
             open={open}
             onCancel={onClose}

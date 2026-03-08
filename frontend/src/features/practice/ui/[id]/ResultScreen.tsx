@@ -14,10 +14,11 @@ import {
     BookOpen,
     FileText
 } from 'lucide-react';
+import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useUserPracticeData } from '../../hooks/useUserPractice';
 import { formatElapsed } from '@/utils/utils';
-import { message, Spin } from 'antd';
+import { message, Modal, Spin } from 'antd';
 import { LoadingOutlined } from '@ant-design/icons';
 import { showApiError } from '@/shared/api/showApiError';
 import { renderWordDiff } from '../../fnc';
@@ -25,6 +26,7 @@ import { splitIntoSentences } from '@/utils/utils';
 export default function ResultScreen() {
     const { id } = useParams();
     const navigate = useNavigate();
+    const [confirmRetryOpen, setConfirmRetryOpen] = useState(false);
     const { data, error: errorUserPracticeData, isLoading: isLoadingUserPracticeData } = useUserPracticeData(Number(id));
 
     if (isLoadingUserPracticeData) {
@@ -214,7 +216,10 @@ export default function ResultScreen() {
                         Xem lại lỗi sai
                     </button>
 
-                    <button className="h-14 bg-blue-50 hover:bg-blue-100 text-blue-600 font-bold rounded-xl flex items-center justify-center gap-2 transition-all active:scale-[0.98]">
+                    <button
+                        onClick={() => setConfirmRetryOpen(true)}
+                        className="h-14 bg-blue-50 hover:bg-blue-100 text-blue-600 font-bold rounded-xl flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
+                    >
                         <RotateCcw className="w-5 h-5" />
                         Luyện tập lại
                     </button>
@@ -225,6 +230,20 @@ export default function ResultScreen() {
                     </button>
                 </motion.div>
             </main>
+
+            <Modal
+                open={confirmRetryOpen}
+                title="Luyện tập lại"
+                centered
+                onCancel={() => setConfirmRetryOpen(false)}
+                onOk={() => {
+                    setConfirmRetryOpen(false);
+                }}
+                okText="Đồng ý"
+                cancelText="Hủy"
+            >
+                Bạn có chắc muốn luyện tập lại bài này?
+            </Modal>
         </div>
     );
 }

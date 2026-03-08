@@ -68,6 +68,7 @@ export default function SetPasswordDialog({ open, onClose, noPassword }: SetPass
 
     return (
         <Modal
+            centered
             title={noPassword ? "Tạo mật khẩu" : "Đổi mật khẩu"}
             open={open}
             onCancel={handleCancel}
