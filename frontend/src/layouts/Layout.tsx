@@ -1,12 +1,6 @@
 import { useState, useEffect } from "react";
 import { useLocation, Outlet, Link } from "react-router-dom";
-import {
-    ChevronRight,
-    Menu,
-    PanelLeftClose,
-    PanelLeftOpen,
-    Flame,
-} from "lucide-react";
+import { ChevronRight, Menu, Flame } from "lucide-react";
 import Sidebar from "./Sidebar";
 import { useProfile, useProfileStore } from "@/stores/profile";
 import { useProfileData } from "@/features/profile/query";
@@ -24,10 +18,16 @@ const getPathName = (pathname: string): string => {
     return pathMap[pathname] || pathname.replace("/", "");
 };
 
+const navItems = [
+    { label: "Bảng điều khiển", to: "/" },
+    { label: "Luyện tập", to: "/practice" },
+    { label: "Lịch sử", to: "/history" },
+    { label: "Bảng xếp hạng", to: "/rankings" },
+];
+
 const Layout = () => {
     const location = useLocation();
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-    const [isDesktopSidebarOpen, setIsDesktopSidebarOpen] = useState(true);
     const { profile } = useProfile();
     const { setProfile } = useProfileStore();
     const { data: profileData } = useProfileData();
@@ -40,18 +40,14 @@ const Layout = () => {
         setIsMobileMenuOpen(false);
     }, [location.pathname]);
 
+    const isActive = (to: string) => {
+        if (to === "/") return location.pathname === "/";
+        if (to === "/practice") return location.pathname.startsWith("/practice") || location.pathname.startsWith("/session");
+        return location.pathname.startsWith(to);
+    };
+
     return (
         <main className="flex h-screen overflow-hidden bg-slate-50">
-            {/* Desktop Sidebar */}
-            <aside
-                className={`hidden md:flex flex-col bg-white border-slate-200 z-10 transition-all duration-300 ease-in-out overflow-hidden ${isDesktopSidebarOpen ? "w-64 border-r" : "w-0 border-none"
-                    }`}
-            >
-                <div className="w-64 h-full">
-                    <Sidebar activePath={location.pathname} />
-                </div>
-            </aside>
-
             {/* Mobile Sidebar Overlay */}
             {isMobileMenuOpen && (
                 <div className="fixed inset-0 z-50 md:hidden flex">
@@ -72,7 +68,7 @@ const Layout = () => {
             <div className="flex-1 flex flex-col h-full overflow-hidden relative">
                 {/* Header */}
                 <header className="h-16 bg-white/80 backdrop-blur-md border-b border-slate-200 flex items-center justify-between px-4 md:px-6 sticky top-0 z-20">
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-3 md:gap-8 self-stretch">
                         {/* Mobile Toggle */}
                         <button
                             className="md:hidden p-2 -ml-2 text-slate-600 hover:bg-slate-100 rounded-lg"
@@ -81,32 +77,37 @@ const Layout = () => {
                             <Menu size={20} />
                         </button>
 
-                        {/* Desktop Toggle */}
-                        <button
-                            className="hidden md:block p-2 -ml-2 mr-2 text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
-                            onClick={() => setIsDesktopSidebarOpen(!isDesktopSidebarOpen)}
-                            title={isDesktopSidebarOpen ? "Đóng thanh bên" : "Mở thanh bên"}
-                        >
-                            {isDesktopSidebarOpen ? (
-                                <PanelLeftClose size={20} />
-                            ) : (
-                                <PanelLeftOpen size={20} />
-                            )}
-                        </button>
-
-                        <div className="flex items-center gap-2 text-slate-500 text-sm">
-                            <span className="font-medium text-slate-900 hidden sm:inline">
-                                Fluento
-                            </span>
-                            <ChevronRight size={16} className="hidden sm:block" />
+                        {/* Mobile: Fluento + breadcrumb */}
+                        <div className="flex items-center gap-2 text-slate-500 text-sm md:hidden">
+                            <span className="font-medium text-slate-900">Fluento</span>
+                            <ChevronRight size={16} />
                             <span className="capitalize font-medium text-slate-900">
                                 {getPathName(location.pathname)}
                             </span>
                         </div>
+
+                        {/* Desktop: Fluento + horizontal nav */}
+                        <div className="hidden md:flex items-center gap-1 h-full">
+                            <span className="font-bold text-xl text-slate-800 mr-6">Fluento</span>
+                            <nav className="flex items-end gap-6 h-full">
+                                {navItems.map(({ label, to }) => (
+                                    <Link
+                                        key={to}
+                                        to={to}
+                                        className={`px-1 pb-4 pt-2 text-sm font-medium transition-colors border-b-2 ${isActive(to)
+                                            ? "text-blue-600 border-blue-600"
+                                            : "text-slate-600 border-transparent hover:text-slate-900"
+                                            }`}
+                                    >
+                                        {label}
+                                    </Link>
+                                ))}
+                            </nav>
+                        </div>
                     </div>
 
                     <div className="flex items-center gap-3 md:gap-6">
-                        <div className="hidden md:flex items-center gap-2 bg-orange-50 px-3 py-1.5 rounded-full border border-orange-100 text-orange-600">
+                        <div className="hidden lg:flex items-center gap-2 bg-orange-50 px-3 py-1.5 rounded-full border border-orange-100 text-orange-600">
                             <span className="text-sm font-bold">Chuỗi {profile?.currentStreak || 0} ngày</span>
                             <Flame size={16} fill="currentColor" />
                         </div>

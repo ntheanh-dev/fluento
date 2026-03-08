@@ -24,11 +24,10 @@ const SidebarItem = ({
 }) => (
   <Link
     to={to}
-    className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 ${
-      active
+    className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 ${active
         ? "bg-blue-600 text-white shadow-md shadow-blue-200"
         : "text-slate-500 hover:bg-slate-100 hover:text-slate-900"
-    }`}
+      }`}
   >
     <Icon size={20} strokeWidth={active ? 2.5 : 2} />
     <span className="font-medium">{label}</span>

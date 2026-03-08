@@ -49,7 +49,7 @@ function App() {
     >
       <ReactQueryProvider>
         <BrowserRouter>
-          <Suspense fallback={<Spin indicator={<LoadingOutlined spin />} />}>
+          <Suspense fallback={<Spin fullscreen indicator={<LoadingOutlined spin />} />}>
             <Routes>
               <Route
                 element={
