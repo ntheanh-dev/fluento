@@ -13,7 +13,6 @@ type AsideProps = {
   renderAsideType: RenderAsideType;
   feedback: SentenceFeedback | null;
   userTranslation?: string;
-  isStreaming: boolean;
 };
 
 export const Aside = ({
@@ -23,10 +22,9 @@ export const Aside = ({
   renderAsideType,
   feedback,
   userTranslation,
-  isStreaming,
 }: AsideProps) => {
 
-  if (isLoadingAnswerPreview || isLoadingTranslationHints || isStreaming) {
+  if (isLoadingAnswerPreview || isLoadingTranslationHints) {
     return <Analyzing />;
   }
 
@@ -35,7 +33,15 @@ export const Aside = ({
   }
 
   if (renderAsideType === "markdownFeedback") {
-    return <DetailedSuggestionCard feedback={feedback} userTranslation={userTranslation} />;
+    if (!feedback) {
+      return <Analyzing />;
+    }
+    return (
+      <DetailedSuggestionCard
+        feedback={feedback}
+        userTranslation={userTranslation}
+      />
+    );
   }
 
   return (

@@ -2,13 +2,15 @@ import type { SentenceFeedback } from "@/entities/userPracticeAnswer/schema";
 import { Copy, Sparkles } from "lucide-react";
 import { renderBacktickHighlight, renderWordDiff } from "../../fnc";
 
-type DetailedSuggestionCardProps = {
+export type DetailedSuggestionCardProps = {
   feedback: SentenceFeedback | null;
   userTranslation?: string;
 };
 
-
-export function DetailedSuggestionCard({ feedback, userTranslation }: DetailedSuggestionCardProps) {
+export function DetailedSuggestionCard({
+  feedback,
+  userTranslation,
+}: DetailedSuggestionCardProps) {
   if (!feedback) {
     return <></>;
   }

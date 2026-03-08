@@ -195,7 +195,6 @@ const SentencePracticePage = () => {
   /** Nộp câu đã kiểm tra, chuyển sang câu tiếp theo hoặc sang trang result nếu hết. */
   const handleNextSentence = useCallback(async () => {
     if (isLoadingSubmitUserSentence || !feedback) return;
-    if (!lastCheckedTranslation || lastCheckedTranslation !== translation) return;
 
     const normalized = normalizeSentence(translation);
     if (normalized !== translation) setTranslation(normalized);
@@ -216,7 +215,7 @@ const SentencePracticePage = () => {
     } catch (error) {
       showApiError(error);
     }
-  }, [translation]);
+  }, [translation, feedback, lastCheckedTranslation]);
 
   // --- Derived (cho UI) ---
   const progressPercent = useMemo(
@@ -427,7 +426,6 @@ const SentencePracticePage = () => {
               translationHints={translationHints as HintContent | null}
               feedback={feedback}
               userTranslation={translation}
-              isStreaming={isStreaming}
             />
           </div>
         </aside>
