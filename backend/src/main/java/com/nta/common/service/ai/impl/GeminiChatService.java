@@ -13,6 +13,7 @@ import org.springframework.ai.openai.OpenAiChatOptions;
 import org.springframework.ai.openai.api.OpenAiApi;
 import org.springframework.ai.retry.NonTransientAiException;
 import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.benmanes.caffeine.cache.Cache;
@@ -152,7 +153,15 @@ public class GeminiChatService implements ChatService {
                     "AI streaming call success - model={} duration={}ms",
                     apiKey.getModel().getApiValue(),
                     duration);
-
+        } catch (WebClientResponseException.TooManyRequests exception) {
+            long duration = System.currentTimeMillis() - startTime;
+            log.error(
+                    "AI streaming call failed - model={} duration={}ms error={}",
+                    apiKey.getModel().getApiValue(),
+                    duration,
+                    exception.getMessage(),
+                    exception);
+            throw new AppException(ErrorCode.AI_EXHAUSTED);
         } catch (NonTransientAiException exception) {
             long duration = System.currentTimeMillis() - startTime;
             log.error(

@@ -49,6 +49,7 @@ public enum ErrorCode {
             "AI model đã hết khả năng phản hồi trong ngày, vui lòng chuyển sang model khác hoặc thử lại vào ngày hôm sau",
             HttpStatus.BAD_REQUEST),
     AI_INPUT_TOO_LONG(1107, "Đầu vào quá dài, vui lòng rút ngắn để sử dụng", HttpStatus.BAD_REQUEST),
+    AI_TOO_MANY_REQUESTS(1108, "AI hiện quá tải, vui lòng thử lại sau", HttpStatus.TOO_MANY_REQUESTS),
     // Access & API key errors (20xx)
     ACCESS_DENIED(2003, "Access denied", HttpStatus.FORBIDDEN),
     API_KEY_EXISTED(2008, "API key already exists", HttpStatus.BAD_REQUEST),

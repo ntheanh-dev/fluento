@@ -14,8 +14,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useUserPracticeData } from '../../hooks/useUserPractice';
 import { Spin } from 'antd';
 import { LoadingOutlined } from '@ant-design/icons';
-import { renderCorrectionLine } from '../../fnc';
-
+import { renderWordDiff } from '../../fnc';
 export default function ReviewScreen() {
 
     const { id } = useParams();
@@ -106,7 +105,7 @@ export default function ReviewScreen() {
                                     </h3>
                                     <div className="bg-white p-4 rounded-2xl shadow-sm border border-slate-100">
                                         <p className="text-base text-slate-800 font-medium leading-relaxed">
-                                            {renderCorrectionLine(data?.sentenceAnswers[selectedSentenceIndex].feedback.correction ?? '')}
+                                            {renderWordDiff(data?.sentenceAnswers[selectedSentenceIndex].userTranslation ?? '', data?.sentenceAnswers[selectedSentenceIndex].feedback.correction ?? '')}
                                         </p>
                                     </div>
                                 </div>

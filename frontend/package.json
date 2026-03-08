@@ -21,6 +21,7 @@
     "@types/js-cookie": "^3.0.6",
     "antd": "^6.3.0",
     "axios": "^1.11.0",
+    "diff": "^5.2.2",
     "js-cookie": "^3.0.5",
     "lucide-react": "^0.575.0",
     "material-ui-popup-state": "^5.3.6",

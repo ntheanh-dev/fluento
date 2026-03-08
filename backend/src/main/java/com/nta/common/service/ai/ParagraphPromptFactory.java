@@ -243,10 +243,7 @@ public class ParagraphPromptFactory {
 			DIỄN GIẢI CHI TIẾT:
 			- correction: Câu tiếng Anh đã CHỈNH SỬA, dạng gợi ý tổng quát giống như phần "Suggestion".
 			+ Viết lại toàn bộ câu theo bản dịch đúng và tự nhiên hơn.
-			+ Có thể chèn dạng so sánh sai/đúng ngay trong câu theo mẫu: Today was(is) a day full of thoughts(thought)...
-			+ Nếu chèn cặp đúng/sai, đặt từ ĐÚNG trước, từ SAI trong ngoặc đơn ngay sau đó.
 			- improved: Câu tiếng Anh dùng từ ngữ, cấu trúc, thì, từ vựng tốt hơn.
-			+ Viết lại toàn bộ câu theo bản dịch đúng và tự nhiên hơn.
 			- suggestions: Danh sách 2–5 gợi ý chi tiết bằng tiếng Việt, mỗi phần tử là MỘT câu hoàn chỉnh.
 			+ Giải thích ngắn gọn từng lỗi (thì, số ít/số nhiều, từ vựng, cấu trúc câu...).
 			+ Có thể dùng `backtick` để làm nổi bật từ/cụm từ tiếng Anh hoặc thuật ngữ như `past tense`, `was`, `friends`...

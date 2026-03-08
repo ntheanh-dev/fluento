@@ -64,7 +64,18 @@ export async function streamAnswerPreviewMarkdown(
   );
 
   if (!response.ok) {
-    throw new Error("Failed to stream answer preview");
+    let body: { message?: string; code?: number } = {};
+    try {
+      const text = await response.text();
+      if (text) body = JSON.parse(text) as { message?: string; code?: number };
+    } catch {
+      // ignore parse error
+    }
+    const err = new Error(body?.message ?? "Failed to stream answer preview") as Error & {
+      response?: { data: { message?: string; code?: number } };
+    };
+    err.response = { data: body };
+    throw err;
   }
 
   if (!response.body) {

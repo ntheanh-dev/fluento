@@ -33,20 +33,25 @@ function showApiError(error: unknown, fallback = DEFAULT_ERROR_MESSAGE) {
   }
 }
 
-function normalizeSentence(text: string): string {
+
+function normalizeSentence(text: string, originalText?: string): string {
   const trimmed = text.trim();
   if (!trimmed) return text;
 
   let result = trimmed.charAt(0).toUpperCase() + trimmed.slice(1);
 
+
+
   if (!/[.!?]["']?$/.test(result)) {
     result = `${result}.`;
   }
 
+  if (originalText && originalText.includes("\n\n")) {
+    result = `${result}\n\n`;
+  }
+
   return result;
 }
-
-
 
 export type RenderAsideType = "hints" | "markdownFeedback" | null;
 
@@ -67,10 +72,12 @@ const SentencePracticePage = () => {
   const startedAtRef = useRef<number | null>(null);
   const { data, error: errorUserPracticeData } = useUserPracticeData(Number(id));
 
-  if (data?.sentenceAnswers?.length === vietNameseSentences.length) {
-    navigate(`/practice/${id}/result`);
-    return;
-  }
+
+
+  // if (data?.sentenceAnswers?.length === vietNameseSentences.length) {
+  //   navigate(`/practice/${id}/result`);
+  //   return;
+  // }
 
   const answerPreviewPayload = useMemo(
     () => ({
@@ -85,6 +92,7 @@ const SentencePracticePage = () => {
     isStreaming,
     start: startFeedbackStream,
     reset: resetFeedbackStream,
+    error: errorFeedbackStream,
   } = useAnswerPreviewFeedbackStream(Number(id), answerPreviewPayload);
 
   const submitPayload = useMemo(
@@ -121,6 +129,13 @@ const SentencePracticePage = () => {
   }, [id, data, errorUserPracticeData]);
 
   useEffect(() => {
+    if (errorFeedbackStream != null) {
+      showApiError(errorFeedbackStream);
+      setShowMobileSidebar(false);
+    }
+  }, [errorFeedbackStream]);
+
+  useEffect(() => {
     if (startedAtRef.current === null) return;
     const interval = setInterval(() => {
       setElapsedSeconds(Math.floor((Date.now() - startedAtRef.current!) / 1000));
@@ -152,7 +167,7 @@ const SentencePracticePage = () => {
     if (!translation.trim()) return;
     if (isStreaming) return;
 
-    const normalized = normalizeSentence(translation);
+    const normalized = normalizeSentence(translation, vietNameseSentences[orderIndex]);
     if (normalized !== translation) {
       setTranslation(normalized);
     }
@@ -165,9 +180,8 @@ const SentencePracticePage = () => {
     resetFeedbackStream();
     try {
       await startFeedbackStream();
-    } catch (error) {
+    } catch {
       setShowMobileSidebar(false);
-      showApiError(error);
     }
   };
 
@@ -279,7 +293,6 @@ const SentencePracticePage = () => {
               <span className="relative inline whitespace-pre-line text-sm py-2 text-blue-600 font-bold">
                 {currentSentenceOnly}
               </span>
-
             </div>
           ) : (
             <div className="flex-[10] min-h-0 bg-slate-50/50 rounded-lg bg-white sm:rounded-xl border border-slate-200 shadow-sm overflow-hidden p-3 md:px-6 text-slate-800 font-medium h-full overflow-y-auto leading-6 sm:leading-7 space-y-3 sm:space-y-4">
@@ -413,6 +426,7 @@ const SentencePracticePage = () => {
               isLoadingTranslationHints={isLoadingTranslationHints}
               translationHints={translationHints as HintContent | null}
               feedback={feedback}
+              userTranslation={translation}
               isStreaming={isStreaming}
             />
           </div>

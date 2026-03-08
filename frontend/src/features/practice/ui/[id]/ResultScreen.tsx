@@ -16,11 +16,10 @@ import {
 } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useUserPracticeData } from '../../hooks/useUserPractice';
-import { formatElapsed, splitIntoSentences } from '@/utils/utils';
+import { formatElapsed } from '@/utils/utils';
 import { message, Spin } from 'antd';
 import { LoadingOutlined } from '@ant-design/icons';
 import type { ApiError } from '@/types/api';
-import { renderCorrectionLine } from '../../fnc';
 
 export default function ResultScreen() {
     const { id } = useParams();
@@ -31,11 +30,11 @@ export default function ResultScreen() {
         return <Spin indicator={<LoadingOutlined spin />} />;
     }
 
-    if (data && data.sentenceAnswers.length !== splitIntoSentences(data.paragraph.content).length) {
-        message.warning('Không thể xem kết quả khi chưa hoàn thành bài luyện tập.');
-        navigate(`/practice/${id}`, { replace: true });
-        return;
-    }
+    // if (data && data.sentenceAnswers.length !== splitIntoSentences(data.paragraph.content).length) {
+    //     message.warning('Không thể xem kết quả khi chưa hoàn thành bài luyện tập.');
+    //     navigate(`/practice/${id}`, { replace: true });
+    //     return;
+    // }
 
     if (data && data.paragraph.type === 'SINGLE_SENTENCE') {
         message.warning('Không thể xem kết quả khi bài luyện tập không phải là bài luyện tập câu.');
@@ -178,7 +177,7 @@ export default function ResultScreen() {
                             </div>
                             <div className="p-6 md:p-8 bg-blue-50/30 flex-1">
                                 <p className="text-md text-slate-900 font-medium leading-relaxed whitespace-pre-line">
-                                    {data?.sentenceAnswers.map((answer) => renderCorrectionLine(answer.feedback.correction + " "))}
+                                    {data?.sentenceAnswers.map((answer) => renderWordDiff(answer.userTranslation ?? '', answer.feedback.correction ?? ''))}
                                 </p>
                             </div>
                         </div>
