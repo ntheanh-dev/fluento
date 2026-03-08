@@ -22,11 +22,15 @@ import {
 } from "../../../shared/validation/constant";
 import ApiKeysSection from "./ApiKeysSection";
 import { formatTotalHours } from "@/utils/utils";
-
+import { useLogoutMutation } from "@/features/auth/mutation";
+import Cookies from "js-cookie";
+import { useNavigate } from "react-router-dom";
 const Profile = () => {
   const { profile } = useProfileStore();
   const { mutateAsync: updateMeMutation, isPending: savingFullName } =
     useUpdateMe();
+  const navigate = useNavigate();
+  const { mutateAsync: logout } = useLogoutMutation();
 
   const [passwordDialogOpen, setPasswordDialogOpen] = useState(false);
   const [fullName, setFullName] = useState(profile?.fullName ?? "");
@@ -80,8 +84,14 @@ const Profile = () => {
       .catch(() => message.error("Cập nhật ảnh thất bại."))
       .finally(() => setUploadingAvatar(false));
   };
+
+  const handleLogout = async () => {
+    await logout(Cookies.get("accessToken") || "");
+    navigate("/home");
+  };
+
   return (
-    <div className="max-w-7xl mx-auto pb-8">
+    <div className="max-w-7xl pb-8">
       {/* Main Layout Container */}
       <div className="flex flex-col lg:flex-row gap-8">
         {/* Left Sidebar */}
@@ -138,7 +148,7 @@ const Profile = () => {
               </button>
               <div className="h-px bg-slate-100 my-1 mx-2"></div>
               <button className="w-full flex items-center gap-3 px-4 py-3 text-red-500 hover:bg-red-50 rounded-xl font-medium text-sm transition-colors">
-                <LogOut size={18} /> Đăng xuất
+                <LogOut onClick={handleLogout} size={18} /> Đăng xuất
               </button>
             </div>
           </div>

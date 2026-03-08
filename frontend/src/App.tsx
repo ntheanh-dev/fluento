@@ -33,7 +33,7 @@ const Profile = lazy(() => import("@/features/profile/ui"));
 // Layout
 const Layout = lazy(() => import("@/layouts/Layout"));
 import { Suspense } from "react";
-
+import LandingPage from "@/features/landing/index.tsx";
 
 // await enableMocks();
 
@@ -58,7 +58,7 @@ function App() {
                   </RequiredAuth>
                 }
               >
-                <Route index element={<Dashboard />} />
+                <Route index path="/dashboard" element={<Dashboard />} />
                 <Route path="practice" element={<PracticeSetup />} />
                 <Route path="practice/session" element={<PracticeSession />} />
                 <Route path="practice/:id" element={<SentencePracticePage />} />
@@ -67,12 +67,15 @@ function App() {
                 <Route path="history" element={<History />} />
                 <Route path="rankings" element={<Rankings />} />
                 <Route path="profile" element={<Profile />} />
-                <Route path="*" element={<Navigate to="/" replace />} />
+                <Route path="*" element={<Navigate to="/dashboard" replace />} />
               </Route>
 
               <Route path="login" element={<Login />} />
               <Route path="register" element={<Register />} />
               <Route path="/oauth/authenticate" element={<Authenticate />} />
+              <Route path="/home" element={<Layout />}>
+                <Route index element={<LandingPage />} />
+              </Route>
             </Routes>
           </Suspense>
         </BrowserRouter>

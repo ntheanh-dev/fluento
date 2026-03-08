@@ -35,7 +35,7 @@ const Rankings: React.FC = () => {
   const third = podium[2] ?? podium[0];
 
   return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-0 py-6">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-0 py-6">
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-end gap-3 mb-8 sm:mb-10">
         <div className="text-center sm:text-left">
           <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 mb-2">

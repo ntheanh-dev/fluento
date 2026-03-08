@@ -189,7 +189,7 @@ const PracticeHistory = () => {
     const currentPage = data?.number ?? 0;
 
     return (
-        <div className="h-[calc(100vh-130px+4rem)] max-w-8xl text-slate-800 font-display transition-colors duration-200">
+        <div className="h-[calc(100vh-130px+4rem)] max-w-7xl text-slate-800 font-display transition-colors duration-200">
             <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-3 mb-4 sticky top-0 z-40">
                 <div className="flex flex-col lg:flex-row justify-between items-center gap-3">
                     <div className="flex flex-wrap items-center gap-2 w-full">
