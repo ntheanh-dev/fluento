@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useRef } from "react";
+import React, { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
   ArrowLeft,
@@ -13,26 +13,12 @@ import { useDeviceType } from "@/shared/utilities/useDeviceType";
 import { useParagraphHints, useUserPracticeData } from "../../hooks/useUserPractice";
 import { formatElapsed, splitIntoSentences } from "@/utils/utils";
 import type { HintContent } from "@/entities/hints/schema";
-import { message } from "antd";
 import type { SentenceFeedback } from "@/entities/userPracticeAnswer/schema";
 import { useSubmitUserSentence } from "../../hooks/useSubmitUserSentence";
 import { Aside } from "./Aside";
-import type { ApiError } from "@/shared/api/type";
-import { AxiosError } from "axios";
+import { showApiError } from "@/shared/api/showApiError";
 import { useAnswerPreviewFeedbackStream } from "../../hooks/useAnswerPreviewFeedbackStream";
-
-const DEFAULT_ERROR_MESSAGE =
-  "Đã xảy ra lỗi không xác định. Vui lòng thử lại sau.";
-
-function showApiError(error: unknown, fallback = DEFAULT_ERROR_MESSAGE) {
-  const appError = (error as AxiosError)?.response?.data as ApiError | undefined;
-  if (appError?.message) {
-    message.error(appError.message, 5);
-  } else {
-    message.error(fallback);
-  }
-}
-
+import { AxiosError } from "axios";
 
 function normalizeSentence(text: string, originalText?: string): string {
   const trimmed = text.trim();
@@ -53,34 +39,42 @@ function normalizeSentence(text: string, originalText?: string): string {
 
 export type RenderAsideType = "hints" | "markdownFeedback" | null;
 
+/**
+ * Trang luyện dịch từng câu trong một đoạn văn.
+ * Cho phép nhập bản dịch, xem gợi ý, kiểm tra phản hồi và chuyển câu tiếp theo.
+ */
 const SentencePracticePage = () => {
+  // --- Router & device ---
   const { id } = useParams();
-  const { isMobile, isTablet } = useDeviceType();
   const navigate = useNavigate();
+  const { isMobile, isTablet } = useDeviceType();
 
+  // --- State: practice (câu hiện tại, bản dịch, gợi ý, feedback) ---
   const [orderIndex, setOrderIndex] = useState<number>(0);
   const [translation, setTranslation] = useState("");
   const [vietNameseSentences, setVietNameseSentences] = useState<string[]>([]);
   const [englishTranslations, setEnglishTranslations] = useState<string[]>([]);
-  const [translationHints, setTranslationHints] =
-    useState<HintContent | null>(null);
-  const [renderAsideType, setRenderAsideType] = useState<RenderAsideType>(null);
+  const [translationHints, setTranslationHints] = useState<HintContent | null>(null);
   const [lastCheckedTranslation, setLastCheckedTranslation] = useState<string | null>(null);
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
-  const startedAtRef = useRef<number | null>(null);
-  const { data, error: errorUserPracticeData } = useUserPracticeData(Number(id));
 
-  if (data?.sentenceAnswers?.length === vietNameseSentences.length) {
-    navigate(`/practice/${id}/result`);
-    return;
-  }
+  // --- State: UI (sidebar, nội dung aside) ---
+  const [renderAsideType, setRenderAsideType] = useState<RenderAsideType>(null);
+  const [showMobileSidebar, setShowMobileSidebar] = useState(false);
+
+  // --- Refs ---
+  /** Thời điểm bắt đầu luyện (ms), dùng để tính elapsed và learningTime. */
+  const startedAtRef = useRef<number | null>(null);
+
+  // --- Data hooks ---
+  const { data, error: errorUserPracticeData } = useUserPracticeData(Number(id));
 
   const answerPreviewPayload = useMemo(
     () => ({
       translatedSentence: normalizeSentence(translation, vietNameseSentences[orderIndex]),
       orderIndex,
     }),
-    [translation, orderIndex]
+    [translation, orderIndex, vietNameseSentences]
   );
 
   const {
@@ -103,27 +97,40 @@ const SentencePracticePage = () => {
     [translation, orderIndex, feedback]
   );
 
-  const { mutateAsync: getTranslationHints, isPending: isLoadingTranslationHints } = useParagraphHints(Number(id), orderIndex);
-  const { mutateAsync: submitUserSentence, isPending: isLoadingSubmitUserSentence } = useSubmitUserSentence(Number(id), submitPayload);
+  const { mutateAsync: getTranslationHints, isPending: isLoadingTranslationHints } =
+    useParagraphHints(Number(id), orderIndex);
+  const { mutateAsync: submitUserSentence, isPending: isLoadingSubmitUserSentence } =
+    useSubmitUserSentence(Number(id), submitPayload);
 
+  // --- Effects ---
 
+  /** Đồng bộ paragraph data: câu tiếng Việt, bản dịch đã nộp, orderIndex, learningTime. */
   useEffect(() => {
     if (data && !errorUserPracticeData) {
-      setVietNameseSentences(splitIntoSentences(data.paragraph.content));
-      setEnglishTranslations(data.sentenceAnswers?.map((a) => a.userTranslation));
-      setOrderIndex(data.sentenceAnswers?.length || 0);
+      const vnSentences = splitIntoSentences(data.paragraph.content);
+      if (data?.sentenceAnswers?.length === vnSentences.length) {
+        navigate(`/practice/${id}/result`);
+        return;
+      }
+      setVietNameseSentences(vnSentences);
+      setEnglishTranslations(data.sentenceAnswers?.map((a) => a.userTranslation) ?? []);
+      setOrderIndex(data.sentenceAnswers?.length ?? 0);
       if (startedAtRef.current === null) {
-        // Resume from saved learningTime on refresh; backend stores ms
         const baseMs = Number(data.learningTime ?? 0);
         startedAtRef.current = Date.now() - baseMs;
         setElapsedSeconds(Math.floor(baseMs / 1000));
       }
     }
     if (errorUserPracticeData) {
-      message.error((errorUserPracticeData as unknown as ApiError).message);
+      showApiError(errorUserPracticeData);
+      if ((errorUserPracticeData as AxiosError)?.response?.status === 404) {
+        navigate("/dashboard");
+        return;
+      }
     }
   }, [id, data, errorUserPracticeData]);
 
+  /** Hiển thị lỗi khi stream feedback thất bại; đóng sidebar mobile. */
   useEffect(() => {
     if (errorFeedbackStream != null) {
       showApiError(errorFeedbackStream);
@@ -131,6 +138,7 @@ const SentencePracticePage = () => {
     }
   }, [errorFeedbackStream]);
 
+  /** Cập nhật elapsed mỗi giây khi đã có data và đã bắt đầu. */
   useEffect(() => {
     if (startedAtRef.current === null) return;
     const interval = setInterval(() => {
@@ -139,14 +147,23 @@ const SentencePracticePage = () => {
     return () => clearInterval(interval);
   }, [data, errorUserPracticeData]);
 
-  const [showMobileSidebar, setShowMobileSidebar] = useState(false);
+  /** Trên desktop thì tắt sidebar mobile (chỉ dùng trên mobile/tablet). */
+  useEffect(() => {
+    if (!isMobile) {
+      setShowMobileSidebar(false);
+    }
+  }, [isMobile]);
 
-  const handleGetTranslationHints = async () => {
+  // --- Handlers ---
+
+  const handleCloseMobileSidebar = useCallback(() => setShowMobileSidebar(false), []);
+  const handleBackToSetup = useCallback(() => navigate("/setup"), [navigate]);
+
+  /** Mở sidebar và load/hiển thị gợi ý dịch cho câu hiện tại. */
+  const handleGetTranslationHints = useCallback(async () => {
     setShowMobileSidebar(true);
     setRenderAsideType("hints");
-    if (translationHints) {
-      return;
-    }
+    if (translationHints) return;
     try {
       const res = await getTranslationHints();
       setTranslationHints(res);
@@ -155,24 +172,16 @@ const SentencePracticePage = () => {
       setRenderAsideType(null);
       showApiError(error);
     }
-  };
+  }, [translationHints, getTranslationHints]);
 
-  const isLoadingAnswerPreview = isStreaming;
-
-  const handleGetAnswerPreview = async () => {
-    if (!translation.trim()) return;
-    if (isStreaming) return;
-
+  /** Chuẩn hóa bản dịch, gửi lên để xem feedback (stream), mở aside markdown. */
+  const handleGetAnswerPreview = useCallback(async () => {
+    if (!translation.trim() || isStreaming) return;
     setRenderAsideType("markdownFeedback");
-    if (isMobile || isTablet) {
-      setShowMobileSidebar(true);
-    }
+    if (isMobile || isTablet) setShowMobileSidebar(true);
 
     const normalized = normalizeSentence(translation, vietNameseSentences[orderIndex]);
-    if (normalized !== translation) {
-      setTranslation(normalized);
-    }
-
+    if (normalized !== translation) setTranslation(normalized);
     setLastCheckedTranslation(normalized);
 
     resetFeedbackStream();
@@ -181,19 +190,15 @@ const SentencePracticePage = () => {
     } catch {
       setShowMobileSidebar(false);
     }
-  };
+  }, [translation]);
 
-  const handleNextSentence = async () => {
+  /** Nộp câu đã kiểm tra, chuyển sang câu tiếp theo hoặc sang trang result nếu hết. */
+  const handleNextSentence = useCallback(async () => {
     if (isLoadingSubmitUserSentence || !feedback) return;
-
-    if (!lastCheckedTranslation || lastCheckedTranslation !== translation) {
-      return;
-    }
+    if (!lastCheckedTranslation || lastCheckedTranslation !== translation) return;
 
     const normalized = normalizeSentence(translation);
-    if (normalized !== translation) {
-      setTranslation(normalized);
-    }
+    if (normalized !== translation) setTranslation(normalized);
 
     try {
       const userSentenceAnswer = await submitUserSentence();
@@ -201,8 +206,8 @@ const SentencePracticePage = () => {
         navigate(`/practice/${id}/result`);
         return;
       }
-      setEnglishTranslations([...englishTranslations, userSentenceAnswer.userTranslation]);
-      setOrderIndex(orderIndex + 1);
+      setEnglishTranslations((prev) => [...prev, userSentenceAnswer.userTranslation]);
+      setOrderIndex((i) => i + 1);
       setTranslation("");
       setTranslationHints(null);
       setRenderAsideType(null);
@@ -211,22 +216,19 @@ const SentencePracticePage = () => {
     } catch (error) {
       showApiError(error);
     }
-  };
+  }, [translation]);
 
-  const totalSentences = vietNameseSentences.length || 1;
+  // --- Derived (cho UI) ---
   const progressPercent = useMemo(
-    () => Math.round((orderIndex / totalSentences) * 100),
-    [orderIndex, totalSentences]
+    () => Math.round((orderIndex / (vietNameseSentences.length || 1)) * 100),
+    [orderIndex, vietNameseSentences.length]
+  );
+  /** Chỉ có trong chế độ SINGLE_SENTENCE; dùng cho block nguồn. */
+  const singleSentenceText = useMemo(
+    () => (data?.paragraph?.type === "SINGLE_SENTENCE" ? vietNameseSentences[orderIndex] ?? null : null),
+    [data?.paragraph?.type, vietNameseSentences, orderIndex]
   );
 
-  const isSingleSentenceMode = data?.paragraph?.type === "SINGLE_SENTENCE";
-  const currentSentenceOnly = isSingleSentenceMode ? vietNameseSentences[orderIndex] : null;
-
-  useEffect(() => {
-    if (!isMobile) {
-      setShowMobileSidebar(false);
-    }
-  }, [isMobile]);
   return (
     <div className="max-w-screen-2xl mx-auto h-[calc(100vh-130px+4rem)] -mt-4 sm:-mt-6 md:-mt-8 -mb-4 sm:-mb-6 md:-mb-8 flex flex-col overflow-hidden">
       {/* Top Bar for Task Info */}
@@ -286,10 +288,10 @@ const SentencePracticePage = () => {
         {/* Left Column: Workspace (Source & Input) */}
         <section className="lg:col-span-8 flex flex-col gap-3 sm:gap-4 overflow-y-auto pr-1 sm:pr-2 custom-scrollbar">
           {/* Source Context View */}
-          {isSingleSentenceMode ? (
+          {singleSentenceText != null ? (
             <div className="bg-slate-50/50 rounded-lg bg-white sm:rounded-xl border border-slate-200 shadow-sm overflow-hidden p-3 md:px-6 text-slate-800 font-medium leading-6 sm:leading-7 space-y-3 sm:space-y-4">
               <span className="relative inline whitespace-pre-line text-sm py-2 text-blue-600 font-bold">
-                {currentSentenceOnly}
+                {singleSentenceText}
               </span>
             </div>
           ) : (
@@ -334,7 +336,7 @@ const SentencePracticePage = () => {
             <div className="flex justify-between items-center mt-2 sm:mt-3 gap-2">
               <div className="flex items-center gap-2">
                 <button
-                  onClick={() => navigate("/setup")}
+                  onClick={handleBackToSetup}
                   className="shrink-0 group p-2 sm:p-2.5 hover:bg-slate-100 active:bg-slate-200 rounded-lg sm:rounded-xl text-slate-400 hover:text-slate-700 transition-all border border-slate-200 shadow-sm bg-white touch-manipulation"
                 >
                   <ArrowLeft
@@ -354,11 +356,11 @@ const SentencePracticePage = () => {
 
               <div className="flex items-center gap-2">
                 <button
-                  disabled={isLoadingAnswerPreview || !translation}
+                  disabled={isStreaming || !translation}
                   onClick={handleGetAnswerPreview}
                   className="inline-flex items-center gap-2 rounded-lg border-0 bg-blue-600 px-4 py-1.5 font-bold text-white shadow-sm transition-colors hover:bg-blue-700 disabled:opacity-30 disabled:cursor-not-allowed sm:px-5 sm:py-2 sm:text-sm md:px-6 text-xs"
                 >
-                  {isLoadingAnswerPreview ? (
+                  {isStreaming ? (
                     <Loader2 size={16} className="size-4 shrink-0 animate-spin" />
                   ) : (
                     <Check size={16} className="size-4 shrink-0" />
@@ -395,7 +397,7 @@ const SentencePracticePage = () => {
         {showMobileSidebar && (
           <div
             className="fixed inset-0 bg-black/50 z-40 lg:hidden backdrop-blur-sm transition-opacity"
-            onClick={() => setShowMobileSidebar(false)}
+            onClick={handleCloseMobileSidebar}
           />
         )}
         <aside
@@ -412,7 +414,7 @@ const SentencePracticePage = () => {
             {/* Mobile Close Button */}
             <div className="lg:hidden absolute top-3 right-3 sm:top-4 sm:right-4 z-10">
               <button
-                onClick={() => setShowMobileSidebar(false)}
+                onClick={handleCloseMobileSidebar}
                 className="p-1.5 sm:p-2 bg-slate-100 hover:bg-slate-200 rounded-full text-slate-500 transition-colors"
               >
                 <X size={18} className="sm:w-5 sm:h-5" />
@@ -420,7 +422,7 @@ const SentencePracticePage = () => {
             </div>
             <Aside
               renderAsideType={renderAsideType}
-              isLoadingAnswerPreview={isLoadingAnswerPreview}
+              isLoadingAnswerPreview={isStreaming}
               isLoadingTranslationHints={isLoadingTranslationHints}
               translationHints={translationHints as HintContent | null}
               feedback={feedback}

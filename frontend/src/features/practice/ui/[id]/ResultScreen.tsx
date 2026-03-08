@@ -19,7 +19,7 @@ import { useUserPracticeData } from '../../hooks/useUserPractice';
 import { formatElapsed } from '@/utils/utils';
 import { message, Spin } from 'antd';
 import { LoadingOutlined } from '@ant-design/icons';
-import type { ApiError } from '@/types/api';
+import { showApiError } from '@/shared/api/showApiError';
 import { renderWordDiff } from '../../fnc';
 import { splitIntoSentences } from '@/utils/utils';
 export default function ResultScreen() {
@@ -44,7 +44,7 @@ export default function ResultScreen() {
     }
 
     if (errorUserPracticeData) {
-        message.error((errorUserPracticeData as unknown as ApiError).message);
+        showApiError(errorUserPracticeData);
         navigate(`/practice/${id}`, { replace: true });
         return;
     }
