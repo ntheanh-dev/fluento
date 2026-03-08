@@ -20,7 +20,8 @@ import { formatElapsed } from '@/utils/utils';
 import { message, Spin } from 'antd';
 import { LoadingOutlined } from '@ant-design/icons';
 import type { ApiError } from '@/types/api';
-
+import { renderWordDiff } from '../../fnc';
+import { splitIntoSentences } from '@/utils/utils';
 export default function ResultScreen() {
     const { id } = useParams();
     const navigate = useNavigate();
@@ -30,11 +31,11 @@ export default function ResultScreen() {
         return <Spin indicator={<LoadingOutlined spin />} />;
     }
 
-    // if (data && data.sentenceAnswers.length !== splitIntoSentences(data.paragraph.content).length) {
-    //     message.warning('Không thể xem kết quả khi chưa hoàn thành bài luyện tập.');
-    //     navigate(`/practice/${id}`, { replace: true });
-    //     return;
-    // }
+    if (data && data.sentenceAnswers.length !== splitIntoSentences(data.paragraph.content).length) {
+        message.warning('Không thể xem kết quả khi chưa hoàn thành bài luyện tập.');
+        navigate(`/practice/${id}`, { replace: true });
+        return;
+    }
 
     if (data && data.paragraph.type === 'SINGLE_SENTENCE') {
         message.warning('Không thể xem kết quả khi bài luyện tập không phải là bài luyện tập câu.');

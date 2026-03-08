@@ -1,7 +1,6 @@
 package com.nta.common.service;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -12,28 +11,25 @@ public final class SentenceUtils {
         // prevent instantiation
     }
 
-    /**
-     * Split paragraph into sentences.
-     * Supports ., ?, ! endings.
-     */
-    private static final Pattern SENTENCE_PATTERN =
-            Pattern.compile(".*?(?:[.!?](?:\\n+|\\s+)|,(?:\\n+)|$)", Pattern.DOTALL);
-
     public static List<String> splitSentences(String text) {
         if (text == null || text.isEmpty()) {
-            return Collections.emptyList();
+            return List.of();
         }
 
-        // Normalize CRLF -> LF
         String normalized = text.replace("\r\n", "\n");
 
-        Matcher matcher = SENTENCE_PATTERN.matcher(normalized);
-        List<String> result = new ArrayList<String>();
+        String regex = ".*?(?:[.!?](?:\\n+|\\s+)|,(?:\\n+)|$)";
+        Pattern pattern = Pattern.compile(regex, Pattern.DOTALL);
+
+        Matcher matcher = pattern.matcher(normalized);
+        List<String> result = new ArrayList<>();
 
         while (matcher.find()) {
-            String sentence = matcher.group().trim();
-            if (!sentence.isEmpty()) {
-                result.add(sentence);
+            String s = matcher.group();
+            s = s.replaceAll("^[ ]+|[ ]+$", "");
+
+            if (!s.isEmpty()) {
+                result.add(s);
             }
         }
 

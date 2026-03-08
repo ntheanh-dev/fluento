@@ -40,8 +40,6 @@ function normalizeSentence(text: string, originalText?: string): string {
 
   let result = trimmed.charAt(0).toUpperCase() + trimmed.slice(1);
 
-
-
   if (!/[.!?]["']?$/.test(result)) {
     result = `${result}.`;
   }
@@ -72,16 +70,14 @@ const SentencePracticePage = () => {
   const startedAtRef = useRef<number | null>(null);
   const { data, error: errorUserPracticeData } = useUserPracticeData(Number(id));
 
-
-
-  // if (data?.sentenceAnswers?.length === vietNameseSentences.length) {
-  //   navigate(`/practice/${id}/result`);
-  //   return;
-  // }
+  if (data?.sentenceAnswers?.length === vietNameseSentences.length) {
+    navigate(`/practice/${id}/result`);
+    return;
+  }
 
   const answerPreviewPayload = useMemo(
     () => ({
-      translatedSentence: normalizeSentence(translation),
+      translatedSentence: normalizeSentence(translation, vietNameseSentences[orderIndex]),
       orderIndex,
     }),
     [translation, orderIndex]
@@ -97,7 +93,7 @@ const SentencePracticePage = () => {
 
   const submitPayload = useMemo(
     () => ({
-      vietnameseSentence: normalizeSentence(translation),
+      vietnameseSentence: normalizeSentence(translation, vietNameseSentences[orderIndex]),
       orderIndex,
       feedback: feedback as SentenceFeedback,
       ...(startedAtRef.current != null
@@ -167,16 +163,18 @@ const SentencePracticePage = () => {
     if (!translation.trim()) return;
     if (isStreaming) return;
 
-    const normalized = normalizeSentence(translation, vietNameseSentences[orderIndex]);
-    if (normalized !== translation) {
-      setTranslation(normalized);
-    }
-    setLastCheckedTranslation(normalized);
-
     setRenderAsideType("markdownFeedback");
     if (isMobile || isTablet) {
       setShowMobileSidebar(true);
     }
+
+    const normalized = normalizeSentence(translation, vietNameseSentences[orderIndex]);
+    if (normalized !== translation) {
+      setTranslation(normalized);
+    }
+
+    setLastCheckedTranslation(normalized);
+
     resetFeedbackStream();
     try {
       await startFeedbackStream();
