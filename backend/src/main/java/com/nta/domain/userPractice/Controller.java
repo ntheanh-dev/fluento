@@ -3,16 +3,19 @@ package com.nta.domain.userPractice;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
 
 import jakarta.validation.Valid;
 
+import org.springframework.data.domain.Page;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
 import com.nta.common.dto.ApiResponse;
 import com.nta.domain.paragraph.dto.request.CreateParagraphRequest;
+import com.nta.domain.paragraph.enums.Level;
+import com.nta.domain.paragraph.enums.Topic;
+import com.nta.domain.paragraph.enums.Type;
 import com.nta.domain.userPractice.dto.request.SentenceTranslationRequest;
 import com.nta.domain.userPractice.dto.request.SubmitAnswerRequest;
 import com.nta.domain.userPractice.dto.response.UserPracticeResponse;
@@ -34,9 +37,20 @@ public class Controller {
     Service service;
 
     @GetMapping
-    ApiResponse<List<UserPracticeResponse>> getAll() {
-        return ApiResponse.<List<UserPracticeResponse>>builder()
-                .result(service.getAll())
+    ApiResponse<Page<UserPracticeResponse>> getAll(
+            @RequestParam(required = false) String type,
+            @RequestParam(required = false) String topic,
+            @RequestParam(required = false) String level,
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false, defaultValue = "desc") String sort,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "12") int size) {
+        Type typeEnum = type != null && !type.isBlank() ? Type.fromString(type) : null;
+        Topic topicEnum = topic != null && !topic.isBlank() ? Topic.fromString(topic) : null;
+        Level levelEnum = level != null && !level.isBlank() ? Level.fromString(level) : null;
+        String searchTrimmed = search != null && !search.isBlank() ? search.trim() : null;
+        return ApiResponse.<Page<UserPracticeResponse>>builder()
+                .result(service.getAllFiltered(typeEnum, topicEnum, levelEnum, searchTrimmed, sort, page, size))
                 .build();
     }
 

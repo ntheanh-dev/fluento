@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Trophy, Flame, Search, Clock } from "lucide-react";
-import { Avatar, Spin } from "antd";
+import { Avatar, Spin, Pagination } from "antd";
 import { useRankings } from "./query";
 import { useDebounce } from "../../shared/hooks/useDebounce";
 import { formatTotalHours } from "@/utils/utils";
@@ -19,54 +19,9 @@ const Rankings: React.FC = () => {
   });
 
   const rows = data?.content ?? [];
-  const totalPages = data?.totalPages ?? 0;
+  const totalElements = data?.totalElements ?? 0;
   const currentPage = data?.number ?? page;
   const showPagination = !!data && data.totalElements > data.size;
-
-  const pageItems: (number | "dots")[] = React.useMemo(() => {
-    if (!totalPages) return [];
-    if (totalPages <= 7) {
-      return Array.from({ length: totalPages }, (_, i) => i);
-    }
-
-    const last = totalPages - 1;
-    const pages: (number | "dots")[] = [0];
-    const left = Math.max(1, currentPage - 1);
-    const right = Math.min(last - 1, currentPage + 1);
-
-    const showLeftDots = left > 1;
-    const showRightDots = right < last - 1;
-
-    if (!showLeftDots && showRightDots) {
-      // near the start: 1 2 3 4 ... last
-      for (let i = 1; i <= 4; i++) {
-        pages.push(i);
-      }
-      pages.push("dots");
-      pages.push(last);
-    } else if (showLeftDots && !showRightDots) {
-      // near the end: first ... last-4 last-3 last-2 last-1 last
-      pages.push("dots");
-      for (let i = last - 4; i < last; i++) {
-        pages.push(i);
-      }
-      pages.push(last);
-    } else if (showLeftDots && showRightDots) {
-      // middle: first ... left center right ... last
-      pages.push("dots");
-      for (let i = left; i <= right; i++) {
-        pages.push(i);
-      }
-      pages.push("dots");
-      pages.push(last);
-    } else {
-      for (let i = 1; i <= last; i++) {
-        pages.push(i);
-      }
-    }
-
-    return pages;
-  }, [totalPages, currentPage]);
 
   const {
     data: podiumData,
@@ -307,53 +262,18 @@ const Rankings: React.FC = () => {
               </table>
             </div>
             {showPagination && (
-              <div className="p-4 border-t border-slate-100 flex items-center justify-between gap-4">
-                <div className="text-xs text-slate-500">
-                  Trang <span className="font-semibold">{currentPage + 1}</span>{" "}
-                  / <span className="font-semibold">{totalPages}</span> •{" "}
-                  <span className="font-semibold">{data?.totalElements}</span>{" "}
-                  người học
+              <div className="p-4 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div className="text-xs text-slate-500 order-2 sm:order-1">
+                  <span className="font-semibold">{totalElements}</span> người học
                 </div>
-                <div className="flex items-center gap-1">
-                  <button
-                    className="px-3 py-1 text-xs rounded-md border border-slate-200 text-slate-500 hover:bg-slate-50 disabled:text-slate-300 disabled:border-slate-100 disabled:hover:bg-transparent"
-                    disabled={currentPage <= 0}
-                    onClick={() => setPage((prev) => Math.max(0, prev - 1))}
-                  >
-                    Trước
-                  </button>
-                  {pageItems.map((item, idx) =>
-                    item === "dots" ? (
-                      <span
-                        key={`ellipsis-${idx}`}
-                        className="px-1 text-xs text-slate-400"
-                      >
-                        ...
-                      </span>
-                    ) : (
-                      <button
-                        key={item}
-                        className={`px-3 py-1 text-xs rounded-md border transition-colors ${item === currentPage
-                            ? "bg-primary/10 text-primary border-primary font-semibold shadow-sm"
-                            : "border-slate-200 text-slate-600 hover:bg-slate-50"
-                          }`}
-                        onClick={() => setPage(item)}
-                      >
-                        {item + 1}
-                      </button>
-                    ),
-                  )}
-                  <button
-                    className="px-3 py-1 text-xs rounded-md border border-slate-200 text-slate-500 hover:bg-slate-50 disabled:text-slate-300 disabled:border-slate-100 disabled:hover:bg-transparent"
-                    disabled={currentPage + 1 >= totalPages}
-                    onClick={() =>
-                      setPage((prev) =>
-                        totalPages ? Math.min(totalPages - 1, prev + 1) : prev,
-                      )
-                    }
-                  >
-                    Sau
-                  </button>
+                <div className="order-1 sm:order-2">
+                  <Pagination
+                    current={currentPage + 1}
+                    total={totalElements}
+                    pageSize={size}
+                    showSizeChanger={false}
+                    onChange={(p) => setPage(p - 1)}
+                  />
                 </div>
               </div>
             )}

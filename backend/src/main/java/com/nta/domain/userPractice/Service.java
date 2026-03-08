@@ -7,6 +7,12 @@ import java.util.function.Consumer;
 
 import jakarta.transaction.Transactional;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nta.common.enums.ErrorCode;
 import com.nta.common.exception.AppException;
@@ -17,6 +23,9 @@ import com.nta.common.service.ai.ParagraphPromptFactory;
 import com.nta.common.service.ai.PromptMessage;
 import com.nta.domain.paragraph.Paragraph;
 import com.nta.domain.paragraph.dto.request.CreateParagraphRequest;
+import com.nta.domain.paragraph.enums.Level;
+import com.nta.domain.paragraph.enums.Topic;
+import com.nta.domain.paragraph.enums.Type;
 import com.nta.domain.user.User;
 import com.nta.domain.userPractice.dto.request.SentenceTranslationRequest;
 import com.nta.domain.userPractice.dto.request.SubmitAnswerRequest;
@@ -78,6 +87,19 @@ public class Service {
         Long userId = commonUserService.getCurrentUserIdFromContext();
         List<UserPractice> userPractices = repository.findByUserId(userId);
         return mapper.toUserPracticeResponses(userPractices);
+    }
+
+    public Page<UserPracticeResponse> getAllFiltered(
+            Type type, Topic topic, Level level, String search, String sortOrder, int page, int size) {
+        Long userId = commonUserService.getCurrentUserIdFromContext();
+        Sort sort = "asc".equalsIgnoreCase(sortOrder)
+                ? Sort.by(Sort.Direction.ASC, "createdAt")
+                : Sort.by(Sort.Direction.DESC, "createdAt");
+        Pageable pageable = PageRequest.of(page, size, sort);
+        Page<UserPractice> practicePage =
+                repository.findByUserIdAndFilters(userId, type, topic, level, search, pageable);
+        List<UserPracticeResponse> responses = mapper.toUserPracticeResponses(practicePage.getContent());
+        return new PageImpl<>(responses, practicePage.getPageable(), practicePage.getTotalElements());
     }
 
     @Transactional
