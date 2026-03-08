@@ -23,4 +23,7 @@ public class UserMeEmbeddedResponse {
 
     /** Điểm trung bình (score) trên các UserSentenceAnswer đã submit của user hiện tại. */
     private Double avgUserSentenceAnswerScore;
+
+    /** Tổng thời gian luyện tập (ms) của user hiện tại (tổng learningTime các UserPractice). */
+    private Long totalLearningTime;
 }

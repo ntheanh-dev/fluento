@@ -13,4 +13,6 @@ public interface UserRankingProjection {
     Double getAvgScore();
 
     Integer getCurrentStreak();
+
+    Long getTotalLearningTime();
 }

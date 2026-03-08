@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import com.nta.domain.userPractice.projection.PracticeSubmitProjection;
 
@@ -17,4 +18,7 @@ public interface Repository extends JpaRepository<UserPractice, Long> {
     @Query(
             "select p.user.id as userId, p.paragraph.content as paragraphContent from UserPractice p where p.id = :practiceId")
     Optional<PracticeSubmitProjection> findSubmitData(Long practiceId);
+
+    @Query("SELECT COALESCE(SUM(up.learningTime), 0) FROM UserPractice up WHERE up.user.id = :userId")
+    Long getTotalLearningTimeByUserId(@Param("userId") Long userId);
 }

@@ -8,6 +8,7 @@ export type RankingItem = {
   avgScore: number;
   totalUserSentenceAnswers: number;
   currentStreak: number;
+  totalLearningTime: number;
 };
 
 export type Page<T> = {

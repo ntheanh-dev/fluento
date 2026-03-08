@@ -20,4 +20,5 @@ public class UserRankingResponse {
     Double avgScore;
     Long totalUserSentenceAnswers;
     Integer currentStreak;
+    Long totalLearningTime;
 }

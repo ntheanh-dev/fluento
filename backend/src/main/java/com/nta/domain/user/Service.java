@@ -45,6 +45,8 @@ public class Service {
 
     com.nta.domain.userSentenceAnswer.Repository userSentenceAnswerRepository;
 
+    com.nta.domain.userPractice.Repository userPracticeRepository;
+
     CommonUserService commonUserService;
 
     /**
@@ -133,11 +135,16 @@ public class Service {
 
         if (flags.contains("practiceStats")) {
             Object[] stats = userSentenceAnswerRepository.getUserSentenceAnswerStats(user.getId());
-            if (stats != null && stats.length >= 2) {
-                Long totalAnswers = stats[0] instanceof Number ? ((Number) stats[0]).longValue() : 0L;
-                Double avgScore = stats[1] instanceof Number ? ((Number) stats[1]).doubleValue() : 0.0;
+            if (stats != null && stats.length > 0) {
+                Object[] row = (Object[]) stats[0];
+
+                Long totalAnswers = row[0] instanceof Number ? ((Number) row[0]).longValue() : 0L;
+                Double avgScore = row[1] instanceof Number ? ((Number) row[1]).doubleValue() : 0.0;
+
                 embeddedBuilder.totalUserSentenceAnswers(totalAnswers).avgUserSentenceAnswerScore(avgScore);
             }
+            Long totalLearningTime = userPracticeRepository.getTotalLearningTimeByUserId(user.getId());
+            embeddedBuilder.totalLearningTime(totalLearningTime != null ? totalLearningTime : 0L);
         }
 
         userResponse.setEmbedded(embeddedBuilder.build());
@@ -161,6 +168,7 @@ public class Service {
                     .avgScore(p.getAvgScore())
                     .totalUserSentenceAnswers(p.getTotalUserSentenceAnswers())
                     .currentStreak(p.getCurrentStreak())
+                    .totalLearningTime(p.getTotalLearningTime())
                     .build());
         }
 

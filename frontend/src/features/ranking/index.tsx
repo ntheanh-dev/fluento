@@ -1,8 +1,9 @@
 import React, { useState } from "react";
-import { Trophy, Flame, Search } from "lucide-react";
+import { Trophy, Flame, Search, Clock } from "lucide-react";
 import { Avatar, Spin } from "antd";
 import { useRankings } from "./query";
 import { useDebounce } from "../../shared/hooks/useDebounce";
+import { formatTotalHours } from "@/utils/utils";
 
 const Rankings: React.FC = () => {
   const [keyword, setKeyword] = useState("");
@@ -124,6 +125,9 @@ const Rankings: React.FC = () => {
                   <span className="text-[10px] bg-slate-100 text-slate-500 px-2 py-0.5 rounded mt-1 inline-block">
                     Điểm TB {second.avgScore?.toFixed(1) ?? "0.0"}
                   </span>
+                  <div className="mt-1 text-[10px] text-slate-400 flex items-center justify-center gap-0.5">
+                    <Clock size={10} /> {formatTotalHours(second.totalLearningTime ?? 0)}
+                  </div>
                 </div>
               </div>
             )}
@@ -161,6 +165,9 @@ const Rankings: React.FC = () => {
                   <div className="mt-2 text-xs text-slate-400 flex items-center justify-center gap-1">
                     <Flame size={12} /> Chuỗi {first.currentStreak ?? 0} ngày
                   </div>
+                  <div className="mt-1 text-xs text-slate-400 flex items-center justify-center gap-1">
+                    <Clock size={12} /> {formatTotalHours(first.totalLearningTime ?? 0)}
+                  </div>
                 </div>
               </div>
             </div>
@@ -190,6 +197,9 @@ const Rankings: React.FC = () => {
                   <span className="text-[10px] bg-orange-50 text-orange-800 px-2 py-0.5 rounded mt-1 inline-block">
                     Điểm TB {third.avgScore?.toFixed(1) ?? "0.0"}
                   </span>
+                  <div className="mt-1 text-[10px] text-slate-400 flex items-center justify-center gap-0.5">
+                    <Clock size={10} /> {formatTotalHours(third.totalLearningTime ?? 0)}
+                  </div>
                 </div>
               </div>
             )}
@@ -237,6 +247,7 @@ const Rankings: React.FC = () => {
                     <th className="px-4 sm:px-6 py-3 sm:py-4">Người học</th>
                     <th className="px-4 sm:px-6 py-3 sm:py-4">Điểm TB</th>
                     <th className="px-4 sm:px-6 py-3 sm:py-4">Số câu</th>
+                    <th className="px-4 sm:px-6 py-3 sm:py-4">Tổng thời gian</th>
                     <th className="px-4 sm:px-6 py-3 sm:py-4">Chuỗi ngày</th>
                   </tr>
                 </thead>
@@ -278,6 +289,12 @@ const Rankings: React.FC = () => {
                       <td className="px-4 sm:px-6 py-3 sm:py-4 text-sm font-medium text-slate-600">
                         {row.totalUserSentenceAnswers?.toLocaleString("vi-VN") ??
                           0}
+                      </td>
+                      <td className="px-4 sm:px-6 py-3 sm:py-4 text-sm font-medium text-slate-600">
+                        <span className="flex items-center gap-1">
+                          <Clock size={14} className="text-slate-400" />
+                          {formatTotalHours(row.totalLearningTime ?? 0)}
+                        </span>
                       </td>
                       <td className="px-4 sm:px-6 py-3 sm:py-4">
                         <div className="flex items-center gap-1 text-orange-500 font-bold text-xs">

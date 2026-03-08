@@ -38,7 +38,8 @@ public interface Repository extends JpaRepository<User, Long> {
 						u.urlAvatar AS urlAvatar,
 						COALESCE(COUNT(a), 0) AS totalUserSentenceAnswers,
 						COALESCE(AVG(a.score), 0) AS avgScore,
-						u.currentStreak AS currentStreak
+						u.currentStreak AS currentStreak,
+						(SELECT COALESCE(SUM(p2.learningTime), 0) FROM UserPractice p2 WHERE p2.user.id = u.id) AS totalLearningTime
 					FROM User u
 					LEFT JOIN UserPractice p ON p.user.id = u.id
 					LEFT JOIN UserSentenceAnswer a ON a.practice.id = p.id AND a.isSubmitted = TRUE

@@ -28,8 +28,9 @@ public interface Repository extends JpaRepository<UserSentenceAnswer, Long> {
             """
 			SELECT COUNT(a), COALESCE(AVG(a.score), 0)
 			FROM UserSentenceAnswer a
+			INNER JOIN a.practice p
 			WHERE a.isSubmitted = TRUE
-			AND a.practice.user.id = :userId
+			AND p.user.id = :userId
 			""")
     Object[] getUserSentenceAnswerStats(@Param("userId") Long userId);
 }

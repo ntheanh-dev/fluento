@@ -2,14 +2,14 @@ import { useState, useEffect } from "react";
 import { useLocation, Outlet, Link } from "react-router-dom";
 import {
     ChevronRight,
-    Bell,
     Menu,
     PanelLeftClose,
     PanelLeftOpen,
     Flame,
 } from "lucide-react";
 import Sidebar from "./Sidebar";
-import { useProfile } from "@/stores/profile";
+import { useProfile, useProfileStore } from "@/stores/profile";
+import { useProfileData } from "@/features/profile/query";
 
 const getPathName = (pathname: string): string => {
     const pathMap: Record<string, string> = {
@@ -29,12 +29,19 @@ const Layout = () => {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const [isDesktopSidebarOpen, setIsDesktopSidebarOpen] = useState(true);
     const { profile } = useProfile();
+    const { setProfile } = useProfileStore();
+    const { data: profileData } = useProfileData();
+
+    useEffect(() => {
+        if (profileData) setProfile(profileData);
+    }, [profileData, setProfile]);
+
     useEffect(() => {
         setIsMobileMenuOpen(false);
     }, [location.pathname]);
 
     return (
-        <div className="flex h-screen overflow-hidden bg-slate-50">
+        <main className="flex h-screen overflow-hidden bg-slate-50">
             {/* Desktop Sidebar */}
             <aside
                 className={`hidden md:flex flex-col bg-white border-slate-200 z-10 transition-all duration-300 ease-in-out overflow-hidden ${isDesktopSidebarOpen ? "w-64 border-r" : "w-0 border-none"
@@ -126,7 +133,7 @@ const Layout = () => {
                     <Outlet />
                 </main>
             </div>
-        </div>
+        </main>
     );
 };
 

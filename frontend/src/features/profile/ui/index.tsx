@@ -9,6 +9,7 @@ import {
   Star,
   Save,
   Camera,
+  Clock,
 } from "lucide-react";
 import { Button, Input, Select, message } from "antd";
 import { useProfileStore } from "../../../stores/profile";
@@ -20,6 +21,7 @@ import {
   ALLOWED_IMAGE_TYPES,
 } from "../../../shared/validation/constant";
 import ApiKeysSection from "./ApiKeysSection";
+import { formatTotalHours } from "@/utils/utils";
 
 const Profile = () => {
   const { profile } = useProfileStore();
@@ -35,20 +37,6 @@ const Profile = () => {
     () => profile?.embedded?.totalUserSentenceAnswers ?? 0,
     [profile?.embedded?.totalUserSentenceAnswers],
   );
-
-  const avgScorePercent = useMemo(() => {
-    if (!profile?.embedded?.avgUserSentenceAnswerScore) return 0;
-    // backend trả điểm dạng 0-10 hoặc 0-100? Giả sử 0-10 -> convert sang %
-    const score = profile.embedded.avgUserSentenceAnswerScore;
-    if (score <= 1.0) {
-      // nếu backend dùng 0-1 thì nhân 100
-      return Math.round(score * 100);
-    }
-    if (score <= 10) {
-      return Math.round((score / 10) * 100);
-    }
-    return Math.round(score);
-  }, [profile?.embedded?.avgUserSentenceAnswerScore]);
 
   useEffect(() => {
     setFullName(profile?.fullName ?? "");
@@ -159,7 +147,7 @@ const Profile = () => {
         {/* Right Content */}
         <div className="flex-1 min-w-0 space-y-6">
           {/* Stats Row */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center gap-4">
               <div className="w-12 h-12 rounded-full bg-orange-50 text-orange-500 flex items-center justify-center shrink-0">
                 <Flame size={24} fill="currentColor" />
@@ -193,7 +181,20 @@ const Profile = () => {
                   Điểm trung bình
                 </p>
                 <p className="text-xl font-bold text-slate-800">
-                  {avgScorePercent}%
+                  {(profile?.embedded?.avgUserSentenceAnswerScore ?? 0).toFixed(2)}
+                </p>
+              </div>
+            </div>
+            <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center gap-4">
+              <div className="w-12 h-12 rounded-full bg-violet-50 text-violet-500 flex items-center justify-center shrink-0">
+                <Clock size={24} />
+              </div>
+              <div>
+                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                  Tổng thời gian luyện tập
+                </p>
+                <p className="text-xl font-bold text-slate-800">
+                  {formatTotalHours(profile?.embedded?.totalLearningTime ?? 0)}
                 </p>
               </div>
             </div>
