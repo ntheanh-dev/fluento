@@ -82,6 +82,16 @@ const PracticeSetup = () => {
     setSentenceCount("TEN");
   };
 
+  const handleModeChange = (mode: "sentence" | "paragraph") => {
+    setMode(mode);
+    if (mode === "sentence") {
+      setSentenceCount("TEN");
+      setType("SINGLE_SENTENCE");
+    } else {
+      setType("BASIC");
+    }
+  };
+
   return (
     <div className="max-w-6xl mx-auto py-6">
       <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 md:p-8">
@@ -99,7 +109,7 @@ const PracticeSetup = () => {
           {/* Mode Switch */}
           <div className="bg-slate-100 p-1.5 rounded-xl flex text-sm font-medium">
             <button
-              onClick={() => setMode("paragraph")}
+              onClick={() => handleModeChange("paragraph")}
               className={`flex-1 px-4 py-2.5 rounded-lg flex items-center justify-center whitespace-nowrap gap-2 ${mode === "paragraph"
                 ? "bg-white text-blue-600 shadow-sm font-bold"
                 : "text-slate-500"
@@ -110,7 +120,7 @@ const PracticeSetup = () => {
             </button>
 
             <button
-              onClick={() => setMode("sentence")}
+              onClick={() => handleModeChange("sentence")}
               className={`flex-1 px-4 py-2.5 rounded-lg flex items-center whitespace-nowrap justify-center gap-2 ${mode === "sentence"
                 ? "bg-white text-blue-600 shadow-sm font-bold"
                 : "text-slate-500"
@@ -122,163 +132,158 @@ const PracticeSetup = () => {
           </div>
         </div>
 
-        {/* ================= COMMON CONFIG ================= */}
-        {(mode === "sentence" || mode === "paragraph") && (
-          <>
-            <div className="py-3">
-              <label className="text-sm font-bold flex items-center gap-2 py-2">
-                <Globe size={16} />
-                Chủ đề
-              </label>
-              <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
-                {/* Groups List */}
-                <div className="md:col-span-4 space-y-2">
-                  {TOPIC_GROUPS.map((group) => (
+        <div className="py-3">
+          <label className="text-sm font-bold flex items-center gap-2 py-2">
+            <Globe size={16} />
+            Chủ đề
+          </label>
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
+            {/* Groups List */}
+            <div className="md:col-span-4 space-y-2">
+              {TOPIC_GROUPS.map((group) => (
+                <button
+                  key={group.group}
+                  onClick={() => {
+                    setSelectedGroup(group.group);
+                    setTopic(group.topics[0].value);
+                  }}
+                  className={`w-full text-left px-4 py-3 rounded-xl text-sm font-medium flex justify-between items-center transition-all ${selectedGroup === group.group
+                    ? "bg-slate-100 text-slate-900 font-bold"
+                    : "text-slate-500 hover:bg-slate-50 hover:text-slate-700"
+                    }`}
+                >
+                  {group.label}
+                  {selectedGroup === group.group}
+                </button>
+              ))}
+            </div>
+
+            {/* Topics Grid */}
+            <div className="md:col-span-8 bg-slate-50 rounded-2xl p-4 border border-slate-100">
+              <div className="grid grid-cols-2 gap-3">
+                {TOPIC_GROUPS.find(
+                  (g) => g.group === selectedGroup,
+                )?.topics.map((t) => (
+                  <button
+                    key={t.value}
+                    onClick={() => setTopic(t.value)}
+                    className={`px-4 py-3 rounded-lg border text-sm transition-all text-left ${topic === t.value
+                      ? "bg-white border-blue-500 text-blue-700 shadow-sm ring-1 ring-blue-500 font-medium"
+                      : "bg-white border-slate-200 text-slate-600 hover:border-blue-300"
+                      }`}
+                  >
+                    {t.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="grid md:grid-cols-2 gap-8">
+          {/* LEFT */}
+          <div className="space-y-6">
+            {/* Type */}
+            {mode === "paragraph" && (
+              <div className="space-y-3">
+                <label className="text-sm font-bold flex items-center gap-2">
+                  <FileText size={16} />
+                  Loại bài
+                </label>
+                <div className="grid grid-cols-2 gap-2">
+                  {PRACTICE_TYPES.map((item) => (
                     <button
-                      key={group.group}
-                      onClick={() => {
-                        setSelectedGroup(group.group);
-                        setTopic(group.topics[0].value);
-                      }}
-                      className={`w-full text-left px-4 py-3 rounded-xl text-sm font-medium flex justify-between items-center transition-all ${selectedGroup === group.group
-                        ? "bg-slate-100 text-slate-900 font-bold"
-                        : "text-slate-500 hover:bg-slate-50 hover:text-slate-700"
+                      key={item.value}
+                      onClick={() => setType(item.value)}
+                      className={`px-3 py-2 rounded-lg text-xs font-bold border ${type === item.value
+                        ? "border-blue-500 bg-blue-50 text-blue-600"
+                        : "border-slate-200 text-slate-600"
                         }`}
                     >
-                      {group.label}
-                      {selectedGroup === group.group}
+                      {item.label}
                     </button>
                   ))}
                 </div>
-
-                {/* Topics Grid */}
-                <div className="md:col-span-8 bg-slate-50 rounded-2xl p-4 border border-slate-100">
-                  <div className="grid grid-cols-2 gap-3">
-                    {TOPIC_GROUPS.find(
-                      (g) => g.group === selectedGroup,
-                    )?.topics.map((t) => (
-                      <button
-                        key={t.value}
-                        onClick={() => setTopic(t.value)}
-                        className={`px-4 py-3 rounded-lg border text-sm transition-all text-left ${topic === t.value
-                          ? "bg-white border-blue-500 text-blue-700 shadow-sm ring-1 ring-blue-500 font-medium"
-                          : "bg-white border-slate-200 text-slate-600 hover:border-blue-300"
-                          }`}
-                      >
-                        {t.label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
               </div>
-            </div>
+            )}
 
-            <div className="grid md:grid-cols-2 gap-8">
-              {/* LEFT */}
-              <div className="space-y-6">
-                {/* Type */}
-                {mode === "paragraph" && (
-                  <div className="space-y-3">
-                    <label className="text-sm font-bold flex items-center gap-2">
-                      <FileText size={16} />
-                      Loại bài
-                    </label>
-                    <div className="grid grid-cols-2 gap-2">
-                      {PRACTICE_TYPES.map((item) => (
-                        <button
-                          key={item.value}
-                          onClick={() => setType(item.value)}
-                          className={`px-3 py-2 rounded-lg text-xs font-bold border ${type === item.value
-                            ? "border-blue-500 bg-blue-50 text-blue-600"
-                            : "border-slate-200 text-slate-600"
-                            }`}
-                        >
-                          {item.label}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Level */}
-                <div className="space-y-3">
-                  <label className="text-sm font-bold flex items-center gap-2">
-                    <Brain size={16} />
-                    Trình độ
-                  </label>
-                  <div className="grid grid-cols-2 gap-3">
-                    {LEVELS.map((item) => (
-                      <button
-                        key={item.value}
-                        onClick={() => setLevel(item.value)}
-                        className={`py-2 rounded-lg text-sm font-bold border ${level === item.value
-                          ? "bg-orange-50 border-orange-200 text-orange-700 font-bold"
-                          : "border-slate-200 text-slate-600"
-                          }`}
-                      >
-                        {item.label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              {/* RIGHT */}
-              <div className="space-y-6">
-                {/* Tone */}
-                <div className="space-y-3">
-                  <label className="text-sm font-bold flex items-center gap-2">
-                    <MessageSquare size={16} />
-                    Văn phong
-                  </label>
-                  <select
-                    value={tone}
-                    onChange={(e) => setTone(e.target.value)}
-                    className="w-full rounded-xl border-slate-200 bg-slate-50 py-3 px-4"
+            {/* Level */}
+            <div className="space-y-3">
+              <label className="text-sm font-bold flex items-center gap-2">
+                <Brain size={16} />
+                Trình độ
+              </label>
+              <div className="grid grid-cols-2 gap-3">
+                {LEVELS.map((item) => (
+                  <button
+                    key={item.value}
+                    onClick={() => setLevel(item.value)}
+                    className={`py-2 rounded-lg text-sm font-bold border ${level === item.value
+                      ? "bg-orange-50 border-orange-200 text-orange-700 font-bold"
+                      : "border-slate-200 text-slate-600"
+                      }`}
                   >
-                    {TONES.map((item) => (
-                      <option key={item.value} value={item.value}>
-                        {item.label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                {/* Sentence Count */}
-                {(mode === "sentence" || mode === "paragraph") && (
-                  <div className="space-y-3">
-                    <label className="text-sm font-bold flex items-center gap-2">
-                      <ListOrdered size={16} />
-                      Số câu (khoảng)
-                    </label>
-                    <select
-                      value={sentenceCount}
-                      onChange={(e) => setSentenceCount(e.target.value)}
-                      className="w-full rounded-xl border-slate-200 bg-slate-50 py-3 px-4"
-                    >
-                      {SENTENCE_COUNTS.map((item) => (
-                        <option key={item.value} value={item.value}>
-                          {item.label}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                )}
-
-                {/* Info */}
-                <div className="p-4 rounded-xl bg-amber-50 border border-amber-100">
-                  <h4 className="text-sm font-bold text-amber-800 mb-2 flex items-center gap-2">
-                    <Info size={16} />
-                    Thời gian ước tính
-                  </h4>
-                  <p className="text-xs text-amber-700">
-                    Khoảng 10–20 phút tùy vào độ dài và trình độ.
-                  </p>
-                </div>
+                    {item.label}
+                  </button>
+                ))}
               </div>
             </div>
-          </>
-        )}
+          </div>
+
+          {/* RIGHT */}
+          <div className="space-y-6">
+            {/* Tone */}
+            <div className="space-y-3">
+              <label className="text-sm font-bold flex items-center gap-2">
+                <MessageSquare size={16} />
+                Văn phong
+              </label>
+              <select
+                value={tone}
+                onChange={(e) => setTone(e.target.value)}
+                className="w-full rounded-xl border-slate-200 bg-slate-50 py-3 px-4"
+              >
+                {TONES.map((item) => (
+                  <option key={item.value} value={item.value}>
+                    {item.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Sentence Count */}
+            {(mode === "sentence" || mode === "paragraph") && (
+              <div className="space-y-3">
+                <label className="text-sm font-bold flex items-center gap-2">
+                  <ListOrdered size={16} />
+                  Số câu (khoảng)
+                </label>
+                <select
+                  value={sentenceCount}
+                  onChange={(e) => setSentenceCount(e.target.value)}
+                  className="w-full rounded-xl border-slate-200 bg-slate-50 py-3 px-4"
+                >
+                  {SENTENCE_COUNTS.map((item) => (
+                    <option key={item.value} value={item.value}>
+                      {item.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+
+            {/* Info */}
+            <div className="p-4 rounded-xl bg-amber-50 border border-amber-100">
+              <h4 className="text-sm font-bold text-amber-800 mb-2 flex items-center gap-2">
+                <Info size={16} />
+                Thời gian ước tính
+              </h4>
+              <p className="text-xs text-amber-700">
+                Khoảng 10–20 phút tùy vào độ dài và trình độ.
+              </p>
+            </div>
+          </div>
+        </div>
 
         {/* FOOTER */}
         <div className="flex justify-between items-center pt-6 border-t mt-8">

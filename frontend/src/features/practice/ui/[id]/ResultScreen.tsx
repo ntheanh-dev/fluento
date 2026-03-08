@@ -37,12 +37,6 @@ export default function ResultScreen() {
         return;
     }
 
-    if (data && data.paragraph.type === 'SINGLE_SENTENCE') {
-        message.warning('Không thể xem kết quả khi bài luyện tập không phải là bài luyện tập câu.');
-        navigate(`/practice/${id}`, { replace: true });
-        return;
-    }
-
     if (errorUserPracticeData) {
         showApiError(errorUserPracticeData);
         navigate(`/practice/${id}`, { replace: true });
@@ -165,9 +159,19 @@ export default function ResultScreen() {
                                         {data?.paragraph.title}
                                     </p>
                                 )}
-                                <p className="text-md text-slate-600 italic leading-relaxed whitespace-pre-line">
-                                    {data?.paragraph.content}
-                                </p>
+                                {data?.paragraph.type === 'SINGLE_SENTENCE' ? (
+                                    <p className="text-md text-slate-600 italic leading-relaxed whitespace-pre-line">
+                                        {splitIntoSentences(data?.paragraph.content ?? '').map((sentence, index) => (
+                                            <p key={index} className="text-md text-slate-600 italic leading-relaxed whitespace-pre-line">
+                                                {index + 1}. {sentence}
+                                            </p>
+                                        ))}
+                                    </p>
+                                ) : (
+                                    <p className="text-md text-slate-600 italic leading-relaxed whitespace-pre-line">
+                                        {data?.paragraph.content}
+                                    </p>
+                                )}
                             </div>
                         </div>
 
@@ -177,9 +181,19 @@ export default function ResultScreen() {
                                 <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Tiếng Anh (Bản dịch của bạn)</span>
                             </div>
                             <div className="p-6 md:p-8 bg-blue-50/30 flex-1">
-                                <p className="text-md text-slate-900 font-medium leading-relaxed whitespace-pre-line">
-                                    {data?.sentenceAnswers.map((answer) => renderWordDiff(answer.userTranslation ?? '', answer.feedback.correction ?? ''))}
-                                </p>
+                                {data?.paragraph.type === 'SINGLE_SENTENCE' ? (
+                                    <p className="text-md text-slate-900 font-medium leading-relaxed">
+                                        {data?.sentenceAnswers.map((answer, index) => <>
+                                            {index + 1}. {' '}
+                                            {renderWordDiff(answer.userTranslation ?? '', answer.feedback.correction ?? '')}
+                                            <br />
+                                        </>)}
+                                    </p>
+                                ) : (
+                                    <p className="text-md text-slate-900 font-medium leading-relaxed whitespace-pre-line">
+                                        {data?.sentenceAnswers.map((answer) => renderWordDiff(answer.userTranslation ?? '', answer.feedback.correction ?? ''))}
+                                    </p>
+                                )}
                             </div>
                         </div>
                     </div>
