@@ -93,8 +93,8 @@ const PracticeSetup = () => {
   };
 
   return (
-    <div className="max-w-7xl mx-auto py-6">
-      <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 md:p-8">
+    <div className="h-[calc(100vh-130px+4rem)] max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-slate-800 font-display">
+      <div className="bg-white rounded-xl shadow-sm border border-slate-200 md:p-8">
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
           <div>

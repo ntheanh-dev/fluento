@@ -229,9 +229,9 @@ const SentencePracticePage = () => {
   );
 
   return (
-    <div className="max-w-screen-2xl mx-auto h-[calc(100vh-130px+4rem)] -mt-4 sm:-mt-6 md:-mt-8 -mb-4 sm:-mb-6 md:-mb-8 flex flex-col overflow-hidden">
+    <div className="h-[calc(100vh-130px+4rem)] max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col overflow-hidden">
       {/* Top Bar for Task Info */}
-      <div className="flex items-center justify-between py-3 md:py-4 mb-2 shrink-0 px-1 sm:px-0 gap-4">
+      <div className="flex items-center justify-between md:py-4 mb-2 shrink-0 px-1 sm:px-0 gap-4">
         <div className="flex-[10] flex flex-row items-center justify-between gap-4">
           {data?.paragraph.type !== "BASIC" && data?.paragraph.type !== "SINGLE_SENTENCE" && (
             <div>
