@@ -25,8 +25,11 @@ import { formatTotalHours } from "@/utils/utils";
 import { useLogoutMutation } from "@/features/auth/mutation";
 import Cookies from "js-cookie";
 import { useNavigate } from "react-router-dom";
+import { PROFILE_EMBED_API_KEY, useProfileData } from "../query";
 const Profile = () => {
-  const { profile } = useProfileStore();
+  const { data: profile } = useProfileData({
+    queryParams: PROFILE_EMBED_API_KEY,
+  });
   const { mutateAsync: updateMeMutation, isPending: savingFullName } =
     useUpdateMe();
   const navigate = useNavigate();
