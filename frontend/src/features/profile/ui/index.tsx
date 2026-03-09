@@ -147,8 +147,11 @@ const Profile = () => {
                 <CreditCard size={18} /> Gói đăng ký
               </button>
               <div className="h-px bg-slate-100 my-1 mx-2"></div>
-              <button className="w-full flex items-center gap-3 px-4 py-3 text-red-500 hover:bg-red-50 rounded-xl font-medium text-sm transition-colors">
-                <LogOut onClick={handleLogout} size={18} /> Đăng xuất
+              <button
+                onClick={handleLogout}
+                className="w-full flex items-center gap-3 px-4 py-3 text-red-500 hover:bg-red-50 rounded-xl font-medium text-sm transition-colors"
+              >
+                <LogOut size={18} /> Đăng xuất
               </button>
             </div>
           </div>

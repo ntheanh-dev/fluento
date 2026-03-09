@@ -4,6 +4,48 @@ import { ACCESS_TOKEN_EXPIRE_TIME } from "../../features/auth/constant";
 
 const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8080/api";
 
+// Dùng chung một promise refresh cho tất cả request 401 đang chờ
+let refreshTokenPromise: Promise<string> | null = null;
+
+const refreshAccessToken = async (): Promise<string> => {
+    if (!refreshTokenPromise) {
+        refreshTokenPromise = (async () => {
+            const res = await axios.post<{ result: { accessToken: string } }>(
+                `${BASE_URL}/auth/refresh`,
+                {},
+                {
+                    withCredentials: true,
+                }
+            );
+            const accessToken = res.data?.result?.accessToken;
+            if (!accessToken) {
+                throw new Error("Invalid refresh response");
+            }
+
+            Cookies.set("accessToken", accessToken, {
+                expires: ACCESS_TOKEN_EXPIRE_TIME,
+                secure: true,
+                sameSite: "strict",
+                path: "/",
+            });
+
+            return accessToken;
+        })()
+            .catch((err) => {
+                // Nếu refresh fail thì redirect về login 1 lần
+                console.error("Token refresh failed:", err);
+                Cookies.remove("accessToken");
+                window.location.href = "/login";
+                throw err;
+            })
+            .finally(() => {
+                refreshTokenPromise = null;
+            });
+    }
+
+    return refreshTokenPromise;
+};
+
 export const http = axios.create({
     baseURL: BASE_URL,
     headers: {
@@ -27,22 +69,16 @@ http.interceptors.request.use((config) => {
     return config;
 });
 
-/** Queue requests while refresh is in progress to avoid multiple refresh calls */
-let isRefreshing = false;
-let failedQueue: { resolve: (token: string | null) => void; reject: (err: unknown) => void }[] = [];
-
-const processQueue = (token: string | null, error: unknown = null) => {
-    failedQueue.forEach(({ resolve, reject }) => {
-        if (error) reject(error);
-        else resolve(token);
-    });
-    failedQueue = [];
-};
-
 http.interceptors.response.use(
     (response) => response,
     async (error) => {
-        const originalRequest = error.config;
+        const originalRequest = error.config as typeof error.config & { _retry?: boolean };
+
+        // Never try to refresh for the refresh endpoint itself to avoid loops
+        const isRefreshRequest = originalRequest?.url?.includes("/auth/refresh");
+        if (!originalRequest || isRefreshRequest) {
+            return Promise.reject(error);
+        }
 
         if (error.response?.status !== 401 || originalRequest._retry) {
             return Promise.reject(error);
@@ -61,46 +97,22 @@ http.interceptors.response.use(
             return Promise.reject(error);
         }
 
-        // Refresh token is in httpOnly cookie (path /auth/refresh), sent automatically with withCredentials
-        if (isRefreshing) {
-            return new Promise((resolve, reject) => {
-                failedQueue.push({
-                    resolve: (token) => {
-                        if (token) originalRequest.headers.Authorization = `Bearer ${token}`;
-                        resolve(http(originalRequest));
-                    },
-                    reject,
-                });
-            });
-        }
-
         originalRequest._retry = true;
-        isRefreshing = true;
 
         try {
-            const res = await http.post<{ result: { accessToken: string } }>("/auth/refresh", {}, {
-                withCredentials: true,
-            });
-            const accessToken = res.data?.result?.accessToken;
-            if (!accessToken) {
-                throw new Error("Invalid refresh response");
+            // Dùng chung 1 lần refresh cho tất cả request 401 đang chờ
+            const accessToken = await refreshAccessToken();
+
+            // Cập nhật header Authorization cho request hiện tại
+            if (!originalRequest.headers) {
+                originalRequest.headers = {};
             }
-            Cookies.set("accessToken", accessToken, {
-                expires: ACCESS_TOKEN_EXPIRE_TIME,
-                secure: true,
-                sameSite: "strict",
-                path: "/",
-            });
             originalRequest.headers.Authorization = `Bearer ${accessToken}`;
-            processQueue(accessToken);
+
+            // Retry lại đúng request vừa bị 401 một lần
             return http(originalRequest);
         } catch (refreshError) {
-            processQueue(null, refreshError);
-            Cookies.remove("accessToken");
-            window.location.href = "/login";
             return Promise.reject(refreshError);
-        } finally {
-            isRefreshing = false;
         }
     }
 );

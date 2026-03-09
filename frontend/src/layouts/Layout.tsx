@@ -156,11 +156,8 @@ const Layout = () => {
                                     </Link>
                                 </>
                             )}
-
-
                         </div>
                     </div>
-
                 </header>
 
                 {/* Scrollable Page Content */}

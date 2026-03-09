@@ -71,7 +71,7 @@ public class Controller {
                 .httpOnly(true)
                 .secure(true)
                 .sameSite("Strict")
-                .path("/auth/refresh")
+                .path("/api/auth/refresh")
                 .maxAge(Duration.ofDays(3))
                 .build();
 

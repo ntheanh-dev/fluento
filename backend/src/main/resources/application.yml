@@ -39,7 +39,7 @@ spring:
       resourceserver:
         jwt:
           signer-key: 29A1E019A311440FF025957809748C9D
-          access-token-valid-duration: 100000 # in minutes
+          access-token-valid-duration: 15 # in minutes
           refresh-token-valid-duration: 3 # in day
     client:
       registration:

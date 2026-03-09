@@ -60,7 +60,7 @@ const Hero = () => {
                                 <div className="size-8 rounded-full border-2 border-white bg-slate-400"></div>
                                 <div className="size-8 rounded-full border-2 border-white bg-slate-500"></div>
                             </div>
-                            <span>Được tin dùng bởi hơn 10.000+ học viên trên toàn thế giới</span>
+                            <span>Được tin dùng bởi hơn 100+ học viên</span>
                         </div>
                     </div>
                     <div className="relative">
