@@ -12,6 +12,7 @@ import com.nta.common.dto.ApiResponse;
 import com.nta.common.enums.ErrorCode;
 import com.nta.common.exception.AppException;
 import com.nta.domain.user.dto.request.*;
+import com.nta.domain.user.dto.response.CreditBalanceResponse;
 import com.nta.domain.user.dto.response.UserRankingResponse;
 import com.nta.domain.user.dto.response.UserResponse;
 
@@ -35,6 +36,13 @@ public class Controller {
     ApiResponse<UserResponse> getMyInfo(@RequestParam(value = "embedded", required = false) String embedded) {
         return ApiResponse.<UserResponse>builder()
                 .result(service.getMyInfo(embedded))
+                .build();
+    }
+
+    @GetMapping("/me/credits")
+    ApiResponse<CreditBalanceResponse> getMyCredits() {
+        return ApiResponse.<CreditBalanceResponse>builder()
+                .result(service.getMyCredits())
                 .build();
     }
 

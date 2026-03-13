@@ -31,4 +31,7 @@ public interface Repository extends JpaRepository<ApiKey, Long> {
     @Modifying
     @Query("UPDATE ApiKey a SET a.isActive = false WHERE a.id = :id")
     void deactivateApiKey(@Param("id") Long id);
+
+    @Query("SELECT a.user.id, COUNT(a) FROM ApiKey a GROUP BY a.user.id")
+    List<Object[]> countByUser();
 }

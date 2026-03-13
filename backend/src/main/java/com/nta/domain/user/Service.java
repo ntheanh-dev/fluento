@@ -21,6 +21,7 @@ import com.nta.common.exception.AppException;
 import com.nta.common.service.CommonUserService;
 import com.nta.common.service.cloudinary.CloudinaryFileUploadService;
 import com.nta.domain.user.dto.request.UpdateMeRequest;
+import com.nta.domain.user.dto.response.CreditBalanceResponse;
 import com.nta.domain.user.dto.response.UserMeEmbeddedResponse;
 import com.nta.domain.user.dto.response.UserRankingResponse;
 import com.nta.domain.user.dto.response.UserResponse;
@@ -114,6 +115,14 @@ public class Service {
         UserResponse response = mapper.toUserResponse(user);
         response.setNoPassword(!StringUtils.hasText(user.getPassword()));
         return response;
+    }
+
+    public CreditBalanceResponse getMyCredits() {
+        Long userId = commonUserService.getCurrentUserIdFromContext();
+        Long credits = repository.findCreditsByUserId(userId);
+        return CreditBalanceResponse.builder()
+                .credits(credits != null ? credits : 0L)
+                .build();
     }
 
     public UserResponse getMyInfo(String embedded) {

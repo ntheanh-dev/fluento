@@ -81,7 +81,13 @@ public class Service {
             }
             created.add(row);
         }
-        log.info("API key created for user: {} with {} rows", user.getUsername(), created.size());
+        long bonusCredits = 20L * created.size();
+        userRepository.addCredits(user.getId(), bonusCredits);
+        log.info(
+                "API key created for user: {} with {} rows, added {} bonus credits",
+                user.getUsername(),
+                created.size(),
+                bonusCredits);
         return created.stream().map(mapper::toAiModelResponse).toList();
     }
 

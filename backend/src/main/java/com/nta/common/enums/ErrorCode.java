@@ -64,6 +64,9 @@ public enum ErrorCode {
     // PARAGRAPH, USERPRACTICE
     NOT_OWN_PRACTICE(4000, "You don't own this practice", HttpStatus.NOT_ACCEPTABLE),
 
+    // CREDIT, PAYMENT
+    NOT_ENOUGH_CREDITS(4001, "Bạn không đủ credits để sử dụng tính năng này", HttpStatus.BAD_REQUEST),
+
     // Generic errors (90xx)
     THIS_METHOD_DOES_NOTE_SUPPORT_YET(9001, "This method does not support yet", HttpStatus.BAD_REQUEST);
     private int code;

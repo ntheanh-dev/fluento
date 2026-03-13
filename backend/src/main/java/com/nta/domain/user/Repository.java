@@ -11,10 +11,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import com.nta.domain.user.projection.UserRankingProjection;
-
-import feign.Param;
 
 @org.springframework.stereotype.Repository("userRepository")
 public interface Repository extends JpaRepository<User, Long> {
@@ -58,4 +57,39 @@ public interface Repository extends JpaRepository<User, Long> {
     @Modifying
     @Query("UPDATE User u SET u.currentStreak = 0 WHERE u.lastSubmissionDate IS NULL OR u.lastSubmissionDate < ?1")
     int resetBrokenStreaks(LocalDate thresholdDate);
+
+    @Modifying
+    @Query("""
+		UPDATE User
+		SET credits = credits - :amount
+		WHERE id = :userId AND credits >= :amount
+	""")
+    int reserveCredits(@Param("userId") Long userId, @Param("amount") Long amount);
+
+    @Modifying
+    @Query("""
+		UPDATE User
+		SET credits = credits + :amount
+		WHERE id = :userId
+	""")
+    void addCredits(@Param("userId") Long userId, @Param("amount") Long amount);
+
+    @Modifying
+    @Query("""
+		UPDATE User u
+		SET u.credits = :amount
+		WHERE u.id = :userId
+		""")
+    void setCredits(@Param("userId") Long userId, @Param("amount") Long amount);
+
+    @Modifying
+    @Query("""
+		UPDATE User u
+		SET u.credits = 0
+		WHERE NOT EXISTS (SELECT a FROM ApiKey a WHERE a.user = u)
+		""")
+    void resetCreditsForUsersWithoutApiKeys();
+
+    @Query("SELECT u.credits FROM User u WHERE u.id = :userId")
+    Long findCreditsByUserId(@Param("userId") Long userId);
 }

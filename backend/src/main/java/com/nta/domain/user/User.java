@@ -56,4 +56,7 @@ public class User {
 
     @Column(name = "last_submission_date")
     private LocalDate lastSubmissionDate;
+
+    @Column(nullable = false)
+    private Long credits = 0L;
 }

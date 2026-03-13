@@ -1,7 +1,6 @@
 package com.nta.common.service.ai.impl;
 
 import java.time.Duration;
-import java.util.function.Consumer;
 
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.messages.SystemMessage;
@@ -13,7 +12,6 @@ import org.springframework.ai.openai.OpenAiChatOptions;
 import org.springframework.ai.openai.api.OpenAiApi;
 import org.springframework.ai.retry.NonTransientAiException;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClientResponseException;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.benmanes.caffeine.cache.Cache;
@@ -27,6 +25,7 @@ import com.nta.common.service.ai.ChatResponse;
 import com.nta.common.service.ai.ChatService;
 import com.nta.common.service.ai.ClientKey;
 import com.nta.domain.apikey.ApiKey;
+import com.nta.domain.creditTransaction.CreditTransaction;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -40,6 +39,7 @@ public class GeminiChatService implements ChatService {
     private final ObjectMapper objectMapper;
     private final com.nta.domain.apikey.Service apiKeyService;
     private final com.nta.common.service.ApiKeyCrypto apiKeyCrypto;
+    private final com.nta.domain.creditTransaction.Service creditTransactionService;
     private final Cache<String, OpenAiApi> apiCache = Caffeine.newBuilder()
             .maximumSize(ChatCacheConstants.API_CACHE_MAX_SIZE)
             .expireAfterAccess(Duration.ofMinutes(ChatCacheConstants.CACHE_EXPIRE_AFTER_ACCESS_MINUTES))
@@ -52,6 +52,9 @@ public class GeminiChatService implements ChatService {
 
     @Override
     public <T> ChatResponse<T> sendMessage(String systemMessage, String userMessage, Class<T> responseType) {
+        Long userId = commonUserService.getCurrentUserIdFromContext();
+        CreditTransaction tx = creditTransactionService.reserveCredit(userId, 1L);
+
         ApiKey apiKey = commonUserService.getApiKeyFromContext();
 
         // encrypted api key is stored in database, we need to decrypt it before returning
@@ -73,7 +76,8 @@ public class GeminiChatService implements ChatService {
 
             long duration = System.currentTimeMillis() - startTime;
             log.info(
-                    "AI call success - model={} duration={}ms",
+                    "AI call success - txId={} model={} duration={}ms",
+                    tx.getId(),
                     apiKey.getModel().getApiValue(),
                     duration);
 
@@ -86,9 +90,15 @@ public class GeminiChatService implements ChatService {
             outputText = response.getResult().getOutput().getText();
 
             log.info(
-                    "Tokens used - Prompt: {}, Completion: {}, Total: {}", promptTokens, completionTokens, totalTokens);
+                    "AI tokens used - txId={} Prompt={}, Completion={}, Total={}",
+                    tx.getId(),
+                    promptTokens,
+                    completionTokens,
+                    totalTokens);
 
             T result = parseResponse(outputText, responseType);
+
+            creditTransactionService.commitTransaction(tx.getId());
 
             return ChatResponse.<T>builder()
                     .result(result)
@@ -97,10 +107,13 @@ public class GeminiChatService implements ChatService {
                     .totalTokens(0)
                     .build();
         } catch (NonTransientAiException exception) {
+            creditTransactionService.refundTransaction(tx.getId());
+
             long duration = System.currentTimeMillis() - startTime;
 
             log.error(
-                    "AI call failed - model={} duration={}ms error={}",
+                    "AI call failed - txId={} model={} duration={}ms error={}",
+                    tx.getId(),
                     apiKey.getModel().getApiValue(),
                     duration,
                     exception.getMessage(),
@@ -115,76 +128,17 @@ public class GeminiChatService implements ChatService {
 
             throw new AppException(ErrorCode.AI_EXHAUSTED);
         } catch (Exception e) {
+            creditTransactionService.refundTransaction(tx.getId());
+
             long duration = System.currentTimeMillis() - startTime;
 
             log.error(
-                    "AI response parsing failed - model={} duration={}ms",
+                    "AI response parsing failed - txId={} model={} duration={}ms",
+                    tx.getId(),
                     apiKey.getModel().getApiValue(),
                     duration,
                     e);
 
-            throw new AppException(ErrorCode.AI_RESPONSE_PARSE_ERROR);
-        }
-    }
-
-    @Override
-    public void streamMessage(String systemMessage, String userMessage, Consumer<String> onChunk) {
-        ApiKey apiKey = commonUserService.getApiKeyFromContext();
-
-        String decryptedApiKey = apiKeyCrypto.decrypt(apiKey.getApiKey());
-
-        ChatClient chatClient =
-                getOrCreateClient(decryptedApiKey, apiKey.getModel().getApiValue());
-
-        long startTime = System.currentTimeMillis();
-
-        try {
-            chatClient.prompt(buildPrompt(systemMessage, userMessage)).stream()
-                    .content()
-                    .doOnNext(text -> {
-                        if (text != null && !text.isBlank()) {
-                            onChunk.accept(text);
-                        }
-                    })
-                    .blockLast();
-
-            long duration = System.currentTimeMillis() - startTime;
-            log.info(
-                    "AI streaming call success - model={} duration={}ms",
-                    apiKey.getModel().getApiValue(),
-                    duration);
-        } catch (WebClientResponseException.TooManyRequests exception) {
-            long duration = System.currentTimeMillis() - startTime;
-            log.error(
-                    "AI streaming call failed - model={} duration={}ms error={}",
-                    apiKey.getModel().getApiValue(),
-                    duration,
-                    exception.getMessage(),
-                    exception);
-            throw new AppException(ErrorCode.AI_EXHAUSTED);
-        } catch (NonTransientAiException exception) {
-            long duration = System.currentTimeMillis() - startTime;
-            log.error(
-                    "AI streaming call failed - model={} duration={}ms error={}",
-                    apiKey.getModel().getApiValue(),
-                    duration,
-                    exception.getMessage(),
-                    exception);
-
-            if (exception.getMessage() != null
-                    && exception.getMessage().contains("429")
-                    && exception.getMessage().contains("RESOURCE_EXHAUSTED")) {
-                handleApiReachLimit(apiKey);
-            }
-
-            throw new AppException(ErrorCode.AI_EXHAUSTED);
-        } catch (Exception e) {
-            long duration = System.currentTimeMillis() - startTime;
-            log.error(
-                    "AI streaming response failed - model={} duration={}ms",
-                    apiKey.getModel().getApiValue(),
-                    duration,
-                    e);
             throw new AppException(ErrorCode.AI_RESPONSE_PARSE_ERROR);
         }
     }
