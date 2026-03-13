@@ -3,7 +3,6 @@ package com.nta.domain.userPractice;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
 import java.util.List;
-import java.util.function.Consumer;
 
 import jakarta.transaction.Transactional;
 
@@ -13,7 +12,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nta.common.enums.ErrorCode;
 import com.nta.common.exception.AppException;
 import com.nta.common.service.CommonUserService;
@@ -103,55 +101,41 @@ public class Service {
     }
 
     @Transactional
-    void streamFeedbackMarkdown(Long practiceId, SentenceTranslationRequest request, Consumer<String> onChunk) {
+    SentenceFeedback previewFeedback(Long practiceId, SentenceTranslationRequest request) {
         String originalSentence = validateAndGetOriginalSentence(practiceId, request.getOrderIndex());
 
         PromptMessage prompt = paragraphPromptFactory.buildFeedbackTranslationMarkdownPrompt(
                 originalSentence, request.getTranslatedSentence());
 
-        StringBuilder buffer = new StringBuilder();
+        SentenceFeedback feedback = chatService
+                .sendMessage(prompt.systemMessage(), prompt.userMessage(), SentenceFeedback.class)
+                .getResult();
 
-        chatService.streamMessage(prompt.systemMessage(), prompt.userMessage(), chunk -> {
-            buffer.append(chunk);
-            onChunk.accept(chunk);
-        });
+        // Tìm bản nháp trước đó cho cùng practice + orderIndex (chưa submit)
+        var existingDraft = userSentenceAnswerRepo.findLatestDraft(practiceId, request.getOrderIndex());
 
-        try {
-            // Sau khi stream xong, parse JSON feedback đơn giản
-            ObjectMapper mapper = new ObjectMapper();
-            SentenceFeedback feedback = mapper.readValue(buffer.toString().trim(), SentenceFeedback.class);
-
-            // Tìm bản nháp trước đó cho cùng practice + orderIndex (chưa submit)
-            var existingDraft = userSentenceAnswerRepo.findLatestDraft(practiceId, request.getOrderIndex());
-
-            if (existingDraft.isPresent()) {
-                UserSentenceAnswer answer = existingDraft.get();
-                answer.setOriginalText(originalSentence);
-                answer.setUserTranslation(request.getTranslatedSentence());
-                answer.setScore(feedback.getScore());
-                answer.setFeedback(feedback);
-                answer.setOrderIndex(request.getOrderIndex());
-                answer.setIsSubmitted(false);
-            } else {
-                UserSentenceAnswer answer = UserSentenceAnswer.builder()
-                        .practice(UserPractice.builder().id(practiceId).build())
-                        .originalText(originalSentence)
-                        .userTranslation(request.getTranslatedSentence())
-                        .score(feedback.getScore())
-                        .feedback(feedback)
-                        .orderIndex(request.getOrderIndex())
-                        .isSubmitted(false)
-                        .build();
-                userSentenceAnswerRepo.save(answer);
-            }
-
-        } catch (Exception e) {
-            log.error(
-                    "Failed to parse or persist AI feedback for practiceId={}, orderIndex={}",
-                    practiceId,
-                    request.getOrderIndex(),
-                    e);
+        if (existingDraft.isPresent()) {
+            UserSentenceAnswer answer = existingDraft.get();
+            answer.setOriginalText(originalSentence);
+            answer.setUserTranslation(request.getTranslatedSentence());
+            answer.setScore(feedback.getScore());
+            answer.setFeedback(feedback);
+            answer.setOrderIndex(request.getOrderIndex());
+            answer.setIsSubmitted(false);
+        } else {
+            UserSentenceAnswer answer = UserSentenceAnswer.builder()
+                    .practice(UserPractice.builder().id(practiceId).build())
+                    .originalText(originalSentence)
+                    .userTranslation(request.getTranslatedSentence())
+                    .score(feedback.getScore())
+                    .feedback(feedback)
+                    .orderIndex(request.getOrderIndex())
+                    .isSubmitted(false)
+                    .build();
+            userSentenceAnswerRepo.save(answer);
         }
+
+        return feedback;
     }
 
     @Transactional

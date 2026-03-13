@@ -17,7 +17,7 @@ import type { SentenceFeedback } from "@/entities/userPracticeAnswer/schema";
 import { useSubmitUserSentence } from "../../hooks/useSubmitUserSentence";
 import { Aside } from "./Aside";
 import { showApiError } from "@/shared/api/showApiError";
-import { useAnswerPreviewFeedbackStream } from "../../hooks/useAnswerPreviewFeedbackStream";
+import { useAnswerPreviewFeedback } from "../../hooks/useAnswerPreviewFeedbackStream";
 import { AxiosError } from "axios";
 
 function normalizeSentence(text: string, originalText?: string): string {
@@ -78,12 +78,12 @@ const SentencePracticePage = () => {
   );
 
   const {
-    feedback,
-    isStreaming,
-    start: startFeedbackStream,
-    reset: resetFeedbackStream,
-    error: errorFeedbackStream,
-  } = useAnswerPreviewFeedbackStream(Number(id), answerPreviewPayload);
+    mutateAsync: getAnswerPreview,
+    isPending: isLoadingAnswerPreview,
+    error: errorAnswerPreview,
+  } = useAnswerPreviewFeedback(Number(id), answerPreviewPayload);
+
+  const [feedback, setFeedback] = useState<SentenceFeedback | null>(null);
 
   const submitPayload = useMemo(
     () => ({
@@ -130,13 +130,13 @@ const SentencePracticePage = () => {
     }
   }, [id, data, errorUserPracticeData]);
 
-  /** Hiển thị lỗi khi stream feedback thất bại; đóng sidebar mobile. */
+  /** Hiển thị lỗi khi lấy feedback thất bại; đóng sidebar mobile. */
   useEffect(() => {
-    if (errorFeedbackStream != null) {
-      showApiError(errorFeedbackStream);
+    if (errorAnswerPreview != null) {
+      showApiError(errorAnswerPreview);
       setShowMobileSidebar(false);
     }
-  }, [errorFeedbackStream]);
+  }, [errorAnswerPreview]);
 
   /** Cập nhật elapsed mỗi giây khi đã có data và đã bắt đầu. */
   useEffect(() => {
@@ -174,9 +174,9 @@ const SentencePracticePage = () => {
     }
   }, [translationHints, getTranslationHints]);
 
-  /** Chuẩn hóa bản dịch, gửi lên để xem feedback (stream), mở aside markdown. */
+  /** Chuẩn hóa bản dịch, gửi lên để xem feedback, mở aside markdown. */
   const handleGetAnswerPreview = useCallback(async () => {
-    if (!translation.trim() || isStreaming) return;
+    if (!translation.trim() || isLoadingAnswerPreview) return;
     setRenderAsideType("markdownFeedback");
     if (isMobile || isTablet) setShowMobileSidebar(true);
 
@@ -184,13 +184,13 @@ const SentencePracticePage = () => {
     if (normalized !== translation) setTranslation(normalized);
     setLastCheckedTranslation(normalized);
 
-    resetFeedbackStream();
     try {
-      await startFeedbackStream();
+      const res = await getAnswerPreview();
+      setFeedback(res as SentenceFeedback);
     } catch {
       setShowMobileSidebar(false);
     }
-  }, [translation]);
+  }, [translation, isLoadingAnswerPreview, isMobile, isTablet, vietNameseSentences, orderIndex, getAnswerPreview]);
 
   /** Nộp câu đã kiểm tra, chuyển sang câu tiếp theo hoặc sang trang result nếu hết. */
   const handleNextSentence = useCallback(async () => {
@@ -211,7 +211,6 @@ const SentencePracticePage = () => {
       setTranslationHints(null);
       setRenderAsideType(null);
       setLastCheckedTranslation(null);
-      resetFeedbackStream();
     } catch (error) {
       showApiError(error);
     }
@@ -355,11 +354,11 @@ const SentencePracticePage = () => {
 
               <div className="flex items-center gap-2">
                 <button
-                  disabled={isStreaming || !translation}
+                  disabled={isLoadingAnswerPreview || !translation}
                   onClick={handleGetAnswerPreview}
                   className="inline-flex items-center gap-2 rounded-lg border-0 bg-blue-600 px-4 py-1.5 font-bold text-white shadow-sm transition-colors hover:bg-blue-700 disabled:opacity-30 disabled:cursor-not-allowed sm:px-5 sm:py-2 sm:text-sm md:px-6 text-xs"
                 >
-                  {isStreaming ? (
+                  {isLoadingAnswerPreview ? (
                     <Loader2 size={16} className="size-4 shrink-0 animate-spin" />
                   ) : (
                     <Check size={16} className="size-4 shrink-0" />
@@ -421,7 +420,7 @@ const SentencePracticePage = () => {
             </div>
             <Aside
               renderAsideType={renderAsideType}
-              isLoadingAnswerPreview={isStreaming}
+              isLoadingAnswerPreview={isLoadingAnswerPreview}
               isLoadingTranslationHints={isLoadingTranslationHints}
               translationHints={translationHints as HintContent | null}
               feedback={feedback}

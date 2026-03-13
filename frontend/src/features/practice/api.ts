@@ -2,14 +2,11 @@ import type { SubmitAnswerRequest, UserPractice } from "@/entities/userPractice/
 import { createRestClient, getResource } from "../../shared/api/rest-client";
 import type { AnswerPreviewInput, PracticeSetupInput } from "./schema";
 import type { HintContent } from "@/entities/hints/schema";
-import type { UserSentenceAnswer } from "@/entities/userPracticeAnswer/schema";
-import Cookies from "js-cookie";
+import type { SentenceFeedback, UserSentenceAnswer } from "@/entities/userPracticeAnswer/schema";
 
 const BASE = "/user-practices";
 const PARAGRAPH_BASE = "/paragraphs";
 
-const API_BASE_URL =
-  import.meta.env.VITE_API_URL || "http://localhost:8080/api";
 export const createUserPractice = (
   payload: PracticeSetupInput,
 ): Promise<UserPractice> => {
@@ -41,60 +38,12 @@ export const submitUserSentence = (
   );
 };
 
-export async function streamAnswerPreviewMarkdown(
+export const getAnswerPreview = (
   id: number,
   payload: AnswerPreviewInput,
-  onChunk: (chunk: string) => void,
-  signal?: AbortSignal,
-): Promise<void> {
-  const token = Cookies.get("accessToken");
-
-  const response = await fetch(
-    `${API_BASE_URL}${BASE}/${id}/answers/preview/stream-markdown`,
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      },
-      credentials: "include",
-      body: JSON.stringify(payload),
-      signal,
-    },
+): Promise<SentenceFeedback> => {
+  return createRestClient<SentenceFeedback>(
+    BASE + `/${id}/answers/preview`,
+    payload,
   );
-
-  if (!response.ok) {
-    let body: { message?: string; code?: number } = {};
-    try {
-      const text = await response.text();
-      if (text) body = JSON.parse(text) as { message?: string; code?: number };
-    } catch {
-      // ignore parse error
-    }
-    const err = new Error(body?.message ?? "Failed to stream answer preview") as Error & {
-      response?: { data: { message?: string; code?: number } };
-    };
-    err.response = { data: body };
-    throw err;
-  }
-
-  if (!response.body) {
-    return;
-  }
-
-  const reader = response.body.getReader();
-  const decoder = new TextDecoder("utf-8");
-
-  let done = false;
-
-  while (!done) {
-    const { value, done: readerDone } = await reader.read();
-    if (value) {
-      const text = decoder.decode(value, { stream: !readerDone });
-      if (text) {
-        onChunk(text);
-      }
-    }
-    done = readerDone;
-  }
-}
+};
