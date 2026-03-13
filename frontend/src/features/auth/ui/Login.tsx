@@ -5,7 +5,7 @@ import { message } from "antd";
 import Cookies from "js-cookie";
 import { useLoginMutation } from "../mutation";
 import { loginInputSchema, type LoginInput } from "../../../entities/auth/schema";
-import { useProfileData, PROFILE_EMBED_API_KEY } from "../../profile/query";
+import { useProfileData, PROFILE_EMBED_PRACTICESTATS } from "../../profile/query";
 import logo from "../../../assets/image/logo4.png";
 import { useProfileStore } from "../../../stores/profile";
 import { Mail, Lock, Eye, EyeOff } from 'lucide-react';
@@ -17,7 +17,7 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const { mutateAsync, isPending } = useLoginMutation();
   const { refetch: refetchProfile } = useProfileData({
-    queryParams: PROFILE_EMBED_API_KEY,
+    queryParams: PROFILE_EMBED_PRACTICESTATS,
   });
   const { setProfile } = useProfileStore();
   const method = useForm<LoginInput>({

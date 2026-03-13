@@ -3,7 +3,7 @@ import { useLocation, Outlet, Link } from "react-router-dom";
 import { ChevronRight, Menu, Flame } from "lucide-react";
 import Sidebar from "./Sidebar";
 import { useProfile, useProfileStore } from "@/stores/profile";
-import { PROFILE_EMBED_API_KEY, useProfileData } from "@/features/profile/query";
+import { PROFILE_EMBED_PRACTICESTATS, useProfileData } from "@/features/profile/query";
 import Cookies from "js-cookie";
 import { Button } from "antd";
 
@@ -33,7 +33,7 @@ const Layout = () => {
     const { profile } = useProfile();
     const { setProfile } = useProfileStore();
     const { data: profileData } = useProfileData({
-        queryParams: PROFILE_EMBED_API_KEY,
+        queryParams: PROFILE_EMBED_PRACTICESTATS,
     });
     const isAuthenticated = Cookies.get("accessToken") !== undefined;
 

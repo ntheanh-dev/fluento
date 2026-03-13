@@ -6,7 +6,7 @@ import Cookies from "js-cookie";
 import { useOAuthAuthenticateMutation } from "../mutation";
 import { useProfileStore } from "../../../stores/profile";
 import { ACCESS_TOKEN_EXPIRE_TIME } from "../constant";
-import { PROFILE_EMBED_API_KEY, useProfileData } from "../../profile/query";
+import { PROFILE_EMBED_PRACTICESTATS, useProfileData } from "../../profile/query";
 
 export default function Authenticate() {
   const navigate = useNavigate();
@@ -14,7 +14,7 @@ export default function Authenticate() {
   const { setProfile } = useProfileStore();
   const { mutateAsync: oauthAuthenticate } = useOAuthAuthenticateMutation();
   const { refetch: fetchUserProfile } = useProfileData({
-    queryParams: PROFILE_EMBED_API_KEY,
+    queryParams: PROFILE_EMBED_PRACTICESTATS,
   });
   const [error, setError] = useState<string | null>(null);
 

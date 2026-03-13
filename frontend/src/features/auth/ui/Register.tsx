@@ -7,7 +7,7 @@ import { message } from "antd";
 import Cookies from "js-cookie";
 import { useRegisterMutation } from "../mutation";
 import { registerInputSchema, type RegisterInput } from "../../../entities/auth/schema";
-import { useProfileData, PROFILE_EMBED_API_KEY } from "../../profile/query";
+import { useProfileData, PROFILE_EMBED_PRACTICESTATS } from "../../profile/query";
 import logo from "../../../assets/image/logo4.png";
 import { useProfileStore } from "../../../stores/profile";
 
@@ -16,7 +16,7 @@ const Register = () => {
     const [showPassword, setShowPassword] = useState(false);
     const { mutateAsync, isPending } = useRegisterMutation();
     const { refetch: refetchProfile } = useProfileData({
-        queryParams: PROFILE_EMBED_API_KEY,
+        queryParams: PROFILE_EMBED_PRACTICESTATS,
     });
     const { setProfile } = useProfileStore();
 

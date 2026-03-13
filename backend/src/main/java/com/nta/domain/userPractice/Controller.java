@@ -19,6 +19,7 @@ import com.nta.domain.paragraph.enums.Type;
 import com.nta.domain.userPractice.dto.request.SentenceTranslationRequest;
 import com.nta.domain.userPractice.dto.request.SubmitAnswerRequest;
 import com.nta.domain.userPractice.dto.response.UserPracticeResponse;
+import com.nta.domain.userPractice.dto.response.WritingPerformanceSeriesResponse;
 import com.nta.domain.userSentenceAnswer.SentenceFeedback;
 import com.nta.domain.userSentenceAnswer.dto.response.UserSentenceAnswerResponse;
 
@@ -55,7 +56,14 @@ public class Controller {
                 .build();
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/writing-performance")
+    ApiResponse<WritingPerformanceSeriesResponse> getWritingPerformance(@RequestParam String range) {
+        return ApiResponse.<WritingPerformanceSeriesResponse>builder()
+                .result(service.getWritingPerformance(range))
+                .build();
+    }
+
+    @GetMapping("/{id:\\d+}")
     ApiResponse<UserPracticeResponse> get(@PathVariable Long id) {
         return ApiResponse.<UserPracticeResponse>builder()
                 .result(service.get(id))

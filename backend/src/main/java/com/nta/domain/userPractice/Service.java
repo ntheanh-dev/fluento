@@ -1,8 +1,14 @@
 package com.nta.domain.userPractice;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.time.format.TextStyle;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import jakarta.transaction.Transactional;
 
@@ -28,10 +34,14 @@ import com.nta.domain.user.User;
 import com.nta.domain.userPractice.dto.request.SentenceTranslationRequest;
 import com.nta.domain.userPractice.dto.request.SubmitAnswerRequest;
 import com.nta.domain.userPractice.dto.response.UserPracticeResponse;
+import com.nta.domain.userPractice.dto.response.WritingPerformancePointResponse;
+import com.nta.domain.userPractice.dto.response.WritingPerformanceSeriesResponse;
+import com.nta.domain.userPractice.enums.WritingPerformanceRange;
 import com.nta.domain.userPractice.projection.PracticeSubmitProjection;
 import com.nta.domain.userSentenceAnswer.SentenceFeedback;
 import com.nta.domain.userSentenceAnswer.UserSentenceAnswer;
 import com.nta.domain.userSentenceAnswer.dto.response.UserSentenceAnswerResponse;
+import com.nta.domain.userSentenceAnswer.projection.DailyScoreStatsProjection;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -238,5 +248,35 @@ public class Service {
         }
 
         return sentences.get(orderIndex);
+    }
+
+    public WritingPerformanceSeriesResponse getWritingPerformance(String rangeRaw) {
+        Long userId = commonUserService.getCurrentUserIdFromContext();
+        WritingPerformanceRange range = WritingPerformanceRange.fromString(rangeRaw);
+
+        LocalDate today = LocalDate.now(ZoneOffset.UTC);
+        LocalDate startDate =
+                switch (range) {
+                    case LAST_7_DAYS -> today.minusDays(6);
+                    case LAST_30_DAYS -> today.minusDays(29);
+                };
+
+        LocalDateTime start = startDate.atStartOfDay();
+        LocalDateTime end = today.plusDays(1).atStartOfDay().minusNanos(1);
+
+        List<DailyScoreStatsProjection> stats = userSentenceAnswerRepo.getDailyScoreStats(userId, start, end);
+        Map<LocalDate, DailyScoreStatsProjection> byDate =
+                stats.stream().collect(Collectors.toMap(DailyScoreStatsProjection::getDate, s -> s));
+
+        List<WritingPerformancePointResponse> points = new ArrayList<>();
+        for (LocalDate d = startDate; !d.isAfter(today); d = d.plusDays(1)) {
+            DailyScoreStatsProjection s = byDate.get(d);
+            double score = s != null && s.getAvgScore() != null ? s.getAvgScore() : 0d;
+            long total = s != null && s.getTotalAnswers() != null ? s.getTotalAnswers() : 0L;
+            String label = d.getDayOfWeek().getDisplayName(TextStyle.SHORT, Locale.ENGLISH);
+            points.add(new WritingPerformancePointResponse(d, label, score, total));
+        }
+
+        return new WritingPerformanceSeriesResponse(range.name(), points);
     }
 }

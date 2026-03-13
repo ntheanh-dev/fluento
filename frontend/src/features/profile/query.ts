@@ -5,7 +5,7 @@ import type { ApiKey } from "../../entities/apiKey/schema";
 import { OK } from "../../shared/api/query-keys";
 import { getMyApiKeys, getProfile } from "./api";
 
-export const PROFILE_EMBED_API_KEY = "embedded=practiceStats";
+export const PROFILE_EMBED_PRACTICESTATS = "embedded=practiceStats";
 
 export type UseProfileDataParams = {
     queryParams?: string;

@@ -1,10 +1,14 @@
 package com.nta.domain.userSentenceAnswer;
 
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+
+import com.nta.domain.userSentenceAnswer.projection.DailyScoreStatsProjection;
 
 @org.springframework.stereotype.Repository("userSentenceAnswerRepository")
 public interface Repository extends JpaRepository<UserSentenceAnswer, Long> {
@@ -33,4 +37,22 @@ public interface Repository extends JpaRepository<UserSentenceAnswer, Long> {
 			AND p.user.id = :userId
 			""")
     Object[] getUserSentenceAnswerStats(@Param("userId") Long userId);
+
+    @Query(
+            """
+			SELECT
+				FUNCTION('date', a.createdAt) AS date,
+				COALESCE(AVG(a.score), 0) AS avgScore,
+				COUNT(a.id) AS totalAnswers
+			FROM UserSentenceAnswer a
+			INNER JOIN a.practice p
+			WHERE a.isSubmitted = TRUE
+			AND p.user.id = :userId
+			AND a.createdAt >= :start
+			AND a.createdAt <= :end
+			GROUP BY FUNCTION('date', a.createdAt)
+			ORDER BY FUNCTION('date', a.createdAt)
+			""")
+    List<DailyScoreStatsProjection> getDailyScoreStats(
+            @Param("userId") Long userId, @Param("start") LocalDateTime start, @Param("end") LocalDateTime end);
 }

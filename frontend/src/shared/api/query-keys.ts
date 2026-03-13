@@ -8,4 +8,5 @@ export const OK = {
   usePracticeAnswerPreview: (id: number, orderIndex: number) => ["usePracticeAnswerPreview", id, orderIndex] as const,
   RANKINGS: "rankings",
   historyList: (params: Record<string, unknown>) => ["historyList", params] as const,
+  writingPerformance: (range: string) => ["writingPerformance", range] as const,
 };

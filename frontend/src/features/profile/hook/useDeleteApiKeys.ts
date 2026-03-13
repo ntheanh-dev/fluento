@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useProfileStore } from "../../../stores/profile";
 import { deleteApiKey, getProfile } from "../api";
-import { PROFILE_EMBED_API_KEY } from "../query";
+import { PROFILE_EMBED_PRACTICESTATS } from "../query";
 import { OK } from "../../../shared/api/query-keys";
 
 export function useDeleteApiKey() {
@@ -14,7 +14,7 @@ export function useDeleteApiKey() {
             queryClient.invalidateQueries({ queryKey: [OK.API_KEYS] });
             queryClient.invalidateQueries({ queryKey: [OK.PROFILE] });
 
-            const user = await getProfile(PROFILE_EMBED_API_KEY);
+            const user = await getProfile(PROFILE_EMBED_PRACTICESTATS);
             setProfile(user);
         },
     });

@@ -1,6 +1,8 @@
 package com.nta.domain.user;
 
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -116,6 +118,31 @@ public class Service {
 
     public UserResponse getMyInfo(String embedded) {
         final User user = commonUserService.getUserFromContext();
+
+        // Kiểm tra và reset streak nếu đã đứt chuỗi (dựa trên lastSubmissionDate)
+        LocalDate today = LocalDate.now(ZoneOffset.UTC);
+        LocalDate lastDate = user.getLastSubmissionDate();
+        Integer currentStreak = user.getCurrentStreak();
+
+        boolean streakUpdated = false;
+
+        if (lastDate == null) {
+            if (currentStreak != null && currentStreak != 0) {
+                user.setCurrentStreak(0);
+                streakUpdated = true;
+            }
+        } else {
+            // Nếu ngày nộp bài gần nhất đã trước hôm qua (tức là bỏ qua ít nhất 1 ngày)
+            LocalDate yesterday = today.minusDays(1);
+            if (lastDate.isBefore(yesterday) && currentStreak != null && currentStreak != 0) {
+                user.setCurrentStreak(0);
+                streakUpdated = true;
+            }
+        }
+
+        if (streakUpdated) {
+            repository.save(user);
+        }
 
         final UserResponse userResponse = mapper.toUserResponse(user);
         userResponse.setNoPassword(!StringUtils.hasText(user.getPassword()));
