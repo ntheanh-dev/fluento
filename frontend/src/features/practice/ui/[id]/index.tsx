@@ -8,9 +8,11 @@ import {
   Check,
   Loader2,
   Clock,
+  Coins,
 } from "lucide-react";
 import { useDeviceType } from "@/shared/utilities/useDeviceType";
 import { useParagraphHints, useUserPracticeData } from "../../hooks/useUserPractice";
+import { useCredits } from "@/features/credits/query";
 import { formatElapsed, splitIntoSentences } from "@/utils/utils";
 import type { HintContent } from "@/entities/hints/schema";
 import type { SentenceFeedback } from "@/entities/userPracticeAnswer/schema";
@@ -68,6 +70,7 @@ const SentencePracticePage = () => {
 
   // --- Data hooks ---
   const { data, error: errorUserPracticeData } = useUserPracticeData(Number(id));
+  const { data: creditBalance, refetch: refetchCredits } = useCredits();
 
   const answerPreviewPayload = useMemo(
     () => ({
@@ -167,6 +170,7 @@ const SentencePracticePage = () => {
     try {
       const res = await getTranslationHints();
       setTranslationHints(res);
+      await refetchCredits();
     } catch (error) {
       setShowMobileSidebar(false);
       setRenderAsideType(null);
@@ -187,6 +191,7 @@ const SentencePracticePage = () => {
     try {
       const res = await getAnswerPreview();
       setFeedback(res as SentenceFeedback);
+      await refetchCredits();
     } catch {
       setShowMobileSidebar(false);
     }
@@ -201,6 +206,8 @@ const SentencePracticePage = () => {
 
     try {
       const userSentenceAnswer = await submitUserSentence();
+      // Refresh credits after a successful AI-assisted check & submit
+      await refetchCredits();
       if (orderIndex === vietNameseSentences.length - 1) {
         navigate(`/practice/${id}/result`);
         return;
@@ -255,9 +262,7 @@ const SentencePracticePage = () => {
               <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Level</span>
               <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-50 text-blue-700">{data?.paragraph.level}</span>
             </div>
-            {data && (
-              <div className="h-8 w-px bg-slate-100"></div>
-            )}
+            {data && <div className="h-8 w-px bg-slate-100"></div>}
             {data && (
               <div className="flex flex-col items-start">
                 <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Thời gian</span>
@@ -266,6 +271,18 @@ const SentencePracticePage = () => {
                   {formatElapsed(elapsedSeconds)}
                 </span>
               </div>
+            )}
+            {typeof creditBalance?.credits === "number" && (
+              <>
+                <div className="h-8 w-px bg-slate-100"></div>
+                <div className="flex flex-col items-start">
+                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Credits</span>
+                  <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-700">
+                    <Coins size={14} className="text-amber-500" />
+                    {creditBalance.credits}
+                  </span>
+                </div>
+              </>
             )}
           </div>
         </div>

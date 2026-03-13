@@ -4,12 +4,14 @@ import {
   CheckCircle2,
   History,
   FileText,
-  PenTool
+  PenTool,
+  Coins,
 } from 'lucide-react';
 import { XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area } from 'recharts';
 import { useWritingPerformance } from './hooks/useWritingPerformance';
 import type { WritingPerformanceRange } from './api';
 import { PROFILE_EMBED_PRACTICESTATS, useProfileData } from '../profile/query';
+import { useCredits } from '@/features/credits/query';
 import { formatTotalHours } from '@/utils/utils';
 
 const Dashboard = () => {
@@ -19,6 +21,7 @@ const Dashboard = () => {
   const { data: profile } = useProfileData({
     queryParams: PROFILE_EMBED_PRACTICESTATS,
   });
+  const { data: creditBalance } = useCredits();
 
   const chartData = useMemo(() => {
     const points = series?.points ?? [];
@@ -45,8 +48,9 @@ const Dashboard = () => {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
         {[
+          { label: 'Credits còn lại', value: creditBalance?.credits ?? 0, icon: Coins, color: 'text-amber-600', bg: 'bg-amber-50' },
           { label: 'Tổng số câu đã trả lời', value: profile?.embedded?.totalUserSentenceAnswers ?? 0, icon: FileText, color: 'text-blue-600', bg: 'bg-blue-50' },
           { label: 'Điểm trung bình', value: (profile?.embedded?.avgUserSentenceAnswerScore ?? 0).toFixed(2), icon: CheckCircle2, color: 'text-green-600', bg: 'bg-green-50' },
           { label: 'Tổng thời gian học', value: formatTotalHours(profile?.embedded?.totalLearningTime ?? 0), icon: History, color: 'text-purple-600', bg: 'bg-purple-50' }

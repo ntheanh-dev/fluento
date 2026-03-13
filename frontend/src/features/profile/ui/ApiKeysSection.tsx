@@ -210,10 +210,7 @@ export default function ApiKeysSection() {
                                                             <span className="font-medium text-slate-800 min-w-[140px] text-sm">
                                                                 {key.model}
                                                             </span>
-                                                            <span className="text-slate-600 text-sm tabular-nums">
-                                                                {key.requestCountToday}{" "}
-                                                                / {key.limitPerDay} RPD
-                                                            </span>
+
                                                             {underLimit ? (
                                                                 <span className="inline-flex items-center rounded-md bg-emerald-50 px-2 py-0.5 text-xs font-medium text-emerald-700 border border-emerald-200/80">
                                                                     Active

@@ -6,10 +6,10 @@ import {
   LogOut,
   Flame,
   FileText,
-  Star,
   Save,
   Camera,
   Clock,
+  Coins,
 } from "lucide-react";
 import { Button, Input, Select, message } from "antd";
 import { useProfileStore } from "../../../stores/profile";
@@ -26,10 +26,12 @@ import { useLogoutMutation } from "@/features/auth/mutation";
 import Cookies from "js-cookie";
 import { useNavigate } from "react-router-dom";
 import { PROFILE_EMBED_PRACTICESTATS, useProfileData } from "../query";
+import { useCredits } from "@/features/credits/query";
 const Profile = () => {
   const { data: profile } = useProfileData({
     queryParams: PROFILE_EMBED_PRACTICESTATS,
   });
+  const { data: creditBalance } = useCredits();
   const { mutateAsync: updateMeMutation, isPending: savingFullName } =
     useUpdateMe();
   const navigate = useNavigate();
@@ -165,6 +167,19 @@ const Profile = () => {
           {/* Stats Row */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center gap-4">
+              <div className="w-12 h-12 rounded-full bg-amber-50 text-amber-500 flex items-center justify-center shrink-0">
+                <Coins size={24} />
+              </div>
+              <div>
+                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                  Credits còn lại
+                </p>
+                <p className="text-xl font-bold text-slate-800">
+                  {creditBalance?.credits ?? 0}
+                </p>
+              </div>
+            </div>
+            <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center gap-4">
               <div className="w-12 h-12 rounded-full bg-orange-50 text-orange-500 flex items-center justify-center shrink-0">
                 <Flame size={24} fill="currentColor" />
               </div>
@@ -175,6 +190,7 @@ const Profile = () => {
                 <p className="text-xl font-bold text-slate-800">{profile?.currentStreak} ngày</p>
               </div>
             </div>
+
             <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center gap-4">
               <div className="w-12 h-12 rounded-full bg-blue-50 text-primary flex items-center justify-center shrink-0">
                 <FileText size={24} />
@@ -188,19 +204,7 @@ const Profile = () => {
                 </p>
               </div>
             </div>
-            <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center gap-4">
-              <div className="w-12 h-12 rounded-full bg-green-50 text-green-500 flex items-center justify-center shrink-0">
-                <Star size={24} fill="currentColor" />
-              </div>
-              <div>
-                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                  Điểm trung bình
-                </p>
-                <p className="text-xl font-bold text-slate-800">
-                  {(profile?.embedded?.avgUserSentenceAnswerScore ?? 0).toFixed(2)}
-                </p>
-              </div>
-            </div>
+
             <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center gap-4">
               <div className="w-12 h-12 rounded-full bg-violet-50 text-violet-500 flex items-center justify-center shrink-0">
                 <Clock size={24} />
