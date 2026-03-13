@@ -129,10 +129,6 @@ public class Service {
 
         UserMeEmbeddedResponse.UserMeEmbeddedResponseBuilder embeddedBuilder = UserMeEmbeddedResponse.builder();
 
-        if (flags.contains("apiKey")) {
-            embeddedBuilder.apiKey(apiKeyService.listMyKeysForUserId(user.getId()));
-        }
-
         if (flags.contains("practiceStats")) {
             Object[] stats = userSentenceAnswerRepository.getUserSentenceAnswerStats(user.getId());
             if (stats != null && stats.length > 0) {

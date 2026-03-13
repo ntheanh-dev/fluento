@@ -36,6 +36,13 @@ public class Controller {
                 .build();
     }
 
+    @GetMapping
+    ApiResponse<List<AiModelResponse>> listMyKeys() {
+        return ApiResponse.<List<AiModelResponse>>builder()
+                .result(service.listMyKeys())
+                .build();
+    }
+
     @DeleteMapping
     ApiResponse<Void> delete(@RequestBody @Valid DeleteApiKeyRequest request) {
         service.delete(request);

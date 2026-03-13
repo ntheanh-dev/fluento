@@ -1,4 +1,5 @@
 import type { User } from "../../entities/users/schema";
+import type { ApiKey } from "../../entities/apiKey/schema";
 import { getResource } from "../../shared/api/rest-client";
 import { http } from "../../shared/api/http-client";
 import type { ApiResponse } from "../../shared/api/type";
@@ -29,12 +30,17 @@ export function updateMe(payload: UpdateMePayload, avatar?: File): Promise<User>
     return http.put<ApiResponse<User>>(BASE, form).then((res) => res.data.result);
 }
 
+export function getMyApiKeys(): Promise<ApiKey[]> {
+    return http
+        .get<ApiResponse<ApiKey[]>>("/api-keys")
+        .then((res) => res.data.result);
+}
+
 /** Tạo API key mới (backend tạo 3 model cho key). */
-export function createApiKey(apiKey: string): Promise<User> {
+export function createApiKey(apiKey: string): Promise<void> {
     return http
         .post<ApiResponse<unknown>>("/api-keys", { apiKey })
-        .then(() => getProfile("embedded=apiKey"))
-        .then((user) => user as User);
+        .then(() => undefined);
 }
 
 /** Xóa API key theo giá trị key (xóa toàn bộ nhóm key + model). */

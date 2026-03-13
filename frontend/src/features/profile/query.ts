@@ -1,10 +1,11 @@
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import Cookies from "js-cookie";
 import type { User } from "../../entities/users/schema";
+import type { ApiKey } from "../../entities/apiKey/schema";
 import { OK } from "../../shared/api/query-keys";
-import { getProfile } from "./api";
+import { getMyApiKeys, getProfile } from "./api";
 
-export const PROFILE_EMBED_API_KEY = "embedded=apiKey,practiceStats";
+export const PROFILE_EMBED_API_KEY = "embedded=practiceStats";
 
 export type UseProfileDataParams = {
     queryParams?: string;
@@ -19,6 +20,15 @@ export function useProfileData(params?: UseProfileDataParams | string) {
         queryKey: [OK.PROFILE, queryParams ?? null],
         queryFn: () => getProfile(queryParams),
         placeholderData: keepPreviousData,
+        enabled: hasToken,
+    });
+}
+
+export function useApiKeys() {
+    const hasToken = !!Cookies.get("accessToken");
+    return useQuery<ApiKey[]>({
+        queryKey: [OK.API_KEYS],
+        queryFn: () => getMyApiKeys(),
         enabled: hasToken,
     });
 }

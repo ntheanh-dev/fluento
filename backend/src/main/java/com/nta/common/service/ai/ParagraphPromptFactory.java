@@ -178,42 +178,40 @@ public class ParagraphPromptFactory {
     }
 
     public PromptMessage buildHintTranslationPrompt(String sentence, String level) {
-        final String system =
-                "You are an expert English learning assistant specializing in helping Vietnamese learners understand vocabulary. "
-                        + "Your role is to provide comprehensive, educational hints that help learners translate Vietnamese sentences to English effectively. "
-                        + "You must return ONLY valid JSON with no additional text, markdown, or explanations outside the JSON structure. "
-                        + "Be precise, educational, and focus on practical learning insights.\n\n"
-                        + "IMPORTANT: Generate vocabulary hints appropriate for " + level + " level proficiency. "
-                        + "Choose English translations that match the vocabulary complexity expected at " + level
-                        + " level:\n"
-                        + "- A2: Basic vocabulary, simple words and common expressions\n"
-                        + "- B1: Intermediate vocabulary, familiar topics and everyday situations\n"
-                        + "- B2: Upper-intermediate vocabulary, abstract concepts and complex ideas\n"
-                        + "- C1: Advanced vocabulary, sophisticated language and nuanced expressions\n"
-                        + "- C2: Proficient vocabulary, complex academic and professional terms\n\n"
-                        + "JSON Schema (use EXACTLY these property names in camelCase):\n"
-                        + "{\n"
-                        + "  \"vocabularyHints\": [\n"
-                        + "    { \"vietnamese\": \"word/phrase\", \"english\": [{\"english\": \"translation1\", \"partsOfSpeech\": \"part of speech\", \"ipaPronunciation\": \"ipa pronunciation\"}, {\"english\": \"translation2\", \"partsOfSpeech\": \"part of speech\", \"ipaPronunciation\": \"ipa pronunciation\"}] }\n"
-                        + "  ]\n"
-                        + "}\n\n"
-                        + "Detailed Requirements:\n"
-                        + "- vocabularyHints: Extract ALL key words/phrases with their most appropriate English translations for "
-                        + level + " level. Include multiple translations when relevant.\n"
-                        + "- Provide educational value by choosing translations that help learners understand context and usage appropriate for "
-                        + level + " level.\n"
-                        + "- Maintain JSON validity - no trailing commas, proper escaping, exact property names.";
+        final String system = "You are an English learning assistant for Vietnamese learners. "
+                + "Provide vocabulary hints to help translate Vietnamese sentences into English. "
+                + "Return ONLY valid JSON (no markdown, no explanations).\n\n"
+                + "Use vocabulary suitable for CEFR level: " + level + ".\n"
+                + "Levels:\n"
+                + "A2: basic everyday vocabulary\n"
+                + "B1: intermediate vocabulary for familiar topics\n"
+                + "B2: upper-intermediate vocabulary for abstract ideas\n"
+                + "C1: advanced nuanced vocabulary\n"
+                + "C2: academic/professional vocabulary\n\n"
+                + "JSON schema (exact property names):\n"
+                + "{\n"
+                + "  \"vocabularyHints\": [\n"
+                + "    {\n"
+                + "      \"vietnamese\": \"word or phrase\",\n"
+                + "      \"english\": [\n"
+                + "        {\n"
+                + "          \"english\": \"translation\",\n"
+                + "          \"partsOfSpeech\": \"part of speech\",\n"
+                + "          \"ipaPronunciation\": \"IPA\"\n"
+                + "        }\n"
+                + "      ]\n"
+                + "    }\n"
+                + "  ]\n"
+                + "}";
 
         String user = String.format(
-                "Analyze the Vietnamese sentence below and provide comprehensive learning hints in the specified JSON format for %s level proficiency.\n\n"
-                        + "Vietnamese sentence: \"%s\"\n\n"
+                "Vietnamese sentence: \"%s\"\n\n"
                         + "Tasks:\n"
-                        + "1. Extract key vocabulary with appropriate English translations suitable for %s level\n"
-                        + "2. Identify the sentence structure type in both languages\n"
-                        + "3. Determine the main tense/aspect with grammatical pattern\n"
-                        + "4. Ensure all hints support effective Vietnamese-to-English translation learning at %s level\n\n"
-                        + "Return only the JSON response with exact property names as specified.",
-                level, sentence, level, level);
+                        + "- Extract important Vietnamese words/phrases.\n"
+                        + "- Provide suitable English translations for %s level learners.\n"
+                        + "- Include multiple translations when useful.\n"
+                        + "- Ensure the JSON strictly follows the schema.\n",
+                sentence, level);
 
         return new PromptMessage(system, user);
     }

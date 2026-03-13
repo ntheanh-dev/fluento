@@ -11,11 +11,10 @@ export function useDeleteApiKey() {
     const mutation = useMutation({
         mutationFn: (apiKey: string) => deleteApiKey(apiKey),
         onSuccess: async () => {
+            queryClient.invalidateQueries({ queryKey: [OK.API_KEYS] });
             queryClient.invalidateQueries({ queryKey: [OK.PROFILE] });
-            const user = await queryClient.fetchQuery({
-                queryKey: [OK.PROFILE, PROFILE_EMBED_API_KEY],
-                queryFn: () => getProfile(PROFILE_EMBED_API_KEY),
-            });
+
+            const user = await getProfile(PROFILE_EMBED_API_KEY);
             setProfile(user);
         },
     });

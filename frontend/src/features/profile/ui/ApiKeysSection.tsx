@@ -1,8 +1,8 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo } from "react";
 import { Plus, Trash2, ChevronDown, ChevronUp, Zap } from "lucide-react";
 import { Button, message } from "antd";
 import { useProfileStore } from "../../../stores/profile";
-import { useProfileData, PROFILE_EMBED_API_KEY } from "../query";
+import { useApiKeys } from "../query";
 import { maskApiKey, getProviderFromModel } from "../../../entities/apiKey/schema";
 import type { ApiKey } from "../../../entities/apiKey/schema";
 import { useCreateApiKey } from "../hook/useCreateApiKey";
@@ -14,10 +14,8 @@ import SetDefaultApiKeyDialog from "../dialogs/SetDefaultApiKeyDialog";
 import { formatCreatedAt } from "../../../shared/utilities";
 
 export default function ApiKeysSection() {
-    const { profile, setProfile } = useProfileStore();
-    const { refetch: fetchUserProfile } = useProfileData({
-        queryParams: PROFILE_EMBED_API_KEY,
-    });
+    const { profile } = useProfileStore();
+    const { data: apiKeys = [] } = useApiKeys();
 
     const [expandedGroups, setExpandedGroups] = useState<Record<number, boolean>>({});
     const [addKeyOpen, setAddKeyOpen] = useState(false);
@@ -35,16 +33,8 @@ export default function ApiKeysSection() {
     const { mutateAsync: deleteApiKeyMutation } = useDeleteApiKey();
     const { mutateAsync: updateMeMutation } = useUpdateMe();
 
-    useEffect(() => {
-        if (!profile?.embedded?.apiKey) {
-            fetchUserProfile().then((result) => {
-                if (result?.data) setProfile(result.data);
-            });
-        }
-    }, [profile?.embedded?.apiKey, fetchUserProfile, setProfile]);
-
     const apiKeyGroups = useMemo(() => {
-        const list = profile?.embedded?.apiKey ?? [];
+        const list = apiKeys;
         const map = new Map<string, ApiKey[]>();
         for (const item of list) {
             const k = item.apiKey;
@@ -55,7 +45,7 @@ export default function ApiKeysSection() {
             apiKeyValue,
             keys,
         }));
-    }, [profile?.embedded?.apiKey]);
+    }, [apiKeys, profile?.activeApiKeyId]);
 
     const toggleGroup = (groupKey: number) => {
         setExpandedGroups((prev) => ({ ...prev, [groupKey]: !prev[groupKey] }));

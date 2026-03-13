@@ -44,6 +44,11 @@ public class Service {
         this.commonUserService = commonUserService;
     }
 
+    public List<AiModelResponse> listMyKeys() {
+        Long userId = commonUserService.getCurrentUserIdFromContext();
+        return listMyKeysForUserId(userId);
+    }
+
     public List<AiModelResponse> listMyKeysForUserId(Long userId) {
         return repository.findByUserIdOrderByCreatedAtAsc(userId).stream()
                 .map(mapper::toAiModelResponse)

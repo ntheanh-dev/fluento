@@ -1,7 +1,8 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useProfileStore } from "../../../stores/profile";
-import { createApiKey } from "../api";
+import { createApiKey, getProfile } from "../api";
 import { OK } from "../../../shared/api/query-keys";
+import { PROFILE_EMBED_API_KEY } from "../query";
 
 export function useCreateApiKey() {
     const queryClient = useQueryClient();
@@ -9,9 +10,12 @@ export function useCreateApiKey() {
 
     const mutation = useMutation({
         mutationFn: (apiKey: string) => createApiKey(apiKey),
-        onSuccess: (user) => {
-            setProfile(user);
+        onSuccess: async () => {
+            queryClient.invalidateQueries({ queryKey: [OK.API_KEYS] });
             queryClient.invalidateQueries({ queryKey: [OK.PROFILE] });
+
+            const user = await getProfile(PROFILE_EMBED_API_KEY);
+            setProfile(user);
         },
     });
 
