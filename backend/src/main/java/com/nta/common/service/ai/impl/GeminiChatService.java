@@ -52,10 +52,11 @@ public class GeminiChatService implements ChatService {
 
     @Override
     public <T> ChatResponse<T> sendMessage(String systemMessage, String userMessage, Class<T> responseType) {
-        Long userId = commonUserService.getCurrentUserIdFromContext();
-        CreditTransaction tx = creditTransactionService.reserveCredit(userId, 1L);
 
         ApiKey apiKey = commonUserService.getApiKeyFromContext();
+
+        Long userId = commonUserService.getCurrentUserIdFromContext();
+        CreditTransaction tx = creditTransactionService.reserveCredit(userId, 1L);
 
         // encrypted api key is stored in database, we need to decrypt it before returning
         String decryptedApiKey = apiKeyCrypto.decrypt(apiKey.getApiKey());

@@ -44,9 +44,6 @@ public class CommonUserService {
 
     public ApiKey getApiKeyFromContext() {
         Long userId = this.getCurrentUserIdFromContext();
-        if (userId == null) {
-            throw new AppException(ErrorCode.UNAUTHENTICATED);
-        }
         var apiKey = apiKeyRepository.findActiveApiKeyByUserId(userId);
         if (apiKey == null) {
             log.error("API key not found for user ID: {}", userId);
