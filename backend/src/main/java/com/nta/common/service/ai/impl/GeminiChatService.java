@@ -1,11 +1,11 @@
 package com.nta.common.service.ai.impl;
 
 import java.time.Duration;
+import java.util.List;
 
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.messages.SystemMessage;
 import org.springframework.ai.chat.messages.UserMessage;
-import org.springframework.ai.chat.metadata.ChatResponseMetadata;
 import org.springframework.ai.chat.prompt.Prompt;
 import org.springframework.ai.openai.OpenAiChatModel;
 import org.springframework.ai.openai.OpenAiChatOptions;
@@ -67,22 +67,10 @@ public class GeminiChatService implements ChatService {
             throw e;
         }
 
-        // encrypted api key is stored in database, we need to decrypt it before returning
-        String decryptedApiKey = apiKeyCrypto.decrypt(apiKey.getApiKey());
-
-        ChatClient chatClient =
-                getOrCreateClient(decryptedApiKey, apiKey.getModel().getApiValue());
-
-        String outputText = "";
-
         long startTime = System.currentTimeMillis();
 
         try {
-
-            var response = chatClient
-                    .prompt(buildPrompt(systemMessage, userMessage))
-                    .call()
-                    .chatResponse();
+            String outputText = doChatCall(apiKey, systemMessage, userMessage);
 
             long duration = System.currentTimeMillis() - startTime;
             log.info(
@@ -90,21 +78,6 @@ public class GeminiChatService implements ChatService {
                     tx.getId(),
                     apiKey.getModel().getApiValue(),
                     duration);
-
-            ChatResponseMetadata metadata = response.getMetadata();
-
-            int promptTokens = safe(metadata.getUsage().getPromptTokens());
-            int completionTokens = safe(metadata.getUsage().getCompletionTokens());
-            int totalTokens = safe(metadata.getUsage().getTotalTokens());
-
-            outputText = response.getResult().getOutput().getText();
-
-            log.info(
-                    "AI tokens used - txId={} Prompt={}, Completion={}, Total={}",
-                    tx.getId(),
-                    promptTokens,
-                    completionTokens,
-                    totalTokens);
 
             T result = parseResponse(outputText, responseType);
 
@@ -121,20 +94,34 @@ public class GeminiChatService implements ChatService {
             apiKeyService.refundCredit(apiKey.getId(), CREDIT_PER_AI_CALL);
 
             long duration = System.currentTimeMillis() - startTime;
-
-            log.error(
+            log.warn(
                     "AI call failed - txId={} model={} duration={}ms error={}",
                     tx.getId(),
                     apiKey.getModel().getApiValue(),
                     duration,
-                    exception.getMessage(),
-                    exception);
+                    exception.getMessage());
 
-            if (exception.getMessage() != null
-                    && exception.getMessage().contains("429")
-                    && exception.getMessage().contains("RESOURCE_EXHAUSTED")) {
-
-                handleApiReachLimit(apiKey);
+            if (isRetryableError(exception)) {
+                RetryResult retryResult = retryWithOtherKeys(userId, tx, apiKey, systemMessage, userMessage, startTime);
+                if (retryResult.outputText() != null) {
+                    try {
+                        T result = parseResponse(retryResult.outputText(), responseType);
+                        creditTransactionService.commitTransaction(tx.getId());
+                        apiKeyService.setUserActiveApiKeyId(
+                                userId, retryResult.successfulKey().getId());
+                        return ChatResponse.<T>builder()
+                                .result(result)
+                                .promptTokens(0)
+                                .completionTokens(0)
+                                .totalTokens(0)
+                                .build();
+                    } catch (Exception parseEx) {
+                        creditTransactionService.refundTransaction(tx.getId());
+                        log.error("AI response parse failed after retry", parseEx);
+                        throw new AppException(ErrorCode.AI_RESPONSE_PARSE_ERROR);
+                    }
+                }
+                apiKeyService.setUserActiveApiKeyId(userId, null);
             }
 
             throw new AppException(ErrorCode.AI_EXHAUSTED);
@@ -229,8 +216,65 @@ public class GeminiChatService implements ChatService {
         throw new IllegalArgumentException("No valid JSON found in response");
     }
 
-    private void handleApiReachLimit(ApiKey apiKey) {
-        Long userId = commonUserService.getCurrentUserIdFromContext();
-        apiKeyService.switchActiveKeyAfterDeactivate(userId, apiKey.getId());
+    private boolean isRetryableError(NonTransientAiException e) {
+        if (e.getMessage() == null) return false;
+        String msg = e.getMessage().toLowerCase();
+        return msg.contains("429")
+                || msg.contains("resource_exhausted")
+                || msg.contains("quota")
+                || msg.contains("rate limit")
+                || msg.contains("limit exceeded");
+    }
+
+    private record RetryResult(String outputText, ApiKey successfulKey) {}
+
+    /**
+     * Thử gọi AI với các API key khác của user. Trả về outputText + key thành công, hoặc (null, null) nếu đều lỗi.
+     */
+    private RetryResult retryWithOtherKeys(
+            Long userId,
+            CreditTransaction tx,
+            ApiKey failedKey,
+            String systemMessage,
+            String userMessage,
+            long startTime) {
+        List<ApiKey> others = apiKeyService.getOtherActiveKeysWithCredit(userId, failedKey.getId());
+        for (ApiKey other : others) {
+            try {
+                apiKeyService.deductCredit(other.getId(), CREDIT_PER_AI_CALL);
+                String outputText = doChatCall(other, systemMessage, userMessage);
+                long duration = System.currentTimeMillis() - startTime;
+                log.info(
+                        "AI call success after retry - txId={} model={} duration={}ms",
+                        tx.getId(),
+                        other.getModel().getApiValue(),
+                        duration);
+                return new RetryResult(outputText, other);
+            } catch (Exception e) {
+                apiKeyService.refundCredit(other.getId(), CREDIT_PER_AI_CALL);
+                log.warn("Retry with key id={} failed: {}", other.getId(), e.getMessage());
+            }
+        }
+        return new RetryResult(null, null);
+    }
+
+    /**
+     * Gọi Gemini với một ApiKey, trả về raw output text. Ném exception nếu lỗi.
+     */
+    private String doChatCall(ApiKey apiKey, String systemMessage, String userMessage) {
+        String decrypted = apiKeyCrypto.decrypt(apiKey.getApiKey());
+        ChatClient client = getOrCreateClient(decrypted, apiKey.getModel().getApiValue());
+        var response =
+                client.prompt(buildPrompt(systemMessage, userMessage)).call().chatResponse();
+        int totalTokens = response.getMetadata().getUsage().getTotalTokens();
+        int inputToken = response.getMetadata().getUsage().getPromptTokens();
+        int outputToken = response.getMetadata().getUsage().getCompletionTokens();
+        log.info(
+                "AI call token usage - model={} totalTokens={} inputTokens={} outputTokens={}",
+                apiKey.getModel().getApiValue(),
+                totalTokens,
+                inputToken,
+                outputToken);
+        return response.getResult().getOutput().getText();
     }
 }

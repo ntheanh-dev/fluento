@@ -17,6 +17,11 @@ public interface Repository extends JpaRepository<ApiKey, Long> {
     @Query("SELECT a FROM ApiKey a WHERE a.user.id = :userId AND a.isActive = true AND a.id <> :excludeId")
     List<ApiKey> findActiveByUserIdAndId(@Param("userId") Long userId, @Param("excludeId") Long excludeId);
 
+    @Query(
+            "SELECT a FROM ApiKey a WHERE a.user.id = :userId AND a.id <> :excludeId AND a.credit IS NOT NULL AND a.credit > 0")
+    List<ApiKey> findByUserIdAndIdNotAndCreditGreaterThan(
+            @Param("userId") Long userId, @Param("excludeId") Long excludeId);
+
     @Query("SELECT a FROM ApiKey a WHERE a.user.id = :userId AND a.isActive = true AND a.apiKey <> :excludeKey")
     List<ApiKey> findActiveByUserIdAndKey(@Param("userId") Long userId, @Param("excludeKey") String excludeKey);
 

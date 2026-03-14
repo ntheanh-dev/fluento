@@ -91,6 +91,13 @@ public class Service {
         repository.addCredit(apiKeyId, amount);
     }
 
+    /**
+     * Danh sách API key khác của user (credit > 0) để retry khi key hiện tại 429/limit.
+     */
+    public List<ApiKey> getOtherActiveKeysWithCredit(Long userId, Long excludeApiKeyId) {
+        return repository.findByUserIdAndIdNotAndCreditGreaterThan(userId, excludeApiKeyId);
+    }
+
     @Transactional
     public List<AiModelResponse> create(CreateApiKeyRequest request) {
         String plainKey = request.getApiKey();
@@ -158,6 +165,13 @@ public class Service {
                 created.size(),
                 bonusCredits);
         return created.stream().map(mapper::toAiModelResponse).toList();
+    }
+
+    /**
+     * Đặt active API key của user (id hoặc null).
+     */
+    public void setUserActiveApiKeyId(Long userId, Long apiKeyId) {
+        userRepository.updateActiveApiKeyIdById(userId, apiKeyId);
     }
 
     @Transactional
