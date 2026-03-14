@@ -43,8 +43,7 @@ export function createApiKey(apiKey: string): Promise<void> {
         .then(() => undefined);
 }
 
-/** Xóa API key theo giá trị key (xóa toàn bộ nhóm key + model). */
-export function deleteApiKey(apiKey: string): Promise<void> {
-    if (!apiKey?.trim()) return Promise.resolve();
-    return http.delete("/api-keys", { data: { apiKey: apiKey.trim() } }).then(() => undefined);
+/** Xóa API key theo id (xóa toàn bộ nhóm key + model, trừ credit còn lại khỏi user). */
+export function deleteApiKey(id: number): Promise<void> {
+    return http.delete(`/api-keys/${id}`).then(() => undefined);
 }

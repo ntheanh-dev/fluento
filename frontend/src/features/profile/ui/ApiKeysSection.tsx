@@ -12,6 +12,7 @@ import AddApiKeyDialog from "../dialogs/AddApiKeyDialog";
 import DeleteApiKeyDialog from "../dialogs/DeleteApiKeyDialog";
 import SetDefaultApiKeyDialog from "../dialogs/SetDefaultApiKeyDialog";
 import { formatCreatedAt } from "../../../shared/utilities";
+import { showApiError } from "../../../shared/api/showApiError";
 
 export default function ApiKeysSection() {
     const { profile } = useProfileStore();
@@ -20,7 +21,7 @@ export default function ApiKeysSection() {
     const [expandedGroups, setExpandedGroups] = useState<Record<number, boolean>>({});
     const [addKeyOpen, setAddKeyOpen] = useState(false);
     const [deleteTarget, setDeleteTarget] = useState<{
-        apiKey: string;
+        id: number;
         maskedKey: string;
     } | null>(null);
     const [setDefaultTarget, setSetDefaultTarget] = useState<{
@@ -51,8 +52,8 @@ export default function ApiKeysSection() {
         setExpandedGroups((prev) => ({ ...prev, [groupKey]: !prev[groupKey] }));
     };
 
-    const handleDeleteConfirm = (apiKey: string): Promise<void> => {
-        return deleteApiKeyMutation(apiKey)
+    const handleDeleteConfirm = (id: number): Promise<void> => {
+        return deleteApiKeyMutation(id)
             .then(() => {
                 message.success("Đã xóa khóa API.");
             })
@@ -66,8 +67,8 @@ export default function ApiKeysSection() {
         try {
             await createApiKeyMutation(apiKey);
             message.success("Đã thêm khóa API.");
-        } catch {
-            message.error("Thêm khóa API thất bại.");
+        } catch (err) {
+            showApiError(err, "Thêm khóa API thất bại.");
             throw new Error("Add failed");
         }
     };
@@ -171,7 +172,7 @@ export default function ApiKeysSection() {
                                             type="button"
                                             onClick={() =>
                                                 setDeleteTarget({
-                                                    apiKey: apiKeyValue,
+                                                    id: keys[0].id,
                                                     maskedKey: maskApiKey(
                                                         apiKeyValue
                                                     ),
@@ -196,9 +197,8 @@ export default function ApiKeysSection() {
                                         <div className="px-4 pb-3">
                                             <div className="rounded-lg border border-slate-200 bg-white overflow-hidden">
                                                 {keys.map((key) => {
-                                                    const underLimit =
-                                                        key.requestCountToday <
-                                                        key.limitPerDay;
+                                                    const hasCredit =
+                                                        key.credit > 0;
                                                     const isDefault =
                                                         profile?.activeApiKeyId ===
                                                         key.id;
@@ -211,13 +211,13 @@ export default function ApiKeysSection() {
                                                                 {key.model}
                                                             </span>
 
-                                                            {underLimit ? (
+                                                            {hasCredit ? (
                                                                 <span className="inline-flex items-center rounded-md bg-emerald-50 px-2 py-0.5 text-xs font-medium text-emerald-700 border border-emerald-200/80">
-                                                                    Active
+                                                                    {key.credit} credit
                                                                 </span>
                                                             ) : (
                                                                 <span className="inline-flex items-center rounded-md bg-red-50 px-2 py-0.5 text-xs font-medium text-red-600 border border-red-200/80">
-                                                                    Over limit
+                                                                    Hết credit
                                                                 </span>
                                                             )}
                                                             <div className="ml-auto">
@@ -234,7 +234,7 @@ export default function ApiKeysSection() {
                                                                                 label: `${key.model} (${maskApiKey(apiKeyValue)})`,
                                                                             })
                                                                         }
-                                                                        disabled={!underLimit}
+                                                                        disabled={!hasCredit}
                                                                         className="text-primary font-medium hover:underline text-sm disabled:opacity-50 disabled:cursor-not-allowed disabled:no-underline"
                                                                     >
                                                                         Đặt làm mặc định
@@ -266,7 +266,7 @@ export default function ApiKeysSection() {
                 maskedKey={deleteTarget?.maskedKey ?? null}
                 onClose={() => setDeleteTarget(null)}
                 onConfirm={() =>
-                    deleteTarget ? handleDeleteConfirm(deleteTarget.apiKey) : undefined
+                    deleteTarget ? handleDeleteConfirm(deleteTarget.id) : undefined
                 }
             />
 

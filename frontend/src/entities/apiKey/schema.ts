@@ -4,8 +4,7 @@ const apiKeySchema = z.object({
     id: z.number(),
     apiKey: z.string(),
     model: z.string(),
-    limitPerDay: z.number(),
-    requestCountToday: z.number(),
+    credit: z.number(),
     isActive: z.boolean(),
     createdAt: z.string().nullable(),
 });

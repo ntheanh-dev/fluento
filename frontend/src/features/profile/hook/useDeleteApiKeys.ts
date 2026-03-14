@@ -9,7 +9,7 @@ export function useDeleteApiKey() {
     const setProfile = useProfileStore((s) => s.setProfile);
 
     const mutation = useMutation({
-        mutationFn: (apiKey: string) => deleteApiKey(apiKey),
+        mutationFn: (id: number) => deleteApiKey(id),
         onSuccess: async () => {
             queryClient.invalidateQueries({ queryKey: [OK.API_KEYS] });
             queryClient.invalidateQueries({ queryKey: [OK.PROFILE] });
