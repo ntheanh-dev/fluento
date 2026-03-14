@@ -3,7 +3,6 @@ import { Routes, Route, BrowserRouter, Navigate } from "react-router-dom";
 import { ConfigProvider, Spin } from "antd";
 import { LoadingOutlined } from "@ant-design/icons";
 import "./index.css";
-import { enableMocks } from "./mocks/index.ts";
 import { ReactQueryProvider } from "@/app/providers/ReactQueryProvider.tsx";
 import { lazy } from "react";
 // Auth
@@ -34,8 +33,6 @@ const Profile = lazy(() => import("@/features/profile/ui"));
 const Layout = lazy(() => import("@/layouts/Layout"));
 import { Suspense } from "react";
 import LandingPage from "@/features/landing/index.tsx";
-
-// await enableMocks();
 
 function App() {
   return (

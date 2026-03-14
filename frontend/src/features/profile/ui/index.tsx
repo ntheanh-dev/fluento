@@ -12,7 +12,6 @@ import {
   Coins,
 } from "lucide-react";
 import { Button, Input, Select, message } from "antd";
-import { useProfileStore } from "../../../stores/profile";
 import SetPasswordDialog from "../dialogs/SetPasswordDialog";
 import { useUpdateMe } from "../hook/useUpdateMe";
 import {

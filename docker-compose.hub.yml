@@ -22,8 +22,6 @@ services:
     image: theanhn28/fluento-backend:latest
     container_name: fluento-backend-hub
     restart: unless-stopped
-    ports:
-      - "9000:8080"
     environment:
       - OPENAI_API_KEY= <>
       - CHAT_MODEL=gemini-2.5-flash

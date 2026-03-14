@@ -1,7 +1,7 @@
 import type { HintContent } from "@/entities/hints/schema";
-import { Lightbulb, Sparkles, Volume2 } from "lucide-react";
+import { Sparkles, Volume2 } from "lucide-react";
 import { useMemo } from "react";
-import { motion, AnimatePresence } from 'motion/react';
+import { motion } from 'motion/react';
 
 const getColorByType = (type: string) => {
     switch (type) {

@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { PASSWORD_MAX, PASSWORD_MIN } from "../../shared/validation/constant";
+import { PASSWORD_MIN } from "../../shared/validation/constant";
 
 const loginInputSchema = z
     .object({

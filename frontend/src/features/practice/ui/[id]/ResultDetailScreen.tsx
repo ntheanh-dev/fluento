@@ -2,9 +2,6 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import {
     User,
-    CheckCircle2,
-    AlertCircle,
-    MessageSquare,
     BookOpen,
     Sparkles,
     ArrowRight,

@@ -1,13 +1,8 @@
 import { motion } from 'motion/react';
 import {
-    Share2,
-    Home,
     PartyPopper,
-    CheckCircle2,
-    Lightbulb,
     RotateCcw,
     ArrowRight,
-    Languages,
     History,
     BarChart2,
     Smile,
@@ -50,7 +45,7 @@ export default function ResultScreen() {
 
 
     return (
-        <div className="font-sans text-slate-900 pb-20 min-h-screen">
+        <div className="font-sans text-slate-900 p-4 min-h-screen">
             <main className="max-w-5xl mx-auto px-4 sm:px-6 space-y-6 sm:space-y-8">
                 {/* Hero Section */}
                 <motion.div
