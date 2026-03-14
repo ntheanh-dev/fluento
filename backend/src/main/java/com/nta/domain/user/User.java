@@ -58,5 +58,5 @@ public class User {
     private LocalDate lastSubmissionDate;
 
     @Column(nullable = false)
-    private Long credits = 0L;
+    private Integer credits = 0;
 }

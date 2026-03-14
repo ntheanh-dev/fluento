@@ -18,8 +18,7 @@ public class AiModelResponse {
     private String apiKey;
 
     private AiModelName model;
-    private Integer limitPerDay;
-    private Integer requestCountToday;
+    private Integer credit;
 
     private LocalDateTime createdAt;
 }

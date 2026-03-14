@@ -17,21 +17,25 @@ public class CreditResetJob {
     private final com.nta.domain.apikey.Repository apiKeyRepository;
     private final com.nta.domain.user.Repository userRepository;
 
+    private static final int CREDIT_PER_API_KEY_ROW = 20;
+
     /**
-     * Reset daily credits for all users based on the total number of ApiKey rows they own.
-     * Runs every day at 00:00 UTC.
+     * Reset toàn bộ credit: mỗi row ApiKey về 20, mỗi user về (số row ApiKey đang sở hữu) * 20.
+     * Chạy mỗi ngày 00:00 UTC.
      */
     @Scheduled(cron = "0 0 0 * * *", zone = "UTC")
     @Transactional
     public void resetDailyCreditsBasedOnApiKeys() {
-        List<Object[]> rows = apiKeyRepository.countByUser();
+        int apiKeyRowsReset = apiKeyRepository.resetAllCredits(CREDIT_PER_API_KEY_ROW);
+        log.info("Daily credit reset - {} api key rows set to {}", apiKeyRowsReset, CREDIT_PER_API_KEY_ROW);
 
+        List<Object[]> rows = apiKeyRepository.countByUser();
         for (Object[] row : rows) {
             Long userId = (Long) row[0];
             Long apiKeyCount = (Long) row[1];
-            long credits = apiKeyCount * 20L;
+            int credits = apiKeyCount.intValue() * CREDIT_PER_API_KEY_ROW;
             userRepository.setCredits(userId, credits);
-            log.info("Daily credit reset - userId={} apiKeyCount={} credits={}", userId, apiKeyCount, credits);
+            log.info("Daily credit reset - userId={} apiKeyCount={} userCredits={}", userId, apiKeyCount, credits);
         }
 
         userRepository.resetCreditsForUsersWithoutApiKeys();

@@ -64,7 +64,7 @@ public interface Repository extends JpaRepository<User, Long> {
 		SET credits = credits - :amount
 		WHERE id = :userId AND credits >= :amount
 	""")
-    int reserveCredits(@Param("userId") Long userId, @Param("amount") Long amount);
+    int reserveCredits(@Param("userId") Long userId, @Param("amount") Integer amount);
 
     @Modifying
     @Query("""
@@ -72,7 +72,16 @@ public interface Repository extends JpaRepository<User, Long> {
 		SET credits = credits + :amount
 		WHERE id = :userId
 	""")
-    void addCredits(@Param("userId") Long userId, @Param("amount") Long amount);
+    void addCredits(@Param("userId") Long userId, @Param("amount") Integer amount);
+
+    @Modifying
+    @Query(
+            """
+		UPDATE User u
+		SET u.credits = CASE WHEN u.credits >= :amount THEN u.credits - :amount ELSE 0 END
+		WHERE u.id = :userId
+		""")
+    void subtractCredits(@Param("userId") Long userId, @Param("amount") Integer amount);
 
     @Modifying
     @Query("""
@@ -80,7 +89,7 @@ public interface Repository extends JpaRepository<User, Long> {
 		SET u.credits = :amount
 		WHERE u.id = :userId
 		""")
-    void setCredits(@Param("userId") Long userId, @Param("amount") Long amount);
+    void setCredits(@Param("userId") Long userId, @Param("amount") Integer amount);
 
     @Modifying
     @Query("""
@@ -91,5 +100,5 @@ public interface Repository extends JpaRepository<User, Long> {
     void resetCreditsForUsersWithoutApiKeys();
 
     @Query("SELECT u.credits FROM User u WHERE u.id = :userId")
-    Long findCreditsByUserId(@Param("userId") Long userId);
+    Integer findCreditsByUserId(@Param("userId") Long userId);
 }

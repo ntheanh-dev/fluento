@@ -38,7 +38,7 @@ public enum ErrorCode {
 
     // AI & JSON errors (11xx, 10xx)
     AI_API_KEY_MISSING(1100, "Thiếu API key AI", HttpStatus.BAD_REQUEST),
-    AI_API_KEY_INVALID(1101, "API key không hợp lệ hoặc đã đạt giới hạn", HttpStatus.BAD_REQUEST),
+    AI_API_KEY_INVALID(1101, "API key không hợp lệ", HttpStatus.BAD_REQUEST),
     JSON_PARSE_ERROR(1015, "Lỗi khi parse JSON, hãy thử lại", HttpStatus.INTERNAL_SERVER_ERROR),
     AI_API_KEY_MISSING_FOR_USER(1102, "Hãy thêm API Key để sử dụng tính năng này", HttpStatus.BAD_REQUEST),
     AI_API_KEY_REACHED_DAILY_LIMIT(1103, "API key đã đạt giới hạn hàng ngày", HttpStatus.BAD_REQUEST),
@@ -52,7 +52,7 @@ public enum ErrorCode {
     AI_TOO_MANY_REQUESTS(1108, "AI hiện quá tải, vui lòng thử lại sau", HttpStatus.TOO_MANY_REQUESTS),
     // Access & API key errors (20xx)
     ACCESS_DENIED(2003, "Access denied", HttpStatus.FORBIDDEN),
-    API_KEY_EXISTED(2008, "API key already exists", HttpStatus.BAD_REQUEST),
+    API_KEY_EXISTED(2008, "API key này đã tồn tại", HttpStatus.BAD_REQUEST),
     PROVIDER_API_KEY_NOT_FOUND(2009, "Provider API key not found", HttpStatus.NOT_FOUND),
     AI_MODEL_NOT_FOUND(2010, "AI model not found", HttpStatus.NOT_FOUND),
     AI_MODEL_NOT_BELONG_TO_KEY(2011, "AI model does not belong to the selected API key", HttpStatus.BAD_REQUEST),
@@ -66,6 +66,7 @@ public enum ErrorCode {
 
     // CREDIT, PAYMENT
     NOT_ENOUGH_CREDITS(4001, "Bạn không đủ credits để sử dụng tính năng này", HttpStatus.BAD_REQUEST),
+    THIS_MODEL_NOT_ENOUGH_CREDITS(4002, "Model này đã hết credit", HttpStatus.BAD_REQUEST),
 
     // Generic errors (90xx)
     THIS_METHOD_DOES_NOTE_SUPPORT_YET(9001, "This method does not support yet", HttpStatus.BAD_REQUEST);

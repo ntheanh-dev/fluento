@@ -25,7 +25,7 @@ public class Service {
 
     @Transactional
     public CreditTransaction reserveCredit(Long userId, Long amount) {
-        int updated = userRepository.reserveCredits(userId, (long) amount);
+        int updated = userRepository.reserveCredits(userId, amount.intValue());
 
         if (updated == 0) {
             throw new AppException(ErrorCode.NOT_ENOUGH_CREDITS);
@@ -60,7 +60,7 @@ public class Service {
             throw new AppException(ErrorCode.UNAUTHORIZED);
         }
 
-        userRepository.addCredits(ownerId, Math.abs(tx.getAmount()));
+        userRepository.addCredits(ownerId, Math.abs(tx.getAmount().intValue()));
 
         tx.setStatus(TransactionStatus.FAILED);
     }

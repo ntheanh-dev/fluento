@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.*;
 
 import com.nta.common.dto.ApiResponse;
 import com.nta.domain.apikey.dto.request.CreateApiKeyRequest;
-import com.nta.domain.apikey.dto.request.DeleteApiKeyRequest;
 import com.nta.domain.apikey.dto.response.AiModelResponse;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -43,9 +42,9 @@ public class Controller {
                 .build();
     }
 
-    @DeleteMapping
-    ApiResponse<Void> delete(@RequestBody @Valid DeleteApiKeyRequest request) {
-        service.delete(request);
+    @DeleteMapping("/{id}")
+    ApiResponse<Void> delete(@PathVariable Long id) {
+        service.delete(id);
         return ApiResponse.<Void>builder()
                 .message("API key deleted successfully")
                 .build();

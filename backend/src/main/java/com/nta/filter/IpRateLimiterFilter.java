@@ -52,7 +52,7 @@ public class IpRateLimiterFilter extends OncePerRequestFilter {
     }
 
     private Bucket newBucket(String ip) {
-        Bandwidth limit = Bandwidth.classic(20, Refill.greedy(5, Duration.ofSeconds(30)));
+        Bandwidth limit = Bandwidth.classic(100, Refill.greedy(10, Duration.ofSeconds(10)));
         return Bucket.builder().addLimit(limit).build();
     }
 

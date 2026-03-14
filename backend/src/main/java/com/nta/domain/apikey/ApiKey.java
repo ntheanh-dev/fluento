@@ -27,7 +27,7 @@ public class ApiKey {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn(name = "user_id", nullable = true)
     private User user;
 
     @Column(name = "api_key", nullable = false, length = 512)
@@ -37,17 +37,15 @@ public class ApiKey {
     @Column(name = "model", nullable = false, length = 50)
     private AiModelName model;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "limit_per_day", length = 20)
-    private LimitPerDay limitPerDay;
-
-    @Column(name = "request_count_today", nullable = false)
+    @Column(name = "credit", nullable = false)
     @Builder.Default
-    private Integer requestCountToday = 0;
+    private Integer credit = 0;
 
     @Column(name = "is_active", nullable = false)
+    @Builder.Default
     private boolean isActive = true;
 
     @Column(name = "created_at")
+    @Builder.Default
     private LocalDateTime createdAt = LocalDateTime.now();
 }

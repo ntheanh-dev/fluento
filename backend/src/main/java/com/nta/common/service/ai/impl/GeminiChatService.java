@@ -50,6 +50,8 @@ public class GeminiChatService implements ChatService {
             .expireAfterAccess(Duration.ofMinutes(ChatCacheConstants.CACHE_EXPIRE_AFTER_ACCESS_MINUTES))
             .build();
 
+    private static final int CREDIT_PER_AI_CALL = 1;
+
     @Override
     public <T> ChatResponse<T> sendMessage(String systemMessage, String userMessage, Class<T> responseType) {
 
@@ -57,6 +59,13 @@ public class GeminiChatService implements ChatService {
 
         Long userId = commonUserService.getCurrentUserIdFromContext();
         CreditTransaction tx = creditTransactionService.reserveCredit(userId, 1L);
+
+        try {
+            apiKeyService.deductCredit(apiKey.getId(), CREDIT_PER_AI_CALL);
+        } catch (AppException e) {
+            creditTransactionService.refundTransaction(tx.getId());
+            throw e;
+        }
 
         // encrypted api key is stored in database, we need to decrypt it before returning
         String decryptedApiKey = apiKeyCrypto.decrypt(apiKey.getApiKey());
@@ -109,6 +118,7 @@ public class GeminiChatService implements ChatService {
                     .build();
         } catch (NonTransientAiException exception) {
             creditTransactionService.refundTransaction(tx.getId());
+            apiKeyService.refundCredit(apiKey.getId(), CREDIT_PER_AI_CALL);
 
             long duration = System.currentTimeMillis() - startTime;
 
@@ -130,6 +140,7 @@ public class GeminiChatService implements ChatService {
             throw new AppException(ErrorCode.AI_EXHAUSTED);
         } catch (Exception e) {
             creditTransactionService.refundTransaction(tx.getId());
+            apiKeyService.refundCredit(apiKey.getId(), CREDIT_PER_AI_CALL);
 
             long duration = System.currentTimeMillis() - startTime;
 

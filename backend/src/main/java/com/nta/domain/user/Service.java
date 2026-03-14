@@ -119,9 +119,9 @@ public class Service {
 
     public CreditBalanceResponse getMyCredits() {
         Long userId = commonUserService.getCurrentUserIdFromContext();
-        Long credits = repository.findCreditsByUserId(userId);
+        Integer credits = repository.findCreditsByUserId(userId);
         return CreditBalanceResponse.builder()
-                .credits(credits != null ? credits : 0L)
+                .credits(credits != null ? credits : 0)
                 .build();
     }
 
