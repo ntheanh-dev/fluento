@@ -52,7 +52,7 @@ const Layout = () => {
     };
 
     return (
-        <main className="flex h-screen overflow-hidden bg-slate-50">
+        <main className="flex h-screen overflow-hidden ">
             {/* Mobile Sidebar Overlay */}
             {isMobileMenuOpen && (
                 <div className="fixed inset-0 z-50 md:hidden flex">
@@ -163,7 +163,7 @@ const Layout = () => {
                 </header>
 
                 {/* Scrollable Page Content */}
-                <main className="flex-1 overflow-y-auto  p-4 md:p-8">
+                <main className="flex-1 overflow-y-auto  h-[calc(100vh-4rem)]">
                     <Outlet />
                 </main>
             </div>

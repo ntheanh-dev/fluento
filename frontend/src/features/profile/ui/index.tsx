@@ -96,7 +96,7 @@ const Profile = () => {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-8">
+    <div className="max-w-7xl mx-auto p-4 sm:px-6 lg:px-8 pb-8">
       {/* Main Layout Container */}
       <div className="flex flex-col lg:flex-row gap-8">
         {/* Left Sidebar */}
