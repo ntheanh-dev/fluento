@@ -77,3 +77,14 @@ cloudinary:
   api-secret: lZZWOntBPCDWEnECsmWIalOtl08
   secure: true
   folder: fluento
+curl -X POST https://fluento.anhthenguyen-work.workers.dev/ \
+  -H "Authorization: Bearer 12345" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "prompt": "Write a short poem about a rainy day.",
+    "systemPrompt": "You are a helpful assistant.",
+    "history": [
+      { "role": "user", "content": "Tell me something about weather." },
+      { "role": "assistant", "content": "Weather is the state of the atmosphere." }
+    ]
+  }'
