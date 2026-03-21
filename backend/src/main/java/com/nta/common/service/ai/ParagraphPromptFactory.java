@@ -22,34 +22,40 @@ public class ParagraphPromptFactory {
 
     private PromptMessage buildBasicPrompt(CreateParagraphRequest request) {
 
-        String system =
-                "You are an expert language learning assistant specializing in creating educational content for Vietnamese learners studying English. "
-                        + "Your task is to generate well-structured, coherent paragraphs that help learners practice reading and translation skills. "
-                        + "Always ensure the content is culturally appropriate, engaging, and educational. "
-                        + "The paragraphs should flow naturally and contain vocabulary appropriate for the specified language proficiency level. "
-                        + "Return ONLY valid JSON with this schema: "
-                        + "{\"sentences\":[\"string\"]}";
-
         int sentenceCount =
                 request.getSentenceCount() != null ? request.getSentenceCount().getSize() : SentenceCount.TEN.getSize();
 
+        String system = "You are an expert English-learning content creator for Vietnamese learners. "
+                + "Generate Vietnamese content for English translation practice. "
+                + "Return ONLY valid JSON. No markdown, no explanation. "
+                + "Strict schema: {\"title\":\"string\",\"sentences\":[\"string\"]}. "
+                + "The sentences array contain around "
+                + sentenceCount
+                + " items. "
+                + "Each sentence must be complete and natural Vietnamese. "
+                + "Do not use double quotes inside sentences. "
+                + "Do not include line breaks. "
+                + "Ensure the JSON is valid and properly escaped.";
+
         String user = String.format(
-                "Create a well-structured paragraph in vietnamese with around %d sentences about the topic '%s'. "
-                        + "Requirements:\n"
-                        + "- Use vocabulary and grammar appropriate for %s proficiency level\n"
-                        + "- Maintain a %s tone throughout the text\n"
-                        + "- Ensure sentences are connected logically with appropriate transitions\n"
-                        + "- Make the content engaging and educational for Vietnamese learners\n"
-                        + "- Focus on practical, real-world applications of the topic\n"
-                        + "- Return ONLY valid JSON with schema {\"sentences\":[\"string\"]}.\n"
-                        + "- Each sentence must be one item in sentences array.\n"
-                        + "- Do NOT include any introduction, explanation, or extra commentary.\n"
-                        + "- Use varied sentence structures to enhance learning value\n\n"
-                        + "Topic: %s\nLanguage: vietnamese\nLevel: %s\nTone: %s\nSentences: %d",
-                sentenceCount,
-                request.getTopic(),
-                request.getLevel(),
-                request.getTone(),
+                """
+				Create a %s in Vietnamese.
+
+				Topic: %s
+				Level: %s
+				Tone: %s
+
+				Requirements:
+				- EXACTLY %d sentences
+				- Suitable for translation into English
+				- Clear, natural, and practical
+				- Use varied sentence structures
+
+				Title:
+				- 5–12 words
+				- Relevant to content
+				""",
+                request.getType().getDisplayName(),
                 request.getTopic(),
                 request.getLevel(),
                 request.getTone(),
@@ -59,53 +65,58 @@ public class ParagraphPromptFactory {
     }
 
     private PromptMessage buildWritingPrompt(CreateParagraphRequest request) {
-        String system = "You are an expert English-learning content creator. "
-                + "Your task is to generate Vietnamese content for learners to translate into English. "
-                + "Ensure appropriate grammar, vocabulary, and structure for the given level. "
-                + "Generate a suitable title and matching content. "
-                + "Return ONLY valid JSON. Do NOT include markdown, explanation, or extra text. "
-                + "Output must strictly follow this schema: "
-                + "{\"title\":\"string\",\"sentences\":[\"string\", \"string\", \"string\"]}. ";
-
         int sentenceCount =
                 request.getSentenceCount() != null ? request.getSentenceCount().getSize() : SentenceCount.TEN.getSize();
+        String system = "You are an expert English-learning content creator. "
+                + "Task: Generate Vietnamese content for learners to translate into English. "
+                + "Output: MUST strictly follow this JSON schema: {\"title\":\"string\",\"sentences\":[\"string\"]}. "
+                + "IMPORTANT: Inside the JSON string values, any new line or section break MUST be represented by the literal character sequence '\\\\n' (a backslash and 'n'). "
+                + "Do NOT use actual line breaks (Enter key) inside the JSON strings. "
+                + "Ensure appropriate grammar, vocabulary, and structure for the given level.";
 
         String typeInstruction =
                 switch (request.getType()) {
                     case EMAIL -> """
-						Write in proper email format:
-						- Include greeting
-						- Clear body paragraphs
-						- Proper closing
-						- Semi-formal or formal tone depending on topic
-						""";
+Write in proper email format.
+Structure: Greeting, Body, and Closing.
+Constraint: You MUST append the literal sequence '\\\\n' (a backslash and 'n') at the END of the greeting sentence, the last sentence of the body, and the closing sentence.
+Example: "Kính gửi Quý đối tác,\\\\n", "Trân trọng,\\\\n".
+CONTENT RULE: NEVER use placeholders like '[...]', '[Tên]', or '[Link]'. Instead, create REASONABLE FICTIONAL NAMES and details.
+""";
 
                     case STORY -> """
-						Write as a short story:
-						- Clear beginning, middle, and ending
-						- Include characters and events
-						- Natural narrative flow
-						""";
+Write as a short story with a beginning, middle, and ending.
+Constraint: Use the literal string "\\n" to separate these three paragraphs.
+Ensure the narrative flow is natural but the break is marked by "\\n".
+""";
 
                     case IELTS_TASK1 -> """
 						Write in IELTS Task 1 style:
-						- Clear introduction
-						- Body paragraphs with arguments/examples
-						- Logical conclusion
-						- Academic tone
+					- Clear introduction
+							- Body paragraphs with arguments/examples
+							- Structure: Introduction, Body paragraphs, and Conclusion.
+							- Constraint: Use the literal string "\\n" to separate the introduction, body, and conclusion.
+							- Logical conclusion
+							- Each sentence must be one element in the 'sentences' array.
+							- Ensure the sentences follow a logical flow when read in order.
+							- Academic tone
 						""";
                     case IELTS_TASK2 -> """
 							Write in IELTS Task 2 style:
 							- Clear introduction
 							- Body paragraphs with arguments/examples
+							- Structure: Introduction, Body paragraphs, and Conclusion.
+							- Constraint: Use the literal string "\\n" to separate the introduction, body, and conclusion.
 							- Logical conclusion
+							- Each sentence must be one element in the 'sentences' array.
+							- Ensure the sentences follow a logical flow when read in order.
 							- Academic tone
 							""";
 
                     default -> """
-						Write as a coherent structured paragraph
-						with logical flow and transitions.
-						""";
+Write as a coherent structured paragraph.
+Use logical transitions. If there are distinct points, separate them with the literal string "\\n".
+""";
                 };
 
         String user = String.format(
@@ -181,7 +192,9 @@ public class ParagraphPromptFactory {
         final String system = "You are an English learning assistant for Vietnamese learners. "
                 + "Provide vocabulary hints to help translate Vietnamese sentences into English. "
                 + "Return ONLY valid JSON (no markdown, no explanations).\n\n"
-                + "Use vocabulary suitable for CEFR level: " + level + ".\n"
+                + "Use vocabulary suitable for CEFR level: "
+                + level
+                + ".\n"
                 + "Levels:\n"
                 + "A2: basic everyday vocabulary\n"
                 + "B1: intermediate vocabulary for familiar topics\n"

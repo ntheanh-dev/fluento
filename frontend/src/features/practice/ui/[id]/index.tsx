@@ -290,18 +290,18 @@ const SentencePracticePage = () => {
                     {index < (currentVietNameseSentence?.orderIndex ?? 0) ? (
                       // Completed sentences - show English translation
                       <span className="relative inline text-black py-1 whitespace-pre-line text-sm">
-                        {" " + englishTranslations[index]}
+                        {" " + englishTranslations[index].replace(/\\n/g, "\n\n")}
                       </span>
                     ) : // Current and upcoming sentences
                       index === (currentVietNameseSentence?.orderIndex ?? 0) ? (
                         // Current sentence to translate
                         <span className="relative inline whitespace-pre-line text-sm py-2 text-blue-600 font-bold">
-                          {" " + sentence.content}
+                          {" " + sentence.content.replace(/\\n/g, "\n\n")}
                         </span>
                       ) : (
                         // Upcoming sentences
                         <span className="relative inline whitespace-pre-line text-sm text-gray-600 opacity-60">
-                          {" " + sentence.content}
+                          {" " + sentence.content.replace(/\\n/g, "\n\n")}
                         </span>
                       )}
                   </React.Fragment>

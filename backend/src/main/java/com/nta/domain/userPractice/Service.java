@@ -51,6 +51,8 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @RequiredArgsConstructor
 public class Service {
+    static final String LINE_BREAK_TOKEN = "\\n";
+    static final String ALT_LINE_BREAK_TOKEN = "//n";
     com.nta.domain.paragraph.Service paragraphService;
     Repository repository;
     CommonUserService commonUserService;
@@ -111,9 +113,11 @@ public class Service {
     @Transactional
     SentenceFeedback previewFeedback(Long practiceId, SentenceTranslationRequest request) {
         String originalSentence = validateAndGetOriginalSentence(practiceId, request.getOrderIndex());
+        String normalizedTranslatedSentence =
+                appendLineBreakTokenIfNeeded(originalSentence, request.getTranslatedSentence());
 
         PromptMessage prompt = paragraphPromptFactory.buildFeedbackTranslationMarkdownPrompt(
-                originalSentence, request.getTranslatedSentence());
+                originalSentence, normalizedTranslatedSentence);
 
         SentenceFeedback feedback = chatService
                 .sendMessage(prompt.systemMessage(), prompt.userMessage(), SentenceFeedback.class)
@@ -125,7 +129,7 @@ public class Service {
         if (existingDraft.isPresent()) {
             UserSentenceAnswer answer = existingDraft.get();
             answer.setOriginalText(originalSentence);
-            answer.setUserTranslation(request.getTranslatedSentence());
+            answer.setUserTranslation(normalizedTranslatedSentence);
             answer.setScore(feedback.getScore());
             answer.setFeedback(feedback);
             answer.setOrderIndex(request.getOrderIndex());
@@ -134,7 +138,7 @@ public class Service {
             UserSentenceAnswer answer = UserSentenceAnswer.builder()
                     .practice(UserPractice.builder().id(practiceId).build())
                     .originalText(originalSentence)
-                    .userTranslation(request.getTranslatedSentence())
+                    .userTranslation(normalizedTranslatedSentence)
                     .score(feedback.getScore())
                     .feedback(feedback)
                     .orderIndex(request.getOrderIndex())
@@ -163,6 +167,8 @@ public class Service {
         }
 
         String originalSentence = sentences.get(request.getOrderIndex());
+        String normalizedVietnameseSentence =
+                appendLineBreakTokenIfNeeded(originalSentence, request.getVietnameseSentence());
 
         // Lấy bản nháp feedback gần nhất cho câu này (đã được AI chấm)
         UserSentenceAnswer answer = userSentenceAnswerRepo
@@ -171,7 +177,7 @@ public class Service {
 
         // Đảm bảo lưu bản dịch cuối cùng của user
         answer.setOriginalText(originalSentence);
-        answer.setUserTranslation(request.getVietnameseSentence());
+        answer.setUserTranslation(normalizedVietnameseSentence);
         answer.setIsSubmitted(true);
 
         // Save learningTime on every submit
@@ -240,6 +246,67 @@ public class Service {
         }
 
         return sentences.get(orderIndex);
+    }
+
+    private String appendLineBreakTokenIfNeeded(String originalSentence, String translatedSentence) {
+        if (translatedSentence == null || originalSentence == null) {
+            return translatedSentence;
+        }
+
+        String lineBreakToken = null;
+        String originalCore = originalSentence;
+        if (originalSentence.endsWith(LINE_BREAK_TOKEN)) {
+            lineBreakToken = LINE_BREAK_TOKEN;
+            originalCore = originalSentence.substring(0, originalSentence.length() - LINE_BREAK_TOKEN.length());
+        } else if (originalSentence.endsWith(ALT_LINE_BREAK_TOKEN)) {
+            lineBreakToken = ALT_LINE_BREAK_TOKEN;
+            originalCore = originalSentence.substring(0, originalSentence.length() - ALT_LINE_BREAK_TOKEN.length());
+        }
+
+        String normalizedSentence = translatedSentence;
+        String translatedCore = translatedSentence;
+        if (translatedSentence.endsWith(LINE_BREAK_TOKEN)) {
+            translatedCore = translatedSentence.substring(0, translatedSentence.length() - LINE_BREAK_TOKEN.length());
+        } else if (translatedSentence.endsWith(ALT_LINE_BREAK_TOKEN)) {
+            translatedCore =
+                    translatedSentence.substring(0, translatedSentence.length() - ALT_LINE_BREAK_TOKEN.length());
+        }
+
+        Character originalPunctuation = null;
+        for (int i = originalCore.length() - 1; i >= 0; i--) {
+            char c = originalCore.charAt(i);
+            if (Character.isWhitespace(c)) {
+                continue;
+            }
+            if (".,!?;:".indexOf(c) >= 0) {
+                originalPunctuation = c;
+            }
+            break;
+        }
+
+        Character translatedPunctuation = null;
+        for (int i = translatedCore.length() - 1; i >= 0; i--) {
+            char c = translatedCore.charAt(i);
+            if (Character.isWhitespace(c)) {
+                continue;
+            }
+            if (".,!?;:".indexOf(c) >= 0) {
+                translatedPunctuation = c;
+            }
+            break;
+        }
+
+        if (originalPunctuation != null && translatedPunctuation == null) {
+            normalizedSentence += originalPunctuation;
+        }
+
+        boolean translatedHasLineBreak =
+                normalizedSentence.endsWith(LINE_BREAK_TOKEN) || normalizedSentence.endsWith(ALT_LINE_BREAK_TOKEN);
+        if (lineBreakToken != null && !translatedHasLineBreak) {
+            normalizedSentence += lineBreakToken;
+        }
+
+        return normalizedSentence;
     }
 
     public WritingPerformanceSeriesResponse getWritingPerformance(String rangeRaw) {

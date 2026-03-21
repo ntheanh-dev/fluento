@@ -10,6 +10,7 @@ import org.springframework.ai.chat.prompt.Prompt;
 import org.springframework.ai.openai.OpenAiChatModel;
 import org.springframework.ai.openai.OpenAiChatOptions;
 import org.springframework.ai.openai.api.OpenAiApi;
+import org.springframework.ai.openai.api.ResponseFormat;
 import org.springframework.ai.retry.NonTransientAiException;
 import org.springframework.stereotype.Service;
 
@@ -155,6 +156,9 @@ public class GeminiChatService implements ChatService {
                             .model(k.model())
                             .maxCompletionTokens(5000)
                             .temperature(0.2)
+                            .responseFormat(ResponseFormat.builder()
+                                    .type(ResponseFormat.Type.JSON_OBJECT)
+                                    .build())
                             .topP(0.9)
                             .build())
                     .build();
@@ -185,35 +189,9 @@ public class GeminiChatService implements ChatService {
             return responseType.cast(outputText.trim());
         }
 
-        String cleanedJson = cleanMarkdownJson(outputText);
+        System.out.println("Raw AI output: " + outputText);
 
-        return objectMapper.readValue(cleanedJson, responseType);
-    }
-
-    private static int safe(Integer value) {
-        return value != null ? value : 0;
-    }
-
-    private static String cleanMarkdownJson(String raw) {
-
-        if (raw == null || raw.isBlank()) {
-            throw new IllegalArgumentException("Response is empty");
-        }
-
-        if (!raw.contains("```")) {
-            return raw.trim();
-        }
-
-        String cleaned = raw.replaceAll("```json", "").replaceAll("```", "").trim();
-
-        int first = cleaned.indexOf('{');
-        int last = cleaned.lastIndexOf('}');
-
-        if (first >= 0 && last > first) {
-            return cleaned.substring(first, last + 1);
-        }
-
-        throw new IllegalArgumentException("No valid JSON found in response");
+        return objectMapper.readValue(outputText, responseType);
     }
 
     private boolean isRetryableError(NonTransientAiException e) {
