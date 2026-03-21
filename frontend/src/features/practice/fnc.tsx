@@ -1,18 +1,43 @@
 import { diffWords } from "diff";
 
 export function renderBacktickHighlight(text: string) {
-    const parts = text.split(/`([^`]+)`/g);
-    return parts.map((part, index) =>
-        index % 2 === 1 ? (
-            <span key={index} className="font-semibold text-amber-400">
-                {part}
-            </span>
-        ) : (
-            <span key={index}>{part}</span>
-        ),
-    );
-}
+    const regex = /`([^`]*)`|'([^']*)'/g;
+    const result: any[] = [];
 
+    let lastIndex = 0;
+
+    for (const match of text.matchAll(regex)) {
+        const start = match.index!;
+        const end = start + match[0].length;
+
+        // text bình thường
+        if (start > lastIndex) {
+            result.push(
+                <span key={lastIndex}>{text.slice(lastIndex, start)}</span>
+            );
+        }
+
+        // nội dung highlight (ưu tiên group nào match)
+        const highlightedText = match[1] ?? match[2];
+
+        result.push(
+            <span key={start} className="font-semibold text-amber-400">
+                {highlightedText}
+            </span>
+        );
+
+        lastIndex = end;
+    }
+
+    // phần còn lại
+    if (lastIndex < text.length) {
+        result.push(
+            <span key={lastIndex}>{text.slice(lastIndex)}</span>
+        );
+    }
+
+    return result;
+}
 export function renderWordDiff(oldText: string, newText: string) {
     const changes = diffWords(oldText, newText);
     return changes.map((part, index) => {

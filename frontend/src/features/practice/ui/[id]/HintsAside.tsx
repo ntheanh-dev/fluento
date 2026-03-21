@@ -1,6 +1,6 @@
 import type { HintContent } from "@/entities/hints/schema";
 import { Sparkles, Volume2 } from "lucide-react";
-import { useMemo } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { motion } from 'motion/react';
 
 const getColorByType = (type: string) => {
@@ -38,7 +38,19 @@ const getColorByType = (type: string) => {
     }
 };
 
-const VocabularyItem = ({ word, type, pronunciation }: { word: string, type: string, pronunciation: string }) => {
+const VocabularyItem = ({
+    word,
+    type,
+    pronunciation,
+    onSpeak,
+    isSpeaking
+}: {
+    word: string,
+    type: string,
+    pronunciation: string,
+    onSpeak: (word: string) => void,
+    isSpeaking: boolean
+}) => {
     const typeClasses = useMemo(() => getColorByType(type), [type]);
 
     return (
@@ -46,13 +58,12 @@ const VocabularyItem = ({ word, type, pronunciation }: { word: string, type: str
         <div className="bg-white rounded-lg p-2 sm:p-3 border border-slate-200 shadow-sm hover:border-blue-200 transition-colors cursor-pointer">
             <div className="flex items-center justify-between gap-2 mb-1">
                 <span className="text-slate-800 text-[12px] font-semibold min-w-0 truncate">{word.toLocaleLowerCase()}</span>
-                <button className="shrink-0 text-slate-500 hover:text-blue-700 hover:bg-blue-50 rounded-full p-1 transition-colors touch-manipulation" onClick={() => {
-                    const utterance = new SpeechSynthesisUtterance(
-                        word
-                    );
-                    utterance.lang = "en-US";
-                    window.speechSynthesis.speak(utterance);
-                }}>
+                <button
+                    className="shrink-0 text-slate-500 hover:text-blue-700 hover:bg-blue-50 rounded-full p-1 transition-colors touch-manipulation disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-transparent disabled:hover:text-slate-500"
+                    onClick={() => onSpeak(word)}
+                    disabled={isSpeaking}
+                    aria-label={`Speak ${word}`}
+                >
                     <Volume2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-500" />
                 </button>
             </div>
@@ -67,6 +78,50 @@ const VocabularyItem = ({ word, type, pronunciation }: { word: string, type: str
 
 
 export const HintsAside = (translationHints: HintContent | null) => {
+    const [speakingWord, setSpeakingWord] = useState<string | null>(null);
+    const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
+
+    useEffect(() => {
+        return () => {
+            if (typeof window !== "undefined") {
+                window.speechSynthesis.cancel();
+            }
+            utteranceRef.current = null;
+        };
+    }, []);
+
+    const handleSpeak = useCallback((word: string) => {
+        if (typeof window === "undefined") return;
+
+        const synth = window.speechSynthesis;
+        if (speakingWord === word && (synth.speaking || synth.pending)) {
+            return;
+        }
+
+        synth.cancel();
+
+        const utterance = new SpeechSynthesisUtterance(word);
+        utterance.lang = "en-US";
+
+        utterance.onstart = () => setSpeakingWord(word);
+        utterance.onend = () => {
+            if (utteranceRef.current === utterance) {
+                utteranceRef.current = null;
+                setSpeakingWord((current) => (current === word ? null : current));
+            }
+        };
+        utterance.onerror = () => {
+            if (utteranceRef.current === utterance) {
+                utteranceRef.current = null;
+                setSpeakingWord((current) => (current === word ? null : current));
+            }
+        };
+
+        utteranceRef.current = utterance;
+        setSpeakingWord(word);
+        synth.speak(utterance);
+    }, [speakingWord]);
+
     if (!translationHints) return null;
     return (
         <>
@@ -91,7 +146,14 @@ export const HintsAside = (translationHints: HintContent | null) => {
                         >
                             <div className="space-y-1.5">
                                 {hint.english.map((word, idx) => (
-                                    <VocabularyItem key={idx} word={word.english} type={word.partsOfSpeech} pronunciation={word.ipaPronunciation} />
+                                    <VocabularyItem
+                                        key={idx}
+                                        word={word.english}
+                                        type={word.partsOfSpeech}
+                                        pronunciation={word.ipaPronunciation}
+                                        onSpeak={handleSpeak}
+                                        isSpeaking={speakingWord === word.english}
+                                    />
                                 ))}
                             </div>
                         </motion.div>

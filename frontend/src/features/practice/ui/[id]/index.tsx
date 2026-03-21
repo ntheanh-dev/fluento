@@ -441,7 +441,9 @@ const SentencePracticePage = () => {
               isLoadingTranslationHints={isLoadingTranslationHints}
               translationHints={translationHints as HintContent | null}
               feedback={feedback}
-              userTranslation={translation}
+              // Freeze the diff content based on the translation that was checked
+              // to avoid re-rendering differences when the user edits the textarea.
+              userTranslation={lastCheckedTranslation ?? translation}
             />
           </div>
         </aside>
