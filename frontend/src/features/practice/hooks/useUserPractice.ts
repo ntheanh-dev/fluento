@@ -1,5 +1,6 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { getParagraphHints, getUserPracticeById } from "../api";
+import { getSentenceVocabularyHints, getUserPracticeById } from "../api";
+import type { ParagraphSentence, VocabularyHint } from "@/entities/paragraphSentence/schema";
 import type { UserPractice } from "../../../entities/userPractice/schema";
 import { OK } from "../../../shared/api/query-keys";
 import { queryClient } from "@/app/providers/query-client";
@@ -14,17 +15,22 @@ export function useUserPracticeData(id: number) {
   return { data, isLoading, error };
 }
 
-export function useParagraphHints(id: number, orderIndex: number) {
-   const mutation = useMutation({
-    mutationFn: () => getParagraphHints(id, orderIndex),
+export function useSentenceVocabularyHints(sentenceId: number) {
+  const mutation = useMutation({
+    mutationFn: () => getSentenceVocabularyHints(sentenceId),
     onSuccess: (data) => {
-      queryClient.setQueryData(OK.usePracticeParagraphHints(id, orderIndex), data);
-    },  
-   });
+      if (data.vocabularyHints) {
+        queryClient.setQueryData<VocabularyHint[]>(
+          OK.usePracticeSentenceVocabularyHints(sentenceId),
+          data.vocabularyHints
+        );
+      }
+    },
+  });
 
-   return {
-    mutateAsync: mutation.mutateAsync,
+  return {
+    mutateAsync: mutation.mutateAsync as () => Promise<ParagraphSentence>,
     isPending: mutation.isPending,
     error: mutation.error,
-   };
+  };
 }

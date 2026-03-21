@@ -11,40 +11,19 @@ import {
   Coins,
 } from "lucide-react";
 import { useDeviceType } from "@/shared/utilities/useDeviceType";
-import { useParagraphHints, useUserPracticeData } from "../../hooks/useUserPractice";
+import { useSentenceVocabularyHints, useUserPracticeData } from "../../hooks/useUserPractice";
 import { useCredits } from "@/features/credits/query";
-import { formatElapsed, splitIntoSentences } from "@/utils/utils";
-import type { HintContent } from "@/entities/hints/schema";
+import { formatElapsed } from "@/utils/utils";
 import type { SentenceFeedback } from "@/entities/userPracticeAnswer/schema";
 import { useSubmitUserSentence } from "../../hooks/useSubmitUserSentence";
 import { Aside } from "./Aside";
 import { showApiError } from "@/shared/api/showApiError";
 import { useAnswerPreviewFeedback } from "../../hooks/useAnswerPreviewFeedbackStream";
 import { AxiosError } from "axios";
-
-function normalizeSentence(text: string, originalText?: string): string {
-  const trimmed = text.trim();
-  if (!trimmed) return text;
-
-  let result = trimmed.charAt(0).toUpperCase() + trimmed.slice(1);
-
-  if (!/[.!?]["']?$/.test(result)) {
-    result = `${result}.`;
-  }
-
-  if (originalText && originalText.includes("\n\n")) {
-    result = `${result}\n\n`;
-  }
-
-  return result;
-}
+import type { ParagraphSentence } from "@/entities/paragraphSentence/schema";
 
 export type RenderAsideType = "hints" | "markdownFeedback" | null;
 
-/**
- * Trang luyện dịch từng câu trong một đoạn văn.
- * Cho phép nhập bản dịch, xem gợi ý, kiểm tra phản hồi và chuyển câu tiếp theo.
- */
 const SentencePracticePage = () => {
   // --- Router & device ---
   const { id } = useParams();
@@ -52,11 +31,10 @@ const SentencePracticePage = () => {
   const { isMobile, isTablet } = useDeviceType();
 
   // --- State: practice (câu hiện tại, bản dịch, gợi ý, feedback) ---
-  const [orderIndex, setOrderIndex] = useState<number>(0);
+  const [currentVietNameseSentence, setCurrentVietNameseSentence] = useState<ParagraphSentence | null>(null);
   const [translation, setTranslation] = useState("");
-  const [vietNameseSentences, setVietNameseSentences] = useState<string[]>([]);
+  const [vietNameseSentences, setVietNameseSentences] = useState<ParagraphSentence[]>([]);
   const [englishTranslations, setEnglishTranslations] = useState<string[]>([]);
-  const [translationHints, setTranslationHints] = useState<HintContent | null>(null);
   const [lastCheckedTranslation, setLastCheckedTranslation] = useState<string | null>(null);
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
 
@@ -74,11 +52,12 @@ const SentencePracticePage = () => {
 
   const answerPreviewPayload = useMemo(
     () => ({
-      translatedSentence: normalizeSentence(translation, vietNameseSentences[orderIndex]),
-      orderIndex,
+      translatedSentence: translation,
+      orderIndex: currentVietNameseSentence?.orderIndex ?? 0,
     }),
-    [translation, orderIndex, vietNameseSentences]
+    [translation, currentVietNameseSentence]
   );
+
 
   const {
     mutateAsync: getAnswerPreview,
@@ -90,18 +69,18 @@ const SentencePracticePage = () => {
 
   const submitPayload = useMemo(
     () => ({
-      vietnameseSentence: normalizeSentence(translation, vietNameseSentences[orderIndex]),
-      orderIndex,
+      vietnameseSentence: translation,
+      orderIndex: currentVietNameseSentence?.orderIndex ?? 0,
       feedback: feedback as SentenceFeedback,
       ...(startedAtRef.current != null
         ? { learningTime: Date.now() - startedAtRef.current }
         : {}),
     }),
-    [translation, orderIndex, feedback]
+    [translation, currentVietNameseSentence, feedback]
   );
 
-  const { mutateAsync: getTranslationHints, isPending: isLoadingTranslationHints } =
-    useParagraphHints(Number(id), orderIndex);
+  const { mutateAsync: getVocabularyHints, isPending: isLoadingVocabularyHints } =
+    useSentenceVocabularyHints(currentVietNameseSentence?.id ?? -1);
   const { mutateAsync: submitUserSentence, isPending: isLoadingSubmitUserSentence } =
     useSubmitUserSentence(Number(id), submitPayload);
 
@@ -110,14 +89,10 @@ const SentencePracticePage = () => {
   /** Đồng bộ paragraph data: câu tiếng Việt, bản dịch đã nộp, orderIndex, learningTime. */
   useEffect(() => {
     if (data && !errorUserPracticeData) {
-      const vnSentences = splitIntoSentences(data.paragraph.content);
-      if (data?.sentenceAnswers?.length === vnSentences.length) {
-        navigate(`/practice/${id}/result`);
-        return;
-      }
-      setVietNameseSentences(vnSentences);
+      const sentences = data.paragraph.sentences ?? [];
+      setVietNameseSentences(sentences);
       setEnglishTranslations(data.sentenceAnswers?.map((a) => a.userTranslation) ?? []);
-      setOrderIndex(data.sentenceAnswers?.length ?? 0);
+      setCurrentVietNameseSentence(sentences[data.sentenceAnswers?.length ?? 0] ?? null);
       if (startedAtRef.current === null) {
         const baseMs = Number(data.learningTime ?? 0);
         startedAtRef.current = Date.now() - baseMs;
@@ -163,30 +138,32 @@ const SentencePracticePage = () => {
   const handleBackToSetup = useCallback(() => navigate("/setup"), [navigate]);
 
   /** Mở sidebar và load/hiển thị gợi ý dịch cho câu hiện tại. */
-  const handleGetTranslationHints = useCallback(async () => {
+  const handleGetVocabularyHints = useCallback(async () => {
+    if (currentVietNameseSentence == null) return;
     setShowMobileSidebar(true);
     setRenderAsideType("hints");
-    if (translationHints) return;
+    if (currentVietNameseSentence?.vocabularyHints) return;
     try {
-      const res = await getTranslationHints();
-      setTranslationHints(res);
+      const sentenceWithHints = await getVocabularyHints();
+      setCurrentVietNameseSentence(sentenceWithHints);
+      setVietNameseSentences((prev) =>
+        prev.map((sentence) => (sentence.id === sentenceWithHints.id ? sentenceWithHints : sentence))
+      );
       await refetchCredits();
     } catch (error) {
       setShowMobileSidebar(false);
       setRenderAsideType(null);
       showApiError(error);
     }
-  }, [translationHints, getTranslationHints]);
+  }, [currentVietNameseSentence, getVocabularyHints, refetchCredits]);
 
   /** Chuẩn hóa bản dịch, gửi lên để xem feedback, mở aside markdown. */
   const handleGetAnswerPreview = useCallback(async () => {
-    if (!translation.trim() || isLoadingAnswerPreview) return;
+    if (!translation.trim() || isLoadingAnswerPreview || !currentVietNameseSentence) return;
     setRenderAsideType("markdownFeedback");
     if (isMobile || isTablet) setShowMobileSidebar(true);
 
-    const normalized = normalizeSentence(translation, vietNameseSentences[orderIndex]);
-    if (normalized !== translation) setTranslation(normalized);
-    setLastCheckedTranslation(normalized);
+    setLastCheckedTranslation(translation);
 
     try {
       const res = await getAnswerPreview();
@@ -195,43 +172,39 @@ const SentencePracticePage = () => {
     } catch {
       setShowMobileSidebar(false);
     }
-  }, [translation, isLoadingAnswerPreview, isMobile, isTablet, vietNameseSentences, orderIndex, getAnswerPreview]);
+  }, [translation, isLoadingAnswerPreview, isMobile, isTablet, getAnswerPreview, currentVietNameseSentence, refetchCredits]);
 
   /** Nộp câu đã kiểm tra, chuyển sang câu tiếp theo hoặc sang trang result nếu hết. */
   const handleNextSentence = useCallback(async () => {
-    if (isLoadingSubmitUserSentence || !feedback) return;
-
-    const normalized = normalizeSentence(translation);
-    if (normalized !== translation) setTranslation(normalized);
+    if (isLoadingSubmitUserSentence || !feedback || !currentVietNameseSentence) return;
 
     try {
       const userSentenceAnswer = await submitUserSentence();
       // Refresh credits after a successful AI-assisted check & submit
       await refetchCredits();
-      if (orderIndex === vietNameseSentences.length - 1) {
+      if ((currentVietNameseSentence?.orderIndex ?? 0) === vietNameseSentences.length - 1) {
         navigate(`/practice/${id}/result`);
         return;
       }
       setEnglishTranslations((prev) => [...prev, userSentenceAnswer.userTranslation]);
-      setOrderIndex((i) => i + 1);
+      setCurrentVietNameseSentence(vietNameseSentences[(currentVietNameseSentence?.orderIndex ?? 0) + 1] ?? null);
       setTranslation("");
-      setTranslationHints(null);
       setRenderAsideType(null);
       setLastCheckedTranslation(null);
     } catch (error) {
       showApiError(error);
     }
-  }, [translation, feedback, lastCheckedTranslation]);
+  }, [isLoadingSubmitUserSentence, feedback, currentVietNameseSentence, submitUserSentence, refetchCredits, vietNameseSentences, navigate, id]);
 
   // --- Derived (cho UI) ---
   const progressPercent = useMemo(
-    () => Math.round((orderIndex / (vietNameseSentences.length || 1)) * 100),
-    [orderIndex, vietNameseSentences.length]
+    () => Math.round((((currentVietNameseSentence?.orderIndex ?? 0)) / (vietNameseSentences.length || 1)) * 100),
+    [currentVietNameseSentence, vietNameseSentences.length]
   );
   /** Chỉ có trong chế độ SINGLE_SENTENCE; dùng cho block nguồn. */
   const singleSentenceText = useMemo(
-    () => (data?.paragraph?.type === "SINGLE_SENTENCE" ? vietNameseSentences[orderIndex] ?? null : null),
-    [data?.paragraph?.type, vietNameseSentences, orderIndex]
+    () => (data?.paragraph?.type === "SINGLE_SENTENCE" ? currentVietNameseSentence : null),
+    [data?.paragraph?.type, currentVietNameseSentence]
   );
 
   return (
@@ -288,7 +261,7 @@ const SentencePracticePage = () => {
         </div>
         <div className="flex-[2] hidden md:flex items-center gap-4 lg:gap-6 w-full">
           <span className="text-xs md:text-sm font-medium text-slate-500 whitespace-nowrap">
-            Câu {orderIndex}/{vietNameseSentences.length}
+            Câu {currentVietNameseSentence?.orderIndex ?? 0}/{vietNameseSentences.length}
           </span>
           <div className="w-36 md:w-44 lg:w-48 h-2 md:h-2.5 bg-slate-200 rounded-full overflow-hidden">
             <div className="h-full bg-blue-600 rounded-full" style={{ width: `${progressPercent}%` }}></div>
@@ -306,29 +279,29 @@ const SentencePracticePage = () => {
           {singleSentenceText != null ? (
             <div className="bg-slate-50/50 rounded-lg bg-white sm:rounded-xl border border-slate-200 shadow-sm overflow-hidden p-3 md:px-6 text-slate-800 font-medium leading-6 sm:leading-7 space-y-3 sm:space-y-4">
               <span className="relative inline whitespace-pre-line text-sm py-2 text-blue-600 font-bold">
-                {singleSentenceText}
+                {singleSentenceText.content}
               </span>
             </div>
           ) : (
             <div className="flex-[10] min-h-0 bg-slate-50/50 rounded-lg bg-white sm:rounded-xl border border-slate-200 shadow-sm overflow-hidden p-3 md:px-6 text-slate-800 font-medium h-full overflow-y-auto leading-6 sm:leading-7 space-y-3 sm:space-y-4">
               {
-                vietNameseSentences.map((sentence, index) => (
+                vietNameseSentences.map((sentence: ParagraphSentence, index: number) => (
                   <React.Fragment key={index}>
-                    {index <= englishTranslations.length - 1 ? (
+                    {index < (currentVietNameseSentence?.orderIndex ?? 0) ? (
                       // Completed sentences - show English translation
                       <span className="relative inline text-black py-1 whitespace-pre-line text-sm">
                         {" " + englishTranslations[index]}
                       </span>
                     ) : // Current and upcoming sentences
-                      index === englishTranslations.length ? (
+                      index === (currentVietNameseSentence?.orderIndex ?? 0) ? (
                         // Current sentence to translate
                         <span className="relative inline whitespace-pre-line text-sm py-2 text-blue-600 font-bold">
-                          {" " + sentence}
+                          {" " + sentence.content}
                         </span>
                       ) : (
                         // Upcoming sentences
                         <span className="relative inline whitespace-pre-line text-sm text-gray-600 opacity-60">
-                          {" " + sentence}
+                          {" " + sentence.content}
                         </span>
                       )}
                   </React.Fragment>
@@ -360,8 +333,8 @@ const SentencePracticePage = () => {
                   />
                 </button>
                 <button
-                  onClick={handleGetTranslationHints}
-                  disabled={isLoadingTranslationHints}
+                  onClick={handleGetVocabularyHints}
+                  disabled={isLoadingVocabularyHints}
                   className="inline-flex items-center gap-2 rounded-lg border border-slate-300 bg-white px-4 py-1.5 font-bold text-slate-700 shadow-sm transition-colors hover:bg-slate-50 disabled:opacity-30 disabled:cursor-not-allowed sm:px-5 sm:py-2 sm:text-sm md:px-6 text-xs"
                 >
                   <Lightbulb size={16} className="size-4 shrink-0" />
@@ -438,11 +411,9 @@ const SentencePracticePage = () => {
             <Aside
               renderAsideType={renderAsideType}
               isLoadingAnswerPreview={isLoadingAnswerPreview}
-              isLoadingTranslationHints={isLoadingTranslationHints}
-              translationHints={translationHints as HintContent | null}
+              isLoadingVocabularyHints={isLoadingVocabularyHints}
+              vocabularyHints={currentVietNameseSentence?.vocabularyHints ?? null}
               feedback={feedback}
-              // Freeze the diff content based on the translation that was checked
-              // to avoid re-rendering differences when the user edits the textarea.
               userTranslation={lastCheckedTranslation ?? translation}
             />
           </div>

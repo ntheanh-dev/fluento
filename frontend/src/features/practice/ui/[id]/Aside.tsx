@@ -1,15 +1,15 @@
 import type { SentenceFeedback } from "@/entities/userPracticeAnswer/schema";
-import type { HintContent } from "@/entities/hints/schema";
+import type { VocabularyHint } from "@/entities/paragraphSentence/schema";
 import { Analyzing } from "./Analyzing";
-import { HintsAside } from "./HintsAside";
+import { VocabularyHintsAside } from "./HintsAside";
 import { DetailedSuggestionCard } from "./DetailedSuggestionCard";
 import { Lightbulb } from "lucide-react";
 import type { RenderAsideType } from ".";
 
 type AsideProps = {
   isLoadingAnswerPreview: boolean;
-  isLoadingTranslationHints: boolean;
-  translationHints: HintContent | null;
+  isLoadingVocabularyHints: boolean;
+  vocabularyHints: VocabularyHint[] | null;
   renderAsideType: RenderAsideType;
   feedback: SentenceFeedback | null;
   userTranslation?: string;
@@ -17,19 +17,19 @@ type AsideProps = {
 
 export const Aside = ({
   isLoadingAnswerPreview,
-  isLoadingTranslationHints,
-  translationHints,
+  isLoadingVocabularyHints,
+  vocabularyHints,
   renderAsideType,
   feedback,
   userTranslation,
 }: AsideProps) => {
 
-  if (isLoadingAnswerPreview || isLoadingTranslationHints) {
+  if (isLoadingAnswerPreview || isLoadingVocabularyHints) {
     return <Analyzing />;
   }
 
-  if (renderAsideType === "hints" && translationHints) {
-    return <HintsAside {...translationHints} />;
+  if (renderAsideType === "hints" && vocabularyHints) {
+    return <VocabularyHintsAside vocabularyHints={vocabularyHints} />;
   }
 
   if (renderAsideType === "markdownFeedback") {

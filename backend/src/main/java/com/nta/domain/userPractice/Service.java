@@ -21,7 +21,6 @@ import org.springframework.data.domain.Sort;
 import com.nta.common.enums.ErrorCode;
 import com.nta.common.exception.AppException;
 import com.nta.common.service.CommonUserService;
-import com.nta.common.service.SentenceUtils;
 import com.nta.common.service.ai.ChatService;
 import com.nta.common.service.ai.ParagraphPromptFactory;
 import com.nta.common.service.ai.PromptMessage;
@@ -37,7 +36,6 @@ import com.nta.domain.userPractice.dto.response.UserPracticeResponse;
 import com.nta.domain.userPractice.dto.response.WritingPerformancePointResponse;
 import com.nta.domain.userPractice.dto.response.WritingPerformanceSeriesResponse;
 import com.nta.domain.userPractice.enums.WritingPerformanceRange;
-import com.nta.domain.userPractice.projection.PracticeSubmitProjection;
 import com.nta.domain.userSentenceAnswer.SentenceFeedback;
 import com.nta.domain.userSentenceAnswer.UserSentenceAnswer;
 import com.nta.domain.userSentenceAnswer.dto.response.UserSentenceAnswerResponse;
@@ -152,17 +150,13 @@ public class Service {
     UserSentenceAnswerResponse submitAnswer(Long practiceId, SubmitAnswerRequest request) {
         Long currentUserId = commonUserService.getCurrentUserIdFromContext();
 
-        // 1 query duy nhất
-        PracticeSubmitProjection data =
-                repository.findSubmitData(practiceId).orElseThrow(() -> new AppException(ErrorCode.RESOURCE_NOT_FOUND));
-
-        // validate owner
-        if (!data.getUserId().equals(currentUserId)) {
+        UserPractice practice =
+                repository.findById(practiceId).orElseThrow(() -> new AppException(ErrorCode.RESOURCE_NOT_FOUND));
+        if (!practice.getUser().getId().equals(currentUserId)) {
             throw new AppException(ErrorCode.NOT_OWN_PRACTICE);
         }
 
-        // split sentence
-        List<String> sentences = SentenceUtils.splitSentences(data.getParagraphContent());
+        List<String> sentences = practice.getParagraph().getSentenceContents();
 
         if (request.getOrderIndex() < 0 || request.getOrderIndex() >= sentences.size()) {
             throw new IllegalArgumentException("Invalid sentence index");
@@ -182,8 +176,6 @@ public class Service {
 
         // Save learningTime on every submit
         if (request.getLearningTime() != null) {
-            UserPractice practice =
-                    repository.findById(practiceId).orElseThrow(() -> new AppException(ErrorCode.RESOURCE_NOT_FOUND));
             practice.setLearningTime(request.getLearningTime());
             repository.save(practice);
         }
@@ -241,7 +233,7 @@ public class Service {
         }
 
         Paragraph paragraph = practice.getParagraph();
-        List<String> sentences = SentenceUtils.splitSentences(paragraph.getContent());
+        List<String> sentences = paragraph.getSentenceContents();
 
         if (orderIndex < 0 || orderIndex >= sentences.size()) {
             throw new IllegalArgumentException("Invalid sentence index");

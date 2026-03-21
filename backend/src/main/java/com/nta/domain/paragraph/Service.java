@@ -1,13 +1,17 @@
 package com.nta.domain.paragraph;
 
+import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
+
 import jakarta.transaction.Transactional;
 
 import com.nta.common.service.ai.ChatService;
 import com.nta.common.service.ai.ParagraphPromptFactory;
 import com.nta.common.service.ai.PromptMessage;
-import com.nta.domain.hint.HintContent;
 import com.nta.domain.paragraph.dto.request.CreateParagraphRequest;
+import com.nta.domain.paragraph.dto.response.ParagraphAiResponse;
 import com.nta.domain.paragraph.dto.response.ParagraphWithTitleAiResponse;
+import com.nta.domain.paragraphSentence.ParagraphSentence;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -25,7 +29,6 @@ public class Service {
     ParagraphPromptFactory promptFactory;
     ChatService chatService;
     Mapper mapper;
-    com.nta.domain.hint.Service hintService;
 
     // NOTE: Sau khi có một lượng data paragraph rồi thì không cần dùng AI để tạo nữa
     // mà sẽ query trong DB.
@@ -39,11 +42,11 @@ public class Service {
 
     private Paragraph handleBasicParagraph(CreateParagraphRequest request) {
         PromptMessage prompt = promptFactory.buildPrompt(request);
-        String generatedContent = chatService
-                .sendMessage(prompt.systemMessage(), prompt.userMessage(), String.class)
+        ParagraphAiResponse response = chatService
+                .sendMessage(prompt.systemMessage(), prompt.userMessage(), ParagraphAiResponse.class)
                 .getResult();
         Paragraph paragraph = mapper.toParagraph(request);
-        paragraph.setContent(generatedContent);
+        paragraph.setSentences(toParagraphSentences(paragraph, response.getSentences()));
         return repository.save(paragraph);
     }
 
@@ -54,21 +57,33 @@ public class Service {
                 .getResult();
         Paragraph paragraph = mapper.toParagraph(request);
         paragraph.setTitle(response.getTitle());
-        paragraph.setContent(response.getContent());
+        paragraph.setSentences(toParagraphSentences(paragraph, response.getSentences()));
         return repository.save(paragraph);
-    }
-
-    public HintContent getOrCreateHint(Long paraId, Integer orderIndex) {
-        return hintService.getOrCreateByParagraphId(paraId, orderIndex);
     }
 
     private Paragraph handleSingleSentence(CreateParagraphRequest request) {
         PromptMessage prompt = promptFactory.buildPrompt(request);
-        String response = chatService
-                .sendMessage(prompt.systemMessage(), prompt.userMessage(), String.class)
+        ParagraphAiResponse response = chatService
+                .sendMessage(prompt.systemMessage(), prompt.userMessage(), ParagraphAiResponse.class)
                 .getResult();
         Paragraph paragraph = mapper.toParagraph(request);
-        paragraph.setContent(response);
+        paragraph.setSentences(toParagraphSentences(paragraph, response.getSentences()));
         return repository.save(paragraph);
+    }
+
+    private List<ParagraphSentence> toParagraphSentences(Paragraph paragraph, List<String> sentences) {
+        if (sentences == null || sentences.isEmpty()) {
+            return List.of();
+        }
+        AtomicInteger orderIndex = new AtomicInteger(0);
+        return sentences.stream()
+                .map(String::trim)
+                .filter(sentence -> !sentence.isBlank())
+                .map(sentence -> ParagraphSentence.builder()
+                        .paragraph(paragraph)
+                        .orderIndex(orderIndex.getAndIncrement())
+                        .content(sentence)
+                        .build())
+                .toList();
     }
 }

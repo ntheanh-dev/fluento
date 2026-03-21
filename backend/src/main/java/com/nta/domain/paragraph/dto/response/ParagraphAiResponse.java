@@ -2,12 +2,15 @@ package com.nta.domain.paragraph.dto.response;
 
 import java.util.List;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Builder
 @Data
-public class ParagraphWithTitleAiResponse {
-    String title;
+@NoArgsConstructor
+@AllArgsConstructor
+public class ParagraphAiResponse {
     List<String> sentences;
 }

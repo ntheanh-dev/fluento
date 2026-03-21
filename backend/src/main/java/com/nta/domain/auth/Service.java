@@ -66,6 +66,7 @@ public class Service {
         PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
         User u = userMapper.toUser(request);
         u.setPassword(passwordEncoder.encode(request.getPassword()));
+        u.setCredits(0);
         HashSet<Role> roles = new HashSet<>();
         roleRepository.findById(PredefinedRole.USER_ROLE).ifPresent(roles::add);
         u.setRoles(roles);

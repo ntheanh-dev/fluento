@@ -3,8 +3,6 @@ package com.nta.domain.userPractice.dto.response;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import jakarta.persistence.*;
-
 import com.nta.domain.paragraph.Paragraph;
 import com.nta.domain.userSentenceAnswer.UserSentenceAnswer;
 

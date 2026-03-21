@@ -1,11 +1,11 @@
 import type { SubmitAnswerRequest, UserPractice } from "@/entities/userPractice/schema";
 import { createRestClient, getResource } from "../../shared/api/rest-client";
 import type { AnswerPreviewInput, PracticeSetupInput } from "./schema";
-import type { HintContent } from "@/entities/hints/schema";
+import type { ParagraphSentence } from "@/entities/paragraphSentence/schema";
 import type { SentenceFeedback, UserSentenceAnswer } from "@/entities/userPracticeAnswer/schema";
 
 const BASE = "/user-practices";
-const PARAGRAPH_BASE = "/paragraphs";
+const PARAGRAPH_SENTENCE_BASE = "/paragraphSentence";
 
 export const createUserPractice = (
   payload: PracticeSetupInput,
@@ -19,12 +19,11 @@ export const getUserPracticeById = (
   return getResource<UserPractice>(BASE + `/${id}`);
 };
 
-export const getParagraphHints = (
-  id: number,
-  orderIndex: number,
-): Promise<HintContent> => {
-  return getResource<HintContent>(
-    PARAGRAPH_BASE + `/${id}/hints/${orderIndex}`,
+export const getSentenceVocabularyHints = (
+  sentenceId: number,
+): Promise<ParagraphSentence> => {
+  return getResource<ParagraphSentence>(
+    PARAGRAPH_SENTENCE_BASE + `/${sentenceId}/vocabularyHints`,
   );
 };
 

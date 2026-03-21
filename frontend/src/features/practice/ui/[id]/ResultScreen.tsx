@@ -17,7 +17,6 @@ import { message, Modal, Spin } from 'antd';
 import { LoadingOutlined } from '@ant-design/icons';
 import { showApiError } from '@/shared/api/showApiError';
 import { renderWordDiff } from '../../fnc';
-import { splitIntoSentences } from '@/utils/utils';
 export default function ResultScreen() {
     const { id } = useParams();
     const navigate = useNavigate();
@@ -28,7 +27,10 @@ export default function ResultScreen() {
         return <Spin indicator={<LoadingOutlined spin />} />;
     }
 
-    if (data && data.sentenceAnswers.length !== splitIntoSentences(data.paragraph.content).length) {
+    const paragraphSentences = data?.paragraph.sentences ?? [];
+    const sentenceContents = paragraphSentences.map((sentence) => sentence.content);
+
+    if (data && data.sentenceAnswers.length !== sentenceContents.length) {
         message.warning('Không thể xem kết quả khi chưa hoàn thành bài luyện tập.');
         navigate(`/practice/${id}`, { replace: true });
         return;
@@ -153,7 +155,7 @@ export default function ResultScreen() {
                                 )}
                                 {data?.paragraph.type === 'SINGLE_SENTENCE' ? (
                                     <div className="text-sm sm:text-base text-slate-600 italic leading-relaxed whitespace-pre-line">
-                                        {splitIntoSentences(data?.paragraph.content ?? '').map((sentence, index) => (
+                                        {sentenceContents.map((sentence, index) => (
                                             <p key={index} className="text-sm sm:text-base text-slate-600 italic leading-relaxed whitespace-pre-line">
                                                 {index + 1}. {sentence}
                                             </p>
@@ -161,7 +163,7 @@ export default function ResultScreen() {
                                     </div>
                                 ) : (
                                     <p className="text-sm sm:text-base text-slate-600 italic leading-relaxed whitespace-pre-line break-words">
-                                        {data?.paragraph.content}
+                                        {sentenceContents.join(" ")}
                                     </p>
                                 )}
                             </div>

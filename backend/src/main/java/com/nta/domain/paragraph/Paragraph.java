@@ -2,14 +2,15 @@ package com.nta.domain.paragraph;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import jakarta.persistence.*;
 
 import org.hibernate.annotations.CreationTimestamp;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.nta.domain.hint.Hint;
 import com.nta.domain.paragraph.enums.*;
+import com.nta.domain.paragraphSentence.ParagraphSentence;
 import com.nta.domain.userPractice.UserPractice;
 
 import lombok.AllArgsConstructor;
@@ -29,8 +30,9 @@ public class Paragraph {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(columnDefinition = "TEXT")
-    private String content;
+    @OneToMany(mappedBy = "paragraph", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    @OrderBy("orderIndex ASC")
+    private List<ParagraphSentence> sentences;
 
     private String title;
 
@@ -62,7 +64,11 @@ public class Paragraph {
     @JsonIgnore
     private List<UserPractice> practices;
 
-    @OneToMany(mappedBy = "paragraph", fetch = FetchType.LAZY)
     @JsonIgnore
-    private List<Hint> hints;
+    public List<String> getSentenceContents() {
+        if (sentences == null) {
+            return List.of();
+        }
+        return sentences.stream().map(ParagraphSentence::getContent).collect(Collectors.toList());
+    }
 }

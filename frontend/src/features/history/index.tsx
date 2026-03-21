@@ -20,7 +20,6 @@ import type { MenuProps } from "antd";
 import { getHistory, type GetHistoryParams } from "./api";
 import { OK } from "@/shared/api/query-keys";
 import type { UserPractice } from "@/entities/userPractice/schema";
-import { splitIntoSentences } from "@/utils/utils";
 
 const PAGE_SIZE = 6;
 
@@ -314,11 +313,12 @@ const PracticeHistory = () => {
                     <div className="flex-1 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3 content-start">
                         {content.map((item: UserPractice) => {
                             const isParagraph = item.paragraph?.type !== "SINGLE_SENTENCE";
-                            const vietnamese = item.paragraph?.content ?? "";
+                            const paragraphSentences = (item.paragraph?.sentences ?? []).map((sentence) => sentence.content);
+                            const vietnamese = paragraphSentences.join(" ");
                             const english = item.sentenceAnswers?.[0]?.userTranslation ?? "";
                             const score = item.score ?? (item.sentenceAnswers?.length ? item.sentenceAnswers.reduce((a, s) => a + (s.score ?? 0), 0) / item.sentenceAnswers.length : 0);
                             const corrections = item.sentenceAnswers?.filter((a) => a.feedback).length ?? 0;
-                            const isFinished = splitIntoSentences(item.paragraph?.content ?? "").length === item.sentenceAnswers?.length;
+                            const isFinished = paragraphSentences.length === item.sentenceAnswers?.length;
                             return (
                                 <motion.div
                                     key={item.id}

@@ -1,10 +1,9 @@
-package com.nta.domain.hint;
+package com.nta.domain.paragraphSentence;
 
-import java.time.LocalDateTime;
+import java.util.List;
 
 import jakarta.persistence.*;
 
-import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
@@ -17,31 +16,29 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(
-        name = "hints",
-        uniqueConstraints = {@UniqueConstraint(columnNames = {"paragraph_id", "order_index"})})
+@Table(name = "paragraph_sentences")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Hint {
+public class ParagraphSentence {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JsonIgnore
-    @JoinColumn(name = "paragraph_id")
+    @JoinColumn(name = "paragraph_id", nullable = false)
     private Paragraph paragraph;
 
     @Column(name = "order_index", nullable = false)
     private Integer orderIndex;
 
-    @JdbcTypeCode(SqlTypes.JSON)
-    @Column(columnDefinition = "json")
-    private HintContent hints;
+    @Column(columnDefinition = "TEXT", nullable = false)
+    private String content;
 
-    @CreationTimestamp
-    @Column(name = "created_at")
-    private LocalDateTime createdAt;
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "hints", columnDefinition = "json")
+    private List<VocabularyHint> vocabularyHints;
 }

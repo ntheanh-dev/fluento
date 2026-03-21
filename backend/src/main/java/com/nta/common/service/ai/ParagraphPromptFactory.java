@@ -26,7 +26,9 @@ public class ParagraphPromptFactory {
                 "You are an expert language learning assistant specializing in creating educational content for Vietnamese learners studying English. "
                         + "Your task is to generate well-structured, coherent paragraphs that help learners practice reading and translation skills. "
                         + "Always ensure the content is culturally appropriate, engaging, and educational. "
-                        + "The paragraphs should flow naturally and contain vocabulary appropriate for the specified language proficiency level.";
+                        + "The paragraphs should flow naturally and contain vocabulary appropriate for the specified language proficiency level. "
+                        + "Return ONLY valid JSON with this schema: "
+                        + "{\"sentences\":[\"string\"]}";
 
         int sentenceCount =
                 request.getSentenceCount() != null ? request.getSentenceCount().getSize() : SentenceCount.TEN.getSize();
@@ -39,9 +41,9 @@ public class ParagraphPromptFactory {
                         + "- Ensure sentences are connected logically with appropriate transitions\n"
                         + "- Make the content engaging and educational for Vietnamese learners\n"
                         + "- Focus on practical, real-world applications of the topic\n"
-                        + "- Output ONLY the paragraph content.\n"
+                        + "- Return ONLY valid JSON with schema {\"sentences\":[\"string\"]}.\n"
+                        + "- Each sentence must be one item in sentences array.\n"
                         + "- Do NOT include any introduction, explanation, or extra commentary.\n"
-                        + "- Return plain text only.\n"
                         + "- Use varied sentence structures to enhance learning value\n\n"
                         + "Topic: %s\nLanguage: vietnamese\nLevel: %s\nTone: %s\nSentences: %d",
                 sentenceCount,
@@ -58,14 +60,12 @@ public class ParagraphPromptFactory {
 
     private PromptMessage buildWritingPrompt(CreateParagraphRequest request) {
         String system = "You are an expert English-learning content creator. "
-                + "Your task is to generate Vietnamese content specifically designed "
-                + "for learners to translate into English. "
-                + "The content must include sentence structures, grammar patterns, "
-                + "and vocabulary that are useful for English translation practice. "
-                + "The difficulty must match the specified proficiency level. "
+                + "Your task is to generate Vietnamese content for learners to translate into English. "
+                + "Ensure appropriate grammar, vocabulary, and structure for the given level. "
                 + "Generate a suitable title and matching content. "
-                + "Return ONLY valid JSON with this schema: "
-                + "{\"title\":\"string\",\"content\":\"string\"}";
+                + "Return ONLY valid JSON. Do NOT include markdown, explanation, or extra text. "
+                + "Output must strictly follow this schema: "
+                + "{\"title\":\"string\",\"sentences\":[\"string\", \"string\", \"string\"]}. ";
 
         int sentenceCount =
                 request.getSentenceCount() != null ? request.getSentenceCount().getSize() : SentenceCount.TEN.getSize();
@@ -149,7 +149,7 @@ public class ParagraphPromptFactory {
 				You are an expert English teacher creating learning materials for Vietnamese learners.
 				Your task is to generate Vietnamese sentences that students will translate into English.
 				Sentences must be natural, grammatically correct, and appropriate for the given English level.
-				Only output the sentences with no explanations.
+				Return ONLY valid JSON with this schema: {"sentences":["string"]}.
 				""";
 
         String user = String.format(
@@ -169,7 +169,7 @@ public class ParagraphPromptFactory {
 				* suggestions
 				- Sentences should feel natural in daily life
 				- Keep vocabulary suitable for the specified level
-				- Each sentence must be on a new line
+				- Return ONLY valid JSON with schema {"sentences":["string"]}
 				- Do NOT include numbering, bullet points, or explanations
 				""",
                 request.getSentenceCount().getSize(), request.getTopic(), request.getLevel(), request.getTone());
@@ -188,9 +188,8 @@ public class ParagraphPromptFactory {
                 + "B2: upper-intermediate vocabulary for abstract ideas\n"
                 + "C1: advanced nuanced vocabulary\n"
                 + "C2: academic/professional vocabulary\n\n"
-                + "JSON schema (exact property names):\n"
-                + "{\n"
-                + "  \"vocabularyHints\": [\n"
+                + "Return ONLY a valid JSON array with this item schema:\n"
+                + "[\n"
                 + "    {\n"
                 + "      \"vietnamese\": \"word or phrase\",\n"
                 + "      \"english\": [\n"
@@ -201,8 +200,7 @@ public class ParagraphPromptFactory {
                 + "        }\n"
                 + "      ]\n"
                 + "    }\n"
-                + "  ]\n"
-                + "}";
+                + "]";
 
         String user = String.format(
                 "Vietnamese sentence: \"%s\"\n\n"
@@ -210,7 +208,7 @@ public class ParagraphPromptFactory {
                         + "- Extract important Vietnamese words/phrases.\n"
                         + "- Provide suitable English translations for %s level learners.\n"
                         + "- Include multiple translations when useful.\n"
-                        + "- Ensure the JSON strictly follows the schema.\n",
+                        + "- Return ONLY a JSON array that strictly follows the schema.\n",
                 sentence, level);
 
         return new PromptMessage(system, user);

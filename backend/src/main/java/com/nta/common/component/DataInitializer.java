@@ -35,6 +35,7 @@ public class DataInitializer {
                 userRepository.save(User.builder()
                         .username("a@a.com")
                         .password(passwordEncoder.encode("admin123"))
+                        .credits(100)
                         .build());
             }
 

@@ -1,4 +1,4 @@
-import type { HintContent } from "@/entities/hints/schema";
+import type { VocabularyHint } from "@/entities/paragraphSentence/schema";
 import { Sparkles, Volume2 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { motion } from 'motion/react';
@@ -77,7 +77,7 @@ const VocabularyItem = ({
 };
 
 
-export const HintsAside = (translationHints: HintContent | null) => {
+export const VocabularyHintsAside = ({ vocabularyHints }: { vocabularyHints: VocabularyHint[] | null }) => {
     const [speakingWord, setSpeakingWord] = useState<string | null>(null);
     const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
 
@@ -122,7 +122,7 @@ export const HintsAside = (translationHints: HintContent | null) => {
         synth.speak(utterance);
     }, [speakingWord]);
 
-    if (!translationHints) return null;
+    if (!vocabularyHints) return null;
     return (
         <>
             <div className="px-6 py-3 border-b border-slate-200 flex items-center gap-3">
@@ -132,7 +132,7 @@ export const HintsAside = (translationHints: HintContent | null) => {
                 </span>
             </div>
             <div className="flex-1 overflow-y-scroll sm:p-4 bg-white">
-                {translationHints.vocabularyHints.map((hint, index) => (
+                {vocabularyHints.map((hint, index) => (
                     <div className="group pb-6" key={index}>
                         <div className="flex items-center gap-2 mb-2">
                             <h3 className="text-[12px] sm:text-xs text-slate-500 truncate">{hint.vietnamese.toLocaleLowerCase()}</h3>
