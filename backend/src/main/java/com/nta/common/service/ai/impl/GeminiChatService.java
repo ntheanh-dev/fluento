@@ -21,7 +21,6 @@ import com.nta.common.constant.ChatCacheConstants;
 import com.nta.common.enums.ErrorCode;
 import com.nta.common.exception.AppException;
 import com.nta.common.service.CommonUserService;
-import com.nta.common.service.TokenUtils;
 import com.nta.common.service.ai.ChatResponse;
 import com.nta.common.service.ai.ChatService;
 import com.nta.common.service.ai.ClientKey;
@@ -176,10 +175,6 @@ public class GeminiChatService implements ChatService {
     }
 
     private Prompt buildPrompt(String systemMessageText, String userMessageText) {
-        int inputToken = TokenUtils.countTokens(systemMessageText) + TokenUtils.countTokens(userMessageText);
-        if (inputToken > ChatCacheConstants.MAX_INPUT_TOKENS) {
-            throw new AppException(ErrorCode.AI_INPUT_TOO_LONG);
-        }
         return new Prompt(new SystemMessage(systemMessageText), new UserMessage(userMessageText));
     }
 

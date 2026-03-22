@@ -26,6 +26,9 @@ const Dashboard = () => {
   });
   const { data: creditBalance } = useCredits();
 
+  const hasPracticeHistory =
+    (profile?.embedded?.totalUserSentenceAnswers ?? 0) > 0 || (profile?.longestStreak ?? 0) > 0;
+
   const chartData = useMemo(() => {
     const points = series?.points ?? [];
     return points.map((p) => ({ name: p.label, score: p.score.toFixed(2) }));
@@ -36,7 +39,7 @@ const Dashboard = () => {
       {/* Welcome & Stats */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
         <div>
-          {profile?.lastLogin ? (
+          {hasPracticeHistory ? (
             <>
               <h1 className="text-2xl md:text-3xl font-bold text-slate-900 dark:text-slate-100">Chào mừng quay lại, {profile?.fullName}! 👋</h1>
               <p className="text-slate-500 dark:text-slate-400 mt-2 text-sm md:text-base">

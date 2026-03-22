@@ -21,8 +21,6 @@ public class UserResponse {
     Boolean noPassword;
     Set<Role> roles;
     LocalDateTime createdAt;
-    /** Thời điểm đăng nhập gần nhất; null nếu chưa từng đăng nhập (dữ liệu cũ). */
-    LocalDateTime lastLogin;
 
     Long activeApiKeyId;
     /** Điền khi GET /me?embedded=... (vd: embedded=apiKey → embedded.apiKey = [...]) */

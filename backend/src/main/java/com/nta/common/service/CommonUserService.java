@@ -39,7 +39,7 @@ public class CommonUserService {
 
     public User getUserFromContext() {
         Long userId = this.getCurrentUserIdFromContext();
-        return repository.findById(userId).orElse(null);
+        return repository.findById(userId).orElseThrow(() -> new AppException(ErrorCode.RESOURCE_NOT_FOUND));
     }
 
     public ApiKey getApiKeyFromContext() {

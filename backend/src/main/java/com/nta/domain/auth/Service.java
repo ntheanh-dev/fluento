@@ -2,7 +2,6 @@ package com.nta.domain.auth;
 
 import java.text.ParseException;
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.HashSet;
@@ -71,7 +70,6 @@ public class Service {
         HashSet<Role> roles = new HashSet<>();
         roleRepository.findById(PredefinedRole.USER_ROLE).ifPresent(roles::add);
         u.setRoles(roles);
-        u.setLastLogin(LocalDateTime.now());
         u = userRepository.save(u);
         return AuthenticationResponse.builder()
                 .accessToken(generateToken(u, TokenType.ACCESS_TOKEN))
@@ -166,9 +164,6 @@ public class Service {
         if (!authenticate) {
             throw new AppException(ErrorCode.PASSWORD_INVALID);
         }
-
-        user.setLastLogin(LocalDateTime.now());
-        user = userRepository.save(user);
 
         var accessToken = generateToken(user, TokenType.ACCESS_TOKEN);
         var refreshToken = generateToken(user, TokenType.FRESH_TOKEN);
