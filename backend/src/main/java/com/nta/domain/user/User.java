@@ -57,6 +57,10 @@ public class User {
     @Column(name = "last_submission_date")
     private LocalDate lastSubmissionDate;
 
+    /** Thời điểm đăng nhập thành công gần nhất (password hoặc OAuth). */
+    @Column(name = "last_login")
+    private LocalDateTime lastLogin;
+
     @Column(nullable = false)
     private Integer credits = 0;
 }

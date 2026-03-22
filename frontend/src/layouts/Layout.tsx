@@ -1,11 +1,11 @@
 import { useState, useEffect } from "react";
 import { useLocation, Outlet, Link } from "react-router-dom";
-import { ChevronRight, Menu, Flame } from "lucide-react";
+import { ChevronRight, Menu, Flame, User } from "lucide-react";
 import Sidebar from "./Sidebar";
 import { useProfile, useProfileStore } from "@/stores/profile";
 import { PROFILE_EMBED_PRACTICESTATS, useProfileData } from "@/features/profile/query";
 import Cookies from "js-cookie";
-import { Button } from "antd";
+import { Avatar, Button } from "antd";
 
 const getPathName = (pathname: string): string => {
     const pathMap: Record<string, string> = {
@@ -140,11 +140,15 @@ const Layout = () => {
                                                 </p>
                                                 <p className="text-xs text-slate-500 dark:text-slate-400">Trung cấp</p>
                                             </div>
-                                            <img
-                                                src={profile?.urlAvatar}
-                                                alt={profile?.fullName}
-                                                className="w-8 h-8 md:w-10 md:h-10 rounded-full border-2 border-slate-100 dark:border-slate-700 shadow-sm"
-                                            />
+                                            {profile?.urlAvatar ? (
+                                                <img
+                                                    src={profile?.urlAvatar}
+                                                    alt={profile?.fullName}
+                                                    className="w-8 h-8 md:w-10 md:h-10 rounded-full border-2 border-slate-100 dark:border-slate-700 shadow-sm"
+                                                />
+                                            ) : (
+                                                <Avatar size={32} icon={<User size={16} />} />
+                                            )}
                                         </div>
                                     </Link>
                                 </>

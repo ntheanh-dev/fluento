@@ -11,7 +11,7 @@ import {
   Clock,
   Coins,
 } from "lucide-react";
-import { Button, Input, Select, message } from "antd";
+import { Avatar, Button, Input, Select, message } from "antd";
 import SetPasswordDialog from "../dialogs/SetPasswordDialog";
 import { useUpdateMe } from "../hook/useUpdateMe";
 import {
@@ -120,11 +120,17 @@ const Profile = () => {
                 disabled={uploadingAvatar}
                 className="relative w-24 h-24 rounded-full bg-orange-100 flex items-center justify-center text-orange-500 text-3xl font-bold border-4 border-white shadow-sm overflow-hidden cursor-pointer hover:ring-2 hover:ring-primary hover:ring-offset-2 transition-all disabled:opacity-60 disabled:cursor-not-allowed"
               >
-                <img
-                  src={profile?.urlAvatar}
-                  alt={profile?.fullName}
-                  className="w-full h-full object-cover"
-                />
+                {profile?.urlAvatar ? (
+                  <>
+                    <img
+                      src={profile?.urlAvatar}
+                      alt={profile?.fullName}
+                      className="w-full h-full object-cover"
+                    />
+                  </>
+                ) : (
+                  <Avatar size={96} icon={<User size={48} />} />
+                )}
                 <span className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
                   <Camera size={28} className="text-white" />
                 </span>

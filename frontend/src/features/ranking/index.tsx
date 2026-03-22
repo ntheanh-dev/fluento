@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Trophy, Flame, Search, Clock } from "lucide-react";
+import { Trophy, Flame, Search, Clock, User } from "lucide-react";
 import { Avatar, Spin, Pagination } from "antd";
 import { useRankings } from "./query";
 import { useDebounce } from "../../shared/hooks/useDebounce";
@@ -217,7 +217,15 @@ const Rankings: React.FC = () => {
                       </td>
                       <td className="px-4 sm:px-6 py-3 sm:py-4">
                         <div className="flex items-center gap-3">
-                          <Avatar src={row.urlAvatar || undefined} />
+                          {row.urlAvatar ? (
+                            <img
+                              src={row.urlAvatar}
+                              alt={row.fullName || "Ẩn danh"}
+                              className="w-8 h-8 md:w-10 md:h-10 rounded-full border-2 border-slate-100 dark:border-slate-700 shadow-sm"
+                            />
+                          ) : (
+                            <Avatar size={32} icon={<User size={16} />} />
+                          )}
                           <span className="font-semibold text-slate-900 dark:text-slate-100 group-hover:text-primary transition-colors">
                             {row.fullName || "Ẩn danh"}
                           </span>

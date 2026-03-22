@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import {
   CheckCircle2,
   History,
@@ -28,7 +28,7 @@ const Dashboard = () => {
 
   const chartData = useMemo(() => {
     const points = series?.points ?? [];
-    return points.map((p) => ({ name: p.label, score: p.score }));
+    return points.map((p) => ({ name: p.label, score: p.score.toFixed(2) }));
   }, [series]);
 
   return (
@@ -36,10 +36,32 @@ const Dashboard = () => {
       {/* Welcome & Stats */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
         <div>
-          <h1 className="text-2xl md:text-3xl font-bold text-slate-900 dark:text-slate-100">Chào mừng quay lại, {profile?.fullName}! 👋</h1>
-          <p className="text-slate-500 dark:text-slate-400 mt-2 text-sm md:text-base">
-            Chuỗi ngày luyện tập dài nhất của bạn là {profile?.longestStreak} ngày. Tiếp tục giữ phong độ nhé!
-          </p>
+          {profile?.lastLogin ? (
+            <>
+              <h1 className="text-2xl md:text-3xl font-bold text-slate-900 dark:text-slate-100">Chào mừng quay lại, {profile?.fullName}! 👋</h1>
+              <p className="text-slate-500 dark:text-slate-400 mt-2 text-sm md:text-base">
+                Chuỗi ngày luyện tập dài nhất của bạn là {profile?.longestStreak} ngày. Tiếp tục giữ phong độ nhé!
+              </p>
+            </>
+          ) : (
+            <>
+              <h1 className="text-2xl md:text-3xl font-bold text-slate-900 dark:text-slate-100">Chào mừng bạn đến với Fluento! 👋</h1>
+              {profile?.activeApiKeyId ? (
+                <>
+                  <p className="text-slate-500 dark:text-slate-400 mt-2 text-sm md:text-base">
+                    Hãy bắt đầu luyện tập ngay bây giờ!
+                  </p>
+                </>
+              ) : (
+                <>
+                  <p className="text-slate-500 dark:text-slate-400 mt-2 text-sm md:text-base">
+                    Hãy bắt thêm API key trong <Link to="/profile">trang cá nhân</Link> để bắt đầu luyện tập.
+                  </p>
+                </>
+              )}
+            </>
+          )}
+
         </div>
         <button
           onClick={() => navigate('/practice')}

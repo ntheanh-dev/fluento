@@ -1,5 +1,6 @@
 package com.nta.domain.auth;
 
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Stream;
@@ -80,19 +81,15 @@ public class SocialService {
                         .roles(roles)
                         .build()));
 
-        // Sync fullName/avatar from Google for existing user when not set
-        boolean updated = false;
+        // Sync fullName/avatar from Google for existing user when not set; cập nhật last login
         if (StringUtils.hasText(fullName) && !StringUtils.hasText(user.getFullName())) {
             user.setFullName(fullName);
-            updated = true;
         }
         if (StringUtils.hasText(userInfo.getPicture()) && !StringUtils.hasText(user.getUrlAvatar())) {
             user.setUrlAvatar(userInfo.getPicture());
-            updated = true;
         }
-        if (updated) {
-            userRepository.save(user);
-        }
+        user.setLastLogin(LocalDateTime.now());
+        user = userRepository.save(user);
 
         // Convert google token to system token
         var token = authService.generateToken(user, TokenType.ACCESS_TOKEN);

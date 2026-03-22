@@ -11,6 +11,7 @@ const userSchema = z.object({
     urlAvatar: z.string(),
     noPassword: z.boolean(),
     createdAt: z.string(),
+    lastLogin: z.string().nullable().optional(),
     activeApiKeyId: z.number(),
     embedded: z
         .object({
