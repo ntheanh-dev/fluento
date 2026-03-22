@@ -358,7 +358,7 @@ const SentencePracticePage = () => {
                 {feedback && (
                   <button
                     disabled={
-                      isLoadingSubmitUserSentence ||
+                      isLoadingSubmitUserSentence || isLoadingAnswerPreview ||
                       !feedback ||
                       !lastCheckedTranslation ||
                       lastCheckedTranslation !== translation

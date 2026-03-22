@@ -63,6 +63,8 @@ spring:
           model: ${CHAT_MODEL}
 # API key stored encrypted in DB; secret must be exactly 32 characters (32 bytes).
 app:
+  # Múi giờ nghiệp vụ: streak, thống kê theo ngày, cron reset credit (DB/Jackson vẫn UTC).
+  time-zone: Asia/Ho_Chi_Minh
   api-key-encryption-secret: "0123456789abcdef0123456789abcdef"
   cors:
     allowed-origins: http://localhost:1234

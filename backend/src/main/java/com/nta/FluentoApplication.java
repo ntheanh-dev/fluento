@@ -21,6 +21,7 @@ public class FluentoApplication {
         SpringApplication.run(FluentoApplication.class, args);
     }
 
+    /** JDBC/JPA/Jackson: lưu và so sánh timestamp nhất quán UTC. Ngày nghiệp vụ dùng {@code app.time-zone}. */
     @PostConstruct
     public void init() {
         TimeZone.setDefault(TimeZone.getTimeZone("UTC"));

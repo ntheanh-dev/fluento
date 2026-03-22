@@ -19,6 +19,7 @@ import { useQuery } from "@tanstack/react-query";
 import type { MenuProps } from "antd";
 import { getHistory, type GetHistoryParams } from "./api";
 import { OK } from "@/shared/api/query-keys";
+import { APP_TIME_ZONE } from "@/shared/utilities/date";
 import type { UserPractice } from "@/entities/userPractice/schema";
 
 const PAGE_SIZE = 6;
@@ -72,7 +73,12 @@ function formatDate(iso: string): string {
     if (diffMins < 60) return diffMins <= 1 ? "Vừa xong" : `${diffMins} phút trước`;
     if (diffHours < 24) return `${diffHours} giờ trước`;
     if (diffDays < 7) return diffDays === 1 ? "Hôm qua" : `${diffDays} ngày trước`;
-    return d.toLocaleDateString("vi-VN", { day: "numeric", month: "short", year: "numeric" });
+    return d.toLocaleDateString("vi-VN", {
+        timeZone: APP_TIME_ZONE,
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+    });
 }
 
 function formatLearningTime(ms: number | undefined | null): string {

@@ -2,7 +2,7 @@ package com.nta.domain.user;
 
 import java.io.IOException;
 import java.time.LocalDate;
-import java.time.ZoneOffset;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -51,6 +51,8 @@ public class Service {
     com.nta.domain.userPractice.Repository userPracticeRepository;
 
     CommonUserService commonUserService;
+
+    ZoneId appZoneId;
 
     /**
      * Update current user profile. Handles optional fullName, password change, and avatar upload.
@@ -129,7 +131,7 @@ public class Service {
         final User user = commonUserService.getUserFromContext();
 
         // Kiểm tra và reset streak nếu đã đứt chuỗi (dựa trên lastSubmissionDate)
-        LocalDate today = LocalDate.now(ZoneOffset.UTC);
+        LocalDate today = LocalDate.now(appZoneId);
         LocalDate lastDate = user.getLastSubmissionDate();
         Integer currentStreak = user.getCurrentStreak();
 

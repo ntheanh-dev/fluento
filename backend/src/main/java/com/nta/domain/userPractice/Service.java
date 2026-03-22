@@ -2,7 +2,9 @@ package com.nta.domain.userPractice;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.time.format.TextStyle;
 import java.util.ArrayList;
 import java.util.List;
@@ -24,6 +26,7 @@ import com.nta.common.service.CommonUserService;
 import com.nta.common.service.ai.ChatService;
 import com.nta.common.service.ai.ParagraphPromptFactory;
 import com.nta.common.service.ai.PromptMessage;
+import com.nta.common.time.MysqlTime;
 import com.nta.domain.paragraph.Paragraph;
 import com.nta.domain.paragraph.dto.request.CreateParagraphRequest;
 import com.nta.domain.paragraph.enums.Level;
@@ -62,6 +65,7 @@ public class Service {
     com.nta.domain.userSentenceAnswer.Repository userSentenceAnswerRepo;
     com.nta.domain.userSentenceAnswer.Mapper userSentenceAnswerMapper;
     com.nta.domain.user.Repository userRepository;
+    ZoneId appZoneId;
 
     @Transactional
     UserPracticeResponse create(CreateParagraphRequest request) {
@@ -196,7 +200,7 @@ public class Service {
 
         User user = userRepository.findByIdForUpdate(userId).orElseThrow(() -> new RuntimeException("User not found"));
 
-        LocalDate today = LocalDate.now(ZoneOffset.UTC);
+        LocalDate today = LocalDate.now(appZoneId);
         LocalDate lastDate = user.getLastSubmissionDate();
 
         // Case 1: first time submit
@@ -313,19 +317,22 @@ public class Service {
         Long userId = commonUserService.getCurrentUserIdFromContext();
         WritingPerformanceRange range = WritingPerformanceRange.fromString(rangeRaw);
 
-        LocalDate today = LocalDate.now(ZoneOffset.UTC);
+        LocalDate today = LocalDate.now(appZoneId);
         LocalDate startDate =
                 switch (range) {
                     case LAST_7_DAYS -> today.minusDays(6);
                     case LAST_30_DAYS -> today.minusDays(29);
                 };
 
-        LocalDateTime start = startDate.atStartOfDay();
-        LocalDateTime end = today.plusDays(1).atStartOfDay().minusNanos(1);
+        ZonedDateTime startZdt = startDate.atStartOfDay(appZoneId);
+        ZonedDateTime endZdt = today.plusDays(1).atStartOfDay(appZoneId).minusNanos(1);
+        LocalDateTime start = startZdt.withZoneSameInstant(ZoneOffset.UTC).toLocalDateTime();
+        LocalDateTime end = endZdt.withZoneSameInstant(ZoneOffset.UTC).toLocalDateTime();
 
-        List<DailyScoreStatsProjection> stats = userSentenceAnswerRepo.getDailyScoreStats(userId, start, end);
+        String tzOffset = MysqlTime.utcToOffsetSuffix(appZoneId);
+        List<DailyScoreStatsProjection> stats = userSentenceAnswerRepo.getDailyScoreStats(userId, start, end, tzOffset);
         Map<LocalDate, DailyScoreStatsProjection> byDate =
-                stats.stream().collect(Collectors.toMap(DailyScoreStatsProjection::getDate, s -> s));
+                stats.stream().collect(Collectors.toMap(DailyScoreStatsProjection::getStatDate, s -> s));
 
         List<WritingPerformancePointResponse> points = new ArrayList<>();
         for (LocalDate d = startDate; !d.isAfter(today); d = d.plusDays(1)) {

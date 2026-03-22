@@ -39,20 +39,25 @@ public interface Repository extends JpaRepository<UserSentenceAnswer, Long> {
     Object[] getUserSentenceAnswerStats(@Param("userId") Long userId);
 
     @Query(
-            """
+            value =
+                    """
 			SELECT
-				FUNCTION('date', a.createdAt) AS date,
+				DATE(CONVERT_TZ(a.created_at, '+00:00', :tzOffset)) AS statDate,
 				COALESCE(AVG(a.score), 0) AS avgScore,
 				COUNT(a.id) AS totalAnswers
-			FROM UserSentenceAnswer a
-			INNER JOIN a.practice p
-			WHERE a.isSubmitted = TRUE
-			AND p.user.id = :userId
-			AND a.createdAt >= :start
-			AND a.createdAt <= :end
-			GROUP BY FUNCTION('date', a.createdAt)
-			ORDER BY FUNCTION('date', a.createdAt)
-			""")
+			FROM user_sentence_answers a
+			INNER JOIN user_practices p ON a.practice_id = p.id
+			WHERE a.is_submitted = TRUE
+			AND p.user_id = :userId
+			AND a.created_at >= :start
+			AND a.created_at <= :end
+			GROUP BY DATE(CONVERT_TZ(a.created_at, '+00:00', :tzOffset))
+			ORDER BY statDate
+			""",
+            nativeQuery = true)
     List<DailyScoreStatsProjection> getDailyScoreStats(
-            @Param("userId") Long userId, @Param("start") LocalDateTime start, @Param("end") LocalDateTime end);
+            @Param("userId") Long userId,
+            @Param("start") LocalDateTime start,
+            @Param("end") LocalDateTime end,
+            @Param("tzOffset") String tzOffset);
 }

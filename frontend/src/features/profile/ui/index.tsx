@@ -153,12 +153,12 @@ const Profile = () => {
               <button className="w-full flex items-center gap-3 px-4 py-3 bg-blue-50 dark:bg-blue-950/50 text-primary rounded-xl font-medium text-sm transition-colors">
                 <User size={18} /> Chi tiết hồ sơ
               </button>
-              <button className="w-full flex items-center gap-3 px-4 py-3 text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-xl font-medium text-sm transition-colors">
+              {/* <button className="w-full flex items-center gap-3 px-4 py-3 text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-xl font-medium text-sm transition-colors">
                 <History size={18} /> Lịch sử dịch
               </button>
               <button className="w-full flex items-center gap-3 px-4 py-3 text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-xl font-medium text-sm transition-colors">
                 <CreditCard size={18} /> Gói đăng ký
-              </button>
+              </button> */}
               <div className="h-px bg-slate-100 dark:bg-slate-700 my-1 mx-2"></div>
               <button
                 onClick={handleLogout}
@@ -280,7 +280,7 @@ const Profile = () => {
               </div>
               <div>
                 <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
-                  Theme
+                  Chế độ
                 </label>
                 <Select
                   size="large"
@@ -288,8 +288,8 @@ const Profile = () => {
                   onChange={(v) => setTheme(v as ThemeMode)}
                   className="w-full font-medium"
                   options={[
-                    { value: "dark", label: "Dark" },
-                    { value: "light", label: "Light" },
+                    { value: "dark", label: "Tối" },
+                    { value: "light", label: "Sáng" },
                   ]}
                 />
               </div>

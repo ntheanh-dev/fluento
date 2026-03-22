@@ -21,9 +21,9 @@ public class CreditResetJob {
 
     /**
      * Reset toàn bộ credit: mỗi row ApiKey về 20, mỗi user về (số row ApiKey đang sở hữu) * 20.
-     * Chạy mỗi ngày 00:00 UTC.
+     * Chạy mỗi ngày 00:00 theo {@code app.time-zone} (mặc định Asia/Ho_Chi_Minh).
      */
-    @Scheduled(cron = "0 0 0 * * *", zone = "UTC")
+    @Scheduled(cron = "0 0 0 * * *", zone = "${app.time-zone:Asia/Ho_Chi_Minh}")
     @Transactional
     public void resetDailyCreditsBasedOnApiKeys() {
         int apiKeyRowsReset = apiKeyRepository.resetAllCredits(CREDIT_PER_API_KEY_ROW);
