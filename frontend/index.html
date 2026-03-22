@@ -10,6 +10,19 @@
     <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
 
     <title>Fluento - Language Learning Platform</title>
+    <script>
+      (function () {
+        try {
+          var k = "fluento-theme";
+          var v = localStorage.getItem(k);
+          var dark =
+            v === "dark" ||
+            (v !== "light" &&
+              window.matchMedia("(prefers-color-scheme: dark)").matches);
+          if (dark) document.documentElement.classList.add("dark");
+        } catch (e) {}
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

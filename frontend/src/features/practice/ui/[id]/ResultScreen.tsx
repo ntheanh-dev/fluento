@@ -47,7 +47,7 @@ export default function ResultScreen() {
 
 
     return (
-        <div className="font-sans text-slate-900 p-4 min-h-screen">
+        <div className="font-sans text-slate-900 dark:text-slate-100 p-4 min-h-screen">
             <main className="max-w-5xl mx-auto px-4 sm:px-6 space-y-6 sm:space-y-8">
                 {/* Hero Section */}
                 <motion.div
@@ -55,49 +55,49 @@ export default function ResultScreen() {
                     animate={{ opacity: 1, y: 0 }}
                     className="text-center space-y-3 sm:space-y-4"
                 >
-                    <div className="w-16 h-16 sm:w-20 sm:h-20 bg-emerald-50 rounded-full flex items-center justify-center mx-auto text-emerald-500 mb-4 sm:mb-6">
+                    <div className="w-16 h-16 sm:w-20 sm:h-20 bg-emerald-50 dark:bg-emerald-950/40 rounded-full flex items-center justify-center mx-auto text-emerald-500 mb-4 sm:mb-6">
                         <PartyPopper className="w-8 h-8 sm:w-10 sm:h-10" />
                     </div>
-                    <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-slate-900">Tuyệt vời! Bạn đã hoàn thành</h2>
-                    <p className="text-slate-500 font-medium text-base sm:text-lg">Bạn đang tiến bộ rất nhanh mỗi ngày.</p>
+                    <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-slate-900 dark:text-slate-100">Tuyệt vời! Bạn đã hoàn thành</h2>
+                    <p className="text-slate-500 dark:text-slate-400 font-medium text-base sm:text-lg">Bạn đang tiến bộ rất nhanh mỗi ngày.</p>
                 </motion.div>
 
 
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
-                    <div className="bg-white p-3 sm:p-4 rounded-xl sm:rounded-2xl border border-gray-100 shadow-sm flex items-center gap-3 sm:gap-4 hover:shadow-md transition-shadow min-w-0">
-                        <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl flex items-center justify-center shrink-0 bg-blue-50 text-blue-500">
+                    <div className="bg-white dark:bg-slate-900/90 p-3 sm:p-4 rounded-xl sm:rounded-2xl border border-gray-100 dark:border-slate-700 shadow-sm flex items-center gap-3 sm:gap-4 hover:shadow-md transition-shadow min-w-0">
+                        <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl flex items-center justify-center shrink-0 bg-blue-50 dark:bg-blue-950/50 text-blue-500">
                             <FileText className="w-4 h-4 sm:w-5 sm:h-5" />
                         </div>
                         <div className="min-w-0">
-                            <p className="text-[10px] uppercase tracking-wider text-gray-400 font-bold mb-0.5">Loại</p>
-                            <p className="text-xs sm:text-sm font-bold text-gray-900 truncate">{data?.paragraph.type.toLowerCase()}</p>
+                            <p className="text-[10px] uppercase tracking-wider text-gray-400 dark:text-slate-500 font-bold mb-0.5">Loại</p>
+                            <p className="text-xs sm:text-sm font-bold text-gray-900 dark:text-slate-100 truncate">{data?.paragraph.type.toLowerCase()}</p>
                         </div>
                     </div>
-                    <div className="bg-white p-3 sm:p-4 rounded-xl sm:rounded-2xl border border-gray-100 shadow-sm flex items-center gap-3 sm:gap-4 hover:shadow-md transition-shadow min-w-0">
-                        <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl flex items-center justify-center shrink-0 bg-blue-50 text-blue-500">
+                    <div className="bg-white dark:bg-slate-900/90 p-3 sm:p-4 rounded-xl sm:rounded-2xl border border-gray-100 dark:border-slate-700 shadow-sm flex items-center gap-3 sm:gap-4 hover:shadow-md transition-shadow min-w-0">
+                        <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl flex items-center justify-center shrink-0 bg-blue-50 dark:bg-blue-950/50 text-blue-500">
                             <BookOpen className="w-4 h-4 sm:w-5 sm:h-5" />
                         </div>
                         <div className="min-w-0">
-                            <p className="text-[10px] uppercase tracking-wider text-gray-400 font-bold mb-0.5">Chủ đề</p>
-                            <p className="text-xs sm:text-sm font-bold text-gray-900 truncate">{data?.paragraph.topic.toLowerCase()}</p>
+                            <p className="text-[10px] uppercase tracking-wider text-gray-400 dark:text-slate-500 font-bold mb-0.5">Chủ đề</p>
+                            <p className="text-xs sm:text-sm font-bold text-gray-900 dark:text-slate-100 truncate">{data?.paragraph.topic.toLowerCase()}</p>
                         </div>
                     </div>
-                    <div className="bg-white p-3 sm:p-4 rounded-xl sm:rounded-2xl border border-gray-100 shadow-sm flex items-center gap-3 sm:gap-4 hover:shadow-md transition-shadow min-w-0">
-                        <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl flex items-center justify-center shrink-0 bg-blue-50 text-blue-500">
+                    <div className="bg-white dark:bg-slate-900/90 p-3 sm:p-4 rounded-xl sm:rounded-2xl border border-gray-100 dark:border-slate-700 shadow-sm flex items-center gap-3 sm:gap-4 hover:shadow-md transition-shadow min-w-0">
+                        <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl flex items-center justify-center shrink-0 bg-blue-50 dark:bg-blue-950/50 text-blue-500">
                             <Smile className="w-4 h-4 sm:w-5 sm:h-5" />
                         </div>
                         <div className="min-w-0">
-                            <p className="text-[10px] uppercase tracking-wider text-gray-400 font-bold mb-0.5">Sắc thái</p>
-                            <p className="text-xs sm:text-sm font-bold text-gray-900 truncate">{data?.paragraph.tone.toLowerCase()}</p>
+                            <p className="text-[10px] uppercase tracking-wider text-gray-400 dark:text-slate-500 font-bold mb-0.5">Sắc thái</p>
+                            <p className="text-xs sm:text-sm font-bold text-gray-900 dark:text-slate-100 truncate">{data?.paragraph.tone.toLowerCase()}</p>
                         </div>
                     </div>
-                    <div className="bg-white p-3 sm:p-4 rounded-xl sm:rounded-2xl border border-gray-100 shadow-sm flex items-center gap-3 sm:gap-4 hover:shadow-md transition-shadow min-w-0">
-                        <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl flex items-center justify-center shrink-0 bg-blue-50 text-blue-500">
+                    <div className="bg-white dark:bg-slate-900/90 p-3 sm:p-4 rounded-xl sm:rounded-2xl border border-gray-100 dark:border-slate-700 shadow-sm flex items-center gap-3 sm:gap-4 hover:shadow-md transition-shadow min-w-0">
+                        <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl flex items-center justify-center shrink-0 bg-blue-50 dark:bg-blue-950/50 text-blue-500">
                             <BarChart2 className="w-4 h-4 sm:w-5 sm:h-5" />
                         </div>
                         <div className="min-w-0">
-                            <p className="text-[10px] uppercase tracking-wider text-gray-400 font-bold mb-0.5">Trình độ</p>
-                            <p className="text-xs sm:text-sm font-bold text-gray-900 truncate">{data?.paragraph.level}</p>
+                            <p className="text-[10px] uppercase tracking-wider text-gray-400 dark:text-slate-500 font-bold mb-0.5">Trình độ</p>
+                            <p className="text-xs sm:text-sm font-bold text-gray-900 dark:text-slate-100 truncate">{data?.paragraph.level}</p>
                         </div>
                     </div>
                 </div>
@@ -109,9 +109,9 @@ export default function ResultScreen() {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.1 }}
-                        className="bg-white p-4 sm:p-6 rounded-xl sm:rounded-2xl shadow-sm border border-slate-100 flex flex-col items-center justify-center gap-1 sm:gap-2"
+                        className="bg-white dark:bg-slate-900/90 p-4 sm:p-6 rounded-xl sm:rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col items-center justify-center gap-1 sm:gap-2"
                     >
-                        <span className="text-[10px] sm:text-xs font-bold text-slate-400 uppercase tracking-wider">Điểm tổng quát</span>
+                        <span className="text-[10px] sm:text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Điểm tổng quát</span>
                         <div className="flex items-baseline gap-1">
                             {avgScore >= 9 ? (
                                 <span className="text-3xl sm:text-4xl font-bold text-emerald-500">{avgScore}</span>
@@ -127,10 +127,10 @@ export default function ResultScreen() {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.2 }}
-                        className="bg-white p-4 sm:p-6 rounded-xl sm:rounded-2xl shadow-sm border border-slate-100 flex flex-col items-center justify-center gap-1 sm:gap-2"
+                        className="bg-white dark:bg-slate-900/90 p-4 sm:p-6 rounded-xl sm:rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col items-center justify-center gap-1 sm:gap-2"
                     >
-                        <span className="text-[10px] sm:text-xs font-bold text-slate-400 uppercase tracking-wider">Thời gian</span>
-                        <div className="text-3xl sm:text-4xl font-bold text-slate-900">{formatElapsed(totalTime)}</div>
+                        <span className="text-[10px] sm:text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Thời gian</span>
+                        <div className="text-3xl sm:text-4xl font-bold text-slate-900 dark:text-slate-100">{formatElapsed(totalTime)}</div>
                     </motion.div>
                 </div>
 
@@ -139,30 +139,30 @@ export default function ResultScreen() {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.4 }}
-                    className="bg-white rounded-xl sm:rounded-2xl shadow-sm border border-slate-100 overflow-hidden"
+                    className="bg-white dark:bg-slate-900/90 rounded-xl sm:rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 overflow-hidden"
                 >
-                    <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-slate-100">
+                    <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-slate-100 dark:divide-slate-700">
                         {/* Vietnamese Original */}
                         <div className="flex flex-col min-w-0">
-                            <div className="px-4 py-3 sm:px-6 sm:py-4 bg-slate-50/50 border-b border-slate-100">
-                                <span className="text-[10px] sm:text-xs font-bold text-slate-400 uppercase tracking-wider">Tiếng Việt (Gốc)</span>
+                            <div className="px-4 py-3 sm:px-6 sm:py-4 bg-slate-50/50 dark:bg-slate-950/50 border-b border-slate-100 dark:border-slate-800">
+                                <span className="text-[10px] sm:text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Tiếng Việt (Gốc)</span>
                             </div>
                             <div className="p-4 sm:p-6 flex-1 min-w-0">
                                 {data?.paragraph.title && (
-                                    <p className="text-base sm:text-lg text-slate-600 font-bold leading-relaxed mb-3 sm:mb-4">
+                                    <p className="text-base sm:text-lg text-slate-600 dark:text-slate-300 font-bold leading-relaxed mb-3 sm:mb-4">
                                         {data?.paragraph.title}
                                     </p>
                                 )}
                                 {data?.paragraph.type === 'SINGLE_SENTENCE' ? (
-                                    <div className="text-sm sm:text-base text-slate-600 italic leading-relaxed whitespace-pre-line">
+                                    <div className="text-sm sm:text-base text-slate-600 dark:text-slate-300 italic leading-relaxed whitespace-pre-line">
                                         {sentenceContents.map((sentence, index) => (
-                                            <p key={index} className="text-sm sm:text-base text-slate-600 italic leading-relaxed whitespace-pre-line">
+                                            <p key={index} className="text-sm sm:text-base text-slate-600 dark:text-slate-300 italic leading-relaxed whitespace-pre-line">
                                                 {index + 1}. {sentence}
                                             </p>
                                         ))}
                                     </div>
                                 ) : (
-                                    <p className="text-sm sm:text-base text-slate-600 italic leading-relaxed whitespace-pre-line break-words">
+                                    <p className="text-sm sm:text-base text-slate-600 dark:text-slate-300 italic leading-relaxed whitespace-pre-line break-words">
                                         {sentenceContents.join(" ")}
                                     </p>
                                 )}
@@ -171,12 +171,12 @@ export default function ResultScreen() {
 
                         {/* English Translation */}
                         <div className="flex flex-col min-w-0">
-                            <div className="px-4 py-3 sm:px-6 sm:py-4 bg-slate-50/50 border-b md:border-b-0 border-slate-100">
-                                <span className="text-[10px] sm:text-xs font-bold text-slate-400 uppercase tracking-wider">Tiếng Anh (Bản dịch của bạn)</span>
+                            <div className="px-4 py-3 sm:px-6 sm:py-4 bg-slate-50/50 dark:bg-slate-950/50 border-b md:border-b-0 border-slate-100 dark:border-slate-800">
+                                <span className="text-[10px] sm:text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Tiếng Anh (Bản dịch của bạn)</span>
                             </div>
-                            <div className="p-4 sm:p-6 md:p-8 bg-blue-50/30 flex-1 min-w-0">
+                            <div className="p-4 sm:p-6 md:p-8 bg-blue-50/30 dark:bg-blue-950/20 flex-1 min-w-0">
                                 {data?.paragraph.type === 'SINGLE_SENTENCE' ? (
-                                    <p className="text-sm sm:text-base text-slate-900 font-medium leading-relaxed break-words">
+                                    <p className="text-sm sm:text-base text-slate-900 dark:text-slate-100 font-medium leading-relaxed break-words">
                                         {data?.sentenceAnswers.map((answer, index) => (
                                             <span key={index}>
                                                 {index + 1}. {renderWordDiff(answer.userTranslation ?? '', answer.feedback.correction ?? '')}
@@ -185,7 +185,7 @@ export default function ResultScreen() {
                                         ))}
                                     </p>
                                 ) : (
-                                    <p className="text-sm sm:text-base text-slate-900 font-medium leading-relaxed whitespace-pre-line break-words">
+                                    <p className="text-sm sm:text-base text-slate-900 dark:text-slate-100 font-medium leading-relaxed whitespace-pre-line break-words">
                                         {data?.sentenceAnswers.map((answer) => renderWordDiff(answer.userTranslation ?? '', answer.feedback.correction ?? ''))}
                                     </p>
                                 )}
@@ -203,21 +203,21 @@ export default function ResultScreen() {
                 >
                     <button
                         onClick={() => navigate(`/practice/${id}/result/detail`, { state: { id } })}
-                        className="h-12 sm:h-14 bg-white hover:bg-slate-50 border-2 border-slate-100 hover:border-slate-200 text-slate-700 font-bold text-sm sm:text-base rounded-xl flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
+                        className="h-12 sm:h-14 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 border-2 border-slate-100 dark:border-slate-700 hover:border-slate-200 dark:hover:border-slate-600 text-slate-700 dark:text-slate-200 font-bold text-sm sm:text-base rounded-xl flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
                     >
                         <History className="w-4 h-4 sm:w-5 sm:h-5 shrink-0" />
                         Xem lại lỗi sai
                     </button>
                     <button
                         onClick={() => setConfirmRetryOpen(true)}
-                        className="h-12 sm:h-14 bg-blue-50 hover:bg-blue-100 text-blue-600 font-bold text-sm sm:text-base rounded-xl flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
+                        className="h-12 sm:h-14 bg-blue-50 dark:bg-blue-950/40 hover:bg-blue-100 dark:hover:bg-blue-950/60 text-blue-600 dark:text-blue-400 font-bold text-sm sm:text-base rounded-xl flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
                     >
                         <RotateCcw className="w-4 h-4 sm:w-5 sm:h-5 shrink-0" />
                         Luyện tập lại
                     </button>
                     <button
                         onClick={() => navigate('/practice')}
-                        className="h-12 sm:h-14 bg-blue-500 hover:bg-blue-600 text-white font-bold text-sm sm:text-base rounded-xl flex items-center justify-center gap-2 shadow-lg shadow-blue-200 transition-all active:scale-[0.98]"
+                        className="h-12 sm:h-14 bg-blue-500 hover:bg-blue-600 text-white font-bold text-sm sm:text-base rounded-xl flex items-center justify-center gap-2 shadow-lg shadow-blue-200 dark:shadow-blue-900/40 transition-all active:scale-[0.98]"
                     >
                         Tiếp tục học
                         <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 shrink-0" />

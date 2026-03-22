@@ -26,6 +26,11 @@ html, body {
   overflow-x: hidden;
 }
 
+html.dark body {
+  background-color: #020617;
+  color: #f1f5f9;
+}
+
 /* Prevent horizontal scroll on all elements */
 * {
   box-sizing: border-box;

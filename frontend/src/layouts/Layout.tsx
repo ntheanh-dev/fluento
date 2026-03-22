@@ -52,7 +52,7 @@ const Layout = () => {
     };
 
     return (
-        <main className="flex h-screen overflow-hidden ">
+        <main className="flex h-screen overflow-hidden bg-[#f6f7f8] dark:bg-slate-950">
             {/* Mobile Sidebar Overlay */}
             {isMobileMenuOpen && (
                 <div className="fixed inset-0 z-50 md:hidden flex">
@@ -60,7 +60,7 @@ const Layout = () => {
                         className="fixed inset-0 bg-black/20 backdrop-blur-sm transition-opacity"
                         onClick={() => setIsMobileMenuOpen(false)}
                     />
-                    <aside className="relative w-64 bg-white h-full shadow-2xl flex flex-col animate-[slideIn_0.2s_ease-out]">
+                    <aside className="relative w-64 bg-white dark:bg-slate-900 h-full shadow-2xl flex flex-col animate-[slideIn_0.2s_ease-out]">
                         <Sidebar
                             activePath={location.pathname}
                             onClose={() => setIsMobileMenuOpen(false)}
@@ -72,22 +72,22 @@ const Layout = () => {
             {/* Main Content */}
             <div className="flex-1 flex flex-col h-full overflow-hidden relative">
                 {/* Header */}
-                <header className="h-16 bg-white/80 backdrop-blur-md border-b border-slate-200 flex items-center justify-center px-4 md:px-6 sticky top-0 z-20">
+                <header className="h-16 bg-white/80 dark:bg-slate-900/90 backdrop-blur-md border-b border-slate-200 dark:border-slate-700 flex items-center justify-center px-4 md:px-6 sticky top-0 z-20">
                     <div className="flex items-center justify-between gap-1 h-full max-w-7xl w-full">
                         <div className="flex items-center gap-3 md:gap-8 self-stretch">
                             {/* Mobile Toggle */}
                             <button
-                                className="md:hidden p-2 -ml-2 text-slate-600 hover:bg-slate-100 rounded-lg"
+                                className="md:hidden p-2 -ml-2 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg"
                                 onClick={() => setIsMobileMenuOpen(true)}
                             >
                                 <Menu size={20} />
                             </button>
 
                             {/* Mobile: Fluento + breadcrumb */}
-                            <div className="flex items-center gap-2 text-slate-500 text-sm md:hidden">
-                                <span className="font-medium text-slate-900">Fluento</span>
+                            <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400 text-sm md:hidden">
+                                <span className="font-medium text-slate-900 dark:text-slate-100">Fluento</span>
                                 <ChevronRight size={16} />
-                                <span className="capitalize font-medium text-slate-900">
+                                <span className="capitalize font-medium text-slate-900 dark:text-slate-100">
                                     {getPathName(location.pathname)}
                                 </span>
                             </div>
@@ -101,7 +101,7 @@ const Layout = () => {
                                             <path clipRule="evenodd" d="M24 8.18819L33.4123 11.574L24 15.2071L14.5877 11.574L24 8.18819ZM9 15.8487L21 20.4805V37.6263L9 32.9945V15.8487ZM27 37.6263V20.4805L39 15.8487V32.9945L27 37.6263ZM25.354 2.29885C24.4788 1.98402 23.5212 1.98402 22.646 2.29885L4.98454 8.65208C3.7939 9.08038 3 10.2097 3 11.475V34.3663C3 36.0196 4.01719 37.5026 5.55962 38.098L22.9197 44.7987C23.6149 45.0671 24.3851 45.0671 25.0803 44.7987L42.4404 38.098C43.9828 37.5026 45 36.0196 45 34.3663V11.475C45 10.2097 44.2061 9.08038 43.0155 8.65208L25.354 2.29885Z" fill="currentColor" fillRule="evenodd"></path>
                                         </svg>
                                     </div>
-                                    <span className="text-xl font-bold tracking-tight font-display">Fluento</span>
+                                    <span className="text-xl font-bold tracking-tight font-display text-slate-900 dark:text-slate-100">Fluento</span>
                                 </Link>
                             </div>
                         </div>
@@ -113,8 +113,8 @@ const Layout = () => {
                                         key={to}
                                         to={to}
                                         className={`px-1 pb-4 pt-2 text-sm font-medium transition-colors ${isActive(to)
-                                            ? "text-blue-600"
-                                            : "text-slate-600 hover:text-slate-900"
+                                            ? "text-blue-600 dark:text-blue-400"
+                                            : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100"
                                             }`}
                                     >
                                         {label}
@@ -128,22 +128,22 @@ const Layout = () => {
 
                             {isAuthenticated ? (
                                 <>
-                                    <div className="hidden lg:flex items-center gap-2 bg-orange-50 px-3 py-1.5 rounded-full border border-orange-100 text-orange-600">
+                                    <div className="hidden lg:flex items-center gap-2 bg-orange-50 dark:bg-orange-950/40 px-3 py-1.5 rounded-full border border-orange-100 dark:border-orange-900/50 text-orange-600 dark:text-orange-400">
                                         <span className="text-sm font-bold">Chuỗi {profile?.currentStreak || 0} ngày</span>
                                         <Flame size={16} fill="currentColor" />
                                     </div>
                                     <Link to="/profile">
                                         <div className="flex items-center gap-3">
                                             <div className="text-right hidden sm:block">
-                                                <p className="text-sm font-bold text-slate-800">
+                                                <p className="text-sm font-bold text-slate-800 dark:text-slate-100">
                                                     {profile?.fullName}
                                                 </p>
-                                                <p className="text-xs text-slate-500">Trung cấp</p>
+                                                <p className="text-xs text-slate-500 dark:text-slate-400">Trung cấp</p>
                                             </div>
                                             <img
                                                 src={profile?.urlAvatar}
                                                 alt={profile?.fullName}
-                                                className="w-8 h-8 md:w-10 md:h-10 rounded-full border-2 border-slate-100 shadow-sm"
+                                                className="w-8 h-8 md:w-10 md:h-10 rounded-full border-2 border-slate-100 dark:border-slate-700 shadow-sm"
                                             />
                                         </div>
                                     </Link>

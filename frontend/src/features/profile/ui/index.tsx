@@ -26,6 +26,8 @@ import Cookies from "js-cookie";
 import { useNavigate } from "react-router-dom";
 import { PROFILE_EMBED_PRACTICESTATS, useProfileData } from "../query";
 import { useCredits } from "@/features/credits/query";
+import { useTheme, type ThemeMode } from "@/app/providers/ThemeProvider";
+
 const Profile = () => {
   const { data: profile } = useProfileData({
     queryParams: PROFILE_EMBED_PRACTICESTATS,
@@ -35,6 +37,7 @@ const Profile = () => {
     useUpdateMe();
   const navigate = useNavigate();
   const { mutateAsync: logout } = useLogoutMutation();
+  const { theme, setTheme } = useTheme();
 
   const [passwordDialogOpen, setPasswordDialogOpen] = useState(false);
   const [fullName, setFullName] = useState(profile?.fullName ?? "");
@@ -95,13 +98,13 @@ const Profile = () => {
   };
 
   return (
-    <div className="max-w-7xl mx-auto p-4 sm:px-6 lg:px-8 pb-8">
+    <div className="max-w-7xl mx-auto p-4 sm:px-6 lg:px-8 pb-8 dark:text-slate-100">
       {/* Main Layout Container */}
       <div className="flex flex-col lg:flex-row gap-8">
         {/* Left Sidebar */}
         <div className="w-full lg:w-80 shrink-0 space-y-6">
           {/* Profile Summary Card */}
-          <div className="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm flex flex-col items-center text-center">
+          <div className="bg-white dark:bg-slate-900/90 rounded-2xl p-6 border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col items-center text-center">
             <div className="relative mb-4">
               <input
                 ref={avatarInputRef}
@@ -132,25 +135,25 @@ const Profile = () => {
                 )}
               </button>
             </div>
-            <h2 className="text-xl font-bold text-slate-800">
+            <h2 className="text-xl font-bold text-slate-800 dark:text-slate-100">
               {profile?.fullName}
             </h2>
-            <p className="text-xs text-slate-500">Trung cấp</p>
+            <p className="text-xs text-slate-500 dark:text-slate-400">Trung cấp</p>
           </div>
 
           {/* Navigation Menu */}
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+          <div className="bg-white dark:bg-slate-900/90 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
             <div className="p-2 space-y-1">
-              <button className="w-full flex items-center gap-3 px-4 py-3 bg-blue-50 text-primary rounded-xl font-medium text-sm transition-colors">
+              <button className="w-full flex items-center gap-3 px-4 py-3 bg-blue-50 dark:bg-blue-950/50 text-primary rounded-xl font-medium text-sm transition-colors">
                 <User size={18} /> Chi tiết hồ sơ
               </button>
-              <button className="w-full flex items-center gap-3 px-4 py-3 text-slate-500 hover:bg-slate-50 rounded-xl font-medium text-sm transition-colors">
+              <button className="w-full flex items-center gap-3 px-4 py-3 text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-xl font-medium text-sm transition-colors">
                 <History size={18} /> Lịch sử dịch
               </button>
-              <button className="w-full flex items-center gap-3 px-4 py-3 text-slate-500 hover:bg-slate-50 rounded-xl font-medium text-sm transition-colors">
+              <button className="w-full flex items-center gap-3 px-4 py-3 text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-xl font-medium text-sm transition-colors">
                 <CreditCard size={18} /> Gói đăng ký
               </button>
-              <div className="h-px bg-slate-100 my-1 mx-2"></div>
+              <div className="h-px bg-slate-100 dark:bg-slate-700 my-1 mx-2"></div>
               <button
                 onClick={handleLogout}
                 className="w-full flex items-center gap-3 px-4 py-3 text-red-500 hover:bg-red-50 rounded-xl font-medium text-sm transition-colors"
@@ -165,54 +168,54 @@ const Profile = () => {
         <div className="flex-1 min-w-0 space-y-6">
           {/* Stats Row */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center gap-4">
-              <div className="w-12 h-12 rounded-full bg-amber-50 text-amber-500 flex items-center justify-center shrink-0">
+            <div className="bg-white dark:bg-slate-900/90 p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm flex items-center gap-4">
+              <div className="w-12 h-12 rounded-full bg-amber-50 dark:bg-amber-950/50 text-amber-500 flex items-center justify-center shrink-0">
                 <Coins size={24} />
               </div>
               <div>
                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
                   Credits còn lại
                 </p>
-                <p className="text-xl font-bold text-slate-800">
+                <p className="text-xl font-bold text-slate-800 dark:text-slate-100">
                   {creditBalance?.credits ?? 0}
                 </p>
               </div>
             </div>
-            <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center gap-4">
-              <div className="w-12 h-12 rounded-full bg-orange-50 text-orange-500 flex items-center justify-center shrink-0">
+            <div className="bg-white dark:bg-slate-900/90 p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm flex items-center gap-4">
+              <div className="w-12 h-12 rounded-full bg-orange-50 dark:bg-orange-950/50 text-orange-500 flex items-center justify-center shrink-0">
                 <Flame size={24} fill="currentColor" />
               </div>
               <div>
                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
                   Chuỗi hiện tại
                 </p>
-                <p className="text-xl font-bold text-slate-800">{profile?.currentStreak} ngày</p>
+                <p className="text-xl font-bold text-slate-800 dark:text-slate-100">{profile?.currentStreak} ngày</p>
               </div>
             </div>
 
-            <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center gap-4">
-              <div className="w-12 h-12 rounded-full bg-blue-50 text-primary flex items-center justify-center shrink-0">
+            <div className="bg-white dark:bg-slate-900/90 p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm flex items-center gap-4">
+              <div className="w-12 h-12 rounded-full bg-blue-50 dark:bg-blue-950/50 text-primary flex items-center justify-center shrink-0">
                 <FileText size={24} />
               </div>
               <div>
                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
                   Đã dịch
                 </p>
-                <p className="text-xl font-bold text-slate-800">
+                <p className="text-xl font-bold text-slate-800 dark:text-slate-100">
                   {totalTranslated.toLocaleString("vi-VN")}
                 </p>
               </div>
             </div>
 
-            <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center gap-4">
-              <div className="w-12 h-12 rounded-full bg-violet-50 text-violet-500 flex items-center justify-center shrink-0">
+            <div className="bg-white dark:bg-slate-900/90 p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm flex items-center gap-4">
+              <div className="w-12 h-12 rounded-full bg-violet-50 dark:bg-violet-950/50 text-violet-500 flex items-center justify-center shrink-0">
                 <Clock size={24} />
               </div>
               <div>
                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
                   Tổng thời gian luyện tập
                 </p>
-                <p className="text-xl font-bold text-slate-800">
+                <p className="text-xl font-bold text-slate-800 dark:text-slate-100">
                   {formatTotalHours(profile?.embedded?.totalLearningTime ?? 0)}
                 </p>
               </div>
@@ -220,19 +223,19 @@ const Profile = () => {
           </div>
 
           {/* Personal Information */}
-          <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
+          <div className="bg-white dark:bg-slate-900/90 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-6">
             <div className="mb-6">
-              <h3 className="text-lg font-bold text-slate-800">
+              <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100">
                 Thông tin cá nhân
               </h3>
-              <p className="text-sm text-slate-500">
+              <p className="text-sm text-slate-500 dark:text-slate-400">
                 Quản lý thông tin cơ bản và cài đặt ngôn ngữ.
               </p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
                   Tên tài khoản
                 </label>
                 <Input
@@ -245,7 +248,7 @@ const Profile = () => {
               </div>
               <div className="flex gap-2 items-end">
                 <div className="flex-1">
-                  <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
                     Họ và tên
                   </label>
                   <Input
@@ -270,18 +273,22 @@ const Profile = () => {
                 </Button>
               </div>
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1.5">
-                  Ngôn ngữ mẹ đẻ
+                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
+                  Theme
                 </label>
                 <Select
                   size="large"
-                  defaultValue="vietnamese"
+                  value={theme}
+                  onChange={(v) => setTheme(v as ThemeMode)}
                   className="w-full font-medium"
-                  options={[{ value: "vietnamese", label: "Tiếng Việt" }]}
+                  options={[
+                    { value: "dark", label: "Dark" },
+                    { value: "light", label: "Light" },
+                  ]}
                 />
               </div>
               <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
                   Ngôn ngữ giao diện
                 </label>
                 <Select
@@ -300,12 +307,12 @@ const Profile = () => {
           <ApiKeysSection />
 
           {/* Security */}
-          <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
+          <div className="bg-white dark:bg-slate-900/90 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-6">
             <div className="mb-6">
-              <h3 className="text-lg font-bold text-slate-800">
+              <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100">
                 Bảo mật tài khoản
               </h3>
-              <p className="text-sm text-slate-500">
+              <p className="text-sm text-slate-500 dark:text-slate-400">
                 Cập nhật mật khẩu và bảo vệ tài khoản của bạn.
               </p>
             </div>
@@ -313,8 +320,8 @@ const Profile = () => {
             <div className="space-y-6">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
-                  <p className="font-bold text-slate-800 text-sm">Mật khẩu</p>
-                  <p className="text-xs text-slate-500">
+                  <p className="font-bold text-slate-800 dark:text-slate-100 text-sm">Mật khẩu</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
                     {profile?.noPassword
                       ? "Bạn chưa có mật khẩu. Tạo mật khẩu để đăng nhập bằng email/username."
                       : "Đổi mật khẩu để bảo vệ tài khoản."}
@@ -328,7 +335,7 @@ const Profile = () => {
                   {profile?.noPassword ? "Tạo mật khẩu" : "Đổi mật khẩu"}
                 </Button>
               </div>
-              <div className="h-px bg-slate-100"></div>
+              <div className="h-px bg-slate-100 dark:bg-slate-700"></div>
             </div>
           </div>
 

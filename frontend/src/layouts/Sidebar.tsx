@@ -25,8 +25,8 @@ const SidebarItem = ({
   <Link
     to={to}
     className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 ${active
-        ? "bg-blue-600 text-white shadow-md shadow-blue-200"
-        : "text-slate-500 hover:bg-slate-100 hover:text-slate-900"
+        ? "bg-blue-600 text-white shadow-md shadow-blue-200 dark:shadow-blue-900/40"
+        : "text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-100"
       }`}
   >
     <Icon size={20} strokeWidth={active ? 2.5 : 2} />
@@ -54,14 +54,14 @@ const Sidebar = ({
           <div className="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center text-white font-bold text-xl shadow-lg shadow-blue-200">
             F
           </div>
-          <span className="font-bold text-xl text-slate-800 tracking-tight">
+          <span className="font-bold text-xl text-slate-800 dark:text-slate-100 tracking-tight">
             Fluento
           </span>
         </div>
         {onClose && (
           <button
             onClick={onClose}
-            className="p-2 text-slate-500 hover:bg-slate-100 rounded-lg"
+            className="p-2 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg"
           >
             <X size={20} />
           </button>
@@ -104,10 +104,10 @@ const Sidebar = ({
         />
       </nav>
 
-      <div className="p-4 border-t border-slate-100">
+      <div className="p-4 border-t border-slate-100 dark:border-slate-800">
         <button
           onClick={handleLogout}
-          className="flex items-center gap-3 px-4 py-3 text-slate-500 hover:text-red-500 w-full transition-colors rounded-xl hover:bg-red-50"
+          className="flex items-center gap-3 px-4 py-3 text-slate-500 dark:text-slate-400 hover:text-red-500 w-full transition-colors rounded-xl hover:bg-red-50 dark:hover:bg-red-950/40"
         >
           <LogOut size={20} />
           <span className="font-medium">Đăng xuất</span>

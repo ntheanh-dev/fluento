@@ -208,14 +208,14 @@ const SentencePracticePage = () => {
   );
 
   return (
-    <div className="h-[calc(100vh-130px+4rem)] max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col overflow-hidden">
+    <div className="h-[calc(100vh-130px+4rem)] max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col overflow-hidden dark:text-slate-100">
       {/* Top Bar for Task Info */}
       <div className="flex items-center justify-between md:py-4 mb-2 shrink-0 px-1 sm:px-0 gap-4">
         <div className="flex-[10] flex flex-row items-center justify-between gap-4">
           {data?.paragraph.type !== "BASIC" && data?.paragraph.type !== "SINGLE_SENTENCE" && (
             <div>
-              <h1 className="text-2xl font-bold text-slate-900 mb-2">{data?.paragraph.type}</h1>
-              <p className="text-slate-600 text-sm max-w-xl">
+              <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100 mb-2">{data?.paragraph.type}</h1>
+              <p className="text-slate-600 dark:text-slate-400 text-sm max-w-xl">
                 {data?.paragraph.title}
               </p>
             </div>
@@ -223,34 +223,34 @@ const SentencePracticePage = () => {
           <div className="flex flex-row items-center gap-1.5 sm:gap-4">
             <div className="flex flex-col items-start">
               <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Topic</span>
-              <span className="text-xs font-semibold text-slate-700">{data?.paragraph.topic.toLowerCase()}</span>
+              <span className="text-xs font-semibold text-slate-700 dark:text-slate-200">{data?.paragraph.topic.toLowerCase()}</span>
             </div>
-            <div className="h-8 w-px bg-slate-100"></div>
+            <div className="h-8 w-px bg-slate-100 dark:bg-slate-700"></div>
             <div className="flex flex-col items-start">
               <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Tone</span>
-              <span className="text-xs font-semibold text-slate-700">{data?.paragraph.tone.toLowerCase()}</span>
+              <span className="text-xs font-semibold text-slate-700 dark:text-slate-200">{data?.paragraph.tone.toLowerCase()}</span>
             </div>
-            <div className="h-8 w-px bg-slate-100"></div>
+            <div className="h-8 w-px bg-slate-100 dark:bg-slate-700"></div>
             <div className="flex flex-col items-start">
               <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Level</span>
-              <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-50 text-blue-700">{data?.paragraph.level}</span>
+              <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-50 dark:bg-blue-950/50 text-blue-700 dark:text-blue-300">{data?.paragraph.level}</span>
             </div>
-            {data && <div className="h-8 w-px bg-slate-100"></div>}
+            {data && <div className="h-8 w-px bg-slate-100 dark:bg-slate-700"></div>}
             {data && (
               <div className="flex flex-col items-start">
                 <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Thời gian</span>
-                <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-700">
-                  <Clock size={14} className="text-slate-500" />
+                <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-700 dark:text-slate-200">
+                  <Clock size={14} className="text-slate-500 dark:text-slate-400" />
                   {formatElapsed(elapsedSeconds)}
                 </span>
               </div>
             )}
             {typeof creditBalance?.credits === "number" && (
               <>
-                <div className="h-8 w-px bg-slate-100"></div>
+                <div className="h-8 w-px bg-slate-100 dark:bg-slate-700"></div>
                 <div className="flex flex-col items-start">
                   <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Credits</span>
-                  <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-700">
+                  <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-700 dark:text-slate-200">
                     <Coins size={14} className="text-amber-500" />
                     {creditBalance.credits}
                   </span>
@@ -260,10 +260,10 @@ const SentencePracticePage = () => {
           </div>
         </div>
         <div className="flex-[2] hidden md:flex items-center gap-4 lg:gap-6 w-full">
-          <span className="text-xs md:text-sm font-medium text-slate-500 whitespace-nowrap">
+          <span className="text-xs md:text-sm font-medium text-slate-500 dark:text-slate-400 whitespace-nowrap">
             Câu {currentVietNameseSentence?.orderIndex ?? 0}/{vietNameseSentences.length}
           </span>
-          <div className="w-36 md:w-44 lg:w-48 h-2 md:h-2.5 bg-slate-200 rounded-full overflow-hidden">
+          <div className="w-36 md:w-44 lg:w-48 h-2 md:h-2.5 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
             <div className="h-full bg-blue-600 rounded-full" style={{ width: `${progressPercent}%` }}></div>
           </div>
           <span className="text-[10px] md:text-xs font-bold text-blue-600">{progressPercent}%</span>
@@ -277,19 +277,19 @@ const SentencePracticePage = () => {
         <section className="lg:col-span-8 flex flex-col gap-3 sm:gap-4 overflow-y-auto pr-1 sm:pr-2 custom-scrollbar">
           {/* Source Context View */}
           {singleSentenceText != null ? (
-            <div className="bg-slate-50/50 rounded-lg bg-white sm:rounded-xl border border-slate-200 shadow-sm overflow-hidden p-3 md:px-6 text-slate-800 font-medium leading-6 sm:leading-7 space-y-3 sm:space-y-4">
+            <div className="bg-slate-50/50 dark:bg-slate-950/30 rounded-lg bg-white dark:bg-slate-900/90 sm:rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden p-3 md:px-6 text-slate-800 dark:text-slate-100 font-medium leading-6 sm:leading-7 space-y-3 sm:space-y-4">
               <span className="relative inline whitespace-pre-line text-sm py-2 text-blue-600 font-bold">
                 {singleSentenceText.content}
               </span>
             </div>
           ) : (
-            <div className="flex-[10] min-h-0 bg-slate-50/50 rounded-lg bg-white sm:rounded-xl border border-slate-200 shadow-sm overflow-hidden p-3 md:px-6 text-slate-800 font-medium h-full overflow-y-auto leading-6 sm:leading-7 space-y-3 sm:space-y-4">
+            <div className="flex-[10] min-h-0 bg-slate-50/50 dark:bg-slate-950/30 rounded-lg bg-white dark:bg-slate-900/90 sm:rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden p-3 md:px-6 text-slate-800 dark:text-slate-100 font-medium h-full overflow-y-auto leading-6 sm:leading-7 space-y-3 sm:space-y-4">
               {
                 vietNameseSentences.map((sentence: ParagraphSentence, index: number) => (
                   <React.Fragment key={index}>
                     {index < (currentVietNameseSentence?.orderIndex ?? 0) ? (
                       // Completed sentences - show English translation
-                      <span className="relative inline text-black py-1 whitespace-pre-line text-sm">
+                      <span className="relative inline text-black dark:text-slate-100 py-1 whitespace-pre-line text-sm">
                         {" " + englishTranslations[index].replace(/\\n/g, "\n\n")}
                       </span>
                     ) : // Current and upcoming sentences
@@ -300,7 +300,7 @@ const SentencePracticePage = () => {
                         </span>
                       ) : (
                         // Upcoming sentences
-                        <span className="relative inline whitespace-pre-line text-sm text-gray-600 opacity-60">
+                        <span className="relative inline whitespace-pre-line text-sm text-gray-600 dark:text-slate-500 opacity-60">
                           {" " + sentence.content.replace(/\\n/g, "\n\n")}
                         </span>
                       )}
@@ -314,7 +314,7 @@ const SentencePracticePage = () => {
           {/* English Translation Flow (Input) */}
           <div className="flex-[2] flex flex-col flex-1">
             <textarea
-              className="w-full p-4 rounded-lg sm:rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:ring-2 focus:ring-blue-100 focus:border-blue-400 outline-none text-sm sm:text-sm transition-all resize-none min-h-[72px] sm:min-h-[80px]"
+              className="w-full p-4 rounded-lg sm:rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/80 focus:bg-white dark:focus:bg-slate-900 focus:ring-2 focus:ring-blue-100 dark:focus:ring-blue-900 focus:border-blue-400 outline-none text-sm sm:text-sm text-slate-900 dark:text-slate-100 transition-all resize-none min-h-[72px] sm:min-h-[80px]"
               placeholder="Nhập câu dịch của bạn ở đây..."
               rows={2}
               value={translation}
@@ -325,7 +325,7 @@ const SentencePracticePage = () => {
               <div className="flex items-center gap-2">
                 <button
                   onClick={handleBackToSetup}
-                  className="shrink-0 group p-2 sm:p-2.5 hover:bg-slate-100 active:bg-slate-200 rounded-lg sm:rounded-xl text-slate-400 hover:text-slate-700 transition-all border border-slate-200 shadow-sm bg-white touch-manipulation"
+                  className="shrink-0 group p-2 sm:p-2.5 hover:bg-slate-100 dark:hover:bg-slate-800 active:bg-slate-200 dark:active:bg-slate-700 rounded-lg sm:rounded-xl text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition-all border border-slate-200 dark:border-slate-700 shadow-sm bg-white dark:bg-slate-900 touch-manipulation"
                 >
                   <ArrowLeft
                     size={20}
@@ -335,7 +335,7 @@ const SentencePracticePage = () => {
                 <button
                   onClick={handleGetVocabularyHints}
                   disabled={isLoadingVocabularyHints}
-                  className="inline-flex items-center gap-2 rounded-lg border border-slate-300 bg-white px-4 py-1.5 font-bold text-slate-700 shadow-sm transition-colors hover:bg-slate-50 disabled:opacity-30 disabled:cursor-not-allowed sm:px-5 sm:py-2 sm:text-sm md:px-6 text-xs"
+                  className="inline-flex items-center gap-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 px-4 py-1.5 font-bold text-slate-700 dark:text-slate-200 shadow-sm transition-colors hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-30 disabled:cursor-not-allowed sm:px-5 sm:py-2 sm:text-sm md:px-6 text-xs"
                 >
                   <Lightbulb size={16} className="size-4 shrink-0" />
                   Xem gợi ý
@@ -392,18 +392,18 @@ const SentencePracticePage = () => {
           className={`
               lg:col-span-4 flex flex-col transition-all duration-300 ease-in-out overflow-hidden
               ${showMobileSidebar
-              ? "fixed inset-x-0 bottom-0 top-20 z-50 bg-white rounded-t-2xl shadow-[0_-10px_40px_-15px_rgba(0,0,0,0.3)] p-3 sm:p-4 lg:static lg:p-0 lg:shadow-none lg:bg-transparent lg:rounded-none"
+              ? "fixed inset-x-0 bottom-0 top-20 z-50 bg-white dark:bg-slate-900 rounded-t-2xl shadow-[0_-10px_40px_-15px_rgba(0,0,0,0.3)] p-3 sm:p-4 lg:static lg:p-0 lg:shadow-none lg:bg-transparent lg:rounded-none"
               : "hidden lg:flex"
             }
           `}
         >
 
-          <div className="bg-white rounded-lg sm:rounded-xl border border-slate-200 shadow-sm flex flex-col overflow-hidden relative">
+          <div className="bg-white dark:bg-slate-900/90 rounded-lg sm:rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col overflow-hidden relative">
             {/* Mobile Close Button */}
             <div className="lg:hidden absolute top-3 right-3 sm:top-4 sm:right-4 z-10">
               <button
                 onClick={handleCloseMobileSidebar}
-                className="p-1.5 sm:p-2 bg-slate-100 hover:bg-slate-200 rounded-full text-slate-500 transition-colors"
+                className="p-1.5 sm:p-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-full text-slate-500 dark:text-slate-400 transition-colors"
               >
                 <X size={18} className="sm:w-5 sm:h-5" />
               </button>

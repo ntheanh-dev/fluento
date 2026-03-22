@@ -65,8 +65,8 @@ const Register = () => {
     } = method;
 
     return (
-        <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
-            <div className="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden">
+        <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex items-center justify-center p-4">
+            <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-xl w-full max-w-md overflow-hidden border border-slate-200 dark:border-slate-700">
                 <div className="p-8">
                     <div className=" text-center flex justify-center flex-col items-center">
                         <div className="rounded-md w-56 h-36 flex items-center justify-center">
@@ -76,12 +76,12 @@ const Register = () => {
 
                     <form onSubmit={onSubmit} className="space-y-5">
                         <div className="space-y-2">
-                            <label className="text-sm font-bold text-slate-700">Họ và tên</label>
+                            <label className="text-sm font-bold text-slate-700 dark:text-slate-200">Họ và tên</label>
                             <div className="relative">
                                 <UserCircle className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
                                 <input
                                     type="text"
-                                    className={`w-full pl-10 pr-4 py-3 rounded-xl border bg-slate-50 focus:ring-2 focus:ring-blue-100 focus:border-blue-400 outline-none transition-all ${errors.fullName ? "border-red-400 focus:border-red-400 focus:ring-red-100" : "border-slate-200"
+                                    className={`w-full pl-10 pr-4 py-3 rounded-xl border bg-slate-50 dark:bg-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-blue-100 dark:focus:ring-blue-900 focus:border-blue-400 outline-none transition-all ${errors.fullName ? "border-red-400 focus:border-red-400 focus:ring-red-100" : "border-slate-200 dark:border-slate-600"
                                         }`}
                                     placeholder="Họ và tên"
                                     {...method.register("fullName")}
@@ -93,12 +93,12 @@ const Register = () => {
                         </div>
 
                         <div className="space-y-2">
-                            <label className="text-sm font-bold text-slate-700">Tên đăng nhập</label>
+                            <label className="text-sm font-bold text-slate-700 dark:text-slate-200">Tên đăng nhập</label>
                             <div className="relative">
                                 <User className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
                                 <input
                                     type="text"
-                                    className={`w-full pl-10 pr-4 py-3 rounded-xl border bg-slate-50 focus:ring-2 focus:ring-blue-100 focus:border-blue-400 outline-none transition-all ${errors.username ? "border-red-400 focus:border-red-400 focus:ring-red-100" : "border-slate-200"
+                                    className={`w-full pl-10 pr-4 py-3 rounded-xl border bg-slate-50 dark:bg-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-blue-100 dark:focus:ring-blue-900 focus:border-blue-400 outline-none transition-all ${errors.username ? "border-red-400 focus:border-red-400 focus:ring-red-100" : "border-slate-200 dark:border-slate-600"
                                         }`}
                                     placeholder="Tên đăng nhập"
                                     {...method.register("username")}
@@ -110,12 +110,12 @@ const Register = () => {
                         </div>
 
                         <div className="space-y-2">
-                            <label className="text-sm font-bold text-slate-700">Mật khẩu</label>
+                            <label className="text-sm font-bold text-slate-700 dark:text-slate-200">Mật khẩu</label>
                             <div className="relative">
                                 <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
                                 <input
                                     type={showPassword ? "text" : "password"}
-                                    className={`w-full pl-10 pr-12 py-3 rounded-xl border bg-slate-50 focus:ring-2 focus:ring-blue-100 focus:border-blue-400 outline-none transition-all ${errors.password ? "border-red-400 focus:border-red-400 focus:ring-red-100" : "border-slate-200"
+                                    className={`w-full pl-10 pr-12 py-3 rounded-xl border bg-slate-50 dark:bg-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-blue-100 dark:focus:ring-blue-900 focus:border-blue-400 outline-none transition-all ${errors.password ? "border-red-400 focus:border-red-400 focus:ring-red-100" : "border-slate-200 dark:border-slate-600"
                                         }`}
                                     placeholder="Tạo mật khẩu mạnh"
                                     {...method.register("password")}
@@ -136,20 +136,20 @@ const Register = () => {
                         <button
                             type="submit"
                             disabled={isPending}
-                            className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed text-white font-bold py-3.5 rounded-xl shadow-lg shadow-blue-200 transition-all flex items-center justify-center gap-2 mt-4"
+                            className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed text-white font-bold py-3.5 rounded-xl shadow-lg shadow-blue-200 dark:shadow-blue-900/40 transition-all flex items-center justify-center gap-2 mt-4"
                         >
                             {isPending ? "Đang đăng ký..." : "Bắt đầu"} <ArrowRight size={20} />
                         </button>
                     </form>
 
                     <div className="mt-8 text-center">
-                        <p className="text-sm text-slate-500">
+                        <p className="text-sm text-slate-500 dark:text-slate-400">
                             Đã có tài khoản? <Link to="/login" className="font-bold text-blue-600 hover:text-blue-700">Đăng nhập</Link>
                         </p>
                     </div>
                 </div>
-                <div className="bg-slate-50 p-4 border-t border-slate-100 text-center">
-                    <p className="text-xs text-slate-400">Bằng cách tham gia, bạn đồng ý với Điều khoản Dịch vụ và Chính sách Bảo mật của chúng tôi.</p>
+                <div className="bg-slate-50 dark:bg-slate-950/50 p-4 border-t border-slate-100 dark:border-slate-800 text-center">
+                    <p className="text-xs text-slate-400 dark:text-slate-500">Bằng cách tham gia, bạn đồng ý với Điều khoản Dịch vụ và Chính sách Bảo mật của chúng tôi.</p>
                 </div>
             </div>
         </div>

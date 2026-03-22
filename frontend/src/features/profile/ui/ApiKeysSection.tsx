@@ -88,11 +88,11 @@ export default function ApiKeysSection() {
     };
 
     return (
-        <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6">
+        <div className="bg-white dark:bg-slate-900/90 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
                 <div>
-                    <h3 className="text-lg font-bold text-slate-800">Khóa API AI</h3>
-                    <p className="text-sm text-slate-500">
+                    <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100">Khóa API AI</h3>
+                    <p className="text-sm text-slate-500 dark:text-slate-400">
                         Cấu hình khóa Gemini để nhận phản hồi cá nhân hóa và bản dịch nâng cao.
                     </p>
                 </div>
@@ -106,9 +106,9 @@ export default function ApiKeysSection() {
                 </Button>
             </div>
 
-            <div className="border border-slate-200 rounded-xl overflow-hidden">
+            <div className="border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden">
                 {apiKeyGroups.length === 0 ? (
-                    <div className="py-12 text-center text-slate-500 text-sm bg-white">
+                    <div className="py-12 text-center text-slate-500 dark:text-slate-400 text-sm bg-white dark:bg-slate-900/90">
                         Chưa có khóa API. Bấm &quot;Thêm khóa mới&quot; để thêm.
                     </div>
                 ) : (
@@ -124,22 +124,22 @@ export default function ApiKeysSection() {
                         return (
                             <div
                                 key={groupKey}
-                                className="border-b border-slate-100 last:border-b-0 bg-white"
+                                className="border-b border-slate-100 dark:border-slate-800 last:border-b-0 bg-white dark:bg-slate-900/90"
                             >
                                 {/* Primary API key row */}
-                                <div className="flex flex-wrap items-center gap-4 px-4 py-3.5 hover:bg-slate-50/50 transition-colors">
+                                <div className="flex flex-wrap items-center gap-4 px-4 py-3.5 hover:bg-slate-50/50 dark:hover:bg-slate-800/50 transition-colors">
                                     <button
                                         type="button"
                                         onClick={() => toggleGroup(groupKey)}
                                         className="flex items-center gap-3 min-w-0 flex-1 text-left"
                                     >
-                                        <span className="flex items-center justify-center w-8 h-8 rounded-lg bg-amber-100 text-amber-600 shrink-0">
+                                        <span className="flex items-center justify-center w-8 h-8 rounded-lg bg-amber-100 dark:bg-amber-950/50 text-amber-600 shrink-0">
                                             <Zap size={18} strokeWidth={2} />
                                         </span>
-                                        <span className="font-semibold text-slate-800">
+                                        <span className="font-semibold text-slate-800 dark:text-slate-100">
                                             {providerName}
                                         </span>
-                                        <span className="font-mono text-sm text-slate-500">
+                                        <span className="font-mono text-sm text-slate-500 dark:text-slate-400">
                                             {maskApiKey(apiKeyValue)}
                                         </span>
                                         <span className="text-slate-400 text-sm hidden sm:inline">
@@ -155,7 +155,7 @@ export default function ApiKeysSection() {
                                         <button
                                             type="button"
                                             onClick={() => toggleGroup(groupKey)}
-                                            className="p-2 rounded-lg text-slate-500 hover:bg-slate-200/80 hover:text-slate-700 transition-colors"
+                                            className="p-2 rounded-lg text-slate-500 dark:text-slate-400 hover:bg-slate-200/80 dark:hover:bg-slate-700 hover:text-slate-700 dark:hover:text-slate-200 transition-colors"
                                             title={
                                                 isExpanded
                                                     ? "Thu gọn"
@@ -178,7 +178,7 @@ export default function ApiKeysSection() {
                                                     ),
                                                 })
                                             }
-                                            className="p-2 rounded-lg text-slate-500 hover:bg-red-50 hover:text-red-500 transition-colors"
+                                            className="p-2 rounded-lg text-slate-500 dark:text-slate-400 hover:bg-red-50 dark:hover:bg-red-950/40 hover:text-red-500 transition-colors"
                                             title="Xóa khóa API"
                                         >
                                             <Trash2 size={18} />
@@ -188,14 +188,14 @@ export default function ApiKeysSection() {
 
                                 {/* Supported models */}
                                 {isExpanded && (
-                                    <div className="bg-slate-50/60 border-t border-slate-100">
+                                    <div className="bg-slate-50/60 dark:bg-slate-950/50 border-t border-slate-100 dark:border-slate-800">
                                         <div className="px-4 pt-3 pb-1">
                                             <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">
                                                 Models
                                             </p>
                                         </div>
                                         <div className="px-4 pb-3">
-                                            <div className="rounded-lg border border-slate-200 bg-white overflow-hidden">
+                                            <div className="rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900/90 overflow-hidden">
                                                 {keys.map((key) => {
                                                     const hasCredit =
                                                         key.credit > 0;
@@ -205,9 +205,9 @@ export default function ApiKeysSection() {
                                                     return (
                                                         <div
                                                             key={key.id}
-                                                            className="flex flex-wrap items-center gap-4 px-4 py-2.5 border-b border-slate-100 last:border-b-0 hover:bg-slate-50/50"
+                                                            className="flex flex-wrap items-center gap-4 px-4 py-2.5 border-b border-slate-100 dark:border-slate-800 last:border-b-0 hover:bg-slate-50/50 dark:hover:bg-slate-800/50"
                                                         >
-                                                            <span className="font-medium text-slate-800 min-w-[140px] text-sm">
+                                                            <span className="font-medium text-slate-800 dark:text-slate-100 min-w-[140px] text-sm">
                                                                 {key.model}
                                                             </span>
 

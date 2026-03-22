@@ -18,14 +18,14 @@ export function DetailedSuggestionCard({
   const { correction, suggestions, summary, score, improved } = feedback;
 
   return (
-    <div className="flex flex-col p-4 gap-4 text-[11px] leading-relaxed text-slate-800 overflow-y-auto scrollbar-thin scrollbar-thumb-slate-200">
+    <div className="flex flex-col p-4 gap-4 text-[11px] leading-relaxed text-slate-800 dark:text-slate-100 overflow-y-auto scrollbar-thin scrollbar-thumb-slate-200">
       {/* Score chip */}
       {typeof score === "number" && (
         <div className="flex items-center gap-2 text-[10px]">
           <div className="relative size-9">
-            <svg className="size-full -rotate-90 text-slate-200" viewBox="0 0 36 36">
+            <svg className="size-full -rotate-90 text-slate-200 dark:text-slate-700" viewBox="0 0 36 36">
               <path
-                className="text-slate-200"
+                className="text-slate-200 dark:text-slate-700"
                 d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
                 fill="none"
                 stroke="currentColor"
@@ -48,16 +48,16 @@ export function DetailedSuggestionCard({
               />
             </svg>
             <div className="absolute inset-0 flex items-center justify-center">
-              <span className="text-[10px] font-bold text-slate-800">
+              <span className="text-[10px] font-bold text-slate-800 dark:text-slate-100">
                 {score.toFixed(1)}
               </span>
             </div>
           </div>
           <div className="flex flex-col">
-            <span className="text-[10px] font-semibold text-slate-900">
+            <span className="text-[10px] font-semibold text-slate-900 dark:text-slate-100">
               Điểm chi tiết
             </span>
-            <span className="text-[10px] text-slate-500">
+            <span className="text-[10px] text-slate-500 dark:text-slate-400">
               {score >= 9
                 ? "Rất tốt – chỉ còn vài điểm nhỏ cần chỉnh."
                 : score >= 7
@@ -71,7 +71,7 @@ export function DetailedSuggestionCard({
       {correction != null && correction !== "" && (
         <p className="text-[11px] font-bold text-orange-600">
           Chỉnh sửa:
-          <span className="ml-1 font-semibold text-slate-800">
+          <span className="ml-1 font-semibold text-slate-800 dark:text-slate-100">
             {userTranslation?.trim()
               ? renderWordDiff(userTranslation.trim(), correction)
               : correction}
@@ -82,10 +82,10 @@ export function DetailedSuggestionCard({
       {/* Suggested improvements */}
       {suggestions?.length > 0 && (
         <div>
-          <p className="text-[12px] font-semibold text-slate-800 mb-1">
+          <p className="text-[12px] font-semibold text-slate-800 dark:text-slate-100 mb-1">
             Cải thiện:
           </p>
-          <ul className="space-y-1 pl-4 list-disc text-slate-700">
+          <ul className="space-y-1 pl-4 list-disc text-slate-700 dark:text-slate-300">
             {suggestions.map((item, idx) => (
               <li key={idx} className="text-[12px]">
                 {renderBacktickHighlight(item)}
@@ -99,14 +99,14 @@ export function DetailedSuggestionCard({
       {summary && (
         <div className="mt-1">
           <p className="font-bold text-emerald-600 mb-1">Nhận xét:</p>
-          <p className="text-[12px] text-slate-700">
+          <p className="text-[12px] text-slate-700 dark:text-slate-300">
             {renderBacktickHighlight(summary)}
           </p>
         </div>
       )}
 
       {improved && (
-        <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl border border-green-200/50 p-4 shadow-sm">
+        <div className="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-950/40 dark:to-emerald-950/40 rounded-xl border border-green-200/50 dark:border-green-900/50 p-4 shadow-sm">
           <div className="flex items-center justify-between mb-2">
             <span className="text-[12px] font-bold text-green-700 flex items-center gap-1.5">
               <Sparkles className="size-3.5" />
@@ -122,7 +122,7 @@ export function DetailedSuggestionCard({
               />
             </button>
           </div>
-          <p className="text-[12px] text-slate-800">
+          <p className="text-[12px] text-slate-800 dark:text-slate-100">
             {improved}
           </p>
         </div>

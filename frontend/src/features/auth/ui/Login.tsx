@@ -82,8 +82,8 @@ const Login = () => {
 
 
   return (
-    <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex items-center justify-center p-4">
+      <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-xl w-full max-w-md overflow-hidden border border-slate-200 dark:border-slate-700">
         {/* Header */}
         <div className="p-2 bg-blue-600 text-center flex justify-center flex-col items-center">
           <div className="rounded-md w-56 h-36 flex items-center justify-center">
@@ -95,12 +95,12 @@ const Login = () => {
         <div className="p-8">
           <form onSubmit={onSubmit} className="space-y-6">
             <div className="space-y-2">
-              <label className="text-sm font-bold text-slate-700">Tên đăng nhập</label>
+              <label className="text-sm font-bold text-slate-700 dark:text-slate-200">Tên đăng nhập</label>
               <div className="relative">
                 <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
                 <input
                   type="text"
-                  className={`w-full pl-10 pr-4 py-3 rounded-xl border bg-slate-50 focus:ring-2 focus:ring-blue-100 focus:border-blue-400 outline-none transition-all ${errors.username ? "border-red-400 focus:border-red-400 focus:ring-red-100" : "border-slate-200"
+                  className={`w-full pl-10 pr-4 py-3 rounded-xl border bg-slate-50 dark:bg-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-blue-100 dark:focus:ring-blue-900 focus:border-blue-400 outline-none transition-all ${errors.username ? "border-red-400 focus:border-red-400 focus:ring-red-100" : "border-slate-200 dark:border-slate-600"
                     }`}
                   placeholder="email@example.com"
                   {...method.register("username")}
@@ -113,14 +113,14 @@ const Login = () => {
 
             <div className="space-y-2">
               <div className="flex justify-between items-center">
-                <label className="text-sm font-bold text-slate-700">Mật khẩu</label>
+                <label className="text-sm font-bold text-slate-700 dark:text-slate-200">Mật khẩu</label>
                 <Link to="#" className="text-xs font-bold text-blue-600 hover:text-blue-700">Quên mật khẩu?</Link>
               </div>
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
                 <input
                   type={showPassword ? "text" : "password"}
-                  className={`w-full pl-10 pr-12 py-3 rounded-xl border bg-slate-50 focus:ring-2 focus:ring-blue-100 focus:border-blue-400 outline-none transition-all ${errors.password ? "border-red-400 focus:border-red-400 focus:ring-red-100" : "border-slate-200"
+                  className={`w-full pl-10 pr-12 py-3 rounded-xl border bg-slate-50 dark:bg-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-blue-100 dark:focus:ring-blue-900 focus:border-blue-400 outline-none transition-all ${errors.password ? "border-red-400 focus:border-red-400 focus:ring-red-100" : "border-slate-200 dark:border-slate-600"
                     }`}
                   placeholder="••••••••"
                   {...method.register("password")}
@@ -140,13 +140,13 @@ const Login = () => {
 
             <div className="flex items-center gap-2">
               <input type="checkbox" id="remember" className="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500" />
-              <label htmlFor="remember" className="text-sm text-slate-500 font-medium">Ghi nhớ đăng nhập</label>
+              <label htmlFor="remember" className="text-sm text-slate-500 dark:text-slate-400 font-medium">Ghi nhớ đăng nhập</label>
             </div>
 
             <button
               type="submit"
               disabled={isPending}
-              className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed text-white font-bold py-3.5 rounded-xl shadow-lg shadow-blue-200 transition-all flex items-center justify-center gap-2"
+              className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed text-white font-bold py-3.5 rounded-xl shadow-lg shadow-blue-200 dark:shadow-blue-900/40 transition-all flex items-center justify-center gap-2"
             >
               {isPending ? "Đang đăng nhập..." : "Đăng nhập"}
             </button>
@@ -154,8 +154,8 @@ const Login = () => {
 
           <div className="mt-8">
             <div className="relative">
-              <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-slate-200"></div></div>
-              <div className="relative flex justify-center text-sm"><span className="px-2 bg-white text-slate-400 font-medium">Hoặc tiếp tục với</span></div>
+              <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-slate-200 dark:border-slate-700"></div></div>
+              <div className="relative flex justify-center text-sm"><span className="px-2 bg-white dark:bg-slate-900 text-slate-400 font-medium">Hoặc tiếp tục với</span></div>
             </div>
 
             <div className="mt-6 grid grid-cols-1 gap-4">
@@ -163,7 +163,7 @@ const Login = () => {
                 type="button"
                 onClick={handleLoginWithGoogle}
                 disabled={isPending}
-                className="flex items-center justify-center gap-2 px-4 py-2.5 border border-slate-200 rounded-xl hover:bg-slate-50 disabled:opacity-50 disabled:cursor-not-allowed font-medium text-slate-600 transition-colors"
+                className="flex items-center justify-center gap-2 px-4 py-2.5 border border-slate-200 dark:border-slate-600 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed font-medium text-slate-600 dark:text-slate-300 transition-colors"
               >
                 <img src="https://www.svgrepo.com/show/475656/google-color.svg" className="w-5 h-5" alt="Google" />
                 Google
@@ -171,7 +171,7 @@ const Login = () => {
             </div>
           </div>
 
-          <p className="mt-8 text-center text-sm text-slate-500">
+          <p className="mt-8 text-center text-sm text-slate-500 dark:text-slate-400">
             Chưa có tài khoản? <Link to="/register" className="font-bold text-blue-600 hover:text-blue-700">Tạo tài khoản</Link>
           </p>
         </div>
