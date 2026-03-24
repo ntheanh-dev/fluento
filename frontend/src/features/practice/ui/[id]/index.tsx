@@ -392,7 +392,7 @@ const SentencePracticePage = () => {
           className={`
               lg:col-span-4 flex flex-col transition-all duration-300 ease-in-out overflow-hidden
               ${showMobileSidebar
-              ? "fixed inset-x-0 bottom-0 top-20 z-50 bg-white dark:bg-slate-900 rounded-t-2xl shadow-[0_-10px_40px_-15px_rgba(0,0,0,0.3)] p-3 sm:p-4 lg:static lg:p-0 lg:shadow-none lg:bg-transparent lg:rounded-none"
+              ? "fixed inset-x-0 bottom-0 top-20 z-50 rounded-t-2xl shadow-[0_-10px_40px_-15px_rgba(0,0,0,0.3)] p-3 sm:p-4 lg:static lg:p-0 lg:shadow-none lg:bg-transparent lg:rounded-none"
               : "hidden lg:flex"
             }
           `}

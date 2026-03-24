@@ -6,6 +6,7 @@ import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.format.TextStyle;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -206,27 +207,32 @@ public class Service {
         // Case 1: first time submit
         if (lastDate == null) {
             user.setCurrentStreak(1);
-            user.setLongestStreak(1);
+            user.setLongestStreak(Math.max(1, user.getLongestStreak() == null ? 0 : user.getLongestStreak()));
             user.setLastSubmissionDate(today);
             return;
         }
 
-        // Case 2: already submitted today -> do nothing
-        if (lastDate.isEqual(today)) {
+        long dayDiff = ChronoUnit.DAYS.between(lastDate, today);
+
+        // Case 2: already submitted in the same calendar day -> do nothing
+        if (dayDiff <= 0) {
             return;
         }
 
-        // Case 3: yesterday -> continue streak
-        if (lastDate.plusDays(1).isEqual(today)) {
-            int newStreak = user.getCurrentStreak() + 1;
+        int currentStreak = user.getCurrentStreak() == null ? 0 : user.getCurrentStreak();
+        int longestStreak = user.getLongestStreak() == null ? 0 : user.getLongestStreak();
+
+        // Case 3: exactly 1 day apart -> continue streak
+        if (dayDiff == 1) {
+            int newStreak = currentStreak + 1;
             user.setCurrentStreak(newStreak);
 
-            if (newStreak > user.getLongestStreak()) {
+            if (newStreak > longestStreak) {
                 user.setLongestStreak(newStreak);
             }
 
         } else {
-            // Case 4: missed day -> reset
+            // Case 4: missed at least 1 calendar day -> reset to 1 on today's submit
             user.setCurrentStreak(1);
         }
 

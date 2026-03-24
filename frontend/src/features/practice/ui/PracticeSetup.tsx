@@ -93,8 +93,8 @@ const PracticeSetup = () => {
   };
 
   return (
-    <div className=" max-w-7xl mx-auto p-4 sm:px-6 lg:px-8 text-slate-800 dark:text-slate-100 font-display">
-      <div className="bg-white dark:bg-slate-900/90 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 md:p-8">
+    <div className=" max-w-7xl mx-auto md:p-4 text-slate-800 dark:text-slate-100 font-display">
+      <div className="bg-white dark:bg-slate-900/90 md:rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-4 md:p-8">
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
           <div>
