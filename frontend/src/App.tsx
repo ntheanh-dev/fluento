@@ -10,6 +10,7 @@ const Login = lazy(() => import("@/features/auth/ui/Login"));
 const Register = lazy(() => import("@/features/auth/ui/Register"));
 const Authenticate = lazy(() => import("@/features/auth/ui/Authenticated"));
 const RequiredAuth = lazy(() => import("@/features/auth/ui/RequiredAuth"));
+const RequiredAdmin = lazy(() => import("@/features/auth/ui/RequiredAdmin"));
 
 // Dashboard
 const Dashboard = lazy(() => import("@/features/dashboard"));
@@ -25,6 +26,9 @@ const SentencePracticePage = lazy(() => import("@/features/practice/ui/[id]"));
 const History = lazy(() => import("@/features/history"));
 const Rankings = lazy(() => import("@/features/ranking"));
 const Profile = lazy(() => import("@/features/profile/ui"));
+
+// Admin
+const Admin = lazy(() => import("@/features/admin"));
 
 // Layout
 const Layout = lazy(() => import("@/layouts/Layout"));
@@ -74,6 +78,14 @@ function App() {
                   <Route path="history" element={<History />} />
                   <Route path="rankings" element={<Rankings />} />
                   <Route path="profile" element={<Profile />} />
+                  <Route
+                    path="admin"
+                    element={
+                      <RequiredAdmin>
+                        <Admin />
+                      </RequiredAdmin>
+                    }
+                  />
                   <Route path="*" element={<Navigate to="/dashboard" replace />} />
                 </Route>
 

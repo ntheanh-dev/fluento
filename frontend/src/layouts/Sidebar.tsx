@@ -10,6 +10,8 @@ import {
 import { LogOut } from "lucide-react";
 import { useLogoutMutation } from "@/features/auth/mutation";
 import Cookies from "js-cookie";
+import { Shield } from "lucide-react";
+import { useProfile } from "@/stores/profile";
 
 const SidebarItem = ({
   icon: Icon,
@@ -43,10 +45,13 @@ const Sidebar = ({
 }) => {
   const navigate = useNavigate();
   const { mutateAsync: logout } = useLogoutMutation();
+  const { profile } = useProfile();
   const handleLogout = async () => {
     await logout(Cookies.get("accessToken") || "");
     navigate("/login");
   };
+
+  const isAdmin = profile?.roles?.some((r) => r.name === "ADMIN") ?? false;
   return (
     <div className="flex flex-col h-full w-full">
       <div className="p-6 flex items-center justify-between">
@@ -102,6 +107,14 @@ const Sidebar = ({
           to="/profile"
           active={activePath === "/profile"}
         />
+        {isAdmin && (
+          <SidebarItem
+            icon={Shield}
+            label="Admin"
+            to="/admin"
+            active={activePath === "/admin"}
+          />
+        )}
       </nav>
 
       <div className="p-4 border-t border-slate-100 dark:border-slate-800">

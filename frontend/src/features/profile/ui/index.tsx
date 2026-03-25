@@ -1,8 +1,6 @@
 import { useState, useEffect, useRef, useMemo } from "react";
 import {
   User,
-  History,
-  CreditCard,
   LogOut,
   Flame,
   FileText,
