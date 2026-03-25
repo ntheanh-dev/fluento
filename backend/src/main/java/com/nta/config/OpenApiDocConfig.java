@@ -1,5 +1,6 @@
 package com.nta.config;
 
+import org.springdoc.core.models.GroupedOpenApi;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -32,5 +33,18 @@ public class OpenApiDocConfig {
                         .version("v1.0")
                         .description("Fluento Application APIs")
                         .license(new License().name("Apache 2.0").url("https://www.apache.org/licenses/LICENSE-2.0")));
+    }
+
+    @Bean
+    public GroupedOpenApi adminOpenApiGroup() {
+        return GroupedOpenApi.builder().group("admin").pathsToMatch("/admin/**").build();
+    }
+
+    @Bean
+    public GroupedOpenApi publicOpenApiGroup() {
+        return GroupedOpenApi.builder()
+                .group("public")
+                .pathsToExclude("/admin/**")
+                .build();
     }
 }

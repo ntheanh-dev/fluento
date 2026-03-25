@@ -229,4 +229,134 @@ public class Service {
                 group.size(),
                 totalCredit);
     }
+
+    /**
+     * Admin deletion: detach API key group owned by the user of the given apiKey row.
+     *
+     * One request deletes the whole group (3 rows) by the same encrypted apiKey value.
+     */
+    @Transactional
+    public void deleteForAdmin(Long apiKeyRowId) {
+        ApiKey one = repository
+                .findById(apiKeyRowId)
+                .orElseThrow(() -> new AppException(ErrorCode.PROVIDER_API_KEY_NOT_FOUND));
+
+        // Orphan row (user_id = null) -> hard delete itself.
+        if (one.getUser() == null) {
+            repository.delete(one);
+            return;
+        }
+
+        Long userId = one.getUser().getId();
+        String apiKeyValue = one.getApiKey();
+
+        List<ApiKey> group = repository.findByApiKeyAndUserId(apiKeyValue, userId);
+        int totalCredit = group.stream()
+                .mapToInt(row -> row.getCredit() != null ? row.getCredit() : 0)
+                .sum();
+
+        if (totalCredit > 0) {
+            userRepository.subtractCredits(userId, totalCredit);
+        }
+
+        Long activeApiKeyId = userRepository.findById(userId).orElseThrow().getActiveApiKeyId();
+        boolean activeWasInGroup = activeApiKeyId != null
+                && group.stream().anyMatch(row -> row.getId().equals(activeApiKeyId));
+
+        if (activeWasInGroup) {
+            List<ApiKey> otherActive = repository.findActiveByUserIdAndKey(userId, apiKeyValue);
+            Long newActiveId =
+                    otherActive.isEmpty() ? null : otherActive.getFirst().getId();
+            userRepository.updateActiveApiKeyIdById(userId, newActiveId);
+        }
+
+        // Hard delete to reflect "delete" in admin UI (remove from listing).
+        repository.deleteAll(group);
+    }
+
+    /**
+     * Admin update: set a specific api key row credit, then recompute user's total credits.
+     */
+    @Transactional
+    public void updateCreditForAdmin(Long apiKeyRowId, int credit) {
+        ApiKey apiKey = repository
+                .findById(apiKeyRowId)
+                .orElseThrow(() -> new AppException(ErrorCode.PROVIDER_API_KEY_NOT_FOUND));
+
+        int normalized = Math.max(0, credit);
+        apiKey.setCredit(normalized);
+        repository.save(apiKey);
+
+        if (apiKey.getUser() != null) {
+            Long userId = apiKey.getUser().getId();
+            List<ApiKey> allKeys = repository.findByUserIdOrderByCreatedAtAsc(userId);
+            int totalCredits = allKeys.stream()
+                    .mapToInt(row -> row.getCredit() != null ? row.getCredit() : 0)
+                    .sum();
+            userRepository.setCredits(userId, totalCredits);
+        }
+    }
+
+    /**
+     * Admin creation: create a new api key group (3 rows) for a target user.
+     */
+    @Transactional
+    public List<AiModelResponse> createForUser(CreateApiKeyRequest request, Long userId) {
+        String plainKey = request.getApiKey();
+        validateGeminiApiKey(plainKey);
+
+        User user = userRepository.findById(userId).orElseThrow(() -> new AppException(ErrorCode.RESOURCE_NOT_FOUND));
+
+        String encrypted = apiKeyCrypto.encrypt(plainKey);
+        List<ApiKey> existing = repository.findByApiKey(encrypted);
+
+        if (!existing.isEmpty()) {
+            boolean anyOwned = existing.stream().anyMatch(a -> a.getUser() != null);
+            if (anyOwned) {
+                throw new AppException(ErrorCode.API_KEY_EXISTED);
+            }
+
+            int totalCreditInGroup = existing.stream()
+                    .mapToInt(row -> row.getCredit() != null ? row.getCredit() : 0)
+                    .sum();
+
+            for (ApiKey row : existing) {
+                row.setUser(user);
+                row.setActive(true);
+                repository.save(row);
+            }
+
+            if (user.getActiveApiKeyId() == null) {
+                userRepository.updateActiveApiKeyIdById(
+                        userId, existing.getFirst().getId());
+            }
+            repository.flush();
+            if (totalCreditInGroup > 0) {
+                userRepository.addCredits(userId, totalCreditInGroup);
+            }
+            return existing.stream().map(mapper::toAiModelResponse).toList();
+        }
+
+        List<ApiKey> created = new java.util.ArrayList<>();
+        for (AiModelName modelName : AiModelName.values()) {
+            ApiKey row = ApiKey.builder()
+                    .user(user)
+                    .apiKey(encrypted)
+                    .model(modelName)
+                    .credit(20)
+                    .isActive(true)
+                    .createdAt(LocalDateTime.now())
+                    .build();
+            created.add(repository.save(row));
+        }
+
+        if (user.getActiveApiKeyId() == null) {
+            userRepository.updateActiveApiKeyIdById(userId, created.getFirst().getId());
+        }
+        repository.flush();
+
+        int bonusCredits = 20 * created.size();
+        userRepository.addCredits(userId, bonusCredits);
+        return created.stream().map(mapper::toAiModelResponse).toList();
+    }
 }

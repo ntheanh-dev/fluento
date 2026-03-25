@@ -2,6 +2,7 @@ package com.nta.domain.auth;
 
 import java.text.ParseException;
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.HashSet;
@@ -67,6 +68,7 @@ public class Service {
         User u = userMapper.toUser(request);
         u.setPassword(passwordEncoder.encode(request.getPassword()));
         u.setCredits(0);
+        u.setCreatedAt(LocalDateTime.now());
         HashSet<Role> roles = new HashSet<>();
         roleRepository.findById(PredefinedRole.USER_ROLE).ifPresent(roles::add);
         u.setRoles(roles);
