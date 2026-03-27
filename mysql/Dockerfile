@@ -1,12 +1,6 @@
 # MySQL Dockerfile for Fluento application
 FROM mysql:8.0
 
-# Set environment variables
-ENV MYSQL_ROOT_PASSWORD=Admin@123
-ENV MYSQL_DATABASE=fluento
-ENV MYSQL_USER=app_user
-ENV MYSQL_PASSWORD=Admin@123
-
 # Expose MySQL port
 EXPOSE 3306
 

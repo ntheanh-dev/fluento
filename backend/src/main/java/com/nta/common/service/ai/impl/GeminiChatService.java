@@ -34,6 +34,7 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @Slf4j
 @RequiredArgsConstructor
+@Primary
 public class GeminiChatService implements ChatService {
 
     private final CommonUserService commonUserService;

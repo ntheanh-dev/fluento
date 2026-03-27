@@ -1,6 +1,7 @@
 package com.nta.config;
 
 import java.util.Collections;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -39,7 +40,12 @@ public class SecurityConfig {
         "/roles",
         "/auth/outbound/authentication",
     };
-    private final String[] PUBLIC_GET_ENDPOINTS = {"/health", "/docs/**", "/swagger-ui/**", "/v3/api-docs/**"};
+    private final String[] PUBLIC_GET_ENDPOINTS = {
+        "/docs/**", "/swagger-ui/**", "/v3/api-docs/**", "/actuator/health", "/actuator/health/**",
+    };
+
+    @Value("${app.cors.allowed-origins:*}")
+    private String corsAllowedOrigins;
 
     @NonFinal
     @Value("${spring.security.oauth2.resourceserver.jwt.signer-key}")
@@ -73,7 +79,7 @@ public class SecurityConfig {
         CorsConfiguration corsConfiguration = new CorsConfiguration();
 
         corsConfiguration.setAllowCredentials(true);
-        corsConfiguration.setAllowedOriginPatterns(Collections.singletonList("*"));
+        corsConfiguration.setAllowedOriginPatterns(parseAllowedOrigins(corsAllowedOrigins));
         corsConfiguration.addAllowedMethod("*");
         corsConfiguration.addAllowedHeader("*");
 
@@ -81,6 +87,13 @@ public class SecurityConfig {
         urlBasedCorsConfigurationSource.registerCorsConfiguration("/**", corsConfiguration);
 
         return new CorsFilter(urlBasedCorsConfigurationSource);
+    }
+
+    private static List<String> parseAllowedOrigins(String allowedOrigins) {
+        if (allowedOrigins == null || allowedOrigins.isBlank()) {
+            return Collections.singletonList("*");
+        }
+        return List.of(allowedOrigins.split("\\s*,\\s*"));
     }
 
     @Bean

@@ -1,8 +1,10 @@
 import axios from "axios";
 import Cookies from "js-cookie";
 import { ACCESS_TOKEN_EXPIRE_TIME } from "../../features/auth/constant";
+import { getRuntimeEnv } from "../config/runtime-env";
 
-const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8080/api";
+const runtimeEnv = getRuntimeEnv();
+const BASE_URL = runtimeEnv.VITE_API_URL || import.meta.env.VITE_API_URL || "http://localhost:8080/api";
 
 // Dùng chung một promise refresh cho tất cả request 401 đang chờ
 let refreshTokenPromise: Promise<string> | null = null;

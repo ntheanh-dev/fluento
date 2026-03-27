@@ -1,5 +1,7 @@
 package com.nta.common.component;
 
+import java.util.HashSet;
+
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
@@ -13,8 +15,6 @@ import com.nta.domain.user.User;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-
-import java.util.HashSet;
 
 @Configuration
 @RequiredArgsConstructor

@@ -30,6 +30,13 @@ RUN npm run build
 # Production stage with Nginx
 FROM nginx:alpine
 
+# Install runtime utilities for healthcheck
+RUN apk add --no-cache curl
+
+# Add entrypoint to generate runtime env.js
+COPY docker-entrypoint.sh /docker-entrypoint.sh
+RUN chmod +x /docker-entrypoint.sh
+
 # Copy built files from build stage
 COPY --from=build /app/dist /usr/share/nginx/html
 
@@ -41,7 +48,7 @@ EXPOSE 80
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD curl -f http://localhost/ || exit 1
+  CMD curl -fsS http://localhost/ || exit 1
 
 # Start nginx
-CMD ["nginx", "-g", "daemon off;"]
+ENTRYPOINT ["/docker-entrypoint.sh"]

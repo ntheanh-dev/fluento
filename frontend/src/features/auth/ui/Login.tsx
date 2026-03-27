@@ -11,6 +11,7 @@ import { useProfileStore } from "../../../stores/profile";
 import { Mail, Lock, Eye, EyeOff } from 'lucide-react';
 import { useState } from 'react';
 import { ACCESS_TOKEN_EXPIRE_TIME } from "../constant";
+import { getRuntimeEnv } from "../../../shared/config/runtime-env";
 const Login = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -62,9 +63,10 @@ const Login = () => {
   });
 
   const handleLoginWithGoogle = () => {
-    const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
-    const redirectUri = import.meta.env.VITE_GOOGLE_REDIRECT_URI;
-    const authUri = import.meta.env.VITE_GOOGLE_AUTH_URI;
+    const env = getRuntimeEnv();
+    const googleClientId = env.VITE_GOOGLE_CLIENT_ID || import.meta.env.VITE_GOOGLE_CLIENT_ID;
+    const redirectUri = env.VITE_GOOGLE_REDIRECT_URI || import.meta.env.VITE_GOOGLE_REDIRECT_URI;
+    const authUri = env.VITE_GOOGLE_AUTH_URI || import.meta.env.VITE_GOOGLE_AUTH_URI;
     if (!authUri || !redirectUri || !googleClientId) {
       message.error("Cấu hình đăng nhập Google chưa đúng.");
       return;
