@@ -12,6 +12,7 @@ import org.springframework.ai.openai.OpenAiChatOptions;
 import org.springframework.ai.openai.api.OpenAiApi;
 import org.springframework.ai.openai.api.ResponseFormat;
 import org.springframework.ai.retry.NonTransientAiException;
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -183,9 +184,6 @@ public class GeminiChatService implements ChatService {
         if (responseType == String.class) {
             return responseType.cast(outputText.trim());
         }
-
-        System.out.println("Raw AI output: " + outputText);
-
         return objectMapper.readValue(outputText, responseType);
     }
 
