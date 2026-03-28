@@ -1,9 +1,12 @@
 package com.nta.domain.paragraph;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import jakarta.transaction.Transactional;
+
+import org.springframework.data.domain.PageRequest;
 
 import com.nta.common.service.ai.ChatService;
 import com.nta.common.service.ai.ParagraphPromptFactory;
@@ -30,14 +33,34 @@ public class Service {
     ChatService chatService;
     Mapper mapper;
 
-    // NOTE: Sau khi có một lượng data paragraph rồi thì không cần dùng AI để tạo nữa
-    // mà sẽ query trong DB.
     public Paragraph findOrcreate(CreateParagraphRequest request) {
-        return switch (request.getType()) {
+        return findExistingWithSameSetup(request).orElseGet(() -> switch (request.getType()) {
             case BASIC -> handleBasicParagraph(request);
             case STORY, EMAIL, IELTS_TASK1, IELTS_TASK2 -> handleOtherParagraph(request);
             case SINGLE_SENTENCE -> handleSingleSentence(request);
-        };
+        });
+    }
+
+    /** Tái sử dụng paragraph đã có cùng type/tone/topic/level/sentenceCount trước khi gọi AI. */
+    private Optional<Paragraph> findExistingWithSameSetup(CreateParagraphRequest request) {
+        List<Paragraph> hits = repository.findMatchingSetup(
+                request.getType(),
+                request.getTone(),
+                request.getTopic(),
+                request.getLevel(),
+                request.getSentenceCount(),
+                PageRequest.of(0, 1));
+        if (hits.isEmpty()) {
+            return Optional.empty();
+        }
+        Paragraph p = hits.getFirst();
+        log.debug(
+                "Reusing existing paragraph id={} for type={} topic={} level={}",
+                p.getId(),
+                request.getType(),
+                request.getTopic(),
+                request.getLevel());
+        return Optional.of(p);
     }
 
     private Paragraph handleBasicParagraph(CreateParagraphRequest request) {

@@ -15,3 +15,14 @@ export interface Vocabulary {
   partsOfSpeech: string;
   ipaPronunciation: string;
 }
+
+/** Khớp query param `score` trên GET communityTranslations. */
+export type CommunityScoreBand = "LE7" | "RANGE_7_8" | "GE8";
+
+/** Bản dịch tiếng Anh do học viên khác đã nộp cho cùng câu (cùng đoạn + orderIndex). */
+export interface CommunityTranslation {
+  translatorName?: string | null;
+  translation: string;
+  score: number | null;
+  submittedAt: string | null;
+}

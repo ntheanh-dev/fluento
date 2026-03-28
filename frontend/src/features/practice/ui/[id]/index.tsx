@@ -413,6 +413,7 @@ const SentencePracticePage = () => {
               isLoadingAnswerPreview={isLoadingAnswerPreview}
               isLoadingVocabularyHints={isLoadingVocabularyHints}
               vocabularyHints={currentVietNameseSentence?.vocabularyHints ?? null}
+              hintsSentenceId={currentVietNameseSentence?.id ?? 0}
               feedback={feedback}
               userTranslation={lastCheckedTranslation ?? translation}
             />

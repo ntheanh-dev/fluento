@@ -68,7 +68,7 @@ export function DetailedSuggestionCard({
         </div>
       )}
 
-      {correction != null && correction !== "" && (
+      {correction != null && correction !== "" && score < 9.5 && (
         <p className="text-[11px] font-bold text-orange-600">
           Chỉnh sửa:
           <span className="ml-1 font-semibold text-slate-800 dark:text-slate-100">

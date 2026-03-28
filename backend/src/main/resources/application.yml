@@ -65,9 +65,15 @@ spring:
 app:
   # Múi giờ nghiệp vụ: streak, thống kê theo ngày, cron reset credit (DB/Jackson vẫn UTC).
   time-zone: Asia/Ho_Chi_Minh
+  # Seed paragraph (profile local + enabled=true), chạy trong cùng ApplicationRunner
+  data-init:
+    paragraphs:
+      enabled: false
+      max-combinations: 0
+      max-retries-per-item: 5
   api-key-encryption-secret: "0123456789abcdef0123456789abcdef"
   cors:
-    allowed-origins: http://localhost:1234
+    allowed-origins: http://localhost:5173
     allowed-methods: GET,POST,PUT,DELETE,OPTIONS
     allowed-headers: Authorization,Content-Type
     allow-credentials: true

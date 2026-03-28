@@ -1,7 +1,11 @@
 import type { SubmitAnswerRequest, UserPractice } from "@/entities/userPractice/schema";
 import { createRestClient, getResource } from "../../shared/api/rest-client";
 import type { AnswerPreviewInput, PracticeSetupInput } from "./schema";
-import type { ParagraphSentence } from "@/entities/paragraphSentence/schema";
+import type {
+  CommunityScoreBand,
+  CommunityTranslation,
+  ParagraphSentence,
+} from "@/entities/paragraphSentence/schema";
 import type { SentenceFeedback, UserSentenceAnswer } from "@/entities/userPracticeAnswer/schema";
 
 const BASE = "/user-practices";
@@ -24,6 +28,16 @@ export const getSentenceVocabularyHints = (
 ): Promise<ParagraphSentence> => {
   return getResource<ParagraphSentence>(
     PARAGRAPH_SENTENCE_BASE + `/${sentenceId}/vocabularyHints`,
+  );
+};
+
+export const getCommunityTranslations = (
+  sentenceId: number,
+  score: CommunityScoreBand,
+): Promise<CommunityTranslation[]> => {
+  const q = new URLSearchParams({ score });
+  return getResource<CommunityTranslation[]>(
+    `${PARAGRAPH_SENTENCE_BASE}/${sentenceId}/communityTranslations?${q}`,
   );
 };
 

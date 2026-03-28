@@ -10,6 +10,8 @@ type AsideProps = {
   isLoadingAnswerPreview: boolean;
   isLoadingVocabularyHints: boolean;
   vocabularyHints: VocabularyHint[] | null;
+  /** Câu đang luyện — dùng để tải bản dịch cộng đồng. */
+  hintsSentenceId: number;
   renderAsideType: RenderAsideType;
   feedback: SentenceFeedback | null;
   userTranslation?: string;
@@ -19,6 +21,7 @@ export const Aside = ({
   isLoadingAnswerPreview,
   isLoadingVocabularyHints,
   vocabularyHints,
+  hintsSentenceId,
   renderAsideType,
   feedback,
   userTranslation,
@@ -29,7 +32,12 @@ export const Aside = ({
   }
 
   if (renderAsideType === "hints" && vocabularyHints) {
-    return <VocabularyHintsAside vocabularyHints={vocabularyHints} />;
+    return (
+      <VocabularyHintsAside
+        vocabularyHints={vocabularyHints}
+        sentenceId={hintsSentenceId}
+      />
+    );
   }
 
   if (renderAsideType === "markdownFeedback") {

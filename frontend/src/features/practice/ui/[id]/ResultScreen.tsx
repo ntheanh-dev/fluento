@@ -186,7 +186,12 @@ export default function ResultScreen() {
                                     </p>
                                 ) : (
                                     <p className="text-sm sm:text-base text-slate-900 dark:text-slate-100 font-medium leading-relaxed whitespace-pre-line break-words">
-                                        {data?.sentenceAnswers.map((answer) => renderWordDiff(answer.userTranslation ?? '', answer.feedback.correction ?? ''))}
+                                        {data?.sentenceAnswers.map((answer) => {
+                                            if (answer.score < 9.5) {
+                                                return renderWordDiff(answer.userTranslation ?? '', answer.feedback.correction ?? '');
+                                            }
+                                            return <span key={answer.id}>{answer.userTranslation}{' '}</span>;
+                                        })}
                                     </p>
                                 )}
                             </div>

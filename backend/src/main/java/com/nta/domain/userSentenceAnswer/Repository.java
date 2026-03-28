@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -60,4 +61,31 @@ public interface Repository extends JpaRepository<UserSentenceAnswer, Long> {
             @Param("start") LocalDateTime start,
             @Param("end") LocalDateTime end,
             @Param("tzOffset") String tzOffset);
+
+    /**
+     * @param scoreBand 0 = điểm ≤ 7; 1 = (7, 8]; 2 = điểm &gt; 8. Chỉ lấy bản ghi có score.
+     */
+    @Query(
+            """
+			SELECT DISTINCT a FROM UserSentenceAnswer a
+			INNER JOIN FETCH a.practice p
+			INNER JOIN FETCH p.user u
+			WHERE p.paragraph.id = :paragraphId
+			AND a.orderIndex = :orderIndex
+			AND a.isSubmitted = true
+			AND p.user.id <> :excludeUserId
+			AND a.score IS NOT NULL
+			AND (
+				(:scoreBand = 0 AND a.score <= 7.0)
+				OR (:scoreBand = 1 AND a.score > 7.0 AND a.score <= 8.0)
+				OR (:scoreBand = 2 AND a.score > 8.0)
+			)
+			ORDER BY a.createdAt DESC
+			""")
+    List<UserSentenceAnswer> findRecentSubmittedByParagraphAndOrderExcludingUser(
+            @Param("paragraphId") Long paragraphId,
+            @Param("orderIndex") Integer orderIndex,
+            @Param("excludeUserId") Long excludeUserId,
+            @Param("scoreBand") int scoreBand,
+            Pageable pageable);
 }
