@@ -6,12 +6,12 @@ import Cookies from "js-cookie";
 import { useLoginMutation } from "../mutation";
 import { loginInputSchema, type LoginInput } from "../../../entities/auth/schema";
 import { useProfileData, PROFILE_EMBED_PRACTICESTATS } from "../../profile/query";
-import logo from "../../../assets/image/logo4.png";
 import { useProfileStore } from "../../../stores/profile";
 import { Mail, Lock, Eye, EyeOff } from 'lucide-react';
 import { useState } from 'react';
 import { ACCESS_TOKEN_EXPIRE_TIME } from "../constant";
 import { getRuntimeEnv } from "../../../shared/config/runtime-env";
+import logo from "../../../assets/image/logo3.png";
 const Login = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -24,8 +24,8 @@ const Login = () => {
   const method = useForm<LoginInput>({
     mode: "onBlur",
     defaultValues: {
-      username: "john_doe",
-      password: "password123",
+      username: "",
+      password: "",
     },
     resolver: zodResolver(loginInputSchema),
   });

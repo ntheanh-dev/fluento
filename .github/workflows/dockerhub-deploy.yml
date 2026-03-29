@@ -12,8 +12,8 @@ env:
   # Docker Hub username (e.g. ntaanh)
   DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
   # Optional: override repository names via secrets if you want
-  BACKEND_IMAGE_NAME: ${{ secrets.BACKEND_IMAGE_NAME || 'fluento-backend' }}
-  FRONTEND_IMAGE_NAME: ${{ secrets.FRONTEND_IMAGE_NAME || 'fluento-frontend' }}
+  BACKEND_IMAGE_NAME: ${{ secrets.BACKEND_IMAGE_NAME || 'luyenviet-backend' }}
+  FRONTEND_IMAGE_NAME: ${{ secrets.FRONTEND_IMAGE_NAME || 'luyenviet-frontend' }}
 
 jobs:
   build-and-push:

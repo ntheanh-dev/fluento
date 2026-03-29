@@ -10,7 +10,7 @@ logging:
 
 spring:
   datasource:
-    url: "jdbc:mysql://localhost:3306/fluento?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC"
+    url: "jdbc:mysql://localhost:3306/luyenviet?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC"
     username: "root"
     password: "Admin@123"
     driverClassName: com.mysql.cj.jdbc.Driver
@@ -84,4 +84,4 @@ cloudinary:
   api-key: 247473939561997
   api-secret: lZZWOntBPCDWEnECsmWIalOtl08
   secure: true
-  folder: fluento
+  folder: luyenviet

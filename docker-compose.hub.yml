@@ -3,7 +3,7 @@ version: '3.8'
 services:
   mysql:
     image: mysql:8.0
-    container_name: fluento-mysql-hub
+    container_name: luyenviet-mysql-hub
     restart: unless-stopped
     # VPS ~2GB: giữ MySQL gọn trong cgroup; chỉnh thêm để tránh MySQL tự xin RAM lớn
     mem_limit: 512m
@@ -14,14 +14,14 @@ services:
     expose:
       - "3306"
     environment:
-      MYSQL_DATABASE: ${MYSQL_DATABASE:-fluento}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-luyenviet}
       MYSQL_USER: ${MYSQL_USER:-app_user}
       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
     volumes:
       - ./mysql_data_hub:/var/lib/mysql
     networks:
-      - fluento
+      - luyenviet
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
       timeout: 20s
@@ -30,8 +30,8 @@ services:
       start_period: 30s
 
   backend:
-    image: ${DOCKERHUB_USERNAME:-theanhn28}/fluento-backend:${IMAGE_TAG:-latest}
-    container_name: fluento-backend-hub
+    image: ${DOCKERHUB_USERNAME:-theanhn28}/luyenviet-backend:${IMAGE_TAG:-latest}
+    container_name: luyenviet-backend-hub
     restart: unless-stopped
     # JVM mặc định ~25% cgroup → heap quá nhỏ; 70% của 768m ≈ heap hợp lý cho Spring trên 2GB VPS
     mem_limit: 768m
@@ -42,9 +42,9 @@ services:
       SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-hub}
       FRONTEND_DOMAIN: ${FRONTEND_DOMAIN:-http://localhost:1234}
       CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-http://localhost:1234}
-      LOG_PATH: ${LOG_PATH:-/var/log/fluento}
+      LOG_PATH: ${LOG_PATH:-/var/log/luyenviet}
 
-      DB_URL: ${DB_URL:-jdbc:mysql://mysql:3306/fluento?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC}
+      DB_URL: ${DB_URL:-jdbc:mysql://mysql:3306/luyenviet?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC}
       DB_USERNAME: ${DB_USERNAME:-root}
       DB_PASSWORD: ${DB_PASSWORD}
 
@@ -57,7 +57,7 @@ services:
       CLOUDINARY_CLOUD_NAME: ${CLOUDINARY_CLOUD_NAME}
       CLOUDINARY_API_KEY: ${CLOUDINARY_API_KEY}
       CLOUDINARY_API_SECRET: ${CLOUDINARY_API_SECRET}
-      CLOUDINARY_FOLDER: ${CLOUDINARY_FOLDER:-fluento}
+      CLOUDINARY_FOLDER: ${CLOUDINARY_FOLDER:-luyenviet}
 
       # Optional AI envs (default to empty)
       OPENAI_API_KEY: ${OPENAI_API_KEY:-}
@@ -73,14 +73,14 @@ services:
       interval: 10s
       start_period: 20s
     networks:
-      - fluento
+      - luyenviet
     volumes:
-      - ./logs:/var/log/fluento
+      - ./logs:/var/log/luyenviet
 
   # Frontend React from Docker Hub
   frontend:
-    image: ${DOCKERHUB_USERNAME:-theanhn28}/fluento-frontend:${IMAGE_TAG:-latest}
-    container_name: fluento-frontend-hub
+    image: ${DOCKERHUB_USERNAME:-theanhn28}/luyenviet-frontend:${IMAGE_TAG:-latest}
+    container_name: luyenviet-frontend-hub
     restart: unless-stopped
     ports:
       - "${FRONTEND_PORT:-1234}:80"
@@ -93,7 +93,7 @@ services:
       backend:
         condition: service_healthy
     networks:
-      - fluento
+      - luyenviet
     healthcheck:
       test: ["CMD", "curl", "-fsS", "http://localhost/"]
       timeout: 5s
@@ -102,7 +102,7 @@ services:
       start_period: 10s
 
 networks:
-  fluento:
+  luyenviet:
     driver: bridge
 
 volumes:

@@ -95,7 +95,7 @@ public class Service {
                 if (StringUtils.hasText(user.getUrlAvatar())) {
                     cloudinaryFileUploadService.deleteFile(user.getUrlAvatar());
                 }
-                Map<String, Object> uploadResult = cloudinaryFileUploadService.uploadFile(avatar, "fluento/avatar");
+                Map<String, Object> uploadResult = cloudinaryFileUploadService.uploadFile(avatar, "luyenviet/avatar");
                 user.setUrlAvatar(uploadResult.get("url").toString());
             } catch (IOException e) {
                 throw new AppException(ErrorCode.UPLOAD_FILE_ERROR);

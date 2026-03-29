@@ -56,10 +56,9 @@ const PracticeSetup = () => {
         message?: string;
       };
       if (err.response?.data?.code === 1102) {
-        message.error({
+        message.warning({
           content:
-            "Bạn cần thêm API key để sử dụng tính năng này. Nhấn vào đây để thêm ngay!",
-          onClick: () => navigate("/profile"),
+            "Bạn cần thêm API key trong profile để sử dụng tính năng này",
           pauseOnHover: true,
           duration: 5,
         });

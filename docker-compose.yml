@@ -4,12 +4,12 @@ services:
   # MySQL Database
   mysql:
     image: mysql:8.0
-    container_name: fluento-mysql
+    container_name: luyenviet-mysql
     restart: unless-stopped
     expose:
       - "3306"
     environment:
-      MYSQL_DATABASE: ${MYSQL_DATABASE:-fluento}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-luyenviet}
       MYSQL_USER: ${MYSQL_USER:-app_user}
       MYSQL_PASSWORD: ${MYSQL_PASSWORD:-password}
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-rootpassword}
@@ -17,25 +17,25 @@ services:
       - ./mysql_data:/var/lib/mysql
       - ./backend/src/main/resources/db:/docker-entrypoint-initdb.d
     networks:
-      - fluento-network
+      - luyenviet-network
 
   # Backend Spring Boot
   backend:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    container_name: fluento-backend
+    container_name: luyenviet-backend
     restart: unless-stopped
     environment:
       - SPRING_PROFILES_ACTIVE=hub
       - FRONTEND_DOMAIN=http://localhost:1234
-      - LOG_PATH=/var/log/fluento
+      - LOG_PATH=/var/log/luyenviet
     volumes:
-      - ./logs:/var/log/fluento
+      - ./logs:/var/log/luyenviet
     depends_on:
       - mysql
     networks:
-      - fluento-network
+      - luyenviet-network
 
   # Frontend React
   frontend:
@@ -47,19 +47,19 @@ services:
         - VITE_GOOGLE_CLIENT_ID=940316326175-8jma9br9b2j1cjgqu992v3a693euvr6c.apps.googleusercontent.com
         - VITE_GOOGLE_REDIRECT_URI=http://localhost:1234/oauth/authenticate
         - VITE_GOOGLE_AUTH_URI=https://accounts.google.com/o/oauth2/v2/auth
-    container_name: fluento-frontend
+    container_name: luyenviet-frontend
     restart: unless-stopped
     ports:
       - "1234:80"
     depends_on:
       - backend
     networks:
-      - fluento-network
+      - luyenviet-network
 
 volumes:
   mysql_data:
     driver: local
 
 networks:
-  fluento-network:
+  luyenviet-network:
     driver: bridge

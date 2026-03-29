@@ -14,11 +14,11 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableFeignClients
 @EnableJpaAuditing
 @EnableScheduling
-public class FluentoApplication {
+public class LuyenvietApplication {
 
     public static void main(String[] args) {
 
-        SpringApplication.run(FluentoApplication.class, args);
+        SpringApplication.run(LuyenvietApplication.class, args);
     }
 
     /** JDBC/JPA/Jackson: lưu và so sánh timestamp nhất quán UTC. Ngày nghiệp vụ dùng {@code app.time-zone}. */

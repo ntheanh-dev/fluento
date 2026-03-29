@@ -2,8 +2,8 @@
 <configuration>
     <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
     <!-- ====== PROPERTIES ====== -->
-    <property name="APP_NAME" value="fluento"/>
-    <property name="LOG_PATH" value="${LOG_PATH:-/var/log/fluento}"/>
+    <property name="APP_NAME" value="luyenviet"/>
+    <property name="LOG_PATH" value="${LOG_PATH:./logs}"/>
     <property name="LOG_FILE" value="${LOG_PATH}/${APP_NAME}.log"/>
 
     <property name="LOG_PATTERN"

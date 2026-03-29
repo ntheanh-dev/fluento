@@ -48,7 +48,7 @@ const Dashboard = () => {
             </>
           ) : (
             <>
-              <h1 className="text-2xl md:text-3xl font-bold text-slate-900 dark:text-slate-100">Chào mừng bạn đến với Fluento! 👋</h1>
+              <h1 className="text-2xl md:text-3xl font-bold text-slate-900 dark:text-slate-100">Chào mừng bạn đến với Luyenviet! 👋</h1>
               {profile?.activeApiKeyId ? (
                 <>
                   <p className="text-slate-500 dark:text-slate-400 mt-2 text-sm md:text-base">

@@ -10,7 +10,7 @@ import {
 
 export type ThemeMode = "light" | "dark";
 
-const STORAGE_KEY = "fluento-theme";
+const STORAGE_KEY = "luyenviet-theme";
 
 function readStoredTheme(): ThemeMode {
   if (typeof window === "undefined") return "light";

@@ -9,10 +9,10 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.nta</groupId>
-    <artifactId>fluento</artifactId>
-    <name>fluento</name>
+    <artifactId>luyenviet</artifactId>
+    <name>luyenviet</name>
     <version>0.0.1-SNAPSHOT</version>
-    <description>Fluento</description>
+    <description>Luyenviet</description>
     <properties>
         <java.version>21</java.version>
         <projectlombok-lombok.version>1.18.30</projectlombok-lombok.version>

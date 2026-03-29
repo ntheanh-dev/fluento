@@ -27,11 +27,11 @@ public class OpenApiDocConfig {
                                         .scheme("bearer")
                                         .bearerFormat("JWT")))
                 .addServersItem(new Server().url("http://localhost:8080/api").description("Local"))
-                .addServersItem(new Server().url("https://api.fluento.com").description("Production"))
+                .addServersItem(new Server().url("https://api.luyenviet.com").description("Production"))
                 .info(new Info()
-                        .title("Fluento API")
+                        .title("Luyenviet API")
                         .version("v1.0")
-                        .description("Fluento Application APIs")
+                        .description("Luyenviet Application APIs")
                         .license(new License().name("Apache 2.0").url("https://www.apache.org/licenses/LICENSE-2.0")));
     }
 

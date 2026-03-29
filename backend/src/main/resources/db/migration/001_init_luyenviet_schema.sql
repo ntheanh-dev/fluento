@@ -1,9 +1,9 @@
--- Fluento Database Initialization Script
--- This script creates the complete database schema for Fluento application
+-- Luyenviet Database Initialization Script
+-- This script creates the complete database schema for Luyenviet application
 
 -- Create database if not exists
-CREATE DATABASE IF NOT EXISTS fluento CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-USE fluento;
+CREATE DATABASE IF NOT EXISTS luyenviet CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE luyenviet;
 
 -- ==============================================
 -- 1. PERMISSIONS TABLE
@@ -273,4 +273,4 @@ INSERT IGNORE INTO topics (name, description, topic_group_id) VALUES
 -- ==============================================
 -- COMPLETION MESSAGE
 -- ==============================================
-SELECT 'Fluento database schema initialized successfully!' as message;
+SELECT 'Luyenviet database schema initialized successfully!' as message;

@@ -8,9 +8,8 @@ import Cookies from "js-cookie";
 import { useRegisterMutation } from "../mutation";
 import { registerInputSchema, type RegisterInput } from "../../../entities/auth/schema";
 import { useProfileData, PROFILE_EMBED_PRACTICESTATS } from "../../profile/query";
-import logo from "../../../assets/image/logo4.png";
+import logo from "../../../assets/image/logo3.png";
 import { useProfileStore } from "../../../stores/profile";
-
 const Register = () => {
     const navigate = useNavigate();
     const [showPassword, setShowPassword] = useState(false);
@@ -66,13 +65,15 @@ const Register = () => {
 
     return (
         <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex items-center justify-center p-4">
+
             <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-xl w-full max-w-md overflow-hidden border border-slate-200 dark:border-slate-700">
-                <div className="p-8">
-                    <div className=" text-center flex justify-center flex-col items-center">
-                        <div className="rounded-md w-56 h-36 flex items-center justify-center">
-                            <img src={logo} alt="logo" />
-                        </div>
+                <div className="p-2 bg-blue-600 text-center flex justify-center flex-col items-center">
+                    <div className="rounded-md w-56 h-36 flex items-center justify-center">
+                        <img src={logo} alt="logo" />
                     </div>
+                </div>
+                <div className="p-8">
+
 
                     <form onSubmit={onSubmit} className="space-y-5">
                         <div className="space-y-2">

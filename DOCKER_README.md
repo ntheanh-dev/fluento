@@ -1,4 +1,4 @@
-# Fluento - Docker Setup
+# Luyenviet - Docker Setup
 
 ## 🚀 Quick Start
 
@@ -136,7 +136,7 @@ docker-compose logs backend | tail -20
 
 ## 📁 Project Structure
 ```
-fluento/
+luyenviet/
 ├── backend/
 │   ├── Dockerfile
 │   ├── .dockerignore

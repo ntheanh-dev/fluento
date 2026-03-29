@@ -39,7 +39,7 @@ public class CloudinaryConfig {
     /**
      * Default folder for uploaded files
      */
-    private String folder = "fluento";
+    private String folder = "luyenviet";
 
     /**
      * Creates and configures Cloudinary bean.
