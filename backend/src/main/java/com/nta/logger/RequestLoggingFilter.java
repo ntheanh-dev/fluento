@@ -55,9 +55,24 @@ public class RequestLoggingFilter extends OncePerRequestFilter {
             throw ex;
         } finally {
             long duration = System.currentTimeMillis() - startTime;
-            log.info(
-                    "{} {} - {} ({} ms)", request.getMethod(), request.getRequestURI(), response.getStatus(), duration);
+            if (!isActuatorHealthProbe(request)) {
+                log.info(
+                        "{} {} - {} ({} ms)",
+                        request.getMethod(),
+                        request.getRequestURI(),
+                        response.getStatus(),
+                        duration);
+            }
             MDC.clear();
         }
+    }
+
+    /** Docker/Spring health checks — skip access line to avoid filling logs. */
+    private static boolean isActuatorHealthProbe(HttpServletRequest request) {
+        if (!"GET".equalsIgnoreCase(request.getMethod())) {
+            return false;
+        }
+        String uri = request.getRequestURI();
+        return uri != null && uri.contains("/actuator/health");
     }
 }

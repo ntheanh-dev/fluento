@@ -5,6 +5,12 @@ services:
     image: mysql:8.0
     container_name: fluento-mysql-hub
     restart: unless-stopped
+    # VPS ~2GB: giữ MySQL gọn trong cgroup; chỉnh thêm để tránh MySQL tự xin RAM lớn
+    mem_limit: 512m
+    command: >
+      --innodb-buffer-pool-size=256M
+      --performance-schema=OFF
+      --max_connections=100
     expose:
       - "3306"
     environment:
@@ -27,9 +33,12 @@ services:
     image: ${DOCKERHUB_USERNAME:-theanhn28}/fluento-backend:${IMAGE_TAG:-latest}
     container_name: fluento-backend-hub
     restart: unless-stopped
+    # JVM mặc định ~25% cgroup → heap quá nhỏ; 70% của 768m ≈ heap hợp lý cho Spring trên 2GB VPS
+    mem_limit: 768m
     expose:
       - "8080"
     environment:
+      JAVA_TOOL_OPTIONS: ${JAVA_TOOL_OPTIONS:--XX:MaxRAMPercentage=70.0 -XX:+ExitOnOutOfMemoryError}
       SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-hub}
       FRONTEND_DOMAIN: ${FRONTEND_DOMAIN:-http://localhost:1234}
       CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-http://localhost:1234}
