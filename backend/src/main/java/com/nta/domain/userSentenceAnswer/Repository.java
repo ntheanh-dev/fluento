@@ -74,7 +74,6 @@ public interface Repository extends JpaRepository<UserSentenceAnswer, Long> {
 			AND a.orderIndex = :orderIndex
 			AND a.isSubmitted = true
 			AND p.user.id <> :excludeUserId
-			AND a.score IS NOT NULL
 			AND (
 				(:scoreBand = 0 AND a.score <= 7.0)
 				OR (:scoreBand = 1 AND a.score > 7.0 AND a.score <= 8.0)

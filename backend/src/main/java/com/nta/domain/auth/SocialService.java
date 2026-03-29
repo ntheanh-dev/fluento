@@ -1,5 +1,6 @@
 package com.nta.domain.auth;
 
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Stream;
@@ -77,6 +78,9 @@ public class SocialService {
                         .username(userInfo.getEmail())
                         .fullName(fullName)
                         .urlAvatar(userInfo.getPicture())
+                        .credits(0)
+                        .createdAt(LocalDateTime.now())
+                        .currentStreak(0)
                         .roles(roles)
                         .build()));
 

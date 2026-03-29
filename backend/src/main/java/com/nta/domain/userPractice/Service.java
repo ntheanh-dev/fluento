@@ -226,7 +226,7 @@ public class Service {
         if (dayDiff == 1) {
             int newStreak = currentStreak + 1;
             user.setCurrentStreak(newStreak);
-
+            log.info("Streak increased for user: {}", user.getUsername());
             if (newStreak > longestStreak) {
                 user.setLongestStreak(newStreak);
             }
@@ -234,6 +234,7 @@ public class Service {
         } else {
             // Case 4: missed at least 1 calendar day -> reset to 1 on today's submit
             user.setCurrentStreak(1);
+            log.info("Streak reset for user: {}", user.getUsername());
         }
 
         user.setLastSubmissionDate(today);

@@ -143,11 +143,11 @@ public class Service {
                 streakUpdated = true;
             }
         } else {
-            // Nếu ngày nộp bài gần nhất đã trước hôm qua (tức là bỏ qua ít nhất 1 ngày)
             LocalDate yesterday = today.minusDays(1);
             if (lastDate.isBefore(yesterday) && currentStreak != null && currentStreak != 0) {
                 user.setCurrentStreak(0);
                 streakUpdated = true;
+                log.info("Streak reset for user: {}", user.getUsername());
             }
         }
 
