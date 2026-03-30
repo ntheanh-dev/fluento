@@ -1,17 +1,87 @@
 <!doctype html>
-<html lang="en">
+<html lang="vi">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/png" href="/src/assets/image/logo.png" />
+    <link rel="icon" type="image/png" href="/src/assets/image/logo2.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1" />
+    <meta name="author" content="LuyenViet" />
+    <meta name="theme-color" content="#ffffff" />
+    <meta name="description" content="LuyenViet giup ban luyen tap tieng Viet moi ngay voi bai tap thong minh, goi y theo trinh do va lo trinh hoc ca nhan hoa." />
+    <meta name="keywords" content="luyen viet, hoc tieng viet, tieng viet online, luyen tap tieng viet, language learning" />
+    <link id="seo-canonical" rel="canonical" href="/home" />
+    <link id="seo-alternate-vi" rel="alternate" href="/home" hreflang="vi-VN" />
+    <link id="seo-alternate-default" rel="alternate" href="/home" hreflang="x-default" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="LuyenViet" />
+    <meta property="og:title" content="LuyenViet - Nen tang luyen tap tieng Viet" />
+    <meta property="og:description" content="LuyenViet giup ban luyen tap tieng Viet moi ngay voi bai tap thong minh va lo trinh hoc ca nhan hoa." />
+    <meta id="seo-og-url" property="og:url" content="/home" />
+    <meta id="seo-og-image" property="og:image" content="/src/assets/image/logo2.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="LuyenViet - Nen tang luyen tap tieng Viet" />
+    <meta name="twitter:description" content="LuyenViet giup ban luyen tap tieng Viet moi ngay voi bai tap thong minh va lo trinh hoc ca nhan hoa." />
+    <meta id="seo-twitter-image" name="twitter:image" content="/src/assets/image/logo2.png" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
 
-    <title>Luyenviet - Language Learning Platform</title>
+    <title>LuyenViet | Luyen tap tieng Viet hieu qua moi ngay</title>
+    <script id="seo-structured-data" type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "LuyenViet",
+        "url": "/home",
+        "inLanguage": "vi-VN",
+        "description": "LuyenViet giup ban luyen tap tieng Viet moi ngay voi bai tap thong minh va lo trinh hoc ca nhan hoa."
+      }
+    </script>
     <!-- Runtime environment variables (generated at container start) -->
     <script src="/env.js" data-vite-ignore></script>
+    <script>
+      (function () {
+        var runtimeSiteUrl =
+          (window.__ENV__ &&
+            window.__ENV__.VITE_SITE_URL &&
+            String(window.__ENV__.VITE_SITE_URL).trim()) ||
+          "";
+        var origin = runtimeSiteUrl || window.location.origin || "";
+        var normalizedOrigin = origin.replace(/\/+$/, "");
+        var homeUrl = normalizedOrigin ? normalizedOrigin + "/home" : "/home";
+        var imageUrl = normalizedOrigin
+          ? normalizedOrigin + "/src/assets/image/logo2.png"
+          : "/src/assets/image/logo2.png";
+
+        var canonicalEl = document.getElementById("seo-canonical");
+        var alternateViEl = document.getElementById("seo-alternate-vi");
+        var alternateDefaultEl = document.getElementById("seo-alternate-default");
+        var ogUrlEl = document.getElementById("seo-og-url");
+        var ogImageEl = document.getElementById("seo-og-image");
+        var twitterImageEl = document.getElementById("seo-twitter-image");
+        var structuredDataEl = document.getElementById("seo-structured-data");
+
+        if (canonicalEl) canonicalEl.setAttribute("href", homeUrl);
+        if (alternateViEl) alternateViEl.setAttribute("href", homeUrl);
+        if (alternateDefaultEl) alternateDefaultEl.setAttribute("href", homeUrl);
+        if (ogUrlEl) ogUrlEl.setAttribute("content", homeUrl);
+        if (ogImageEl) ogImageEl.setAttribute("content", imageUrl);
+        if (twitterImageEl) twitterImageEl.setAttribute("content", imageUrl);
+
+        if (structuredDataEl) {
+          structuredDataEl.textContent = JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "WebSite",
+            name: "LuyenViet",
+            url: homeUrl,
+            inLanguage: "vi-VN",
+            description:
+              "LuyenViet giup ban luyen tap tieng Viet moi ngay voi bai tap thong minh va lo trinh hoc ca nhan hoa.",
+          });
+        }
+      })();
+    </script>
     <script>
       (function () {
         try {
