@@ -80,7 +80,7 @@ export default function AddApiKeyDialog({
                 >
                     <Input.Password
                         placeholder="Nhập khóa API"
-                        className="rounded-lg"
+                        className="rounded-lg text-base"
                         autoComplete="off"
                     />
                 </Form.Item>

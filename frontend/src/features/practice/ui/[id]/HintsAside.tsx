@@ -276,9 +276,9 @@ export const VocabularyHintsAside = ({
                                 );
                             })}
                         </div>
-                        <div className="flex items-center gap-2 mb-3">
+                        <div className="flex items-center justify-center gap-2 mb-3">
                             {isLoadingCommunity && (
-                                <Loader2 className="size-3.5 animate-spin text-slate-400 ml-auto shrink-0" aria-hidden />
+                                <Loader2 className="size-3.5 animate-spin text-slate-400 shrink-0" aria-hidden />
                             )}
                         </div>
                         {isCommunityError && (

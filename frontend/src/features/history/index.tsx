@@ -40,13 +40,57 @@ const TOPICS: { key: string; label: string }[] = [
     { key: "TECHNOLOGY", label: "Công nghệ" },
     { key: "CULTURE", label: "Văn hóa" },
     { key: "FOOD", label: "Ẩm thực" },
+    { key: "ENVIRONMENT", label: "Môi trường" },
     { key: "HEALTH", label: "Sức khỏe" },
     { key: "EDUCATION", label: "Giáo dục" },
+    { key: "FITNESS", label: "Thể hình" },
+    { key: "YOGA", label: "Yoga" },
+    { key: "NUTRITION", label: "Dinh dưỡng" },
+    { key: "MENTAL_HEALTH", label: "Sức khỏe tinh thần" },
+    { key: "MEDICINE", label: "Y học" },
     { key: "TRAVEL", label: "Du lịch" },
+    { key: "TOURISM", label: "Lữ hành" },
+    { key: "COUNTRIES", label: "Các quốc gia" },
+    { key: "LANDMARKS", label: "Danh lam thắng cảnh" },
+    { key: "TRANSPORTATION", label: "Giao thông vận tải" },
+    { key: "WEATHER", label: "Thời tiết" },
     { key: "BUSINESS", label: "Kinh doanh" },
     { key: "SCIENCE", label: "Khoa học" },
+    { key: "ECONOMICS", label: "Kinh tế học" },
+    { key: "MARKETING", label: "Marketing" },
+    { key: "FINANCE", label: "Tài chính" },
+    { key: "STARTUPS", label: "Khởi nghiệp" },
+    { key: "ECOMMERCE", label: "Thương mại điện tử" },
+    { key: "ART", label: "Nghệ thuật" },
+    { key: "HISTORY", label: "Lịch sử" },
+    { key: "LITERATURE", label: "Văn học" },
+    { key: "PHILOSOPHY", label: "Triết học" },
+    { key: "PSYCHOLOGY", label: "Tâm lý học" },
+    { key: "MUSIC", label: "Âm nhạc" },
+    { key: "MOVIES", label: "Điện ảnh" },
+    { key: "THEATRE", label: "Sân khấu" },
+    { key: "FASHION", label: "Thời trang" },
+    { key: "GAMES", label: "Trò chơi" },
     { key: "SPORTS", label: "Thể thao" },
     { key: "ENTERTAINMENT", label: "Giải trí" },
+    { key: "POLITICS", label: "Chính trị" },
+    { key: "RELIGION", label: "Tôn giáo" },
+    { key: "SOCIETY", label: "Xã hội" },
+    { key: "SHOPPING", label: "Mua sắm" },
+    { key: "HOUSEWORK", label: "Việc nhà" },
+    { key: "RELATIONSHIPS", label: "Các mối quan hệ" },
+    { key: "PETS", label: "Thú cưng" },
+    { key: "HOLIDAYS", label: "Ngày lễ" },
+    { key: "CLIMATE_CHANGE", label: "Biến đổi khí hậu" },
+    { key: "SUSTAINABILITY", label: "Phát triển bền vững" },
+    { key: "GLOBALIZATION", label: "Toàn cầu hóa" },
+    { key: "POVERTY", label: "Nghèo đói" },
+    { key: "HUMAN_RIGHTS", label: "Nhân quyền" },
+    { key: "PARENTING", label: "Nuôi dạy con" },
+    { key: "MARRIAGE", label: "Hôn nhân" },
+    { key: "COMMUNITY", label: "Cộng đồng" },
+    { key: "VOLUNTEERING", label: "Tình nguyện" },
+    { key: "TRADITIONS", label: "Truyền thống" },
 ];
 
 const LEVELS = [
@@ -253,7 +297,7 @@ const PracticeHistory = () => {
                         <Input
                             prefix={<Search className="text-slate-400 w-3.5 h-3.5" />}
                             placeholder="Tìm kiếm..."
-                            className="w-full py-1.5 rounded-lg border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-400 text-xs hover:border-[#198de6] focus:border-[#198de6]"
+                            className="w-full py-1.5 rounded-lg border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-400 text-base hover:border-[#198de6] focus:border-[#198de6]"
                             variant="borderless"
                             value={searchInput}
                             onChange={(e) => setSearchInput(e.target.value)}
