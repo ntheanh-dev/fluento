@@ -46,17 +46,17 @@ export default function AddApiKeyDialog({
             <p className="text-slate-500 text-sm mb-2">
                 Nhập khóa API Gemini. Khóa sẽ được mã hóa và dùng cho các mô hình AI của bạn.
             </p>
-            <div className="rounded-lg bg-slate-50 border border-slate-100 p-3 mb-4">
-                <p className="text-slate-600 text-xs font-medium mb-1">
+            <div className="rounded-lg bg-slate-50 dark:bg-slate-800/70 border border-slate-100 dark:border-slate-700 p-3 mb-4">
+                <p className="text-slate-600 dark:text-slate-200 text-xs font-medium mb-1">
                     Lấy API key ở đâu?
                 </p>
-                <p className="text-slate-500 text-xs">
+                <p className="text-slate-500 dark:text-slate-300 text-xs">
                     Truy cập{" "}
                     <a
                         href="https://aistudio.google.com/apikey"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-primary hover:underline"
+                        className="text-primary dark:text-sky-400 hover:underline"
                     >
                         Google AI Studio
                     </a>

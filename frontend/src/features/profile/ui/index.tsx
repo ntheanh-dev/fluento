@@ -18,7 +18,7 @@ import {
   ALLOWED_IMAGE_TYPES,
 } from "../../../shared/validation/constant";
 import ApiKeysSection from "./ApiKeysSection";
-import { formatTotalHours } from "@/utils/utils";
+import { formatTotalHours, getLevel } from "@/utils/utils";
 import { useLogoutMutation } from "@/features/auth/mutation";
 import Cookies from "js-cookie";
 import { useNavigate } from "react-router-dom";
@@ -142,7 +142,7 @@ const Profile = () => {
             <h2 className="text-xl font-bold text-slate-800 dark:text-slate-100">
               {profile?.fullName}
             </h2>
-            <p className="text-xs text-slate-500 dark:text-slate-400">Trung cấp</p>
+            <p className="text-xs text-slate-500 dark:text-slate-400">{getLevel(profile?.embedded?.totalUserSentenceAnswers ?? 0)}</p>
           </div>
 
           {/* Navigation Menu */}

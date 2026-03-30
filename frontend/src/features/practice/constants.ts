@@ -122,7 +122,7 @@ export const TOPIC_GROUPS = [
   
   export const TONES = [
     { value: "FORMAL", label: "Trang trọng" },
-    { value: "INFORMAL", label: "Không trang trọng" },
+    { value: "INFORMAL", label: "Văn phong" },
     { value: "FRIENDLY", label: "Thân thiện" },
     { value: "PROFESSIONAL", label: "Chuyên nghiệp" },
   ];

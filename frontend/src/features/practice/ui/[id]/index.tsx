@@ -314,7 +314,7 @@ const SentencePracticePage = () => {
           {/* English Translation Flow (Input) */}
           <div className="flex-[2] flex flex-col flex-1">
             <textarea
-              className="w-full p-4 rounded-lg sm:rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/80 focus:bg-white dark:focus:bg-slate-900 focus:ring-2 focus:ring-blue-100 dark:focus:ring-blue-900 focus:border-blue-400 outline-none text-sm sm:text-sm text-slate-900 dark:text-slate-100 transition-all resize-none min-h-[72px] sm:min-h-[80px]"
+              className="w-full p-4 rounded-lg sm:rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/80 focus:bg-white dark:focus:bg-slate-900 focus:ring-2 focus:ring-blue-100 dark:focus:ring-blue-900 focus:border-blue-400 outline-none text-base text-slate-900 dark:text-slate-100 transition-all resize-none min-h-[72px] sm:min-h-[80px]"
               placeholder="Nhập câu dịch của bạn ở đây..."
               rows={2}
               value={translation}

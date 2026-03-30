@@ -21,6 +21,7 @@ import { getHistory, type GetHistoryParams } from "./api";
 import { OK } from "@/shared/api/query-keys";
 import { APP_TIME_ZONE } from "@/shared/utilities/date";
 import type { UserPractice } from "@/entities/userPractice/schema";
+import { useDebounce } from "@/shared/hooks/useDebounce";
 
 const PAGE_SIZE = 6;
 
@@ -113,6 +114,7 @@ const PracticeHistory = () => {
     const page = parsePage(searchParams.get(PAGE));
 
     const [searchInput, setSearchInput] = useState(searchText);
+    const debouncedSearch = useDebounce(searchInput, 450);
     useEffect(() => {
         setSearchInput(searchText);
     }, [searchText]);
@@ -156,9 +158,11 @@ const PracticeHistory = () => {
         queryFn: () => getHistory(queryParams),
     });
 
-    const handleSearch = () => {
-        updateParams({ [SEARCH]: searchInput.trim(), [PAGE]: 1 });
-    };
+    useEffect(() => {
+        const trimmedSearch = debouncedSearch.trim();
+        if (trimmedSearch === searchText) return;
+        updateParams({ [SEARCH]: trimmedSearch, [PAGE]: 1 });
+    }, [debouncedSearch, searchText, updateParams]);
 
     const typeMenuItems: MenuProps["items"] = PARAGRAPH_TYPES.map((t) => ({
         key: t.key,
@@ -245,24 +249,15 @@ const PracticeHistory = () => {
                         </Dropdown>
                     </div>
 
-                    <div className="relative w-full lg:w-64 flex gap-2">
+                    <div className="relative w-full lg:w-64">
                         <Input
                             prefix={<Search className="text-slate-400 w-3.5 h-3.5" />}
                             placeholder="Tìm kiếm..."
-                            className="w-full py-1.5 rounded-lg border-slate-200 bg-slate-50 text-slate-900 placeholder-slate-400 text-xs hover:border-[#198de6] focus:border-[#198de6]"
+                            className="w-full py-1.5 rounded-lg border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-400 text-xs hover:border-[#198de6] focus:border-[#198de6]"
                             variant="borderless"
-                            style={{ border: "1px solid #e2e8f0" }}
                             value={searchInput}
                             onChange={(e) => setSearchInput(e.target.value)}
-                            onPressEnter={handleSearch}
                         />
-                        <button
-                            type="button"
-                            onClick={handleSearch}
-                            className="shrink-0 px-3 py-1.5 rounded-lg bg-[#198de6] text-white text-xs font-medium hover:opacity-90"
-                        >
-                            Tìm kiếm
-                        </button>
                     </div>
                 </div>
             </div>

@@ -10,3 +10,9 @@ export function formatTotalHours(ms: number): string {
   const rounded = Math.round(totalHours * 10) / 10;
   return `${rounded}h`;
 }
+
+export function getLevel(sentenceCount: number): string {
+  if (sentenceCount < 150) return "Sơ cấp";
+  if (sentenceCount < 300) return "Trung cấp";
+  return "Chuyên nghiệp";
+}
