@@ -6,9 +6,11 @@ services:
     image: mysql:8.0
     container_name: luyenviet-mysql
     restart: unless-stopped
+    command: --default-time-zone='+07:00'
     expose:
       - "3306"
     environment:
+      TZ: ${TZ:-Asia/Ho_Chi_Minh}
       MYSQL_DATABASE: ${MYSQL_DATABASE:-luyenviet}
       MYSQL_USER: ${MYSQL_USER:-app_user}
       MYSQL_PASSWORD: ${MYSQL_PASSWORD:-password}
@@ -30,6 +32,9 @@ services:
       - SPRING_PROFILES_ACTIVE=hub
       - FRONTEND_DOMAIN=http://localhost:1234
       - LOG_PATH=/var/log/luyenviet
+      - TZ=${TZ:-Asia/Ho_Chi_Minh}
+      - APP_TIME_ZONE=${APP_TIME_ZONE:-Asia/Ho_Chi_Minh}
+      - JAVA_TOOL_OPTIONS=-Duser.timezone=${APP_TIME_ZONE:-Asia/Ho_Chi_Minh}
     volumes:
       - ./logs:/var/log/luyenviet
     depends_on:
@@ -49,6 +54,8 @@ services:
         - VITE_GOOGLE_AUTH_URI=https://accounts.google.com/o/oauth2/v2/auth
     container_name: luyenviet-frontend
     restart: unless-stopped
+    environment:
+      - TZ=${TZ:-Asia/Ho_Chi_Minh}
     ports:
       - "1234:80"
     depends_on:
