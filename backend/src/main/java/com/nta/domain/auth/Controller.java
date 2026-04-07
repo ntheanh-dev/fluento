@@ -77,7 +77,7 @@ public class Controller {
         ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", result.getRefreshToken())
                 .httpOnly(true)
                 .secure(true)
-                .sameSite("Strict")
+                .sameSite("none")
                 .path("/api/auth/refresh")
                 .maxAge(Duration.ofDays(refreshTokenValidDurationDays))
                 .build();
@@ -111,7 +111,7 @@ public class Controller {
         ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", result.getRefreshToken())
                 .httpOnly(true)
                 .secure(true)
-                .sameSite("Strict")
+                .sameSite("none")
                 .path("/api/auth/refresh")
                 .maxAge(Duration.ofDays(refreshTokenValidDurationDays))
                 .build();
