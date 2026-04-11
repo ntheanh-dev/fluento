@@ -28,6 +28,7 @@ import com.nta.common.service.ai.ClientKey;
 import com.nta.domain.apikey.ApiKey;
 import com.nta.domain.creditTransaction.CreditTransaction;
 
+import io.sentry.Sentry;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -120,6 +121,7 @@ public class GeminiChatService implements ChatService {
                     } catch (Exception parseEx) {
                         creditTransactionService.refundTransaction(tx.getId());
                         log.error("AI response parse failed after retry", parseEx);
+                        Sentry.captureException(parseEx);
                         throw new AppException(ErrorCode.AI_RESPONSE_PARSE_ERROR);
                     }
                 }
@@ -139,6 +141,8 @@ public class GeminiChatService implements ChatService {
                     apiKey.getModel().getApiValue(),
                     duration,
                     e);
+
+            Sentry.captureException(e);
 
             throw new AppException(ErrorCode.AI_RESPONSE_PARSE_ERROR);
         }

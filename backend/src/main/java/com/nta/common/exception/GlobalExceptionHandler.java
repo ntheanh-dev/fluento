@@ -17,6 +17,7 @@ import com.nta.common.dto.ApiResponse;
 import com.nta.common.enums.ErrorCode;
 
 import feign.FeignException;
+import io.sentry.Sentry;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -32,6 +33,8 @@ public class GlobalExceptionHandler {
                 e.getClass().getSimpleName(),
                 e.getMessage(),
                 e);
+
+        Sentry.captureException(e);
 
         ApiResponse<Object> apiResponse = new ApiResponse<>();
         apiResponse.setMessage("Something went wrong");
@@ -103,7 +106,10 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(FeignException.FeignClientException.class)
     ResponseEntity<ApiResponse<Object>> feignClientExeption(FeignException e) {
         log.error("Feign client error: {}", e.getMessage(), e);
-        return null;
+        ApiResponse<Object> apiResponse = new ApiResponse<>();
+        apiResponse.setCode(ErrorCode.TRY_AGAIN_LATER.getCode());
+        apiResponse.setMessage(ErrorCode.TRY_AGAIN_LATER.getMessage());
+        return ResponseEntity.status(ErrorCode.TRY_AGAIN_LATER.getStatusCode()).body(apiResponse);
     }
 
     @ExceptionHandler(value = AccessDeniedException.class)
@@ -133,6 +139,8 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(value = NonTransientAiException.class)
     ResponseEntity<ApiResponse> nonTransientAiException(NonTransientAiException e) {
         log.error("AI API error: {}", e.getMessage(), e);
+
+        Sentry.captureException(e);
 
         ApiResponse<Object> apiResponse = new ApiResponse<>();
 

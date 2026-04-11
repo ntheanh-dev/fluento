@@ -27,6 +27,7 @@ import com.nta.domain.user.dto.response.UserRankingResponse;
 import com.nta.domain.user.dto.response.UserResponse;
 import com.nta.domain.user.projection.UserRankingProjection;
 
+import io.sentry.Sentry;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -98,6 +99,7 @@ public class Service {
                 Map<String, Object> uploadResult = cloudinaryFileUploadService.uploadFile(avatar, "luyenviet/avatar");
                 user.setUrlAvatar(uploadResult.get("url").toString());
             } catch (IOException e) {
+                Sentry.captureException(e);
                 throw new AppException(ErrorCode.UPLOAD_FILE_ERROR);
             }
         }

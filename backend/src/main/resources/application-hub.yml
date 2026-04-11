@@ -89,3 +89,10 @@ cloudinary:
   api-secret: ${CLOUDINARY_API_SECRET:}
   secure: true
   folder: ${CLOUDINARY_FOLDER:luyenviet}
+
+# Profile hub = deploy production (Docker Hub / VPS). Local: sentry tắt ở application.yml.
+sentry:
+  enabled: true
+  dsn: ${SENTRY_DSN:}
+  environment: production
+  traces-sample-rate: ${SENTRY_TRACES_SAMPLE_RATE:0.1}
