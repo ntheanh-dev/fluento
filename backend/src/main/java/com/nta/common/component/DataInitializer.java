@@ -1,6 +1,15 @@
 package com.nta.common.component;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationRunner;
@@ -77,61 +86,110 @@ public class DataInitializer {
         @ConditionalOnProperty(name = "app.data-init.paragraphs.enabled", havingValue = "true")
         ApplicationRunner initParagraphsFromAi(
                 com.nta.domain.paragraph.Service paragraphService,
-                @Value("${app.data-init.paragraphs.max-combinations:0}") int maxCombinations,
-                @Value("${app.data-init.paragraphs.max-retries-per-item:20}") int maxRetriesPerItem) {
-            return args -> runParagraphAiSeed(paragraphService, maxCombinations, maxRetriesPerItem);
+                @Value("${app.data-init.paragraphs.max-retries-per-item:5}") int maxRetriesPerItem,
+                @Value("${app.data-init.paragraphs.parallelism:4}") int parallelism) {
+            return args -> runParagraphAiSeed(paragraphService, maxRetriesPerItem, parallelism);
         }
 
+        /**
+         * One task per (type, level, topic, tone, sentenceCount). Uses {@link com.nta.domain.paragraph.Service#findOrcreate}
+         * so an existing paragraph with the same setup is reused — no second row for the same combo. Parallelism is
+         * capped by {@code parallelism} (fixed pool).
+         */
         private void runParagraphAiSeed(
-                com.nta.domain.paragraph.Service paragraphService, int maxCombinations, int maxRetriesPerItem) {
-            int done = 0;
-            int failed = 0;
-            boolean stop = false;
+                com.nta.domain.paragraph.Service paragraphService, int maxRetriesPerItem, int parallelism) {
+            int poolSize = Math.max(1, parallelism);
+            AtomicInteger done = new AtomicInteger();
+            AtomicInteger failed = new AtomicInteger();
+
+            List<Callable<Void>> tasks = new ArrayList<>();
             for (Type type : Type.values()) {
-                if (stop) {
-                    break;
+                if (type == Type.SINGLE_SENTENCE) {
+                    continue;
                 }
                 for (Level level : Level.values()) {
-                    if (stop) {
-                        break;
-                    }
                     for (Topic topic : Topic.values()) {
-                        if (maxCombinations > 0 && done >= maxCombinations) {
-                            stop = true;
-                            break;
-                        }
-                        CreateParagraphRequest request = CreateParagraphRequest.builder()
-                                .type(type)
-                                .level(level)
-                                .topic(topic)
-                                .tone(Tone.FORMAL)
-                                .sentenceCount(defaultSentenceCount(type))
-                                .build();
-                        Paragraph saved = findOrcreateWithRetries(
-                                paragraphService, request, type, level, topic, maxRetriesPerItem);
-                        if (saved != null) {
-                            done++;
-                            log.info(
-                                    "Paragraph AI init: saved id={} type={} level={} topic={}",
-                                    saved.getId(),
-                                    type,
-                                    level,
-                                    topic);
-                        } else {
-                            failed++;
+                        for (Tone tone : Tone.values()) {
+                            for (SentenceCount sentenceCount : SentenceCount.values()) {
+                                CreateParagraphRequest request = CreateParagraphRequest.builder()
+                                        .type(type)
+                                        .level(level)
+                                        .topic(topic)
+                                        .tone(tone)
+                                        .sentenceCount(sentenceCount)
+                                        .build();
+                                tasks.add(() -> {
+                                    Paragraph saved = findOrCreateWithRetries(
+                                            paragraphService,
+                                            request,
+                                            type,
+                                            level,
+                                            topic,
+                                            tone,
+                                            sentenceCount,
+                                            maxRetriesPerItem);
+                                    if (saved != null) {
+                                        done.incrementAndGet();
+                                        log.info(
+                                                "Paragraph AI init: id={} type={} level={} topic={} tone={} sentences={}",
+                                                saved.getId(),
+                                                type,
+                                                level,
+                                                topic,
+                                                tone,
+                                                sentenceCount);
+                                    } else {
+                                        failed.incrementAndGet();
+                                    }
+                                    return null;
+                                });
+                            }
                         }
                     }
                 }
             }
-            log.info("Paragraph AI init finished: created={}, failed={}", done, failed);
+
+            if (tasks.isEmpty()) {
+                log.info("Paragraph AI init: no tasks (empty type set?)");
+                return;
+            }
+
+            ExecutorService executor = Executors.newFixedThreadPool(poolSize);
+            try {
+                List<Future<Void>> futures = executor.invokeAll(tasks);
+                for (Future<Void> future : futures) {
+                    try {
+                        future.get();
+                    } catch (ExecutionException e) {
+                        failed.incrementAndGet();
+                        log.error("Paragraph AI init task failed", e.getCause());
+                    }
+                }
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                log.error("Paragraph AI init interrupted", e);
+            } finally {
+                executor.shutdown();
+                try {
+                    if (!executor.awaitTermination(7, TimeUnit.DAYS)) {
+                        executor.shutdownNow();
+                    }
+                } catch (InterruptedException e) {
+                    executor.shutdownNow();
+                    Thread.currentThread().interrupt();
+                }
+            }
+            log.info("Paragraph AI init finished: created={}, failed={}", done.get(), failed.get());
         }
 
-        private Paragraph findOrcreateWithRetries(
+        private Paragraph findOrCreateWithRetries(
                 com.nta.domain.paragraph.Service paragraphService,
                 CreateParagraphRequest request,
                 Type type,
                 Level level,
                 Topic topic,
+                Tone tone,
+                SentenceCount sentenceCount,
                 int maxRetriesPerItem) {
             Exception last = null;
             for (int attempt = 1; attempt <= maxRetriesPerItem; attempt++) {
@@ -140,27 +198,27 @@ public class DataInitializer {
                 } catch (Exception e) {
                     last = e;
                     log.warn(
-                            "Paragraph AI init attempt {}/{} type={} level={} topic={}: {}",
+                            "Paragraph AI init attempt {}/{} type={} level={} topic={} tone={} sentences={}: {}",
                             attempt,
                             maxRetriesPerItem,
                             type,
                             level,
                             topic,
+                            tone,
+                            sentenceCount,
                             e.getMessage());
                 }
             }
             log.error(
-                    "Paragraph AI init gave up after {} attempts type={} level={} topic={}",
+                    "Paragraph AI init gave up after {} attempts type={} level={} topic={} tone={} sentences={}",
                     maxRetriesPerItem,
                     type,
                     level,
                     topic,
+                    tone,
+                    sentenceCount,
                     last);
             return null;
-        }
-
-        private static SentenceCount defaultSentenceCount(Type type) {
-            return type == Type.SINGLE_SENTENCE ? SentenceCount.TEN : null;
         }
     }
 }
