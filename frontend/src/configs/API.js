@@ -1,4 +1,5 @@
 import axios from "axios";
+import i18n from "@/i18n";
 import { notify } from "../utils/notify";
 import Cookies from "js-cookie";
 
@@ -49,8 +50,7 @@ api.interceptors.response.use(
     // Handle timeout errors
     const isTimeout = error?.code === "ECONNABORTED" || /timeout/i.test(error?.message || "");
     if (isTimeout) {
-      const message = "Yêu cầu quá thời gian (timeout). Vui lòng kiểm tra kết nối và thử lại.";
-      notify(message, "error");
+      notify(i18n.t("errors.requestTimeout"), "error");
       return Promise.reject(error);
     }
 
@@ -62,7 +62,7 @@ api.interceptors.response.use(
       if (!refreshToken) {
         // No refresh token, redirect to login
         Cookies.remove('auth_token');
-        notify("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.", "warning");
+        notify(i18n.t("errors.sessionExpired"), "warning");
         
         if (window.location.pathname !== '/') {
           window.location.href = '/';
@@ -139,7 +139,7 @@ api.interceptors.response.use(
         // Process queued requests with error
         processQueue(refreshError, null);
         
-        notify("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.", "warning");
+        notify(i18n.t("errors.sessionExpired"), "warning");
         
         if (window.location.pathname !== '/') {
           window.location.href = '/';

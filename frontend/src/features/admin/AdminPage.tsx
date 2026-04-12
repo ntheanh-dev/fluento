@@ -9,6 +9,7 @@ import UserPracticesTab from "./components/UserPracticesTab";
 import CreditTransactionsTab from "./components/CreditTransactionsTab";
 import RolesTab from "./components/RolesTab";
 import ParagraphSentencesTab from "./components/ParagraphSentencesTab";
+import { useTranslation } from "react-i18next";
 
 const { TabPane } = Tabs;
 
@@ -29,6 +30,7 @@ const TAB_QUERY_KEYS: Record<string, string[]> = {
 };
 
 const AdminPage = () => {
+  const { t } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
   const activeKey = searchParams.get("tab") ?? "users";
 
@@ -44,10 +46,10 @@ const AdminPage = () => {
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-end gap-3 mb-4">
         <div>
           <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-slate-100">
-            Admin Management
+            {t("admin.title")}
           </h1>
           <p className="text-sm text-slate-500 dark:text-slate-400">
-            Quản lý users, API keys, paragraphs, user practices, credit transactions và hints.
+            {t("admin.subtitle")}
           </p>
         </div>
       </div>
@@ -68,25 +70,25 @@ const AdminPage = () => {
           setSearchParams(next, { replace: true });
         }}
       >
-        <TabPane tab="Users" key="users">
+        <TabPane tab={t("admin.tabUsers")} key="users">
           <UsersTab />
         </TabPane>
-        <TabPane tab="API Keys" key="api-keys">
+        <TabPane tab={t("admin.tabApiKeys")} key="api-keys">
           <ApiKeysTab />
         </TabPane>
-        <TabPane tab="Paragraphs" key="paragraphs">
+        <TabPane tab={t("admin.tabParagraphs")} key="paragraphs">
           <ParagraphsTab />
         </TabPane>
-        <TabPane tab="User Practices" key="user-practices">
+        <TabPane tab={t("admin.tabUserPractices")} key="user-practices">
           <UserPracticesTab />
         </TabPane>
-        <TabPane tab="Credit Transactions" key="credit-transactions">
+        <TabPane tab={t("admin.tabCreditTx")} key="credit-transactions">
           <CreditTransactionsTab />
         </TabPane>
-        <TabPane tab="Roles" key="roles">
+        <TabPane tab={t("admin.tabRoles")} key="roles">
           <RolesTab />
         </TabPane>
-        <TabPane tab="Paragraph Sentences" key="paragraph-sentences">
+        <TabPane tab={t("admin.tabParagraphSentences")} key="paragraph-sentences">
           <ParagraphSentencesTab />
         </TabPane>
       </Tabs>

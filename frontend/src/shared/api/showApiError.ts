@@ -1,9 +1,9 @@
 import { message } from "antd";
 import { AxiosError } from "axios";
 import type { ApiError } from "./type";
+import i18n from "@/i18n";
 
-export const DEFAULT_API_ERROR_MESSAGE =
-  "Đã xảy ra lỗi không xác định. Vui lòng thử lại sau.";
+export const DEFAULT_API_ERROR_MESSAGE = () => i18n.t("errors.default");
 
 /**
  * Hiển thị thông báo lỗi từ API (Ant Design message).
@@ -12,12 +12,13 @@ export const DEFAULT_API_ERROR_MESSAGE =
  */
 export function showApiError(
   error: unknown,
-  fallback = DEFAULT_API_ERROR_MESSAGE
+  fallback?: string
 ): void {
   const appError = (error as AxiosError)?.response?.data as ApiError | undefined;
+  const msg = fallback ?? DEFAULT_API_ERROR_MESSAGE();
   if (appError?.message) {
     message.error(appError.message, 5);
   } else {
-    message.error(fallback);
+    message.error(msg);
   }
 }

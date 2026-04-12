@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 
 interface ScoreRingProps {
     score: number;
@@ -8,6 +9,7 @@ interface ScoreRingProps {
 }
 
 const ScoreRing: React.FC<ScoreRingProps> = ({ score, size = 'md', label, color = '#198de6' }) => {
+    const { t } = useTranslation();
     const radius = 40;
     const stroke = 8;
     const normalizedRadius = radius - stroke * 2;
@@ -56,7 +58,7 @@ const ScoreRing: React.FC<ScoreRingProps> = ({ score, size = 'md', label, color 
                 </svg>
                 <div className="absolute flex flex-col items-center">
                     <span className={`font-bold ${textSize} text-slate-800`}>{score}</span>
-                    {size !== 'sm' && <span className="text-xs text-slate-400 font-medium uppercase tracking-wider">out of 100</span>}
+                    {size !== 'sm' && <span className="text-xs text-slate-400 font-medium uppercase tracking-wider">{t('practice.result.scoreOutOf100')}</span>}
                 </div>
             </div>
             {label && <span className={`mt-2 font-medium ${size === 'sm' ? 'text-xs' : 'text-sm'} text-slate-600`}>{label}</span>}

@@ -1,4 +1,5 @@
 import { Modal } from "antd";
+import { Trans, useTranslation } from "react-i18next";
 
 export interface DeleteApiKeyDialogProps {
     open: boolean;
@@ -13,6 +14,8 @@ export default function DeleteApiKeyDialog({
     onClose,
     onConfirm,
 }: DeleteApiKeyDialogProps) {
+    const { t } = useTranslation();
+
     const handleOk = async () => {
         try {
             const result = onConfirm();
@@ -28,21 +31,21 @@ export default function DeleteApiKeyDialog({
     return (
         <Modal
             centered
-            title="Xóa khóa API"
+            title={t("profile.dialogs.deleteKey.title")}
             open={open}
             onCancel={onClose}
             onOk={handleOk}
-            okText="Xóa"
-            cancelText="Hủy"
+            okText={t("profile.dialogs.deleteKey.ok")}
+            cancelText={t("profile.dialogs.deleteKey.cancel")}
             okButtonProps={{ danger: true }}
         >
             {maskedKey && (
                 <p className="text-slate-600">
-                    Bạn có chắc muốn xóa khóa{" "}
-                    <span className="font-mono font-medium text-slate-800">
-                        {maskedKey}
-                    </span>{" "}
-                    và toàn bộ mô hình liên quan? Thao tác không thể hoàn tác.
+                    <Trans
+                        i18nKey="profile.dialogs.deleteKey.body"
+                        values={{ masked: maskedKey }}
+                        components={{ 1: <span className="font-mono font-medium text-slate-800" /> }}
+                    />
                 </p>
             )}
         </Modal>

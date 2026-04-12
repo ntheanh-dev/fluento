@@ -13,8 +13,10 @@ import DeleteApiKeyDialog from "../dialogs/DeleteApiKeyDialog";
 import SetDefaultApiKeyDialog from "../dialogs/SetDefaultApiKeyDialog";
 import { formatCreatedAt } from "../../../shared/utilities";
 import { showApiError } from "../../../shared/api/showApiError";
+import { useTranslation } from "react-i18next";
 
 export default function ApiKeysSection() {
+    const { t } = useTranslation();
     const { profile } = useProfileStore();
     const { data: apiKeys = [] } = useApiKeys();
 
@@ -55,10 +57,10 @@ export default function ApiKeysSection() {
     const handleDeleteConfirm = (id: number): Promise<void> => {
         return deleteApiKeyMutation(id)
             .then(() => {
-                message.success("Đã xóa khóa API.");
+                message.success(t("apiKeys.deleted"));
             })
             .catch(() => {
-                message.error("Xóa khóa API thất bại.");
+                message.error(t("apiKeys.deleteFailed"));
                 throw new Error("Delete failed");
             });
     };
@@ -66,9 +68,9 @@ export default function ApiKeysSection() {
     const handleAddKeySubmit = async (apiKey: string) => {
         try {
             await createApiKeyMutation(apiKey);
-            message.success("Đã thêm khóa API.");
+            message.success(t("apiKeys.added"));
         } catch (err) {
-            showApiError(err, "Thêm khóa API thất bại.");
+            showApiError(err, t("apiKeys.addFailed"));
             throw new Error("Add failed");
         }
     };
@@ -79,10 +81,10 @@ export default function ApiKeysSection() {
         const fullName = profile.fullName?.trim() || profile.username || "";
         return updateMeMutation({ fullName, activeApiKeyId: id })
             .then(() => {
-                message.success("Đã đặt khóa làm mặc định.");
+                message.success(t("apiKeys.defaultSet"));
             })
             .catch(() => {
-                message.error("Đặt mặc định thất bại.");
+                message.error(t("apiKeys.defaultFailed"));
                 throw new Error("Set default failed");
             });
     };
@@ -91,9 +93,9 @@ export default function ApiKeysSection() {
         <div className="bg-white dark:bg-slate-900/90 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
                 <div>
-                    <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100">Khóa API AI</h3>
+                    <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100">{t("apiKeys.title")}</h3>
                     <p className="text-sm text-slate-500 dark:text-slate-400">
-                        Cấu hình khóa Gemini để nhận phản hồi cá nhân hóa và bản dịch nâng cao.
+                        {t("apiKeys.subtitle")}
                     </p>
                 </div>
                 <Button
@@ -102,14 +104,14 @@ export default function ApiKeysSection() {
                     className="font-bold bg-primary shadow-sm rounded-lg h-9 w-full sm:w-auto"
                     onClick={() => setAddKeyOpen(true)}
                 >
-                    Thêm khóa mới
+                    {t("apiKeys.addNew")}
                 </Button>
             </div>
 
             <div className="border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden">
                 {apiKeyGroups.length === 0 ? (
                     <div className="py-12 text-center text-slate-500 dark:text-slate-400 text-sm bg-white dark:bg-slate-900/90">
-                        Chưa có khóa API. Bấm &quot;Thêm khóa mới&quot; để thêm.
+                        {t("apiKeys.empty")}
                     </div>
                 ) : (
                     apiKeyGroups.map(({ apiKeyValue, keys }) => {
@@ -148,7 +150,7 @@ export default function ApiKeysSection() {
                                     </button>
                                     {isGroupActive && (
                                         <span className="inline-flex items-center rounded-md bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-700 border border-emerald-200/80">
-                                            Active
+                                            {t("apiKeys.active")}
                                         </span>
                                     )}
                                     <div className="flex items-center gap-1 shrink-0">
@@ -158,8 +160,8 @@ export default function ApiKeysSection() {
                                             className="p-2 rounded-lg text-slate-500 dark:text-slate-400 hover:bg-slate-200/80 dark:hover:bg-slate-700 hover:text-slate-700 dark:hover:text-slate-200 transition-colors"
                                             title={
                                                 isExpanded
-                                                    ? "Thu gọn"
-                                                    : "Mở rộng"
+                                                    ? t("apiKeys.collapse")
+                                                    : t("apiKeys.expand")
                                             }
                                         >
                                             {isExpanded ? (
@@ -179,7 +181,7 @@ export default function ApiKeysSection() {
                                                 })
                                             }
                                             className="p-2 rounded-lg text-slate-500 dark:text-slate-400 hover:bg-red-50 dark:hover:bg-red-950/40 hover:text-red-500 transition-colors"
-                                            title="Xóa khóa API"
+                                            title={t("apiKeys.deleteKey")}
                                         >
                                             <Trash2 size={18} />
                                         </button>
@@ -191,7 +193,7 @@ export default function ApiKeysSection() {
                                     <div className="bg-slate-50/60 dark:bg-slate-950/50 border-t border-slate-100 dark:border-slate-800">
                                         <div className="px-4 pt-3 pb-1">
                                             <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">
-                                                Models
+                                                {t("apiKeys.models")}
                                             </p>
                                         </div>
                                         <div className="px-4 pb-3">
@@ -213,17 +215,17 @@ export default function ApiKeysSection() {
 
                                                             {hasCredit ? (
                                                                 <span className="inline-flex items-center rounded-md bg-emerald-50 px-2 py-0.5 text-xs font-medium text-emerald-700 border border-emerald-200/80">
-                                                                    {key.credit} credit
+                                                                    {t("apiKeys.credit", { count: key.credit })}
                                                                 </span>
                                                             ) : (
                                                                 <span className="inline-flex items-center rounded-md bg-red-50 px-2 py-0.5 text-xs font-medium text-red-600 border border-red-200/80">
-                                                                    Hết credit
+                                                                    {t("apiKeys.outOfCredit")}
                                                                 </span>
                                                             )}
                                                             <div className="ml-auto">
                                                                 {isDefault ? (
                                                                     <span className="text-primary font-medium text-sm text-blue-500">
-                                                                        Đang dùng
+                                                                        {t("apiKeys.inUse")}
                                                                     </span>
                                                                 ) : (
                                                                     <button
@@ -237,7 +239,7 @@ export default function ApiKeysSection() {
                                                                         disabled={!hasCredit}
                                                                         className="text-primary font-medium hover:underline text-sm disabled:opacity-50 disabled:cursor-not-allowed disabled:no-underline"
                                                                     >
-                                                                        Đặt làm mặc định
+                                                                        {t("apiKeys.setDefault")}
                                                                     </button>
                                                                 )}
                                                             </div>

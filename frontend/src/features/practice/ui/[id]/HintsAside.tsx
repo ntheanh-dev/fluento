@@ -3,6 +3,7 @@ import { Loader2, Sparkles, Users, Volume2 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { motion } from "motion/react";
 import { useCommunityTranslations } from "../../hooks/useUserPractice";
+import { useTranslation } from "react-i18next";
 
 const COMMUNITY_SCORE_BANDS: { band: CommunityScoreBand; label: string }[] = [
     { band: "LE7", label: "6" },
@@ -108,6 +109,7 @@ export const VocabularyHintsAside = ({
     vocabularyHints: VocabularyHint[] | null;
     sentenceId: number;
 }) => {
+    const { t } = useTranslation();
     const [hintsTab, setHintsTab] = useState<HintsTab>("vocabulary");
     const [communityScoreBand, setCommunityScoreBand] = useState<CommunityScoreBand>("LE7");
     const [speakingWord, setSpeakingWord] = useState<string | null>(null);
@@ -168,7 +170,7 @@ export const VocabularyHintsAside = ({
     if (!vocabularyHints) return null;
     return (
         <div className="flex flex-col flex-1 min-h-0 bg-white dark:bg-slate-900/90">
-            <div className="shrink-0 overflow-hidden rounded-t-[0.65rem] bg-white dark:bg-slate-900" role="tablist" aria-label="Loại gợi ý">
+            <div className="shrink-0 overflow-hidden rounded-t-[0.65rem] bg-white dark:bg-slate-900" role="tablist" aria-label={t("practice.hints.hintTypesAria")}>
                 <div className="flex min-h-[2.75rem]">
                     <button
                         type="button"
@@ -187,7 +189,7 @@ export const VocabularyHintsAside = ({
                         onClick={() => setHintsTab("vocabulary")}
                     >
                         <Sparkles className="size-3.5 shrink-0 opacity-90" aria-hidden />
-                        <span className="truncate">Từ vựng</span>
+                        <span className="truncate">{t("practice.hints.vocabulary")}</span>
                     </button>
                     <button
                         type="button"
@@ -205,7 +207,7 @@ export const VocabularyHintsAside = ({
                         onClick={() => setHintsTab("community")}
                     >
                         <Users className="size-3.5 shrink-0 opacity-90" aria-hidden />
-                        <span className="truncate">Cộng đồng</span>
+                        <span className="truncate">{t("practice.hints.community")}</span>
                     </button>
                 </div>
             </div>
@@ -252,7 +254,7 @@ export const VocabularyHintsAside = ({
                         <div
                             className="mb-3 flex flex-wrap items-center justify-center gap-1 rounded-2xl bg-slate-100/95 p-1 dark:bg-slate-800/90"
                             role="tablist"
-                            aria-label="Lọc theo điểm AI"
+                            aria-label={t("practice.hints.filterByAiScore")}
                         >
                             {COMMUNITY_SCORE_BANDS.map(({ band, label }) => {
                                 const active = communityScoreBand === band;
@@ -283,12 +285,12 @@ export const VocabularyHintsAside = ({
                         </div>
                         {isCommunityError && (
                             <p className="text-xs text-amber-700 dark:text-amber-400/90 mb-2">
-                                Không tải được bản dịch cộng đồng. Thử chuyển tab hoặc đóng và mở lại gợi ý.
+                                {t("practice.hints.communityLoadError")}
                             </p>
                         )}
                         {!isLoadingCommunity && !isCommunityError && (communityList?.length ?? 0) === 0 && (
                             <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-                                Chưa có bản dịch đã nộp từ học viên khác cho câu này. Sau khi nhiều người luyện tập, các bản dịch sẽ xuất hiện ở đây.
+                                {t("practice.hints.communityEmpty")}
                             </p>
                         )}
                         {!isCommunityError && communityList && communityList.length > 0 && (
@@ -300,12 +302,12 @@ export const VocabularyHintsAside = ({
                                     >
                                         <div className="flex flex-wrap items-center gap-x-2 gap-y-1 mb-2">
                                             <span className="text-[11px] font-semibold text-slate-700 dark:text-slate-200 truncate max-w-full">
-                                                {item.translatorName?.trim() || "Học viên"}
+                                                {item.translatorName?.trim() || t("practice.hints.learner")}
                                             </span>
                                             {typeof item.score === "number" && (
                                                 <span
                                                     className={`inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[8px] font-bold tabular-nums leading-none ${aiScoreCircleClass(item.score)}`}
-                                                    title={`Điểm AI: ${item.score.toFixed(1)}`}
+                                                    title={t("practice.hints.aiScoreTooltip", { score: item.score.toFixed(1) })}
                                                 >
                                                     {item.score.toFixed(1)}
                                                 </span>

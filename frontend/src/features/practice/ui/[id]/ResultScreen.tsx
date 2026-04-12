@@ -17,7 +17,10 @@ import { message, Modal, Spin } from 'antd';
 import { LoadingOutlined } from '@ant-design/icons';
 import { showApiError } from '@/shared/api/showApiError';
 import { renderWordDiff } from '../../fnc';
+import { useTranslation } from 'react-i18next';
+
 export default function ResultScreen() {
+    const { t } = useTranslation();
     const { id } = useParams();
     const navigate = useNavigate();
     const [confirmRetryOpen, setConfirmRetryOpen] = useState(false);
@@ -31,7 +34,7 @@ export default function ResultScreen() {
     const sentenceContents = paragraphSentences.map((sentence) => sentence.content);
 
     if (data && data.sentenceAnswers.length !== sentenceContents.length) {
-        message.warning('Không thể xem kết quả khi chưa hoàn thành bài luyện tập.');
+        message.warning(t('practice.result.incompleteWarning'));
         navigate(`/practice/${id}`, { replace: true });
         return;
     }
@@ -58,8 +61,8 @@ export default function ResultScreen() {
                     <div className="w-16 h-16 sm:w-20 sm:h-20 bg-emerald-50 dark:bg-emerald-950/40 rounded-full flex items-center justify-center mx-auto text-emerald-500 mb-4 sm:mb-6">
                         <PartyPopper className="w-8 h-8 sm:w-10 sm:h-10" />
                     </div>
-                    <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-slate-900 dark:text-slate-100">Tuyệt vời! Bạn đã hoàn thành</h2>
-                    <p className="text-slate-500 dark:text-slate-400 font-medium text-base sm:text-lg">Bạn đang tiến bộ rất nhanh mỗi ngày.</p>
+                    <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-slate-900 dark:text-slate-100">{t('practice.result.heroTitle')}</h2>
+                    <p className="text-slate-500 dark:text-slate-400 font-medium text-base sm:text-lg">{t('practice.result.heroSubtitle')}</p>
                 </motion.div>
 
 
@@ -69,8 +72,8 @@ export default function ResultScreen() {
                             <FileText className="w-4 h-4 sm:w-5 sm:h-5" />
                         </div>
                         <div className="min-w-0">
-                            <p className="text-[10px] uppercase tracking-wider text-gray-400 dark:text-slate-500 font-bold mb-0.5">Loại</p>
-                            <p className="text-xs sm:text-sm font-bold text-gray-900 dark:text-slate-100 truncate">{data?.paragraph.type.toLowerCase()}</p>
+                            <p className="text-[10px] uppercase tracking-wider text-gray-400 dark:text-slate-500 font-bold mb-0.5">{t('practice.result.type')}</p>
+                            <p className="text-xs sm:text-sm font-bold text-gray-900 dark:text-slate-100 truncate">{data?.paragraph.type ? t(`practice.type.${data.paragraph.type}`) : ''}</p>
                         </div>
                     </div>
                     <div className="bg-white dark:bg-slate-900/90 p-3 sm:p-4 rounded-xl sm:rounded-2xl border border-gray-100 dark:border-slate-700 shadow-sm flex items-center gap-3 sm:gap-4 hover:shadow-md transition-shadow min-w-0">
@@ -78,8 +81,8 @@ export default function ResultScreen() {
                             <BookOpen className="w-4 h-4 sm:w-5 sm:h-5" />
                         </div>
                         <div className="min-w-0">
-                            <p className="text-[10px] uppercase tracking-wider text-gray-400 dark:text-slate-500 font-bold mb-0.5">Chủ đề</p>
-                            <p className="text-xs sm:text-sm font-bold text-gray-900 dark:text-slate-100 truncate">{data?.paragraph.topic.toLowerCase()}</p>
+                            <p className="text-[10px] uppercase tracking-wider text-gray-400 dark:text-slate-500 font-bold mb-0.5">{t('practice.result.topic')}</p>
+                            <p className="text-xs sm:text-sm font-bold text-gray-900 dark:text-slate-100 truncate">{data?.paragraph.topic ? t(`common.topic.${data.paragraph.topic}`) : ''}</p>
                         </div>
                     </div>
                     <div className="bg-white dark:bg-slate-900/90 p-3 sm:p-4 rounded-xl sm:rounded-2xl border border-gray-100 dark:border-slate-700 shadow-sm flex items-center gap-3 sm:gap-4 hover:shadow-md transition-shadow min-w-0">
@@ -87,8 +90,8 @@ export default function ResultScreen() {
                             <Smile className="w-4 h-4 sm:w-5 sm:h-5" />
                         </div>
                         <div className="min-w-0">
-                            <p className="text-[10px] uppercase tracking-wider text-gray-400 dark:text-slate-500 font-bold mb-0.5">Sắc thái</p>
-                            <p className="text-xs sm:text-sm font-bold text-gray-900 dark:text-slate-100 truncate">{data?.paragraph.tone.toLowerCase()}</p>
+                            <p className="text-[10px] uppercase tracking-wider text-gray-400 dark:text-slate-500 font-bold mb-0.5">{t('practice.result.tone')}</p>
+                            <p className="text-xs sm:text-sm font-bold text-gray-900 dark:text-slate-100 truncate">{data?.paragraph.tone ? t(`practice.tone.${data.paragraph.tone}`) : ''}</p>
                         </div>
                     </div>
                     <div className="bg-white dark:bg-slate-900/90 p-3 sm:p-4 rounded-xl sm:rounded-2xl border border-gray-100 dark:border-slate-700 shadow-sm flex items-center gap-3 sm:gap-4 hover:shadow-md transition-shadow min-w-0">
@@ -96,7 +99,7 @@ export default function ResultScreen() {
                             <BarChart2 className="w-4 h-4 sm:w-5 sm:h-5" />
                         </div>
                         <div className="min-w-0">
-                            <p className="text-[10px] uppercase tracking-wider text-gray-400 dark:text-slate-500 font-bold mb-0.5">Trình độ</p>
+                            <p className="text-[10px] uppercase tracking-wider text-gray-400 dark:text-slate-500 font-bold mb-0.5">{t('practice.result.level')}</p>
                             <p className="text-xs sm:text-sm font-bold text-gray-900 dark:text-slate-100 truncate">{data?.paragraph.level}</p>
                         </div>
                     </div>
@@ -111,7 +114,7 @@ export default function ResultScreen() {
                         transition={{ delay: 0.1 }}
                         className="bg-white dark:bg-slate-900/90 p-4 sm:p-6 rounded-xl sm:rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col items-center justify-center gap-1 sm:gap-2"
                     >
-                        <span className="text-[10px] sm:text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Điểm tổng quát</span>
+                        <span className="text-[10px] sm:text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">{t('practice.result.overallScore')}</span>
                         <div className="flex items-baseline gap-1">
                             {avgScore >= 9 ? (
                                 <span className="text-3xl sm:text-4xl font-bold text-emerald-500">{avgScore}</span>
@@ -129,7 +132,7 @@ export default function ResultScreen() {
                         transition={{ delay: 0.2 }}
                         className="bg-white dark:bg-slate-900/90 p-4 sm:p-6 rounded-xl sm:rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 flex flex-col items-center justify-center gap-1 sm:gap-2"
                     >
-                        <span className="text-[10px] sm:text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Thời gian</span>
+                        <span className="text-[10px] sm:text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">{t('practice.result.timeLabel')}</span>
                         <div className="text-3xl sm:text-4xl font-bold text-slate-900 dark:text-slate-100">{formatElapsed(totalTime)}</div>
                     </motion.div>
                 </div>
@@ -145,7 +148,7 @@ export default function ResultScreen() {
                         {/* Vietnamese Original */}
                         <div className="flex flex-col min-w-0">
                             <div className="px-4 py-3 sm:px-6 sm:py-4 bg-slate-50/50 dark:bg-slate-950/50 border-b border-slate-100 dark:border-slate-800">
-                                <span className="text-[10px] sm:text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Tiếng Việt (Gốc)</span>
+                                <span className="text-[10px] sm:text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">{t('practice.result.vietnameseOriginal')}</span>
                             </div>
                             <div className="p-4 sm:p-6 flex-1 min-w-0">
                                 {data?.paragraph.title && (
@@ -172,7 +175,7 @@ export default function ResultScreen() {
                         {/* English Translation */}
                         <div className="flex flex-col min-w-0">
                             <div className="px-4 py-3 sm:px-6 sm:py-4 bg-slate-50/50 dark:bg-slate-950/50 border-b md:border-b-0 border-slate-100 dark:border-slate-800">
-                                <span className="text-[10px] sm:text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Tiếng Anh (Bản dịch của bạn)</span>
+                                <span className="text-[10px] sm:text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">{t('practice.result.yourEnglish')}</span>
                             </div>
                             <div className="p-4 sm:p-6 md:p-8 bg-blue-50/30 dark:bg-blue-950/20 flex-1 min-w-0">
                                 {data?.paragraph.type === 'SINGLE_SENTENCE' ? (
@@ -211,20 +214,20 @@ export default function ResultScreen() {
                         className="h-12 sm:h-14 bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800 border-2 border-slate-100 dark:border-slate-700 hover:border-slate-200 dark:hover:border-slate-600 text-slate-700 dark:text-slate-200 font-bold text-sm sm:text-base rounded-xl flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
                     >
                         <History className="w-4 h-4 sm:w-5 sm:h-5 shrink-0" />
-                        Xem lại lỗi sai
+                        {t('practice.result.viewMistakes')}
                     </button>
                     <button
                         onClick={() => setConfirmRetryOpen(true)}
                         className="h-12 sm:h-14 bg-blue-50 dark:bg-blue-950/40 hover:bg-blue-100 dark:hover:bg-blue-950/60 text-blue-600 dark:text-blue-400 font-bold text-sm sm:text-base rounded-xl flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
                     >
                         <RotateCcw className="w-4 h-4 sm:w-5 sm:h-5 shrink-0" />
-                        Luyện tập lại
+                        {t('practice.result.practiceAgain')}
                     </button>
                     <button
                         onClick={() => navigate('/practice')}
                         className="h-12 sm:h-14 bg-blue-500 hover:bg-blue-600 text-white font-bold text-sm sm:text-base rounded-xl flex items-center justify-center gap-2 shadow-lg shadow-blue-200 dark:shadow-blue-900/40 transition-all active:scale-[0.98]"
                     >
-                        Tiếp tục học
+                        {t('practice.result.continueLearning')}
                         <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 shrink-0" />
                     </button>
                 </motion.div>
@@ -232,16 +235,16 @@ export default function ResultScreen() {
 
             <Modal
                 open={confirmRetryOpen}
-                title="Luyện tập lại"
+                title={t('practice.result.retryTitle')}
                 centered
                 onCancel={() => setConfirmRetryOpen(false)}
                 onOk={() => {
                     setConfirmRetryOpen(false);
                 }}
-                okText="Đồng ý"
-                cancelText="Hủy"
+                okText={t('practice.result.retryOk')}
+                cancelText={t('practice.result.retryCancel')}
             >
-                Bạn có chắc muốn luyện tập lại bài này?
+                {t('practice.result.retryConfirmBody')}
             </Modal>
         </div>
     );

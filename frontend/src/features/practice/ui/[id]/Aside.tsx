@@ -5,6 +5,7 @@ import { VocabularyHintsAside } from "./HintsAside";
 import { DetailedSuggestionCard } from "./DetailedSuggestionCard";
 import { Lightbulb } from "lucide-react";
 import type { RenderAsideType } from ".";
+import { useTranslation } from "react-i18next";
 
 type AsideProps = {
   isLoadingAnswerPreview: boolean;
@@ -26,6 +27,7 @@ export const Aside = ({
   feedback,
   userTranslation,
 }: AsideProps) => {
+  const { t } = useTranslation();
 
   if (isLoadingAnswerPreview || isLoadingVocabularyHints) {
     return <Analyzing />;
@@ -59,10 +61,10 @@ export const Aside = ({
           <Lightbulb className="size-8 text-slate-300 dark:text-slate-500" />
         </div>
         <h3 className="text-md font-bold text-slate-800 dark:text-slate-100 mb-2">
-          Cần trợ giúp?
+          {t("practice.session.needHelpTitle")}
         </h3>
         <p className="text-sm text-slate-500 dark:text-slate-400 leading-relaxed max-w-[240px] mx-auto">
-          Nhấn nút xem gợi ý để xem gợi ý từ vựng hoặc phân tích ngữ pháp.
+          {t("practice.session.needHelpBody")}
         </p>
       </div>
     </>

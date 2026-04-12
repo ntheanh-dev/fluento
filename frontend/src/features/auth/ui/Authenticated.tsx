@@ -7,8 +7,11 @@ import { useOAuthAuthenticateMutation } from "../mutation";
 import { useProfileStore } from "../../../stores/profile";
 import { ACCESS_TOKEN_EXPIRE_TIME } from "../constant";
 import { PROFILE_EMBED_PRACTICESTATS, useProfileData } from "../../profile/query";
+import { useTranslation } from "react-i18next";
+import i18n from "@/i18n";
 
 export default function Authenticate() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
   const { setProfile } = useProfileStore();
@@ -18,14 +21,11 @@ export default function Authenticate() {
   });
   const [error, setError] = useState<string | null>(null);
 
-  // Get the page user was trying to access
   const from = location.state?.from?.pathname || "/";
 
-  // Use useRef to track if authentication is already in progress
   const authInProgress = useRef(false);
 
   useEffect(() => {
-    // Only run if not already authenticating
     if (authInProgress.current) {
       return;
     }
@@ -33,25 +33,26 @@ export default function Authenticate() {
     authInProgress.current = true;
 
     const authenticateUser = async () => {
+      const tr = (key: string, options?: Record<string, unknown>) =>
+        i18n.t(key, options ?? {});
+
       try {
         const authCodeRegex = /code=([^&]+)/;
         const isMatch = window.location.href.match(authCodeRegex);
 
         if (!isMatch) {
-          setError("Không tìm thấy mã xác thực");
+          setError(tr("oauth.noCode"));
           return;
         }
 
         const authCode = isMatch[1];
 
-        // Step 1: Exchange auth code for tokens
         const { accessToken } = await oauthAuthenticate(authCode);
 
         if (!accessToken) {
-          throw new Error("Không nhận được token xác thực");
+          throw new Error(tr("oauth.noToken"));
         }
 
-        // Store token so http-client and app consider user logged in
         Cookies.set("accessToken", accessToken, {
           expires: ACCESS_TOKEN_EXPIRE_TIME,
           secure: import.meta.env.PROD,
@@ -59,61 +60,60 @@ export default function Authenticate() {
           path: "/",
         });
 
-
-        // Load profile and set in store (same as Login)
         const { data: profile } = await fetchUserProfile();
         if (profile) {
           setProfile(profile);
-          message.success("Đăng nhập thành công!");
+          message.success(tr("oauth.success"));
           navigate(from, { replace: true });
         } else {
-          throw new Error("Không nhận được thông tin người dùng");
+          throw new Error(tr("auth.noUserInfo"));
         }
+      } catch (error: unknown) {
+        const err = error as {
+          response?: { status?: number; data?: { message?: string } };
+          request?: unknown;
+          message?: string;
+        };
+        let errorMessage = tr("oauth.unknownError");
 
-      } catch (error: any) {
-        let errorMessage = "Lỗi xác thực không xác định";
-
-        if (error.response) {
-          // Server responded with error status
-          const status = error.response.status;
-          const data = error.response.data;
+        if (err.response) {
+          const status = err.response.status;
+          const data = err.response.data;
 
           switch (status) {
             case 400:
-              errorMessage = data?.message || "Dữ liệu yêu cầu không hợp lệ";
+              errorMessage = data?.message || tr("oauth.badRequest");
               break;
             case 401:
-              errorMessage = "Mã xác thực không hợp lệ hoặc đã hết hạn";
+              errorMessage = tr("oauth.invalidCode");
               break;
             case 403:
-              errorMessage = "Không có quyền truy cập";
+              errorMessage = tr("oauth.forbidden");
               break;
             case 404:
-              errorMessage = "Endpoint không tồn tại";
+              errorMessage = tr("oauth.notFound");
               break;
             case 500:
-              errorMessage = "Lỗi server, vui lòng thử lại sau";
+              errorMessage = tr("oauth.serverError");
               break;
             default:
-              errorMessage = data?.message || `Lỗi server (${status})`;
+              errorMessage =
+                data?.message || tr("oauth.serverStatus", { status });
           }
-        } else if (error.request) {
-          // Request was made but no response received
-          errorMessage = "Không thể kết nối đến server. Vui lòng kiểm tra kết nối mạng";
-        } else if (error.message) {
-          // Something else happened
-          errorMessage = error.message;
+        } else if (err.request) {
+          errorMessage = tr("oauth.network");
+        } else if (err.message) {
+          errorMessage = err.message;
         }
 
         setError(errorMessage);
       } finally {
-        // Reset the flag when done
         authInProgress.current = false;
       }
     };
 
-    authenticateUser();
-  }, []); // Empty dependency array to run only once
+    void authenticateUser();
+  }, []);
 
   const handleRetry = () => {
     setError(null);
@@ -142,10 +142,10 @@ export default function Authenticate() {
         </Alert>
         <Box sx={{ display: "flex", gap: "10px" }}>
           <Button variant="contained" onClick={handleRetry}>
-            Thử lại
+            {t("oauth.retry")}
           </Button>
           <Button variant="outlined" onClick={handleGoToLogin}>
-            Về trang đăng nhập
+            {t("oauth.backToLogin")}
           </Button>
         </Box>
       </Box>
@@ -164,7 +164,7 @@ export default function Authenticate() {
       }}
     >
       <CircularProgress />
-      <Typography>Đang xác thực...</Typography>
+      <Typography>{t("oauth.authenticating")}</Typography>
     </Box>
   );
 }

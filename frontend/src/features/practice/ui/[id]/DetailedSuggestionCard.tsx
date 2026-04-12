@@ -1,5 +1,6 @@
 import type { SentenceFeedback } from "@/entities/userPracticeAnswer/schema";
 import { Copy, Sparkles } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { renderBacktickHighlight, renderWordDiff } from "../../fnc";
 
 export type DetailedSuggestionCardProps = {
@@ -11,6 +12,7 @@ export function DetailedSuggestionCard({
   feedback,
   userTranslation,
 }: DetailedSuggestionCardProps) {
+  const { t } = useTranslation();
   if (!feedback) {
     return <></>;
   }
@@ -55,14 +57,14 @@ export function DetailedSuggestionCard({
           </div>
           <div className="flex flex-col">
             <span className="text-[10px] font-semibold text-slate-900 dark:text-slate-100">
-              Điểm chi tiết
+              {t("practice.feedback.detailScore")}
             </span>
             <span className="text-[10px] text-slate-500 dark:text-slate-400">
               {score >= 9
-                ? "Rất tốt – chỉ còn vài điểm nhỏ cần chỉnh."
+                ? t("practice.feedback.great")
                 : score >= 7
-                  ? "Khá tốt – cần sửa một số lỗi về thì/từ vựng."
-                  : "Cần luyện thêm – nên xem kỹ các gợi ý bên dưới."}
+                  ? t("practice.feedback.good")
+                  : t("practice.feedback.needsWork")}
             </span>
           </div>
         </div>
@@ -70,7 +72,7 @@ export function DetailedSuggestionCard({
 
       {correction != null && correction !== "" && score < 9.5 && (
         <p className="text-[11px] font-bold text-orange-600">
-          Chỉnh sửa:
+          {t("practice.feedback.correctionHeading")}
           <span className="ml-1 font-semibold text-slate-800 dark:text-slate-100">
             {userTranslation?.trim()
               ? renderWordDiff(userTranslation.trim(), correction)
@@ -83,7 +85,7 @@ export function DetailedSuggestionCard({
       {suggestions?.length > 0 && (
         <div>
           <p className="text-[12px] font-semibold text-slate-800 dark:text-slate-100 mb-1">
-            Cải thiện:
+            {t("practice.feedback.improvementsHeading")}
           </p>
           <ul className="space-y-1 pl-4 list-disc text-slate-700 dark:text-slate-300">
             {suggestions.map((item, idx) => (
@@ -98,7 +100,7 @@ export function DetailedSuggestionCard({
       {/* Summary */}
       {summary && (
         <div className="mt-1">
-          <p className="font-bold text-emerald-600 mb-1">Nhận xét:</p>
+          <p className="font-bold text-emerald-600 mb-1">{t("practice.feedback.commentLabel")}</p>
           <p className="text-[12px] text-slate-700 dark:text-slate-300">
             {renderBacktickHighlight(summary)}
           </p>
@@ -110,11 +112,11 @@ export function DetailedSuggestionCard({
           <div className="flex items-center justify-between mb-2">
             <span className="text-[12px] font-bold text-green-700 flex items-center gap-1.5">
               <Sparkles className="size-3.5" />
-              Gợi ý
+              {t("practice.feedback.suggestionTitle")}
             </span>
             <button
               className="text-green-600 hover:text-green-700 transition-colors"
-              title="Copy"
+              title={t("practice.feedback.copy")}
             >
               <Copy
                 className="size-3.5"

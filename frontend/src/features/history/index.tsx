@@ -22,103 +22,124 @@ import { OK } from "@/shared/api/query-keys";
 import { APP_TIME_ZONE } from "@/shared/utilities/date";
 import type { UserPractice } from "@/entities/userPractice/schema";
 import { useDebounce } from "@/shared/hooks/useDebounce";
+import { useTranslation } from "react-i18next";
+import type { TFunction } from "i18next";
 
 const PAGE_SIZE = 6;
 
-const PARAGRAPH_TYPES = [
-    { key: "", label: "Tất cả" },
-    { key: "EMAIL", label: "EMAIL" },
-    { key: "STORY", label: "STORY" },
-    { key: "BASIC", label: "BASIC" },
-    { key: "IELTS_TASK1", label: "IELTS Task 1" },
-    { key: "IELTS_TASK2", label: "IELTS Task 2" },
+const PARAGRAPH_TYPE_KEYS = [
+    "",
+    "EMAIL",
+    "STORY",
+    "BASIC",
+    "IELTS_TASK1",
+    "IELTS_TASK2",
 ] as const;
 
-const TOPICS: { key: string; label: string }[] = [
-    { key: "", label: "Tất cả" },
-    { key: "LIFE", label: "Cuộc sống" },
-    { key: "TECHNOLOGY", label: "Công nghệ" },
-    { key: "CULTURE", label: "Văn hóa" },
-    { key: "FOOD", label: "Ẩm thực" },
-    { key: "ENVIRONMENT", label: "Môi trường" },
-    { key: "HEALTH", label: "Sức khỏe" },
-    { key: "EDUCATION", label: "Giáo dục" },
-    { key: "FITNESS", label: "Thể hình" },
-    { key: "YOGA", label: "Yoga" },
-    { key: "NUTRITION", label: "Dinh dưỡng" },
-    { key: "MENTAL_HEALTH", label: "Sức khỏe tinh thần" },
-    { key: "MEDICINE", label: "Y học" },
-    { key: "TRAVEL", label: "Du lịch" },
-    { key: "TOURISM", label: "Lữ hành" },
-    { key: "COUNTRIES", label: "Các quốc gia" },
-    { key: "LANDMARKS", label: "Danh lam thắng cảnh" },
-    { key: "TRANSPORTATION", label: "Giao thông vận tải" },
-    { key: "WEATHER", label: "Thời tiết" },
-    { key: "BUSINESS", label: "Kinh doanh" },
-    { key: "SCIENCE", label: "Khoa học" },
-    { key: "ECONOMICS", label: "Kinh tế học" },
-    { key: "MARKETING", label: "Marketing" },
-    { key: "FINANCE", label: "Tài chính" },
-    { key: "STARTUPS", label: "Khởi nghiệp" },
-    { key: "ECOMMERCE", label: "Thương mại điện tử" },
-    { key: "ART", label: "Nghệ thuật" },
-    { key: "HISTORY", label: "Lịch sử" },
-    { key: "LITERATURE", label: "Văn học" },
-    { key: "PHILOSOPHY", label: "Triết học" },
-    { key: "PSYCHOLOGY", label: "Tâm lý học" },
-    { key: "MUSIC", label: "Âm nhạc" },
-    { key: "MOVIES", label: "Điện ảnh" },
-    { key: "THEATRE", label: "Sân khấu" },
-    { key: "FASHION", label: "Thời trang" },
-    { key: "GAMES", label: "Trò chơi" },
-    { key: "SPORTS", label: "Thể thao" },
-    { key: "ENTERTAINMENT", label: "Giải trí" },
-    { key: "POLITICS", label: "Chính trị" },
-    { key: "RELIGION", label: "Tôn giáo" },
-    { key: "SOCIETY", label: "Xã hội" },
-    { key: "SHOPPING", label: "Mua sắm" },
-    { key: "HOUSEWORK", label: "Việc nhà" },
-    { key: "RELATIONSHIPS", label: "Các mối quan hệ" },
-    { key: "PETS", label: "Thú cưng" },
-    { key: "HOLIDAYS", label: "Ngày lễ" },
-    { key: "CLIMATE_CHANGE", label: "Biến đổi khí hậu" },
-    { key: "SUSTAINABILITY", label: "Phát triển bền vững" },
-    { key: "GLOBALIZATION", label: "Toàn cầu hóa" },
-    { key: "POVERTY", label: "Nghèo đói" },
-    { key: "HUMAN_RIGHTS", label: "Nhân quyền" },
-    { key: "PARENTING", label: "Nuôi dạy con" },
-    { key: "MARRIAGE", label: "Hôn nhân" },
-    { key: "COMMUNITY", label: "Cộng đồng" },
-    { key: "VOLUNTEERING", label: "Tình nguyện" },
-    { key: "TRADITIONS", label: "Truyền thống" },
-];
+const TOPIC_KEYS = [
+    "",
+    "LIFE",
+    "TECHNOLOGY",
+    "CULTURE",
+    "FOOD",
+    "ENVIRONMENT",
+    "HEALTH",
+    "EDUCATION",
+    "FITNESS",
+    "YOGA",
+    "NUTRITION",
+    "MENTAL_HEALTH",
+    "MEDICINE",
+    "TRAVEL",
+    "TOURISM",
+    "COUNTRIES",
+    "LANDMARKS",
+    "TRANSPORTATION",
+    "WEATHER",
+    "BUSINESS",
+    "SCIENCE",
+    "ECONOMICS",
+    "MARKETING",
+    "FINANCE",
+    "STARTUPS",
+    "ECOMMERCE",
+    "ART",
+    "HISTORY",
+    "LITERATURE",
+    "PHILOSOPHY",
+    "PSYCHOLOGY",
+    "MUSIC",
+    "MOVIES",
+    "THEATRE",
+    "FASHION",
+    "GAMES",
+    "SPORTS",
+    "ENTERTAINMENT",
+    "POLITICS",
+    "RELIGION",
+    "SOCIETY",
+    "SHOPPING",
+    "HOUSEWORK",
+    "RELATIONSHIPS",
+    "PETS",
+    "HOLIDAYS",
+    "CLIMATE_CHANGE",
+    "SUSTAINABILITY",
+    "GLOBALIZATION",
+    "POVERTY",
+    "HUMAN_RIGHTS",
+    "PARENTING",
+    "MARRIAGE",
+    "COMMUNITY",
+    "VOLUNTEERING",
+    "TRADITIONS",
+] as const;
 
-const LEVELS = [
-    { key: "", label: "Tất cả" },
-    { key: "A1", label: "A1" },
-    { key: "A2", label: "A2" },
-    { key: "B1", label: "B1" },
-    { key: "B2", label: "B2" },
-    { key: "C1", label: "C1" },
-    { key: "C2", label: "C2" },
-];
+const LEVEL_KEYS = ["", "A1", "A2", "B1", "B2", "C1", "C2"] as const;
 
-const SORT_OPTIONS = [
-    { key: "desc", label: "Mới nhất trước" },
-    { key: "asc", label: "Cũ nhất trước" },
-];
+const SORT_KEYS = ["desc", "asc"] as const;
 
-function formatDate(iso: string): string {
+function paragraphTypeLabel(key: string, t: TFunction): string {
+    if (!key) return t("common.all");
+    return t(`history.paragraphType.${key}`);
+}
+
+function topicFilterLabel(key: string, t: TFunction): string {
+    if (!key) return t("common.all");
+    return t(`common.topic.${key}`);
+}
+
+function levelFilterLabel(key: string, t: TFunction): string {
+    if (!key) return t("common.all");
+    return t(`practice.level.${key}`);
+}
+
+function sortOptionLabel(key: string, t: TFunction): string {
+    return key === "asc" ? t("history.sortOldest") : t("history.sortNewest");
+}
+
+function formatRelativeDate(iso: string, t: TFunction, locale: string): string {
     const d = new Date(iso);
     const now = new Date();
     const diffMs = now.getTime() - d.getTime();
     const diffMins = Math.floor(diffMs / 60000);
     const diffHours = Math.floor(diffMs / 3600000);
     const diffDays = Math.floor(diffMs / 86400000);
-    if (diffMins < 60) return diffMins <= 1 ? "Vừa xong" : `${diffMins} phút trước`;
-    if (diffHours < 24) return `${diffHours} giờ trước`;
-    if (diffDays < 7) return diffDays === 1 ? "Hôm qua" : `${diffDays} ngày trước`;
-    return d.toLocaleDateString("vi-VN", {
+    const loc = locale.startsWith("vi") ? "vi-VN" : "en-US";
+    if (diffMins < 60) {
+        return diffMins <= 1
+            ? t("history.dateJustNow")
+            : t("history.dateMinutesAgo", { count: diffMins });
+    }
+    if (diffHours < 24) {
+        return t("history.dateHoursAgo", { count: diffHours });
+    }
+    if (diffDays < 7) {
+        return diffDays === 1
+            ? t("history.dateYesterday")
+            : t("history.dateDaysAgo", { count: diffDays });
+    }
+    return d.toLocaleDateString(loc, {
         timeZone: APP_TIME_ZONE,
         day: "numeric",
         month: "short",
@@ -147,6 +168,7 @@ function parsePage(value: string | null): number {
 }
 
 const PracticeHistory = () => {
+    const { t, i18n } = useTranslation();
     const [searchParams, setSearchParams] = useSearchParams();
 
     const viewMode = (searchParams.get(VIEW) === "single" ? "single" : "paragraph") as "single" | "paragraph";
@@ -208,34 +230,46 @@ const PracticeHistory = () => {
         updateParams({ [SEARCH]: trimmedSearch, [PAGE]: 1 });
     }, [debouncedSearch, searchText, updateParams]);
 
-    const typeMenuItems: MenuProps["items"] = PARAGRAPH_TYPES.map((t) => ({
-        key: t.key,
-        label: t.label,
-        onClick: () => updateParams({ [TYPE]: t.key, [PAGE]: 1 }),
+    const typeMenuItems: MenuProps["items"] = PARAGRAPH_TYPE_KEYS.map((key) => ({
+        key,
+        label: paragraphTypeLabel(key, t),
+        onClick: () => updateParams({ [TYPE]: key, [PAGE]: 1 }),
     }));
 
-    const topicMenuItems: MenuProps["items"] = TOPICS.map((t) => ({
-        key: t.key,
-        label: t.label,
-        onClick: () => updateParams({ [TOPIC]: t.key, [PAGE]: 1 }),
+    const topicMenuItems: MenuProps["items"] = TOPIC_KEYS.map((key) => ({
+        key,
+        label: topicFilterLabel(key, t),
+        onClick: () => updateParams({ [TOPIC]: key, [PAGE]: 1 }),
     }));
 
-    const levelMenuItems: MenuProps["items"] = LEVELS.map((l) => ({
-        key: l.key,
-        label: l.label,
-        onClick: () => updateParams({ [LEVEL]: l.key, [PAGE]: 1 }),
+    const levelMenuItems: MenuProps["items"] = LEVEL_KEYS.map((key) => ({
+        key,
+        label: levelFilterLabel(key, t),
+        onClick: () => updateParams({ [LEVEL]: key, [PAGE]: 1 }),
     }));
 
-    const sortMenuItems: MenuProps["items"] = SORT_OPTIONS.map((s) => ({
-        key: s.key,
-        label: s.label,
-        onClick: () => updateParams({ [SORT]: s.key, [PAGE]: 1 }),
+    const sortMenuItems: MenuProps["items"] = SORT_KEYS.map((key) => ({
+        key,
+        label: sortOptionLabel(key, t),
+        onClick: () => updateParams({ [SORT]: key, [PAGE]: 1 }),
     }));
 
-    const typeLabel = viewMode === "paragraph" ? (typeFilter ? PARAGRAPH_TYPES.find((t) => t.key === typeFilter)?.label ?? "Loại" : "Loại") : "Câu";
-    const topicLabel = topicFilter ? TOPICS.find((t) => t.key === topicFilter)?.label ?? "Chủ đề" : "Chủ đề";
-    const levelLabel = levelFilter ? LEVELS.find((l) => l.key === levelFilter)?.label ?? "Trình độ" : "Trình độ";
-    const sortLabel = SORT_OPTIONS.find((s) => s.key === sortOrder)?.label ?? "Ngày";
+    const typeFilterButtonLabel =
+        viewMode === "paragraph"
+            ? typeFilter
+                ? paragraphTypeLabel(typeFilter, t)
+                : t("history.type")
+            : t("history.sentence");
+
+    const topicFilterButtonLabel = topicFilter
+        ? topicFilterLabel(topicFilter, t)
+        : t("history.topic");
+
+    const levelFilterButtonLabel = levelFilter
+        ? levelFilterLabel(levelFilter, t)
+        : t("history.level");
+
+    const sortButtonLabel = sortOptionLabel(sortOrder, t);
 
     const content = data?.content ?? [];
     const totalElements = data?.totalElements ?? 0;
@@ -252,14 +286,14 @@ const PracticeHistory = () => {
                                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md font-semibold text-xs transition-all ${viewMode === "paragraph" ? "bg-white dark:bg-slate-700 text-[#198de6] shadow-sm" : "text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-100"}`}
                             >
                                 <FileText className="w-3.5 h-3.5" />
-                                All
+                                {t("common.all")}
                             </button>
                             <button
                                 onClick={() => updateParams({ [VIEW]: "single", [PAGE]: 1 })}
                                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md font-semibold text-xs transition-all ${viewMode === "single" ? "bg-white dark:bg-slate-700 text-[#198de6] shadow-sm" : "text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-100"}`}
                             >
                                 <Type className="w-3.5 h-3.5" />
-                                Câu
+                                {t("history.sentence")}
                             </button>
 
                         </div>
@@ -269,26 +303,26 @@ const PracticeHistory = () => {
                         {viewMode === "paragraph" && (
                             <Dropdown menu={{ items: typeMenuItems }} trigger={["click"]}>
                                 <button className="flex items-center gap-1 px-2.5 py-1 rounded-full border border-slate-200 dark:border-slate-600 text-xs text-slate-600 dark:text-slate-300 whitespace-nowrap hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
-                                    {typeLabel} <ChevronDown className="w-3 h-3" />
+                                    {typeFilterButtonLabel} <ChevronDown className="w-3 h-3" />
                                 </button>
                             </Dropdown>
                         )}
 
                         <Dropdown menu={{ items: topicMenuItems }} trigger={["click"]}>
                             <button className="flex items-center gap-1 px-2.5 py-1 rounded-full border border-slate-200 dark:border-slate-600 text-xs text-slate-600 dark:text-slate-300 whitespace-nowrap hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
-                                {topicLabel} <ChevronDown className="w-3 h-3" />
+                                {topicFilterButtonLabel} <ChevronDown className="w-3 h-3" />
                             </button>
                         </Dropdown>
 
                         <Dropdown menu={{ items: levelMenuItems }} trigger={["click"]}>
                             <button className="flex items-center gap-1 px-2.5 py-1 rounded-full border border-slate-200 dark:border-slate-600 text-xs text-slate-600 dark:text-slate-300 whitespace-nowrap hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
-                                {levelLabel} <ChevronDown className="w-3 h-3" />
+                                {levelFilterButtonLabel} <ChevronDown className="w-3 h-3" />
                             </button>
                         </Dropdown>
 
                         <Dropdown menu={{ items: sortMenuItems }} trigger={["click"]}>
                             <button className="flex items-center gap-1 px-2.5 py-1 rounded-full border border-slate-200 dark:border-slate-600 text-xs text-slate-600 dark:text-slate-300 whitespace-nowrap hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
-                                {sortLabel} <ChevronDown className="w-3 h-3" />
+                                {sortButtonLabel} <ChevronDown className="w-3 h-3" />
                             </button>
                         </Dropdown>
                     </div>
@@ -296,7 +330,7 @@ const PracticeHistory = () => {
                     <div className="relative w-full lg:w-64">
                         <Input
                             prefix={<Search className="text-slate-400 w-3.5 h-3.5" />}
-                            placeholder="Tìm kiếm..."
+                            placeholder={t("history.searchPlaceholder")}
                             className="w-full py-1.5 rounded-lg border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-400 text-base hover:border-[#198de6] focus:border-[#198de6]"
                             variant="borderless"
                             value={searchInput}
@@ -309,12 +343,12 @@ const PracticeHistory = () => {
             {isPending && (
                 <div className="flex flex-col items-center justify-center py-20 gap-4">
                     <Spin size="large" indicator={<Loader2 className="w-10 h-10 text-[#198de6] animate-spin" />} />
-                    <span className="text-slate-500 dark:text-slate-400 text-sm">Đang tải lịch sử luyện tập...</span>
+                    <span className="text-slate-500 dark:text-slate-400 text-sm">{t("history.loading")}</span>
                 </div>
             )}
             {isError && (
                 <div className="flex flex-col items-center justify-center py-20 gap-2">
-                    <span className="text-red-500 text-sm">Không thể tải lịch sử. Vui lòng thử lại.</span>
+                    <span className="text-red-500 text-sm">{t("history.loadError")}</span>
                 </div>
             )}
 
@@ -323,11 +357,11 @@ const PracticeHistory = () => {
                     <div className="w-20 h-20 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center mb-4">
                         <History className="w-10 h-10 text-slate-400" />
                     </div>
-                    <h3 className="text-slate-700 dark:text-slate-200 font-semibold text-lg mb-1">Chưa có lịch sử luyện tập</h3>
+                    <h3 className="text-slate-700 dark:text-slate-200 font-semibold text-lg mb-1">{t("history.emptyTitle")}</h3>
                     <p className="text-slate-500 dark:text-slate-400 text-sm text-center max-w-sm mb-6">
                         {searchText || typeFilter || topicFilter || levelFilter
-                            ? "Không tìm thấy bài luyện nào với bộ lọc hiện tại. Thử đổi điều kiện hoặc bắt đầu bài mới."
-                            : "Bắt đầu luyện dịch câu hoặc đoạn văn để xem lịch sử tại đây."}
+                            ? t("history.emptyFiltered")
+                            : t("history.emptyDefault")}
                     </p>
                     <div className="flex flex-wrap items-center justify-center gap-3">
                         {(searchText || typeFilter || topicFilter || levelFilter || viewMode === "single" || sortOrder === "asc") && (
@@ -340,14 +374,14 @@ const PracticeHistory = () => {
                                 className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg border border-slate-200 dark:border-slate-600 text-slate-600 dark:text-slate-300 text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
                             >
                                 <RotateCcw className="w-4 h-4" />
-                                Xóa bộ lọc
+                                {t("history.clearFilters")}
                             </button>
                         )}
                         <Link
                             to="/practice"
                             className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-[#198de6] text-white text-sm font-medium hover:opacity-90 transition-opacity"
                         >
-                            Bắt đầu luyện tập <ArrowRight className="w-4 h-4" />
+                            {t("history.startPractice")} <ArrowRight className="w-4 h-4" />
                         </Link>
                     </div>
                 </div>
@@ -378,11 +412,17 @@ const PracticeHistory = () => {
                                                 <span
                                                     className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wide ${isParagraph ? "bg-blue-100 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400" : "bg-amber-100 dark:bg-amber-950/50 text-amber-600 dark:text-amber-400"}`}
                                                 >
-                                                    {isParagraph ? item.paragraph?.type ?? "—" : "Câu"}
+                                                    {isParagraph
+                                                        ? item.paragraph?.type
+                                                            ? t(`practice.type.${item.paragraph.type}`)
+                                                            : "—"
+                                                        : t("history.typeBadgeSentence")}
                                                 </span>
 
                                                 <span className="px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-[10px] font-bold uppercase tracking-wide">
-                                                    {item.paragraph?.topic ?? "—"}
+                                                    {item.paragraph?.topic
+                                                        ? t(`common.topic.${item.paragraph.topic}`)
+                                                        : "—"}
                                                 </span>
                                                 <span className="px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-[10px] font-bold uppercase tracking-wide">
                                                     {item.paragraph?.level ?? "—"}
@@ -390,7 +430,13 @@ const PracticeHistory = () => {
 
                                             </div>
                                             <span className="text-slate-400 text-[10px]">
-                                                {item.createdAt ? formatDate(item.createdAt) : "—"}
+                                                {item.createdAt
+                                                    ? formatRelativeDate(
+                                                          item.createdAt,
+                                                          t,
+                                                          i18n.language,
+                                                      )
+                                                    : "—"}
                                             </span>
                                         </div>
 
@@ -406,7 +452,7 @@ const PracticeHistory = () => {
                                             <div className="flex-1 min-w-0 space-y-3">
                                                 <div className={isParagraph ? "" : "pl-2 border-l-2 border-[#198de6]/20"}>
                                                     <label className="text-[9px] font-bold text-slate-400 uppercase tracking-wider block mb-0.5">
-                                                        Tiếng Việt
+                                                        {t("history.vietnamese")}
                                                     </label>
                                                     <p
                                                         className={`text-slate-800 dark:text-slate-100 text-sm leading-snug ${isParagraph ? "line-clamp-2" : "line-clamp-3"}`}
@@ -416,7 +462,7 @@ const PracticeHistory = () => {
                                                 </div>
                                                 <div className={isParagraph ? "" : "pl-2 border-l-2 border-purple-500/20"}>
                                                     <label className="text-[9px] font-bold text-slate-400 uppercase tracking-wider block mb-0.5">
-                                                        Tiếng Anh
+                                                        {t("history.english")}
                                                     </label>
                                                     <p
                                                         className={`text-slate-800 dark:text-slate-100 text-sm leading-snug ${isParagraph ? "line-clamp-2" : "line-clamp-3"}`}
@@ -443,13 +489,15 @@ const PracticeHistory = () => {
                                                 to={`/practice/${item.id}/result`}
                                                 className="text-[#198de6] text-[10px] font-bold uppercase hover:underline flex items-center gap-1"
                                             >
-                                                Kết quả <BarChart2 className="w-3 h-3" />
+                                                {t("history.viewResult")}{" "}
+                                                <BarChart2 className="w-3 h-3" />
                                             </Link>
                                         ) : (<Link
                                             to={`/practice/${item.id}`}
                                             className="text-[#198de6] text-[10px] font-bold uppercase hover:underline flex items-center gap-1"
                                         >
-                                            Tiếp tục luyện tập <ArrowRight className="w-3 h-3" />
+                                            {t("history.continuePractice")}{" "}
+                                            <ArrowRight className="w-3 h-3" />
                                         </Link>)}
                                     </div>
                                 </motion.div>

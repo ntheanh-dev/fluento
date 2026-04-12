@@ -21,8 +21,10 @@ import {
 import { useCreateUserPracticeMutation } from "../mutation";
 import type { PracticeSetupInput } from "../schema";
 import { message, Spin } from "antd";
+import { useTranslation } from "react-i18next";
 
 const PracticeSetup = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
 
   const [mode, setMode] = useState<"sentence" | "paragraph">("paragraph");
@@ -57,8 +59,7 @@ const PracticeSetup = () => {
       };
       if (err.response?.data?.code === 1102) {
         message.warning({
-          content:
-            "Bạn cần thêm API key trong profile để sử dụng tính năng này",
+          content: t("practice.setup.needApiKey"),
           pauseOnHover: true,
           duration: 5,
         });
@@ -66,7 +67,7 @@ const PracticeSetup = () => {
         const errorMessage =
           err?.response?.data?.message ??
           err?.message ??
-          "Tạo bài dịch thất bại. Vui lòng thử lại";
+          t("practice.setup.createFailed");
         message.error(errorMessage);
       }
     }
@@ -98,10 +99,10 @@ const PracticeSetup = () => {
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8">
           <div>
             <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">
-              Bắt đầu buổi luyện tập
+              {t("practice.setup.title")}
             </h1>
             <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">
-              Chọn cách bạn muốn luyện dịch tiếng Việt sang tiếng Anh.
+              {t("practice.setup.subtitle")}
             </p>
           </div>
 
@@ -115,7 +116,7 @@ const PracticeSetup = () => {
                 }`}
             >
               <FileText size={16} />
-              Viết đoạn văn
+              {t("practice.setup.modeParagraph")}
             </button>
 
             <button
@@ -126,7 +127,7 @@ const PracticeSetup = () => {
                 }`}
             >
               <AlignLeft size={16} />
-              Dịch theo câu
+              {t("practice.setup.modeSentence")}
             </button>
           </div>
         </div>
@@ -134,7 +135,7 @@ const PracticeSetup = () => {
         <div className="py-3">
           <label className="text-sm font-bold flex items-center gap-2 py-2">
             <Globe size={16} />
-            Chủ đề
+            {t("practice.setup.topicHeading")}
           </label>
           <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
             {/* Groups List */}
@@ -151,8 +152,7 @@ const PracticeSetup = () => {
                     : "text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-slate-700 dark:hover:text-slate-200"
                     }`}
                 >
-                  {group.label}
-                  {selectedGroup === group.group}
+                  {t(`practice.groups.${group.group}`)}
                 </button>
               ))}
             </div>
@@ -162,16 +162,16 @@ const PracticeSetup = () => {
               <div className="grid grid-cols-2 gap-3">
                 {TOPIC_GROUPS.find(
                   (g) => g.group === selectedGroup,
-                )?.topics.map((t) => (
+                )?.topics.map((topicItem) => (
                   <button
-                    key={t.value}
-                    onClick={() => setTopic(t.value)}
-                    className={`px-4 py-3 rounded-lg border text-sm transition-all text-left ${topic === t.value
+                    key={topicItem.value}
+                    onClick={() => setTopic(topicItem.value)}
+                    className={`px-4 py-3 rounded-lg border text-sm transition-all text-left ${topic === topicItem.value
                       ? "bg-white dark:bg-slate-800 border-blue-500 text-blue-700 dark:text-blue-300 shadow-sm ring-1 ring-blue-500 font-medium"
                       : "bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:border-blue-300"
                       }`}
                   >
-                    {t.label}
+                    {t(`common.topic.${topicItem.value}`)}
                   </button>
                 ))}
               </div>
@@ -187,7 +187,7 @@ const PracticeSetup = () => {
               <div className="space-y-3">
                 <label className="text-sm font-bold flex items-center gap-2">
                   <FileText size={16} />
-                  Loại bài
+                  {t("practice.setup.assignmentType")}
                 </label>
                 <div className="grid grid-cols-2 gap-2">
                   {PRACTICE_TYPES.map((item) => (
@@ -199,7 +199,7 @@ const PracticeSetup = () => {
                         : "border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300"
                         }`}
                     >
-                      {item.label}
+                      {t(`practice.type.${item.value}`)}
                     </button>
                   ))}
                 </div>
@@ -210,7 +210,7 @@ const PracticeSetup = () => {
             <div className="space-y-3">
               <label className="text-sm font-bold flex items-center gap-2">
                 <Brain size={16} />
-                Trình độ
+                {t("practice.setup.level")}
               </label>
               <div className="grid grid-cols-2 gap-3">
                 {LEVELS.map((item) => (
@@ -222,7 +222,7 @@ const PracticeSetup = () => {
                       : "border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300"
                       }`}
                   >
-                    {item.label}
+                    {t(`practice.level.${item.value}`)}
                   </button>
                 ))}
               </div>
@@ -235,7 +235,7 @@ const PracticeSetup = () => {
             <div className="space-y-3">
               <label className="text-sm font-bold flex items-center gap-2">
                 <MessageSquare size={16} />
-                Văn phong
+                {t("practice.setup.tone")}
               </label>
               <select
                 value={tone}
@@ -244,7 +244,7 @@ const PracticeSetup = () => {
               >
                 {TONES.map((item) => (
                   <option key={item.value} value={item.value}>
-                    {item.label}
+                    {t(`practice.tone.${item.value}`)}
                   </option>
                 ))}
               </select>
@@ -255,7 +255,7 @@ const PracticeSetup = () => {
               <div className="space-y-3">
                 <label className="text-sm font-bold flex items-center gap-2">
                   <ListOrdered size={16} />
-                  Số câu (khoảng)
+                  {t("practice.setup.sentenceCount")}
                 </label>
                 <select
                   value={sentenceCount}
@@ -264,7 +264,7 @@ const PracticeSetup = () => {
                 >
                   {SENTENCE_COUNTS.map((item) => (
                     <option key={item.value} value={item.value}>
-                      {item.label}
+                      {t(`practice.sentenceCount.${item.value}`)}
                     </option>
                   ))}
                 </select>
@@ -275,10 +275,10 @@ const PracticeSetup = () => {
             <div className="p-4 rounded-xl bg-amber-50 dark:bg-amber-950/30 border border-amber-100 dark:border-amber-900/50">
               <h4 className="text-sm font-bold text-amber-800 dark:text-amber-200 mb-2 flex items-center gap-2">
                 <Info size={16} />
-                Thời gian ước tính
+                {t("practice.setup.estimatedTime")}
               </h4>
               <p className="text-xs text-amber-700 dark:text-amber-300/90">
-                Khoảng 10–20 phút tùy vào độ dài và trình độ.
+                {t("practice.setup.estimatedTimeDesc")}
               </p>
             </div>
           </div>
@@ -288,7 +288,7 @@ const PracticeSetup = () => {
         <div className="flex justify-between items-center pt-6 border-t border-slate-200 dark:border-slate-700 mt-8">
           <div className="flex items-center gap-2 text-slate-400 dark:text-slate-500">
             <Clock size={16} />
-            <span className="text-xs">Sẵn sàng bắt đầu luyện tập</span>
+            <span className="text-xs">{t("practice.setup.footerReady")}</span>
           </div>
 
           <div className="flex gap-4">
@@ -296,7 +296,7 @@ const PracticeSetup = () => {
               onClick={handleReset}
               className="px-6 py-3 rounded-lg text-slate-500 dark:text-slate-400 font-bold hover:bg-slate-100 dark:hover:bg-slate-800"
             >
-              Reset
+              {t("practice.setup.reset")}
             </button>
 
             <button
@@ -304,12 +304,18 @@ const PracticeSetup = () => {
               disabled={isPending}
               className="px-8 py-3 bg-blue-600 text-white rounded-xl font-bold flex items-center gap-2 disabled:opacity-50"
             >
-              Bắt đầu
+              {t("practice.setup.start")}
             </button>
           </div>
         </div>
       </div>
-      {isPending && <Spin indicator={<Loader2 className="animate-spin w-4 h-4" size={32} />} description="AI đang tạo bài luyện tập" fullscreen />}
+      {isPending && (
+        <Spin
+          indicator={<Loader2 className="animate-spin w-4 h-4" size={32} />}
+          description={t("practice.setup.creating")}
+          fullscreen
+        />
+      )}
     </div>
   );
 };

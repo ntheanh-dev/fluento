@@ -11,23 +11,26 @@ import { LogOut } from "lucide-react";
 import { useLogoutMutation } from "@/features/auth/mutation";
 import Cookies from "js-cookie";
 import logo from "../assets/image/logo3.png";
+import { useTranslation } from "react-i18next";
+
 const SidebarItem = ({
   icon: Icon,
   label,
   to,
   active,
 }: {
-  icon: any;
+  icon: React.ComponentType<{ size?: number; strokeWidth?: number }>;
   label: string;
   to: string;
   active: boolean;
 }) => (
   <Link
     to={to}
-    className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 ${active
-      ? "bg-blue-600 text-white shadow-md shadow-blue-200 dark:shadow-blue-900/40"
-      : "text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-100"
-      }`}
+    className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 ${
+      active
+        ? "bg-blue-600 text-white shadow-md shadow-blue-200 dark:shadow-blue-900/40"
+        : "text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-100"
+    }`}
   >
     <Icon size={20} strokeWidth={active ? 2.5 : 2} />
     <span className="font-medium">{label}</span>
@@ -41,6 +44,7 @@ const Sidebar = ({
   activePath: string;
   onClose?: () => void;
 }) => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { mutateAsync: logout } = useLogoutMutation();
   const handleLogout = async () => {
@@ -56,7 +60,7 @@ const Sidebar = ({
             <img src={logo} alt="logo" />
           </div>
           <span className="font-bold text-xl text-slate-800 dark:text-slate-100 tracking-tight">
-            Luyenviet
+            {t("common.brand")}
           </span>
         </div>
         {onClose && (
@@ -72,13 +76,13 @@ const Sidebar = ({
       <nav className="flex-1 px-4 space-y-2 mt-4 overflow-y-auto">
         <SidebarItem
           icon={LayoutDashboard}
-          label="Bảng điều khiển"
-          to="/"
-          active={activePath === "/"}
+          label={t("nav.dashboard")}
+          to="/dashboard"
+          active={activePath === "/dashboard"}
         />
         <SidebarItem
           icon={BookOpen}
-          label="Luyện tập"
+          label={t("nav.practice")}
           to="/practice"
           active={
             activePath.startsWith("/practice") ||
@@ -87,19 +91,19 @@ const Sidebar = ({
         />
         <SidebarItem
           icon={History}
-          label="Lịch sử"
+          label={t("nav.history")}
           to="/history"
           active={activePath === "/history"}
         />
         <SidebarItem
           icon={Trophy}
-          label="Bảng xếp hạng"
+          label={t("nav.rankings")}
           to="/rankings"
           active={activePath === "/rankings"}
         />
         <SidebarItem
           icon={User}
-          label="Hồ sơ"
+          label={t("nav.profile")}
           to="/profile"
           active={activePath === "/profile"}
         />
@@ -111,7 +115,7 @@ const Sidebar = ({
           className="flex items-center gap-3 px-4 py-3 text-slate-500 dark:text-slate-400 hover:text-red-500 w-full transition-colors rounded-xl hover:bg-red-50 dark:hover:bg-red-950/40"
         >
           <LogOut size={20} />
-          <span className="font-medium">Đăng xuất</span>
+          <span className="font-medium">{t("profile.logout")}</span>
         </button>
       </div>
     </div>

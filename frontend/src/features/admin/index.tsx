@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import {
   Button,
   Input,
@@ -29,6 +29,7 @@ import {
   PRACTICE_TYPES,
 } from "@/features/practice/constants";
 import type { PracticeSetupInput } from "@/features/practice/schema";
+import { useTranslation } from "react-i18next";
 
 import {
   adminCreateApiKey,
@@ -55,6 +56,7 @@ const { confirm } = Modal;
 const ROLE_ADMIN = "ADMIN";
 
 const Admin = () => {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
 
   const [usersPage, setUsersPage] = useState(0);
@@ -214,11 +216,17 @@ const Admin = () => {
   });
 
   const topicOptions = useMemo(
-    () => TOPIC_GROUPS.flatMap((g) => g.topics.map((t) => ({ value: t.value, label: t.label }))),
-    [],
+    () =>
+      TOPIC_GROUPS.flatMap((g) =>
+        g.topics.map((topic) => ({
+          value: topic.value,
+          label: t(`common.topic.${topic.value}`),
+        })),
+      ),
+    [t],
   );
 
-  const makeRoleTag = (user: User) => {
+  const makeRoleTag = useCallback((user: User) => {
     const roles = user.roles ?? [];
     return (
       <Space wrap>
@@ -229,76 +237,72 @@ const Admin = () => {
         ))}
       </Space>
     );
-  };
+  }, []);
 
-  // ===== Columns =====
-  const userColumns: ColumnsType<User> = [
-    { title: "ID", dataIndex: "id", key: "id", width: 70 },
-    { title: "Username", dataIndex: "username", key: "username" },
-    { title: "Full name", dataIndex: "fullName", key: "fullName" },
-    {
-      title: "Roles",
-      dataIndex: "roles",
-      key: "roles",
-      render: (_, record) => makeRoleTag(record),
-    },
-    {
-      title: "Actions",
-      key: "actions",
-      width: 260,
-      render: (_, record) => {
-        const roleNames = new Set((record.roles ?? []).map((r) => r.name));
-        const isAdmin = roleNames.has(ROLE_ADMIN);
-        return (
-          <Space>
-            <Button
-              size="small"
-              type={isAdmin ? "default" : "primary"}
-              onClick={() =>
-                updateUserMutation.mutate({ id: record.id, roleNames: [ROLE_ADMIN] })
-              }
-              loading={
-                updateUserMutation.isPending &&
-                (updateUserMutation.variables as any)?.id === record.id
-              }
-            >
-              {isAdmin ? "ADMIN" : "Make ADMIN"}
-            </Button>
-            <Button
-              size="small"
-              onClick={() =>
-                updateUserMutation.mutate({ id: record.id, roleNames: ["USER"] })
-              }
-              loading={
-                updateUserMutation.isPending &&
-                (updateUserMutation.variables as any)?.id === record.id
-              }
-            >
-              Make USER
-            </Button>
-            <Button
-              size="small"
-              danger
-              onClick={() =>
-                confirm({
-                  title: "Delete user?",
-                  icon: <ExclamationCircleFilled />,
-                  content: `User: ${record.username}`,
-                  okType: "danger",
-                  onOk: () => deleteUserMutation.mutate(record.id),
-                })
-              }
-              loading={deleteUserMutation.isPending}
-            >
-              Delete
-            </Button>
-          </Space>
-        );
+  const userColumns: ColumnsType<User> = useMemo(
+    () => [
+      { title: t("admin.columns.id"), dataIndex: "id", key: "id", width: 70 },
+      { title: t("admin.columns.username"), dataIndex: "username", key: "username" },
+      { title: t("admin.columns.fullName"), dataIndex: "fullName", key: "fullName" },
+      {
+        title: t("admin.columns.roles"),
+        dataIndex: "roles",
+        key: "roles",
+        render: (_, record) => makeRoleTag(record),
       },
-    },
-  ];
+      {
+        title: t("admin.columns.actions"),
+        key: "actions",
+        width: 260,
+        render: (_, record) => {
+          const roleNames = new Set((record.roles ?? []).map((r) => r.name));
+          const isAdmin = roleNames.has(ROLE_ADMIN);
+          return (
+            <Space>
+              <Button
+                size="small"
+                type={isAdmin ? "default" : "primary"}
+                onClick={() => updateUserMutation.mutate({ id: record.id, roleNames: [ROLE_ADMIN] })}
+                loading={
+                  updateUserMutation.isPending && (updateUserMutation.variables as { id?: number })?.id === record.id
+                }
+              >
+                {isAdmin ? t("admin.users.badgeAdmin") : t("admin.users.makeAdmin")}
+              </Button>
+              <Button
+                size="small"
+                onClick={() => updateUserMutation.mutate({ id: record.id, roleNames: ["USER"] })}
+                loading={
+                  updateUserMutation.isPending && (updateUserMutation.variables as { id?: number })?.id === record.id
+                }
+              >
+                {t("admin.users.makeUser")}
+              </Button>
+              <Button
+                size="small"
+                danger
+                onClick={() =>
+                  confirm({
+                    title: t("admin.users.confirmDeleteTitle"),
+                    icon: <ExclamationCircleFilled />,
+                    content: t("admin.users.confirmDeleteContent", { username: record.username }),
+                    okType: "danger",
+                    onOk: () => deleteUserMutation.mutate(record.id),
+                  })
+                }
+                loading={deleteUserMutation.isPending}
+              >
+                {t("admin.delete")}
+              </Button>
+            </Space>
+          );
+        },
+      },
+    ],
+    [t, makeRoleTag, updateUserMutation, deleteUserMutation],
+  );
 
-  const apiKeysColumns: ColumnsType<{
+  type ApiKeyRow = {
     id: number;
     apiKey: string;
     model: string;
@@ -307,200 +311,247 @@ const Admin = () => {
     createdAt: string | null;
     userId: number | null;
     username: string | null;
-  }> = [
-    { title: "ID", dataIndex: "id", key: "id", width: 80 },
-    { title: "User", key: "user", width: 160, render: (_, r) => (r.username ? `${r.username} (#${r.userId})` : `#${r.userId}`) },
-    { title: "Model", dataIndex: "model", key: "model", width: 140 },
-    { title: "API Key", dataIndex: "apiKey", key: "apiKey", render: (v) => maskApiKey(v as any) },
-    { title: "Credit", dataIndex: "credit", key: "credit", width: 100 },
-    {
-      title: "Active",
-      dataIndex: "isActive",
-      key: "isActive",
-      width: 90,
-      render: (v) => (v ? <Tag color="green">ACTIVE</Tag> : <Tag color="red">INACTIVE</Tag>),
-    },
-    { title: "Created", dataIndex: "createdAt", key: "createdAt", render: (v) => v ?? "-" },
-    {
-      title: "Actions",
-      key: "actions",
-      width: 220,
-      render: (_, record) => (
-        <Space>
-          <Button
-            size="small"
-            onClick={() => {
-              setApiKeyModalTargetId(record.id);
-              setApiKeyModalCredit(record.credit);
-              setApiKeyModalOpen(true);
-            }}
-          >
-            Set Credit
-          </Button>
-          <Button
-            size="small"
-            danger
-            onClick={() =>
-              confirm({
-                title: "Delete API key group?",
-                icon: <ExclamationCircleFilled />,
-                okType: "danger",
-                onOk: () => deleteApiKeyMutation.mutate(record.id),
-              })
-            }
-          >
-            Delete
-          </Button>
-        </Space>
-      ),
-    },
-  ];
+  };
 
-  const paragraphColumns: ColumnsType<Paragraph> = [
-    { title: "ID", dataIndex: "id", key: "id", width: 80 },
-    { title: "Title", dataIndex: "title", key: "title", width: 220 },
-    { title: "Type", dataIndex: "type", key: "type", width: 140 },
-    { title: "Topic", dataIndex: "topic", key: "topic", width: 160 },
-    { title: "Level", dataIndex: "level", key: "level", width: 120 },
-    { title: "# Sentences", dataIndex: "sentences", key: "sentences", render: (v) => (v ? v.length : 0), width: 140 },
-    { title: "Created", dataIndex: "createdAt", key: "createdAt", render: (v) => v ?? "-" },
-    {
-      title: "Actions",
-      key: "actions",
-      width: 200,
-      render: (_, record) => (
-        <Space>
-          <Button
-            size="small"
-            danger
-            onClick={() =>
-              confirm({
-                title: "Delete paragraph?",
-                icon: <ExclamationCircleFilled />,
-                okType: "danger",
-                onOk: () => deleteParagraphMutation.mutate(record.id),
-              })
-            }
-            loading={deleteParagraphMutation.isPending}
-          >
-            Delete
-          </Button>
-        </Space>
-      ),
-    },
-  ];
-
-  const userPracticeColumns: ColumnsType<UserPractice> = [
-    { title: "Practice ID", dataIndex: "id", key: "id", width: 110 },
-    { title: "Attempt", dataIndex: "attemptNumber", key: "attemptNumber", width: 90 },
-    { title: "Type", dataIndex: ["paragraph", "type"], key: "type", width: 110 },
-    { title: "Topic", dataIndex: ["paragraph", "topic"], key: "topic", width: 150 },
-    { title: "Level", dataIndex: ["paragraph", "level"], key: "level", width: 110 },
-    { title: "Score", dataIndex: "score", key: "score", width: 100 },
-    { title: "Learning time (ms)", dataIndex: "learningTime", key: "learningTime", width: 150 },
-    { title: "Created", dataIndex: "createdAt", key: "createdAt", render: (v) => v ?? "-" },
-  ];
-
-  const creditTxColumns: ColumnsType<any> = [
-    { title: "ID", dataIndex: "id", key: "id", width: 80 },
-    { title: "User", key: "user", render: (_, r) => (r.username ? `${r.username} (#${r.userId})` : `#${r.userId}`) },
-    { title: "Amount", dataIndex: "amount", key: "amount", width: 110 },
-    { title: "Type", dataIndex: "type", key: "type", width: 140 },
-    { title: "Status", dataIndex: "status", key: "status", width: 130 },
-    { title: "Reference", dataIndex: "referenceId", key: "referenceId", render: (v) => v ?? "-" },
-    { title: "Created", dataIndex: "createdAt", key: "createdAt", render: (v) => v ?? "-" },
-  ];
-
-  const rolesColumns: ColumnsType<any> = [
-    { title: "Role", dataIndex: "name", key: "name" },
-    { title: "Description", dataIndex: "description", key: "description" },
-    {
-      title: "Permissions",
-      key: "permissions",
-      dataIndex: "permissions",
-      render: (perms) => (perms?.length ? perms.map((p: any) => p.name).join(", ") : "-"),
-    },
-  ];
-
-  const paragraphSentencesColumns: ColumnsType<ParagraphSentence> = [
-    { title: "ID", dataIndex: "id", key: "id", width: 80 },
-    { title: "Order", dataIndex: "orderIndex", key: "orderIndex", width: 90 },
-    {
-      title: "Content",
-      dataIndex: "content",
-      key: "content",
-      render: (v) => (v ? String(v).slice(0, 60) + (String(v).length > 60 ? "..." : "") : "-"),
-    },
-    {
-      title: "Hints",
-      key: "hints",
-      render: (_, r) => {
-        const count = r.vocabularyHints?.length ?? 0;
-        return <Tag color={count ? "blue" : "default"}>{count ? `${count} items` : "none"}</Tag>;
+  const apiKeysColumns: ColumnsType<ApiKeyRow> = useMemo(
+    () => [
+      { title: t("admin.columns.id"), dataIndex: "id", key: "id", width: 80 },
+      {
+        title: t("admin.columns.user"),
+        key: "user",
+        width: 160,
+        render: (_, r) => (r.username ? `${r.username} (#${r.userId})` : `#${r.userId}`),
       },
-    },
-    {
-      title: "Actions",
-      key: "actions",
-      width: 240,
-      render: (_, record) => (
-        <Space>
-          <Button
-            size="small"
-            onClick={() =>
-              confirm({
-                title: "Generate vocabulary hints (AI)?",
-                icon: <ExclamationCircleFilled />,
-                okType: "primary",
-                onOk: () => generateHintsMutation.mutate(record.id),
-              })
-            }
-            loading={generateHintsMutation.isPending}
-          >
-            Generate
-          </Button>
-          <Button
-            size="small"
-            danger
-            onClick={() =>
-              confirm({
-                title: "Delete sentence?",
-                icon: <ExclamationCircleFilled />,
-                okType: "danger",
-                onOk: () => deleteSentenceMutation.mutate(record.id),
-              })
-            }
-            loading={deleteSentenceMutation.isPending}
-          >
-            Delete
-          </Button>
-        </Space>
-      ),
-    },
-  ];
+      { title: t("admin.columns.model"), dataIndex: "model", key: "model", width: 140 },
+      { title: t("admin.columns.apiKey"), dataIndex: "apiKey", key: "apiKey", render: (v) => maskApiKey(v as string) },
+      { title: t("admin.columns.credit"), dataIndex: "credit", key: "credit", width: 100 },
+      {
+        title: t("admin.columns.active"),
+        dataIndex: "isActive",
+        key: "isActive",
+        width: 90,
+        render: (v) => (
+          <Tag color={v ? "green" : "red"}>{v ? t("admin.statusTag.active") : t("admin.statusTag.inactive")}</Tag>
+        ),
+      },
+      { title: t("admin.columns.created"), dataIndex: "createdAt", key: "createdAt", render: (v) => v ?? "-" },
+      {
+        title: t("admin.columns.actions"),
+        key: "actions",
+        width: 220,
+        render: (_, record) => (
+          <Space>
+            <Button
+              size="small"
+              onClick={() => {
+                setApiKeyModalTargetId(record.id);
+                setApiKeyModalCredit(record.credit);
+                setApiKeyModalOpen(true);
+              }}
+            >
+              {t("admin.apiKeys.setCredit")}
+            </Button>
+            <Button
+              size="small"
+              danger
+              onClick={() =>
+                confirm({
+                  title: t("admin.apiKeys.confirmDeleteTitle"),
+                  icon: <ExclamationCircleFilled />,
+                  okType: "danger",
+                  onOk: () => deleteApiKeyMutation.mutate(record.id),
+                })
+              }
+            >
+              {t("admin.delete")}
+            </Button>
+          </Space>
+        ),
+      },
+    ],
+    [t, deleteApiKeyMutation],
+  );
+
+  const paragraphColumns: ColumnsType<Paragraph> = useMemo(
+    () => [
+      { title: t("admin.columns.id"), dataIndex: "id", key: "id", width: 80 },
+      { title: t("admin.columns.title"), dataIndex: "title", key: "title", width: 220 },
+      { title: t("admin.columns.type"), dataIndex: "type", key: "type", width: 140 },
+      { title: t("admin.columns.topic"), dataIndex: "topic", key: "topic", width: 160 },
+      { title: t("admin.columns.level"), dataIndex: "level", key: "level", width: 120 },
+      {
+        title: t("admin.columns.sentenceCount"),
+        dataIndex: "sentences",
+        key: "sentences",
+        render: (v) => (v ? v.length : 0),
+        width: 140,
+      },
+      { title: t("admin.columns.created"), dataIndex: "createdAt", key: "createdAt", render: (v) => v ?? "-" },
+      {
+        title: t("admin.columns.actions"),
+        key: "actions",
+        width: 200,
+        render: (_, record) => (
+          <Space>
+            <Button
+              size="small"
+              danger
+              onClick={() =>
+                confirm({
+                  title: t("admin.paragraphs.confirmDeleteTitle"),
+                  icon: <ExclamationCircleFilled />,
+                  okType: "danger",
+                  onOk: () => deleteParagraphMutation.mutate(record.id),
+                })
+              }
+              loading={deleteParagraphMutation.isPending}
+            >
+              {t("admin.delete")}
+            </Button>
+          </Space>
+        ),
+      },
+    ],
+    [t, deleteParagraphMutation],
+  );
+
+  const userPracticeColumns: ColumnsType<UserPractice> = useMemo(
+    () => [
+      { title: t("admin.columns.practiceId"), dataIndex: "id", key: "id", width: 110 },
+      { title: t("admin.columns.attempt"), dataIndex: "attemptNumber", key: "attemptNumber", width: 90 },
+      { title: t("admin.columns.type"), dataIndex: ["paragraph", "type"], key: "type", width: 110 },
+      { title: t("admin.columns.topic"), dataIndex: ["paragraph", "topic"], key: "topic", width: 150 },
+      { title: t("admin.columns.level"), dataIndex: ["paragraph", "level"], key: "level", width: 110 },
+      { title: t("admin.columns.score"), dataIndex: "score", key: "score", width: 100 },
+      { title: t("admin.columns.learningTimeMs"), dataIndex: "learningTime", key: "learningTime", width: 150 },
+      { title: t("admin.columns.created"), dataIndex: "createdAt", key: "createdAt", render: (v) => v ?? "-" },
+    ],
+    [t],
+  );
+
+  const creditTxColumns: ColumnsType<Record<string, unknown>> = useMemo(
+    () => [
+      { title: t("admin.columns.id"), dataIndex: "id", key: "id", width: 80 },
+      {
+        title: t("admin.columns.user"),
+        key: "user",
+        render: (_, r) => {
+          const row = r as { username?: string; userId?: number };
+          return row.username ? `${row.username} (#${row.userId})` : `#${row.userId}`;
+        },
+      },
+      { title: t("admin.columns.amount"), dataIndex: "amount", key: "amount", width: 110 },
+      { title: t("admin.columns.type"), dataIndex: "type", key: "type", width: 140 },
+      { title: t("admin.columns.status"), dataIndex: "status", key: "status", width: 130 },
+      { title: t("admin.columns.reference"), dataIndex: "referenceId", key: "referenceId", render: (v) => v ?? "-" },
+      { title: t("admin.columns.created"), dataIndex: "createdAt", key: "createdAt", render: (v) => v ?? "-" },
+    ],
+    [t],
+  );
+
+  const rolesColumns: ColumnsType<Record<string, unknown>> = useMemo(
+    () => [
+      { title: t("admin.columns.role"), dataIndex: "name", key: "name" },
+      { title: t("admin.columns.description"), dataIndex: "description", key: "description" },
+      {
+        title: t("admin.columns.permissions"),
+        key: "permissions",
+        dataIndex: "permissions",
+        render: (perms: unknown) =>
+          Array.isArray(perms) && perms.length
+            ? (perms as { name: string }[]).map((p) => p.name).join(", ")
+            : "-",
+      },
+    ],
+    [t],
+  );
+
+  const paragraphSentencesColumns: ColumnsType<ParagraphSentence> = useMemo(
+    () => [
+      { title: t("admin.columns.id"), dataIndex: "id", key: "id", width: 80 },
+      { title: t("admin.columns.order"), dataIndex: "orderIndex", key: "orderIndex", width: 90 },
+      {
+        title: t("admin.columns.content"),
+        dataIndex: "content",
+        key: "content",
+        render: (v) => (v ? String(v).slice(0, 60) + (String(v).length > 60 ? "..." : "") : "-"),
+      },
+      {
+        title: t("admin.columns.hints"),
+        key: "hints",
+        render: (_, r) => {
+          const count = r.vocabularyHints?.length ?? 0;
+          return (
+            <Tag color={count ? "blue" : "default"}>
+              {count ? t("admin.paragraphSentences.hintItems", { count }) : t("admin.paragraphSentences.hintNone")}
+            </Tag>
+          );
+        },
+      },
+      {
+        title: t("admin.columns.actions"),
+        key: "actions",
+        width: 240,
+        render: (_, record) => (
+          <Space>
+            <Button
+              size="small"
+              onClick={() =>
+                confirm({
+                  title: t("admin.paragraphSentences.confirmGenerateHints"),
+                  icon: <ExclamationCircleFilled />,
+                  okType: "primary",
+                  onOk: () => generateHintsMutation.mutate(record.id),
+                })
+              }
+              loading={generateHintsMutation.isPending}
+            >
+              {t("admin.paragraphSentences.generate")}
+            </Button>
+            <Button
+              size="small"
+              danger
+              onClick={() =>
+                confirm({
+                  title: t("admin.paragraphSentences.confirmDeleteSentence"),
+                  icon: <ExclamationCircleFilled />,
+                  okType: "danger",
+                  onOk: () => deleteSentenceMutation.mutate(record.id),
+                })
+              }
+              loading={deleteSentenceMutation.isPending}
+            >
+              {t("admin.delete")}
+            </Button>
+          </Space>
+        ),
+      },
+    ],
+    [t, generateHintsMutation, deleteSentenceMutation],
+  );
 
   return (
     <div className="max-w-7xl mx-auto p-4 sm:px-6 lg:px-8 pb-8 dark:text-slate-100 space-y-6">
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-end gap-3 mb-4">
         <div>
           <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-slate-100">
-            Admin Management
+            {t("admin.title")}
           </h1>
           <p className="text-sm text-slate-500 dark:text-slate-400">
-            Quản lý users, API keys, paragraphs, user practices, credit transactions và hints.
+            {t("admin.subtitle")}
           </p>
         </div>
       </div>
 
       <Tabs defaultActiveKey="users">
-        <TabPane tab="Users" key="users">
+        <TabPane tab={t("admin.tabUsers")} key="users">
           <Spin spinning={usersQuery.isLoading}>
             <div className="flex items-center gap-3 mb-3">
               <Button
                 type="primary"
                 onClick={() => queryClient.invalidateQueries({ queryKey: ["adminUsers"] })}
               >
-                Refresh
+                {t("admin.refresh")}
               </Button>
             </div>
             <Table<User>
@@ -520,21 +571,21 @@ const Admin = () => {
           </Spin>
         </TabPane>
 
-        <TabPane tab="API Keys" key="api-keys">
+        <TabPane tab={t("admin.tabApiKeys")} key="api-keys">
           <Spin spinning={apiKeysQuery.isLoading}>
             <div className="flex flex-col sm:flex-row gap-3 sm:items-end justify-between mb-3">
               <Space>
-                <span className="text-sm text-slate-600 dark:text-slate-300">User ID:</span>
+                <span className="text-sm text-slate-600 dark:text-slate-300">{t("admin.labels.userId")}</span>
                 <InputNumber value={apiKeysUserId} onChange={(v) => setApiKeysUserId(v ?? undefined)} />
               </Space>
               <Space>
                 <Button onClick={() => setCreateApiKeyModalOpen(true)} type="primary">
-                  Create for user
+                  {t("admin.apiKeys.createForUser")}
                 </Button>
                 <Button
                   onClick={() => queryClient.invalidateQueries({ queryKey: ["adminApiKeys"] })}
                 >
-                  Refresh
+                  {t("admin.refresh")}
                 </Button>
               </Space>
             </div>
@@ -556,15 +607,15 @@ const Admin = () => {
           </Spin>
         </TabPane>
 
-        <TabPane tab="Paragraphs" key="paragraphs">
+        <TabPane tab={t("admin.tabParagraphs")} key="paragraphs">
           <Spin spinning={paragraphsQuery.isLoading}>
             <div className="flex flex-col sm:flex-row gap-3 sm:items-end justify-between mb-3">
               <Space>
                 <Button type="primary" onClick={() => setCreateParagraphModalOpen(true)}>
-                  Create paragraph
+                  {t("admin.paragraphs.createButton")}
                 </Button>
                 <Button onClick={() => queryClient.invalidateQueries({ queryKey: ["adminParagraphs"] })}>
-                  Refresh
+                  {t("admin.refresh")}
                 </Button>
               </Space>
             </div>
@@ -586,11 +637,11 @@ const Admin = () => {
           </Spin>
         </TabPane>
 
-        <TabPane tab="User Practices" key="user-practices">
+        <TabPane tab={t("admin.tabUserPractices")} key="user-practices">
           <Spin spinning={userPracticesQuery.isLoading}>
             <div className="flex flex-col sm:flex-row gap-3 sm:items-end justify-between mb-3">
               <Space>
-                <span className="text-sm text-slate-600 dark:text-slate-300">User ID:</span>
+                <span className="text-sm text-slate-600 dark:text-slate-300">{t("admin.labels.userId")}</span>
                 <InputNumber
                   value={userPracticesUserId}
                   onChange={(v) => {
@@ -601,11 +652,11 @@ const Admin = () => {
               </Space>
               <Space>
                 <Select value={userPracticesSort} onChange={(v) => setUserPracticesSort(v)}>
-                  <Select.Option value="desc">Latest</Select.Option>
-                  <Select.Option value="asc">Oldest</Select.Option>
+                  <Select.Option value="desc">{t("admin.sort.latest")}</Select.Option>
+                  <Select.Option value="asc">{t("admin.sort.oldest")}</Select.Option>
                 </Select>
                 <Input
-                  placeholder="Search (optional)"
+                  placeholder={t("admin.placeholders.searchOptional")}
                   value={userPracticesSearch}
                   onChange={(e) => setUserPracticesSearch(e.target.value)}
                   style={{ width: 220 }}
@@ -630,17 +681,17 @@ const Admin = () => {
           </Spin>
         </TabPane>
 
-        <TabPane tab="Credit Transactions" key="credit-transactions">
+        <TabPane tab={t("admin.tabCreditTx")} key="credit-transactions">
           <Spin spinning={creditTxQuery.isLoading}>
             <div className="flex flex-col sm:flex-row gap-3 sm:items-end justify-between mb-3">
               <Space>
-                <span className="text-sm text-slate-600 dark:text-slate-300">User ID:</span>
+                <span className="text-sm text-slate-600 dark:text-slate-300">{t("admin.labels.userId")}</span>
                 <InputNumber value={creditTxUserId} onChange={(v) => setCreditTxUserId(v ?? undefined)} />
               </Space>
               <Button
                 onClick={() => queryClient.invalidateQueries({ queryKey: ["adminCreditTx"] })}
               >
-                Refresh
+                {t("admin.refresh")}
               </Button>
             </div>
 
@@ -661,7 +712,7 @@ const Admin = () => {
           </Spin>
         </TabPane>
 
-        <TabPane tab="Roles" key="roles">
+        <TabPane tab={t("admin.tabRoles")} key="roles">
           <Spin spinning={rolesQuery.isLoading}>
             <Table
               rowKey="name"
@@ -672,11 +723,11 @@ const Admin = () => {
           </Spin>
         </TabPane>
 
-        <TabPane tab="Paragraph Sentences" key="paragraph-sentences">
+        <TabPane tab={t("admin.tabParagraphSentences")} key="paragraph-sentences">
           <Spin spinning={paragraphSentencesQuery.isLoading}>
             <div className="flex flex-col sm:flex-row gap-3 sm:items-end justify-between mb-3">
               <Space>
-                <span className="text-sm text-slate-600 dark:text-slate-300">Paragraph ID:</span>
+                <span className="text-sm text-slate-600 dark:text-slate-300">{t("admin.labels.paragraphId")}</span>
                 <InputNumber
                   value={paragraphSentencesParagraphId}
                   onChange={(v) => {
@@ -691,7 +742,7 @@ const Admin = () => {
                   })
                 }
               >
-                Refresh
+                {t("admin.refresh")}
               </Button>
             </div>
 
@@ -708,7 +759,7 @@ const Admin = () => {
       {/* Set credit modal */}
       <Modal
         open={apiKeyModalOpen}
-        title="Set API key credit"
+        title={t("admin.apiKeys.modalCreditTitle")}
         onCancel={() => setApiKeyModalOpen(false)}
         onOk={() => {
           if (apiKeyModalTargetId == null) return;
@@ -721,7 +772,9 @@ const Admin = () => {
         confirmLoading={updateApiKeyCreditMutation.isPending}
       >
         <div className="space-y-2">
-          <div className="text-sm text-slate-600">API key row ID: {apiKeyModalTargetId}</div>
+          <div className="text-sm text-slate-600">
+            {t("admin.labels.apiKeyRowId")} {apiKeyModalTargetId}
+          </div>
           <InputNumber
             value={apiKeyModalCredit}
             onChange={(v) => setApiKeyModalCredit(v ?? 0)}
@@ -734,19 +787,19 @@ const Admin = () => {
       {/* Create API key for user */}
       <Modal
         open={createApiKeyModalOpen}
-        title="Create API key for user"
+        title={t("admin.apiKeys.createModalTitle")}
         onCancel={() => setCreateApiKeyModalOpen(false)}
         footer={null}
       >
         <Space direction="vertical" style={{ width: "100%" }}>
           <InputNumber
-            placeholder="User ID"
+            placeholder={t("admin.placeholders.userId")}
             value={createApiKeyUserId ?? undefined}
             onChange={(v) => setCreateApiKeyUserId(v ?? null)}
             style={{ width: "100%" }}
           />
           <Input
-            placeholder="API key (Gemini)"
+            placeholder={t("admin.placeholders.apiKeyGemini")}
             value={createApiKeyValue}
             onChange={(e) => setCreateApiKeyValue(e.target.value)}
           />
@@ -763,7 +816,7 @@ const Admin = () => {
                 .catch(() => {});
             }}
           >
-            Create
+            {t("admin.create")}
           </Button>
         </Space>
       </Modal>
@@ -771,7 +824,7 @@ const Admin = () => {
       {/* Create paragraph modal */}
       <Modal
         open={createParagraphModalOpen}
-        title="Create paragraph (AI-generated)"
+        title={t("admin.paragraphs.createModalTitle")}
         onCancel={() => setCreateParagraphModalOpen(false)}
         onOk={() => {
           createParagraphMutation.mutate(createParagraphPayload, {
@@ -785,13 +838,19 @@ const Admin = () => {
             value={createParagraphPayload.type}
             onChange={(v) => setCreateParagraphPayload((p) => ({ ...p, type: v as any }))}
             style={{ width: "100%" }}
-            options={PRACTICE_TYPES.map((t) => ({ value: t.value, label: t.label }))}
+            options={PRACTICE_TYPES.map((x) => ({
+              value: x.value,
+              label: t(`practice.type.${x.value}`),
+            }))}
           />
           <Select
             value={createParagraphPayload.tone}
             onChange={(v) => setCreateParagraphPayload((p) => ({ ...p, tone: v as any }))}
             style={{ width: "100%" }}
-            options={TONES.map((t) => ({ value: t.value, label: t.label }))}
+            options={TONES.map((x) => ({
+              value: x.value,
+              label: t(`practice.tone.${x.value}`),
+            }))}
           />
           <Select
             value={createParagraphPayload.topic}
@@ -803,13 +862,19 @@ const Admin = () => {
             value={createParagraphPayload.level}
             onChange={(v) => setCreateParagraphPayload((p) => ({ ...p, level: v as any }))}
             style={{ width: "100%" }}
-            options={LEVELS.map((l) => ({ value: l.value, label: l.label }))}
+            options={LEVELS.map((l) => ({
+              value: l.value,
+              label: t(`practice.level.${l.value}`),
+            }))}
           />
           <Select
             value={createParagraphPayload.sentenceCount}
             onChange={(v) => setCreateParagraphPayload((p) => ({ ...p, sentenceCount: v as any }))}
             style={{ width: "100%" }}
-            options={SENTENCE_COUNTS.map((c) => ({ value: c.value, label: c.label }))}
+            options={SENTENCE_COUNTS.map((c) => ({
+              value: c.value,
+              label: t(`practice.sentenceCount.${c.value}`),
+            }))}
           />
         </Space>
       </Modal>

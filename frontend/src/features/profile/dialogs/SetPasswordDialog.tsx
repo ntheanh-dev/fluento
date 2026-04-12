@@ -2,9 +2,9 @@ import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Modal, Form, Input, Button } from "antd";
 import { Eye, EyeOff } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { getSetPasswordSchema } from "../schema";
-import type { z } from "zod";
 import { useUpdateMe } from "../hook/useUpdateMe";
 
 interface SetPasswordDialogProps {
@@ -15,13 +15,13 @@ interface SetPasswordDialogProps {
 }
 
 export default function SetPasswordDialog({ open, onClose, noPassword }: SetPasswordDialogProps) {
+    const { t } = useTranslation();
     const [showCurrent, setShowCurrent] = useState(false);
     const [showNew, setShowNew] = useState(false);
     const [showConfirm, setShowConfirm] = useState(false);
     const { mutateAsync: updateMeMutation } = useUpdateMe();
 
-    const schema = getSetPasswordSchema(noPassword);
-    type SetPasswordForm = z.infer<typeof schema>;
+    const schema = useMemo(() => getSetPasswordSchema(noPassword, t), [noPassword, t]);
 
     const {
         control,
@@ -29,20 +29,24 @@ export default function SetPasswordDialog({ open, onClose, noPassword }: SetPass
         reset,
         setError,
         formState: { errors, isSubmitting },
-    } = useForm<SetPasswordForm>({
+    } = useForm({
         resolver: zodResolver(schema),
         defaultValues: {
             currentPassword: "",
             newPassword: "",
             confirmPassword: "",
-        } as SetPasswordForm,
+        },
     });
 
     useEffect(() => {
         if (open) reset();
     }, [open, noPassword, reset]);
 
-    const onSubmit = async (data: SetPasswordForm) => {
+    const onSubmit = async (data: {
+        currentPassword?: string;
+        newPassword: string;
+        confirmPassword: string;
+    }) => {
         try {
             await updateMeMutation({
                 newPassword: data.newPassword,
@@ -55,7 +59,7 @@ export default function SetPasswordDialog({ open, onClose, noPassword }: SetPass
             const msg =
                 err?.response?.data?.message ??
                 err?.message ??
-                "Thao tác thất bại. Vui lòng thử lại.";
+                t("profile.dialogs.setPassword.genericError");
             if (!noPassword) setError("currentPassword", { type: "manual", message: msg });
             else setError("newPassword", { type: "manual", message: msg });
         }
@@ -69,7 +73,7 @@ export default function SetPasswordDialog({ open, onClose, noPassword }: SetPass
     return (
         <Modal
             centered
-            title={noPassword ? "Tạo mật khẩu" : "Đổi mật khẩu"}
+            title={noPassword ? t("profile.dialogs.setPassword.titleCreate") : t("profile.dialogs.setPassword.titleChange")}
             open={open}
             onCancel={handleCancel}
             footer={null}
@@ -77,13 +81,13 @@ export default function SetPasswordDialog({ open, onClose, noPassword }: SetPass
         >
             {noPassword && (
                 <p className="text-slate-500 text-sm mb-4">
-                    Bạn đăng nhập bằng tài khoản mạng xã hội. Tạo mật khẩu để có thể đăng nhập bằng email/username.
+                    {t("profile.dialogs.setPassword.socialHint")}
                 </p>
             )}
             <Form layout="vertical" onFinish={handleSubmit(onSubmit)}>
                 {!noPassword && (
                     <Form.Item
-                        label="Mật khẩu hiện tại"
+                        label={t("profile.dialogs.setPassword.currentLabel")}
                         validateStatus={errors.currentPassword ? "error" : undefined}
                         help={errors.currentPassword?.message}
                     >
@@ -95,7 +99,7 @@ export default function SetPasswordDialog({ open, onClose, noPassword }: SetPass
                                     {...field}
                                     type={showCurrent ? "text" : "password"}
                                     size="large"
-                                    placeholder="Nhập mật khẩu hiện tại"
+                                    placeholder={t("profile.dialogs.setPassword.currentPlaceholder")}
                                     suffix={
                                         <button
                                             type="button"
@@ -111,7 +115,7 @@ export default function SetPasswordDialog({ open, onClose, noPassword }: SetPass
                     </Form.Item>
                 )}
                 <Form.Item
-                    label="Mật khẩu mới"
+                    label={t("profile.dialogs.setPassword.newLabel")}
                     validateStatus={errors.newPassword ? "error" : undefined}
                     help={errors.newPassword?.message}
                 >
@@ -123,7 +127,7 @@ export default function SetPasswordDialog({ open, onClose, noPassword }: SetPass
                                 {...field}
                                 type={showNew ? "text" : "password"}
                                 size="large"
-                                placeholder="Nhập mật khẩu mới"
+                                placeholder={t("profile.dialogs.setPassword.newPlaceholder")}
                                 suffix={
                                     <button
                                         type="button"
@@ -138,7 +142,7 @@ export default function SetPasswordDialog({ open, onClose, noPassword }: SetPass
                     />
                 </Form.Item>
                 <Form.Item
-                    label="Xác nhận mật khẩu"
+                    label={t("profile.dialogs.setPassword.confirmLabel")}
                     validateStatus={errors.confirmPassword ? "error" : undefined}
                     help={errors.confirmPassword?.message}
                 >
@@ -150,7 +154,7 @@ export default function SetPasswordDialog({ open, onClose, noPassword }: SetPass
                                 {...field}
                                 type={showConfirm ? "text" : "password"}
                                 size="large"
-                                placeholder="Nhập lại mật khẩu"
+                                placeholder={t("profile.dialogs.setPassword.confirmPlaceholder")}
                                 suffix={
                                     <button
                                         type="button"
@@ -166,9 +170,9 @@ export default function SetPasswordDialog({ open, onClose, noPassword }: SetPass
                 </Form.Item>
                 <Form.Item className="mb-0 mt-6">
                     <div className="flex justify-end gap-2">
-                        <Button onClick={handleCancel}>Hủy</Button>
+                        <Button onClick={handleCancel}>{t("profile.dialogs.setPassword.cancel")}</Button>
                         <Button type="primary" htmlType="submit" loading={isSubmitting}>
-                            {noPassword ? "Tạo mật khẩu" : "Đổi mật khẩu"}
+                            {noPassword ? t("profile.dialogs.setPassword.submitCreate") : t("profile.dialogs.setPassword.submitChange")}
                         </Button>
                     </div>
                 </Form.Item>

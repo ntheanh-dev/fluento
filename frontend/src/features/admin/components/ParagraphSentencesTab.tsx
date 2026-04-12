@@ -4,6 +4,7 @@ import type { ColumnsType } from "antd/es/table";
 import { ExclamationCircleFilled } from "@ant-design/icons";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useSearchParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 import type { ParagraphSentence } from "@/entities/paragraphSentence/schema";
 import {
@@ -14,6 +15,7 @@ import {
 } from "../api";
 
 const ParagraphSentencesTab = () => {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const { confirm } = Modal;
 
@@ -65,29 +67,28 @@ const ParagraphSentencesTab = () => {
 
   const columns: ColumnsType<ParagraphSentence> = useMemo(
     () => [
-      { title: "ID", dataIndex: "id", key: "id", width: 80 },
-      { title: "Order", dataIndex: "orderIndex", key: "orderIndex", width: 90 },
+      { title: t("admin.columns.id"), dataIndex: "id", key: "id", width: 80 },
+      { title: t("admin.columns.order"), dataIndex: "orderIndex", key: "orderIndex", width: 90 },
       {
-        title: "Content",
+        title: t("admin.columns.content"),
         dataIndex: "content",
         key: "content",
-        render: (v) =>
-          v ? String(v).slice(0, 60) + (String(v).length > 60 ? "..." : "") : "-",
+        render: (v) => (v ? String(v).slice(0, 60) + (String(v).length > 60 ? "..." : "") : "-"),
       },
       {
-        title: "Hints",
+        title: t("admin.columns.hints"),
         key: "hints",
         render: (_, r) => {
           const count = r.vocabularyHints?.length ?? 0;
           return (
             <Tag color={count ? "blue" : undefined}>
-              {count ? `${count} items` : "none"}
+              {count ? t("admin.paragraphSentences.hintItems", { count }) : t("admin.paragraphSentences.hintNone")}
             </Tag>
           );
         },
       },
       {
-        title: "Actions",
+        title: t("admin.columns.actions"),
         key: "actions",
         width: 240,
         render: (_, record) => (
@@ -102,14 +103,14 @@ const ParagraphSentencesTab = () => {
               }}
               disabled={record.content == null}
             >
-              Edit
+              {t("admin.edit")}
             </Button>
             <Button
               size="small"
               onClick={(e) => {
                 e.stopPropagation();
                 confirm({
-                  title: "Generate vocabulary hints (AI)?",
+                  title: t("admin.paragraphSentences.confirmGenerateHints"),
                   icon: <ExclamationCircleFilled />,
                   okType: "primary",
                   onOk: () => generateHintsMutation.mutate(record.id),
@@ -117,7 +118,7 @@ const ParagraphSentencesTab = () => {
               }}
               loading={generateHintsMutation.isPending}
             >
-              Generate
+              {t("admin.paragraphSentences.generate")}
             </Button>
             <Button
               size="small"
@@ -125,7 +126,7 @@ const ParagraphSentencesTab = () => {
               onClick={(e) => {
                 e.stopPropagation();
                 confirm({
-                  title: "Delete sentence?",
+                  title: t("admin.paragraphSentences.confirmDeleteSentence"),
                   icon: <ExclamationCircleFilled />,
                   okType: "danger",
                   onOk: () => deleteSentenceMutation.mutate(record.id),
@@ -133,20 +134,20 @@ const ParagraphSentencesTab = () => {
               }}
               loading={deleteSentenceMutation.isPending}
             >
-              Delete
+              {t("admin.delete")}
             </Button>
           </Space>
         ),
       },
     ],
-    [confirm, deleteSentenceMutation.isPending, generateHintsMutation.isPending],
+    [t, confirm, deleteSentenceMutation.isPending, generateHintsMutation.isPending],
   );
 
   return (
     <Spin spinning={sentencesQuery.isLoading}>
       <div className="flex flex-col sm:flex-row gap-3 sm:items-end justify-between mb-3">
         <Space>
-          <span className="text-sm text-slate-600 dark:text-slate-300">Paragraph ID:</span>
+          <span className="text-sm text-slate-600 dark:text-slate-300">{t("admin.labels.paragraphId")}</span>
           <InputNumber
             value={paragraphId}
             onChange={(v) => {
@@ -172,7 +173,7 @@ const ParagraphSentencesTab = () => {
           }
           disabled={paragraphId == null}
         >
-          Refresh
+          {t("admin.refresh")}
         </Button>
       </div>
 
@@ -191,7 +192,7 @@ const ParagraphSentencesTab = () => {
 
       <Modal
         open={detailOpen}
-        title="Sentence detail"
+        title={t("admin.paragraphSentences.detailModalTitle")}
         onCancel={() => setDetailOpen(false)}
         footer={null}
         width={860}
@@ -199,14 +200,14 @@ const ParagraphSentencesTab = () => {
         {selectedSentence ? (
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-x-6 gap-y-2 text-sm">
-              <div className="text-slate-500">ID</div>
+              <div className="text-slate-500">{t("admin.columns.id")}</div>
               <div className="font-mono">{selectedSentence.id}</div>
-              <div className="text-slate-500">Order</div>
+              <div className="text-slate-500">{t("admin.columns.order")}</div>
               <div className="font-mono">{selectedSentence.orderIndex}</div>
             </div>
 
             <div>
-              <div className="text-slate-500 text-sm mb-1">Content</div>
+              <div className="text-slate-500 text-sm mb-1">{t("admin.columns.content")}</div>
               <Typography.Paragraph
                 style={{ margin: 0 }}
                 className="bg-slate-50/50 dark:bg-slate-950/30 rounded-lg bg-white dark:bg-slate-900/90 sm:rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden p-3 md:px-6 text-slate-800 dark:text-slate-100 font-medium leading-6 sm:leading-7 space-y-3"
@@ -219,9 +220,11 @@ const ParagraphSentencesTab = () => {
 
             <div>
               <div className="flex items-center justify-between mb-1">
-                <div className="text-slate-500 text-sm">Hints</div>
+                <div className="text-slate-500 text-sm">{t("admin.columns.hints")}</div>
                 <Tag color={(selectedSentence.vocabularyHints?.length ?? 0) ? "blue" : undefined}>
-                  {selectedSentence.vocabularyHints?.length ?? 0} items
+                  {t("admin.paragraphSentences.hintItems", {
+                    count: selectedSentence.vocabularyHints?.length ?? 0,
+                  })}
                 </Tag>
               </div>
 
@@ -234,7 +237,7 @@ const ParagraphSentencesTab = () => {
                       <Space>
                         <Typography.Text strong>{h.vietnamese}</Typography.Text>
                         <Typography.Text type="secondary">
-                          {h.english?.length ?? 0} vocab
+                          {t("admin.paragraphSentences.vocabCount", { count: h.english?.length ?? 0 })}
                         </Typography.Text>
                       </Space>
                     ),
@@ -248,9 +251,7 @@ const ParagraphSentencesTab = () => {
                               <Tag color="geekblue">{v.english}</Tag>
                               {v.partsOfSpeech ? <Tag>{v.partsOfSpeech}</Tag> : null}
                               {v.ipaPronunciation ? (
-                                <Typography.Text type="secondary">
-                                  /{v.ipaPronunciation}/
-                                </Typography.Text>
+                                <Typography.Text type="secondary">/{v.ipaPronunciation}/</Typography.Text>
                               ) : null}
                             </Space>
                           </List.Item>
@@ -260,7 +261,7 @@ const ParagraphSentencesTab = () => {
                   }))}
                 />
               ) : (
-                <Typography.Text type="secondary">No hints</Typography.Text>
+                <Typography.Text type="secondary">{t("admin.paragraphSentences.noHints")}</Typography.Text>
               )}
             </div>
           </div>
@@ -269,7 +270,7 @@ const ParagraphSentencesTab = () => {
 
       <Modal
         open={editOpen}
-        title="Edit sentence content"
+        title={t("admin.paragraphSentences.editContentModalTitle")}
         onCancel={() => setEditOpen(false)}
         onOk={() => {
           if (editTargetId == null) return;
@@ -282,15 +283,10 @@ const ParagraphSentencesTab = () => {
         confirmLoading={updateSentenceMutation.isPending}
         width={860}
       >
-        <Input.TextArea
-          value={editValue}
-          rows={6}
-          onChange={(e) => setEditValue(e.target.value)}
-        />
+        <Input.TextArea value={editValue} rows={6} onChange={(e) => setEditValue(e.target.value)} />
       </Modal>
     </Spin>
   );
 };
 
 export default React.memo(ParagraphSentencesTab);
-

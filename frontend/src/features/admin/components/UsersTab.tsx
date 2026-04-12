@@ -4,6 +4,7 @@ import type { ColumnsType } from "antd/es/table";
 import { ExclamationCircleFilled } from "@ant-design/icons";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useSearchParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 import type { User } from "@/entities/users/schema";
 import { adminDeleteUser, adminListUsers, adminUpdateUser } from "../api";
@@ -12,6 +13,7 @@ const ROLE_ADMIN = "ADMIN";
 const ROLE_USER = "USER";
 
 const UsersTab = () => {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const { confirm } = Modal;
 
@@ -33,8 +35,8 @@ const UsersTab = () => {
       adminUpdateUser(payload.id, { roleNames: payload.roleNames, credits: payload.credits }),
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: ["adminUsers"] });
-      const id = (variables as any)?.id as number | undefined;
-      const nextCredits = (variables as any)?.credits as number | undefined;
+      const id = (variables as { id?: number })?.id;
+      const nextCredits = (variables as { credits?: number })?.credits;
       if (id != null && id === creditTargetId && nextCredits != null) {
         setCreditOpen(false);
       }
@@ -61,9 +63,9 @@ const UsersTab = () => {
 
   const columns: ColumnsType<User> = useMemo(
     () => [
-      { title: "ID", dataIndex: "id", key: "id", width: 70 },
+      { title: t("admin.columns.id"), dataIndex: "id", key: "id", width: 70 },
       {
-        title: "Avatar",
+        title: t("admin.columns.avatar"),
         dataIndex: "urlAvatar",
         key: "avatar",
         width: 90,
@@ -78,33 +80,28 @@ const UsersTab = () => {
           </Avatar>
         ),
       },
-      { title: "Username", dataIndex: "username", key: "username" },
-      { title: "Full name", dataIndex: "fullName", key: "fullName" },
+      { title: t("admin.columns.username"), dataIndex: "username", key: "username" },
+      { title: t("admin.columns.fullName"), dataIndex: "fullName", key: "fullName" },
       {
-        title: "Created",
+        title: t("admin.columns.created"),
         dataIndex: "createdAt",
         key: "createdAt",
         width: 170,
         render: (_, record) => {
           if (!record.createdAt) return "-";
           const d = new Date(record.createdAt);
-          // If invalid date string, fallback to raw value
           if (Number.isNaN(d.getTime())) return record.createdAt;
-          return (
-            <Typography.Text>
-              {d.toLocaleString()}
-            </Typography.Text>
-          );
+          return <Typography.Text>{d.toLocaleString()}</Typography.Text>;
         },
       },
       {
-        title: "Roles",
+        title: t("admin.columns.roles"),
         dataIndex: "roles",
         key: "roles",
         render: (_, record) => makeRoleTag(record),
       },
       {
-        title: "Streak",
+        title: t("admin.columns.streak"),
         key: "streak",
         width: 140,
         render: (_, record) => (
@@ -114,16 +111,14 @@ const UsersTab = () => {
         ),
       },
       {
-        title: "Credits",
+        title: t("admin.columns.credits"),
         dataIndex: "credits",
         key: "credits",
         width: 120,
-        render: (_, record) => (
-          <Typography.Text strong>{record.credits ?? 0}</Typography.Text>
-        ),
+        render: (_, record) => <Typography.Text strong>{record.credits ?? 0}</Typography.Text>,
       },
       {
-        title: "Actions",
+        title: t("admin.columns.actions"),
         key: "actions",
         width: 260,
         render: (_, record) => {
@@ -135,25 +130,21 @@ const UsersTab = () => {
               <Button
                 size="small"
                 type={isAdmin ? "default" : "primary"}
-                onClick={() =>
-                  updateUserMutation.mutate({ id: record.id, roleNames: [ROLE_ADMIN] })
-                }
+                onClick={() => updateUserMutation.mutate({ id: record.id, roleNames: [ROLE_ADMIN] })}
                 loading={
-                  updateUserMutation.isPending &&
-                  (updateUserMutation.variables as any)?.id === record.id
+                  updateUserMutation.isPending && (updateUserMutation.variables as { id?: number })?.id === record.id
                 }
               >
-                {isAdmin ? "ADMIN" : "Make ADMIN"}
+                {isAdmin ? t("admin.users.badgeAdmin") : t("admin.users.makeAdmin")}
               </Button>
               <Button
                 size="small"
                 onClick={() => updateUserMutation.mutate({ id: record.id, roleNames: [ROLE_USER] })}
                 loading={
-                  updateUserMutation.isPending &&
-                  (updateUserMutation.variables as any)?.id === record.id
+                  updateUserMutation.isPending && (updateUserMutation.variables as { id?: number })?.id === record.id
                 }
               >
-                Make USER
+                {t("admin.users.makeUser")}
               </Button>
               <Button
                 size="small"
@@ -164,41 +155,41 @@ const UsersTab = () => {
                 }}
                 loading={
                   updateUserMutation.isPending &&
-                  (updateUserMutation.variables as any)?.id === record.id &&
-                  (updateUserMutation.variables as any)?.credits != null
+                  (updateUserMutation.variables as { id?: number })?.id === record.id &&
+                  (updateUserMutation.variables as { credits?: number })?.credits != null
                 }
               >
-                Set Credits
+                {t("admin.users.setCredits")}
               </Button>
               <Button
                 size="small"
                 danger
                 onClick={() =>
                   confirm({
-                    title: "Delete user?",
+                    title: t("admin.users.confirmDeleteTitle"),
                     icon: <ExclamationCircleFilled />,
-                    content: `User: ${record.username}`,
+                    content: t("admin.users.confirmDeleteContent", { username: record.username }),
                     okType: "danger",
                     onOk: () => deleteUserMutation.mutate(record.id),
                   })
                 }
                 loading={deleteUserMutation.isPending}
               >
-                Delete
+                {t("admin.delete")}
               </Button>
             </Space>
           );
         },
       },
     ],
-    [confirm, deleteUserMutation.isPending, updateUserMutation, makeRoleTag],
+    [t, confirm, deleteUserMutation.isPending, deleteUserMutation, updateUserMutation, makeRoleTag],
   );
 
   return (
     <Spin spinning={usersQuery.isLoading}>
       <div className="flex items-center gap-3 mb-3">
         <Button type="primary" onClick={() => queryClient.invalidateQueries({ queryKey: ["adminUsers"] })}>
-          Refresh
+          {t("admin.refresh")}
         </Button>
       </div>
 
@@ -215,19 +206,22 @@ const UsersTab = () => {
           onChange: (p, ps) => {
             const nextPage = p - 1;
             const nextSize = ps ?? usersSize;
-            setSearchParams((prev) => {
-              const next = new URLSearchParams(prev);
-              next.set("usersPage", String(nextPage));
-              next.set("usersSize", String(nextSize));
-              return next;
-            }, { replace: true });
+            setSearchParams(
+              (prev) => {
+                const next = new URLSearchParams(prev);
+                next.set("usersPage", String(nextPage));
+                next.set("usersSize", String(nextSize));
+                return next;
+              },
+              { replace: true },
+            );
           },
         }}
       />
 
       <Modal
         open={creditOpen}
-        title="Set user credits"
+        title={t("admin.users.modalCreditsTitle")}
         onCancel={() => setCreditOpen(false)}
         onOk={() => {
           if (creditTargetId == null || creditValue == null) return;
@@ -248,9 +242,11 @@ const UsersTab = () => {
       >
         <Space direction="vertical" style={{ width: "100%" }} size={12}>
           <Typography.Text type="secondary">
-            User ID: {creditTargetId ?? "-"}
+            {t("admin.labels.userId")} {creditTargetId ?? "-"}
           </Typography.Text>
-          <Typography.Text>Current credits: {creditValue ?? 0}</Typography.Text>
+          <Typography.Text>
+            {t("admin.users.currentCredits")} {creditValue ?? 0}
+          </Typography.Text>
           <InputNumber
             style={{ width: "100%" }}
             value={creditValue}
@@ -264,4 +260,3 @@ const UsersTab = () => {
 };
 
 export default React.memo(UsersTab);
-

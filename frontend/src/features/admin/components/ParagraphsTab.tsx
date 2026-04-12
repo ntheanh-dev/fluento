@@ -4,6 +4,7 @@ import type { ColumnsType } from "antd/es/table";
 import { ExclamationCircleFilled } from "@ant-design/icons";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useSearchParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 import type { Paragraph } from "@/entities/paragraph/schema";
 import type { ParagraphSentence } from "@/entities/paragraphSentence/schema";
@@ -17,6 +18,7 @@ import {
 } from "../api";
 
 const ParagraphsTab = () => {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const { confirm } = Modal;
 
@@ -60,29 +62,41 @@ const ParagraphsTab = () => {
 
   const [createOpen, setCreateOpen] = useState(false);
   const [payload, setPayload] = useState<PracticeSetupInput>({
-    type: "BASIC" as any,
-    topic: "LIFE" as any,
-    level: "A2" as any,
-    tone: "FORMAL" as any,
-    sentenceCount: "TEN" as any,
+    type: "BASIC" as never,
+    topic: "LIFE" as never,
+    level: "A2" as never,
+    tone: "FORMAL" as never,
+    sentenceCount: "TEN" as never,
   });
 
   const topicOptions = useMemo(
-    () => TOPIC_GROUPS.flatMap((g) => g.topics.map((t) => ({ value: t.value, label: t.label }))),
-    [],
+    () =>
+      TOPIC_GROUPS.flatMap((g) =>
+        g.topics.map((topic) => ({
+          value: topic.value,
+          label: t(`common.topic.${topic.value}`),
+        })),
+      ),
+    [t],
   );
 
   const columns: ColumnsType<Paragraph> = useMemo(
     () => [
-      { title: "ID", dataIndex: "id", key: "id", width: 80 },
-      { title: "Title", dataIndex: "title", key: "title", width: 220 },
-      { title: "Type", dataIndex: "type", key: "type", width: 140 },
-      { title: "Topic", dataIndex: "topic", key: "topic", width: 160 },
-      { title: "Level", dataIndex: "level", key: "level", width: 120 },
-      { title: "# Sentences", dataIndex: "sentences", key: "sentences", render: (v) => (v ? v.length : 0), width: 140 },
-      { title: "Created", dataIndex: "createdAt", key: "createdAt", render: (v) => v ?? "-" },
+      { title: t("admin.columns.id"), dataIndex: "id", key: "id", width: 80 },
+      { title: t("admin.columns.title"), dataIndex: "title", key: "title", width: 220 },
+      { title: t("admin.columns.type"), dataIndex: "type", key: "type", width: 140 },
+      { title: t("admin.columns.topic"), dataIndex: "topic", key: "topic", width: 160 },
+      { title: t("admin.columns.level"), dataIndex: "level", key: "level", width: 120 },
       {
-        title: "Actions",
+        title: t("admin.columns.sentenceCount"),
+        dataIndex: "sentences",
+        key: "sentences",
+        render: (v) => (v ? v.length : 0),
+        width: 140,
+      },
+      { title: t("admin.columns.created"), dataIndex: "createdAt", key: "createdAt", render: (v) => v ?? "-" },
+      {
+        title: t("admin.columns.actions"),
         key: "actions",
         width: 280,
         render: (_, record) => (
@@ -96,7 +110,7 @@ const ParagraphsTab = () => {
                 setEditTitleOpen(true);
               }}
             >
-              Edit title
+              {t("admin.paragraphs.editTitleButton")}
             </Button>
             <Button
               size="small"
@@ -105,20 +119,20 @@ const ParagraphsTab = () => {
               onClick={(e) => {
                 e.stopPropagation();
                 confirm({
-                  title: "Delete paragraph?",
+                  title: t("admin.paragraphs.confirmDeleteTitle"),
                   icon: <ExclamationCircleFilled />,
                   okType: "danger",
                   onOk: () => deleteParagraphMutation.mutate(record.id),
                 });
               }}
             >
-              Delete
+              {t("admin.delete")}
             </Button>
           </Space>
         ),
       },
     ],
-    [confirm, deleteParagraphMutation.isPending, deleteParagraphMutation],
+    [t, confirm, deleteParagraphMutation.isPending, deleteParagraphMutation],
   );
 
   return (
@@ -126,9 +140,11 @@ const ParagraphsTab = () => {
       <div className="flex flex-col sm:flex-row gap-3 sm:items-end justify-between mb-3">
         <Space>
           <Button type="primary" onClick={() => setCreateOpen(true)}>
-            Create paragraph
+            {t("admin.paragraphs.createButton")}
           </Button>
-          <Button onClick={() => queryClient.invalidateQueries({ queryKey: ["adminParagraphs"] })}>Refresh</Button>
+          <Button onClick={() => queryClient.invalidateQueries({ queryKey: ["adminParagraphs"] })}>
+            {t("admin.refresh")}
+          </Button>
         </Space>
       </div>
 
@@ -166,7 +182,7 @@ const ParagraphsTab = () => {
 
       <Modal
         open={detailOpen}
-        title="Paragraph detail"
+        title={t("admin.paragraphs.detailModalTitle")}
         onCancel={() => setDetailOpen(false)}
         footer={null}
         width={1000}
@@ -174,24 +190,24 @@ const ParagraphsTab = () => {
         {selectedParagraph ? (
           <div className="space-y-5">
             <div className="grid grid-cols-2 gap-x-6 gap-y-2 text-sm">
-              <div className="text-slate-500">ID</div>
+              <div className="text-slate-500">{t("admin.columns.id")}</div>
               <div className="font-mono">{selectedParagraph.id}</div>
-              <div className="text-slate-500">Title</div>
+              <div className="text-slate-500">{t("admin.columns.title")}</div>
               <div className="font-mono">{selectedParagraph.title ?? "-"}</div>
-              <div className="text-slate-500">Type</div>
+              <div className="text-slate-500">{t("admin.columns.type")}</div>
               <div className="font-mono">{selectedParagraph.type}</div>
-              <div className="text-slate-500">Topic</div>
+              <div className="text-slate-500">{t("admin.columns.topic")}</div>
               <div className="font-mono">{selectedParagraph.topic}</div>
-              <div className="text-slate-500">Level</div>
+              <div className="text-slate-500">{t("admin.columns.level")}</div>
               <div className="font-mono">{selectedParagraph.level}</div>
-              <div className="text-slate-500"># Sentences</div>
+              <div className="text-slate-500">{t("admin.columns.sentenceCount")}</div>
               <div className="font-mono">{selectedParagraph.sentences?.length ?? 0}</div>
-              <div className="text-slate-500">Created</div>
+              <div className="text-slate-500">{t("admin.columns.created")}</div>
               <div className="font-mono">{selectedParagraph.createdAt ?? "-"}</div>
             </div>
 
             <div className="space-y-4">
-              <div className="text-sm text-slate-500 font-semibold">Sentences</div>
+              <div className="text-sm text-slate-500 font-semibold">{t("admin.paragraphs.sentencesSection")}</div>
               {selectedParagraph.sentences?.length ? (
                 <Typography.Paragraph
                   style={{ margin: 0 }}
@@ -206,7 +222,7 @@ const ParagraphsTab = () => {
                   ))}
                 </Typography.Paragraph>
               ) : (
-                <div className="text-sm text-slate-500">No sentences</div>
+                <div className="text-sm text-slate-500">{t("admin.paragraphs.noSentences")}</div>
               )}
             </div>
           </div>
@@ -215,7 +231,7 @@ const ParagraphsTab = () => {
 
       <Modal
         open={createOpen}
-        title="Create paragraph (AI-generated)"
+        title={t("admin.paragraphs.createModalTitle")}
         onCancel={() => setCreateOpen(false)}
         onOk={() => {
           createParagraphMutation.mutate(payload, { onSuccess: () => setCreateOpen(false) });
@@ -225,40 +241,52 @@ const ParagraphsTab = () => {
         <Space direction="vertical" style={{ width: "100%" }} size={12}>
           <Select
             value={payload.type}
-            onChange={(v) => setPayload((p) => ({ ...p, type: v as any }))}
+            onChange={(v) => setPayload((p) => ({ ...p, type: v as never }))}
             style={{ width: "100%" }}
-            options={PRACTICE_TYPES.map((t) => ({ value: t.value, label: t.label }))}
+            options={PRACTICE_TYPES.map((x) => ({
+              value: x.value,
+              label: t(`practice.type.${x.value}`),
+            }))}
           />
           <Select
             value={payload.tone}
-            onChange={(v) => setPayload((p) => ({ ...p, tone: v as any }))}
+            onChange={(v) => setPayload((p) => ({ ...p, tone: v as never }))}
             style={{ width: "100%" }}
-            options={TONES.map((t) => ({ value: t.value, label: t.label }))}
+            options={TONES.map((x) => ({
+              value: x.value,
+              label: t(`practice.tone.${x.value}`),
+            }))}
           />
           <Select
             value={payload.topic}
-            onChange={(v) => setPayload((p) => ({ ...p, topic: v as any }))}
+            onChange={(v) => setPayload((p) => ({ ...p, topic: v as never }))}
             style={{ width: "100%" }}
             options={topicOptions}
           />
           <Select
             value={payload.level}
-            onChange={(v) => setPayload((p) => ({ ...p, level: v as any }))}
+            onChange={(v) => setPayload((p) => ({ ...p, level: v as never }))}
             style={{ width: "100%" }}
-            options={LEVELS.map((l) => ({ value: l.value, label: l.label }))}
+            options={LEVELS.map((l) => ({
+              value: l.value,
+              label: t(`practice.level.${l.value}`),
+            }))}
           />
           <Select
             value={payload.sentenceCount}
-            onChange={(v) => setPayload((p) => ({ ...p, sentenceCount: v as any }))}
+            onChange={(v) => setPayload((p) => ({ ...p, sentenceCount: v as never }))}
             style={{ width: "100%" }}
-            options={SENTENCE_COUNTS.map((c) => ({ value: c.value, label: c.label }))}
+            options={SENTENCE_COUNTS.map((c) => ({
+              value: c.value,
+              label: t(`practice.sentenceCount.${c.value}`),
+            }))}
           />
         </Space>
       </Modal>
 
       <Modal
         open={editTitleOpen}
-        title="Edit paragraph title"
+        title={t("admin.paragraphs.editTitleModal")}
         onCancel={() => setEditTitleOpen(false)}
         onOk={() => {
           if (editTitleTargetId == null) return;
@@ -270,11 +298,13 @@ const ParagraphsTab = () => {
         confirmLoading={updateTitleMutation.isPending}
       >
         <Space direction="vertical" style={{ width: "100%" }} size={10}>
-          <Typography.Text type="secondary">Paragraph ID: {editTitleTargetId ?? "-"}</Typography.Text>
+          <Typography.Text type="secondary">
+            {t("admin.labels.paragraphIdShort")} {editTitleTargetId ?? "-"}
+          </Typography.Text>
           <Input
             value={editTitleValue}
             onChange={(e) => setEditTitleValue(e.target.value)}
-            placeholder="Title"
+            placeholder={t("admin.placeholders.title")}
           />
         </Space>
       </Modal>
@@ -283,4 +313,3 @@ const ParagraphsTab = () => {
 };
 
 export default React.memo(ParagraphsTab);
-

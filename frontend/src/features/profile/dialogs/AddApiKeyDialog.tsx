@@ -1,4 +1,5 @@
 import { Modal, Form, Input } from "antd";
+import { Trans, useTranslation } from "react-i18next";
 
 export interface AddApiKeyDialogProps {
     open: boolean;
@@ -13,6 +14,7 @@ export default function AddApiKeyDialog({
     onSubmit,
     loading = false,
 }: AddApiKeyDialogProps) {
+    const { t } = useTranslation();
     const [form] = Form.useForm<{ apiKey: string }>();
 
     const handleOk = async () => {
@@ -34,52 +36,55 @@ export default function AddApiKeyDialog({
     return (
         <Modal
             centered
-            title="Thêm khóa API"
+            title={t("profile.dialogs.addApiKey.title")}
             open={open}
             onCancel={handleCancel}
             onOk={handleOk}
-            okText="Thêm"
-            cancelText="Hủy"
+            okText={t("profile.dialogs.addApiKey.add")}
+            cancelText={t("profile.dialogs.addApiKey.cancel")}
             confirmLoading={loading}
             destroyOnClose
         >
             <p className="text-slate-500 text-sm mb-2">
-                Nhập khóa API Gemini. Khóa sẽ được mã hóa và dùng cho các mô hình AI của bạn.
+                {t("profile.dialogs.addApiKey.description")}
             </p>
             <div className="rounded-lg bg-slate-50 dark:bg-slate-800/70 border border-slate-100 dark:border-slate-700 p-3 mb-4">
                 <p className="text-slate-600 dark:text-slate-200 text-xs font-medium mb-1">
-                    Lấy API key ở đâu?
+                    {t("profile.dialogs.addApiKey.whereTitle")}
                 </p>
                 <p className="text-slate-500 dark:text-slate-300 text-xs">
-                    Truy cập{" "}
-                    <a
-                        href="https://aistudio.google.com/apikey"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-primary dark:text-sky-400 hover:underline"
-                    >
-                        Google AI Studio
-                    </a>
-                    {" "}(aistudio.google.com/apikey), đăng nhập Google và tạo API key miễn phí để sử dụng với Gemini.
+                    <Trans
+                        i18nKey="profile.dialogs.addApiKey.whereBody"
+                        components={{
+                            1: (
+                                <a
+                                    href="https://aistudio.google.com/apikey"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-primary dark:text-sky-400 hover:underline"
+                                />
+                            ),
+                        }}
+                    />
                 </p>
             </div>
             <Form form={form} layout="vertical">
                 <Form.Item
                     name="apiKey"
-                    label="API Key"
+                    label={t("profile.dialogs.addApiKey.apiKeyLabel")}
                     rules={[
                         {
                             required: true,
-                            message: "Vui lòng nhập API key",
+                            message: t("profile.dialogs.addApiKey.required"),
                         },
                         {
                             min: 10,
-                            message: "API key quá ngắn",
+                            message: t("profile.dialogs.addApiKey.tooShort"),
                         },
                     ]}
                 >
                     <Input.Password
-                        placeholder="Nhập khóa API"
+                        placeholder={t("profile.dialogs.addApiKey.placeholder")}
                         className="rounded-lg text-base"
                         autoComplete="off"
                     />

@@ -1,6 +1,9 @@
 import { Routes, Route, BrowserRouter, Navigate } from "react-router-dom";
 import { ConfigProvider, Spin, theme as antdTheme } from "antd";
+import enUS from "antd/locale/en_US";
+import viVN from "antd/locale/vi_VN";
 import { LoadingOutlined } from "@ant-design/icons";
+import { useTranslation } from "react-i18next";
 import "./index.css";
 import { ReactQueryProvider } from "@/app/providers/ReactQueryProvider.tsx";
 import { ThemeProvider, useTheme } from "@/app/providers/ThemeProvider";
@@ -37,8 +40,11 @@ import LandingPage from "@/features/landing/index.tsx";
 
 function AntdThemeConfig({ children }: PropsWithChildren) {
   const { theme } = useTheme();
+  const { i18n } = useTranslation();
+  const antdLocale = i18n.language.startsWith("en") ? enUS : viVN;
   return (
     <ConfigProvider
+      locale={antdLocale}
       theme={{
         algorithm:
           theme === "dark"

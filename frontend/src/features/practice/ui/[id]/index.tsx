@@ -21,10 +21,12 @@ import { showApiError } from "@/shared/api/showApiError";
 import { useAnswerPreviewFeedback } from "../../hooks/useAnswerPreviewFeedbackStream";
 import { AxiosError } from "axios";
 import type { ParagraphSentence } from "@/entities/paragraphSentence/schema";
+import { useTranslation } from "react-i18next";
 
 export type RenderAsideType = "hints" | "markdownFeedback" | null;
 
 const SentencePracticePage = () => {
+  const { t } = useTranslation();
   // --- Router & device ---
   const { id } = useParams();
   const navigate = useNavigate();
@@ -222,23 +224,23 @@ const SentencePracticePage = () => {
           )}
           <div className="flex flex-row items-center gap-1.5 sm:gap-4">
             <div className="flex flex-col items-start">
-              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Topic</span>
+              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">{t("practice.result.topic")}</span>
               <span className="text-xs font-semibold text-slate-700 dark:text-slate-200">{data?.paragraph.topic.toLowerCase()}</span>
             </div>
             <div className="h-8 w-px bg-slate-100 dark:bg-slate-700"></div>
             <div className="flex flex-col items-start">
-              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Tone</span>
+              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">{t("practice.result.tone")}</span>
               <span className="text-xs font-semibold text-slate-700 dark:text-slate-200">{data?.paragraph.tone.toLowerCase()}</span>
             </div>
             <div className="h-8 w-px bg-slate-100 dark:bg-slate-700"></div>
             <div className="flex flex-col items-start">
-              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Level</span>
+              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">{t("practice.result.level")}</span>
               <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-50 dark:bg-blue-950/50 text-blue-700 dark:text-blue-300">{data?.paragraph.level}</span>
             </div>
             {data && <div className="h-8 w-px bg-slate-100 dark:bg-slate-700"></div>}
             {data && (
               <div className="flex flex-col items-start">
-                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Thời gian</span>
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">{t("practice.session.time")}</span>
                 <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-700 dark:text-slate-200">
                   <Clock size={14} className="text-slate-500 dark:text-slate-400" />
                   {formatElapsed(elapsedSeconds)}
@@ -249,7 +251,7 @@ const SentencePracticePage = () => {
               <>
                 <div className="h-8 w-px bg-slate-100 dark:bg-slate-700"></div>
                 <div className="flex flex-col items-start">
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Credits</span>
+                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">{t("profile.creditsRemaining")}</span>
                   <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-700 dark:text-slate-200">
                     <Coins size={14} className="text-amber-500" />
                     {creditBalance.credits}
@@ -261,7 +263,10 @@ const SentencePracticePage = () => {
         </div>
         <div className="flex-[2] hidden md:flex items-center gap-4 lg:gap-6 w-full">
           <span className="text-xs md:text-sm font-medium text-slate-500 dark:text-slate-400 whitespace-nowrap">
-            Câu {currentVietNameseSentence?.orderIndex ?? 0}/{vietNameseSentences.length}
+            {t("practice.session.sentenceProgress", {
+              current: currentVietNameseSentence?.orderIndex ?? 0,
+              total: vietNameseSentences.length,
+            })}
           </span>
           <div className="w-36 md:w-44 lg:w-48 h-2 md:h-2.5 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
             <div className="h-full bg-blue-600 rounded-full" style={{ width: `${progressPercent}%` }}></div>
@@ -315,7 +320,7 @@ const SentencePracticePage = () => {
           <div className="flex-[2] flex flex-col flex-1">
             <textarea
               className="w-full p-4 rounded-lg sm:rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/80 focus:bg-white dark:focus:bg-slate-900 focus:ring-2 focus:ring-blue-100 dark:focus:ring-blue-900 focus:border-blue-400 outline-none text-base text-slate-900 dark:text-slate-100 transition-all resize-none min-h-[72px] sm:min-h-[80px]"
-              placeholder="Nhập câu dịch của bạn ở đây..."
+              placeholder={t("practice.session.placeholder")}
               rows={2}
               value={translation}
               onChange={(e) => setTranslation(e.target.value)}
@@ -338,7 +343,7 @@ const SentencePracticePage = () => {
                   className="inline-flex items-center gap-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 px-4 py-1.5 font-bold text-slate-700 dark:text-slate-200 shadow-sm transition-colors hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-30 disabled:cursor-not-allowed sm:px-5 sm:py-2 sm:text-sm md:px-6 text-xs"
                 >
                   <Lightbulb size={16} className="size-4 shrink-0" />
-                  Xem gợi ý
+                  {t("practice.session.hints")}
                 </button>
               </div>
 
@@ -353,7 +358,7 @@ const SentencePracticePage = () => {
                   ) : (
                     <Check size={16} className="size-4 shrink-0" />
                   )}
-                  Kiểm tra
+                  {t("practice.session.check")}
                 </button>
                 {feedback && (
                   <button
@@ -371,7 +376,7 @@ const SentencePracticePage = () => {
                     ) : (
                       <ArrowRight size={16} className="size-4 shrink-0" />
                     )}
-                    Tiếp theo
+                    {t("practice.session.next")}
                   </button>
                 )}
 

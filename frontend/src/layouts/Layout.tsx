@@ -7,16 +7,17 @@ import { PROFILE_EMBED_PRACTICESTATS, useProfileData } from "@/features/profile/
 import Cookies from "js-cookie";
 import { Avatar, Button } from "antd";
 import logo from "../assets/image/logo3.png";
-import { getLevel } from "@/utils/utils";
-
-const navItems = [
-    { label: "Bảng điều khiển", to: "/dashboard" },
-    { label: "Luyện tập", to: "/practice" },
-    { label: "Lịch sử", to: "/history" },
-    { label: "Bảng xếp hạng", to: "/rankings" },
-];
+import { getLevelLabel } from "@/i18n/labels";
+import { useTranslation } from "react-i18next";
 
 const Layout = () => {
+    const { t } = useTranslation();
+    const navItems = [
+        { label: t("nav.dashboard"), to: "/dashboard" },
+        { label: t("nav.practice"), to: "/practice" },
+        { label: t("nav.history"), to: "/history" },
+        { label: t("nav.rankings"), to: "/rankings" },
+    ];
     const location = useLocation();
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const { profile } = useProfile();
@@ -74,14 +75,14 @@ const Layout = () => {
 
                             {/* Mobile: Luyenviet + breadcrumb */}
                             <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400 text-sm md:hidden">
-                                <span className="font-medium text-slate-900 dark:text-slate-100">Luyenviet</span>
+                                <span className="font-medium text-slate-900 dark:text-slate-100">{t("common.brand")}</span>
                             </div>
 
                             {/* Desktop: Luyenviet + horizontal nav */}
                             <div className="hidden md:flex items-center justify-between gap-1 h-full">
                                 <Link to="/dashboard" className="flex items-center gap-2">
                                     <img src={logo} alt="logo" className="w-10 h-10" />
-                                    <span className="text-xl font-bold tracking-tight font-display text-slate-900 dark:text-slate-100">Luyenviet</span>
+                                    <span className="text-xl font-bold tracking-tight font-display text-slate-900 dark:text-slate-100">{t("common.brand")}</span>
                                 </Link>
                             </div>
                         </div>
@@ -109,7 +110,7 @@ const Layout = () => {
                             {isAuthenticated ? (
                                 <>
                                     <div className="hidden lg:flex items-center gap-2 bg-orange-50 dark:bg-orange-950/40 px-3 py-1.5 rounded-full border border-orange-100 dark:border-orange-900/50 text-orange-600 dark:text-orange-400">
-                                        <span className="text-sm font-bold">Chuỗi {profile?.currentStreak || 0} ngày</span>
+                                        <span className="text-sm font-bold">{t("layout.streak", { count: profile?.currentStreak || 0 })}</span>
                                         <Flame size={16} fill="currentColor" />
                                     </div>
                                     <Link to="/profile">
@@ -118,7 +119,7 @@ const Layout = () => {
                                                 <p className="text-sm font-bold text-slate-800 dark:text-slate-100">
                                                     {profile?.fullName}
                                                 </p>
-                                                <p className="text-xs text-slate-500 dark:text-slate-400">{getLevel(profile?.embedded?.totalUserSentenceAnswers ?? 0)}</p>
+                                                <p className="text-xs text-slate-500 dark:text-slate-400">{getLevelLabel(profile?.embedded?.totalUserSentenceAnswers ?? 0, t)}</p>
                                             </div>
                                             {profile?.urlAvatar ? (
                                                 <img
@@ -135,10 +136,10 @@ const Layout = () => {
                             ) : (
                                 <>
                                     <Link to="/login">
-                                        <Button type="text" className="hidden sm:inline-flex font-bold font-display">Đăng nhập</Button>
+                                        <Button type="text" className="hidden sm:inline-flex font-bold font-display">{t("layout.login")}</Button>
                                     </Link>
                                     <Link to="/register">
-                                        <Button type="primary" className="bg-[#137fec] font-bold font-display h-9 shadow-md shadow-[#137fec]/20">Đăng ký</Button>
+                                        <Button type="primary" className="bg-[#137fec] font-bold font-display h-9 shadow-md shadow-[#137fec]/20">{t("layout.register")}</Button>
                                     </Link>
                                 </>
                             )}

@@ -3,11 +3,13 @@ import { Button, InputNumber, Space, Spin, Table } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useSearchParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 import type { AdminCreditTransaction } from "../api";
 import { adminListCreditTransactions } from "../api";
 
 const CreditTransactionsTab = () => {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
 
   const [searchParams, setSearchParams] = useSearchParams();
@@ -29,26 +31,26 @@ const CreditTransactionsTab = () => {
 
   const columns: ColumnsType<AdminCreditTransaction> = useMemo(
     () => [
-      { title: "ID", dataIndex: "id", key: "id", width: 80 },
+      { title: t("admin.columns.id"), dataIndex: "id", key: "id", width: 80 },
       {
-        title: "User",
+        title: t("admin.columns.user"),
         key: "user",
         render: (_, r) => (r.username ? `${r.username} (#${r.userId})` : `#${r.userId}`),
       },
-      { title: "Amount", dataIndex: "amount", key: "amount", width: 110 },
-      { title: "Type", dataIndex: "type", key: "type", width: 140 },
-      { title: "Status", dataIndex: "status", key: "status", width: 130 },
-      { title: "Reference", dataIndex: "referenceId", key: "referenceId", render: (v) => v ?? "-" },
-      { title: "Created", dataIndex: "createdAt", key: "createdAt", render: (v) => v ?? "-" },
+      { title: t("admin.columns.amount"), dataIndex: "amount", key: "amount", width: 110 },
+      { title: t("admin.columns.type"), dataIndex: "type", key: "type", width: 140 },
+      { title: t("admin.columns.status"), dataIndex: "status", key: "status", width: 130 },
+      { title: t("admin.columns.reference"), dataIndex: "referenceId", key: "referenceId", render: (v) => v ?? "-" },
+      { title: t("admin.columns.created"), dataIndex: "createdAt", key: "createdAt", render: (v) => v ?? "-" },
     ],
-    [],
+    [t],
   );
 
   return (
     <Spin spinning={creditTxQuery.isLoading}>
       <div className="flex flex-col sm:flex-row gap-3 sm:items-end justify-between mb-3">
         <Space>
-          <span className="text-sm text-slate-600 dark:text-slate-300">User ID:</span>
+          <span className="text-sm text-slate-600 dark:text-slate-300">{t("admin.labels.userId")}</span>
           <InputNumber
             value={creditTxUserId}
             onChange={(v) => {
@@ -66,7 +68,9 @@ const CreditTransactionsTab = () => {
             }}
           />
         </Space>
-        <Button onClick={() => queryClient.invalidateQueries({ queryKey: ["adminCreditTx"] })}>Refresh</Button>
+        <Button onClick={() => queryClient.invalidateQueries({ queryKey: ["adminCreditTx"] })}>
+          {t("admin.refresh")}
+        </Button>
       </div>
 
       <Table
@@ -99,4 +103,3 @@ const CreditTransactionsTab = () => {
 };
 
 export default React.memo(CreditTransactionsTab);
-

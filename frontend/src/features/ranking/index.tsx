@@ -1,11 +1,17 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { Trophy, Flame, Search, Clock, User } from "lucide-react";
 import { Avatar, Spin, Pagination } from "antd";
 import { useRankings } from "./query";
 import { useDebounce } from "../../shared/hooks/useDebounce";
 import { formatTotalHours } from "@/utils/utils";
+import { useTranslation } from "react-i18next";
 
 const Rankings: React.FC = () => {
+  const { t, i18n } = useTranslation();
+  const numLocale = useMemo(
+    () => (i18n.language.startsWith("en") ? "en-US" : "vi-VN"),
+    [i18n.language],
+  );
   const [keyword, setKeyword] = useState("");
   const [page, setPage] = useState(0);
   const size = 10;
@@ -39,30 +45,32 @@ const Rankings: React.FC = () => {
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-end gap-3 mb-8 sm:mb-10">
         <div className="text-center sm:text-left">
           <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-slate-100 mb-2">
-            Bảng xếp hạng toàn quốc
+            {t("ranking.title")}
           </h1>
           <p className="text-sm sm:text-base text-slate-500 dark:text-slate-400">
-            Cạnh tranh cùng người học trên khắp Việt Nam. Cập nhật định kỳ.
+            {t("ranking.subtitle")}
           </p>
         </div>
       </div>
 
-      {/* Podium: top 3 từ API */}
       <div className="flex flex-col md:flex-row justify-center items-stretch md:items-end gap-6 md:gap-4 mb-10 md:mb-12">
         {podiumLoading || podiumError || !first ? (
           <div className="py-10 flex justify-center items-center w-full">
-            {podiumLoading ? <Spin /> : <span className="text-sm text-red-500">Không thể tải top 3.</span>}
+            {podiumLoading ? (
+              <Spin />
+            ) : (
+              <span className="text-sm text-red-500">{t("ranking.loadTop3Error")}</span>
+            )}
           </div>
         ) : (
           <>
-            {/* 2nd */}
             {second && (
               <div className="flex flex-col items-center">
                 <div className="relative mb-4">
                   <div className="w-20 h-20 rounded-full border-4 border-slate-300 dark:border-slate-600 overflow-hidden">
                     <img
                       src={second.urlAvatar || "https://picsum.photos/seed/2/200"}
-                      alt={second.fullName || "Hạng 2"}
+                      alt={second.fullName || t("ranking.rank2")}
                       className="w-full h-full object-cover"
                     />
                   </div>
@@ -72,13 +80,16 @@ const Rankings: React.FC = () => {
                 </div>
                 <div className="bg-white dark:bg-slate-900/90 w-full sm:w-56 pt-6 pb-4 rounded-t-2xl border-t-4 border-slate-300 dark:border-slate-600 shadow-sm text-center">
                   <h3 className="font-bold text-slate-900 dark:text-slate-100">
-                    {second.fullName || "Ẩn danh"}
+                    {second.fullName || t("ranking.anonymous")}
                   </h3>
                   <p className="text-primary font-bold text-lg">
-                    {(second.totalUserSentenceAnswers ?? 0).toLocaleString("vi-VN")} câu
+                    {(second.totalUserSentenceAnswers ?? 0).toLocaleString(numLocale)}{" "}
+                    {t("ranking.sentences")}
                   </p>
                   <span className="text-[10px] bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 px-2 py-0.5 rounded mt-1 inline-block">
-                    Điểm TB {second.avgScore?.toFixed(1) ?? "0.0"}
+                    {t("ranking.avgShort", {
+                      score: second.avgScore?.toFixed(1) ?? "0.0",
+                    })}
                   </span>
                   <div className="mt-1 text-[10px] text-slate-400 flex items-center justify-center gap-0.5">
                     <Clock size={10} /> {formatTotalHours(second.totalLearningTime ?? 0)}
@@ -87,7 +98,6 @@ const Rankings: React.FC = () => {
               </div>
             )}
 
-            {/* 1st */}
             <div className="flex flex-col items-center z-10 md:-mx-2">
               <div className="relative mb-6">
                 <Trophy
@@ -97,7 +107,7 @@ const Rankings: React.FC = () => {
                 <div className="w-28 h-28 rounded-full border-4 border-amber-400 overflow-hidden shadow-lg">
                   <img
                     src={first.urlAvatar || "https://picsum.photos/seed/1/200"}
-                    alt={first.fullName || "Hạng 1"}
+                    alt={first.fullName || t("ranking.rank1")}
                     className="w-full h-full object-cover"
                   />
                 </div>
@@ -109,16 +119,20 @@ const Rankings: React.FC = () => {
                 <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-amber-50 dark:from-amber-950/30 to-transparent opacity-50"></div>
                 <div className="relative">
                   <h3 className="font-bold text-xl text-slate-900 dark:text-slate-100">
-                    {first.fullName || "Ẩn danh"}
+                    {first.fullName || t("ranking.anonymous")}
                   </h3>
                   <p className="text-primary font-extrabold text-2xl">
-                    {(first.totalUserSentenceAnswers ?? 0).toLocaleString("vi-VN")} câu
+                    {(first.totalUserSentenceAnswers ?? 0).toLocaleString(numLocale)}{" "}
+                    {t("ranking.sentences")}
                   </p>
                   <span className="mt-2 inline-flex items-center gap-1 text-xs font-bold text-amber-600 bg-amber-100 px-3 py-1 rounded-full border border-amber-200 uppercase tracking-wide">
-                    Điểm TB {first.avgScore?.toFixed(1) ?? "0.0"}
+                    {t("ranking.avgShort", {
+                      score: first.avgScore?.toFixed(1) ?? "0.0",
+                    })}
                   </span>
                   <div className="mt-2 text-xs text-slate-400 flex items-center justify-center gap-1">
-                    <Flame size={12} /> Chuỗi {first.currentStreak ?? 0} ngày
+                    <Flame size={12} />{" "}
+                    {t("ranking.streakLine", { count: first.currentStreak ?? 0 })}
                   </div>
                   <div className="mt-1 text-xs text-slate-400 flex items-center justify-center gap-1">
                     <Clock size={12} /> {formatTotalHours(first.totalLearningTime ?? 0)}
@@ -127,14 +141,13 @@ const Rankings: React.FC = () => {
               </div>
             </div>
 
-            {/* 3rd */}
             {third && (
               <div className="flex flex-col items-center">
                 <div className="relative mb-4">
                   <div className="w-20 h-20 rounded-full border-4 border-orange-700 overflow-hidden">
                     <img
                       src={third.urlAvatar || "https://picsum.photos/seed/3/200"}
-                      alt={third.fullName || "Hạng 3"}
+                      alt={third.fullName || t("ranking.rank3")}
                       className="w-full h-full object-cover"
                     />
                   </div>
@@ -144,13 +157,16 @@ const Rankings: React.FC = () => {
                 </div>
                 <div className="bg-white dark:bg-slate-900/90 w-full sm:w-56 pt-6 pb-4 rounded-t-2xl border-t-4 border-orange-700 shadow-sm text-center">
                   <h3 className="font-bold text-slate-900 dark:text-slate-100">
-                    {third.fullName || "Ẩn danh"}
+                    {third.fullName || t("ranking.anonymous")}
                   </h3>
                   <p className="text-primary font-bold text-lg">
-                    {(third.totalUserSentenceAnswers ?? 0).toLocaleString("vi-VN")} câu
+                    {(third.totalUserSentenceAnswers ?? 0).toLocaleString(numLocale)}{" "}
+                    {t("ranking.sentences")}
                   </p>
                   <span className="text-[10px] bg-orange-50 dark:bg-orange-950/40 text-orange-800 dark:text-orange-300 px-2 py-0.5 rounded mt-1 inline-block">
-                    Điểm TB {third.avgScore?.toFixed(1) ?? "0.0"}
+                    {t("ranking.avgShort", {
+                      score: third.avgScore?.toFixed(1) ?? "0.0",
+                    })}
                   </span>
                   <div className="mt-1 text-[10px] text-slate-400 flex items-center justify-center gap-0.5">
                     <Clock size={10} /> {formatTotalHours(third.totalLearningTime ?? 0)}
@@ -165,7 +181,7 @@ const Rankings: React.FC = () => {
       <div className="bg-white dark:bg-slate-900/90 rounded-2xl border border-slate-200 dark:border-slate-700 overflow-hidden shadow-sm">
         <div className="p-4 sm:p-6 border-b border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 bg-slate-50/50 dark:bg-slate-950/50">
           <h2 className="font-bold text-base sm:text-lg text-slate-800 dark:text-slate-100">
-            Bảng xếp hạng chi tiết
+            {t("ranking.detailTitle")}
           </h2>
           <div className="relative w-full sm:w-auto">
             <Search
@@ -174,7 +190,7 @@ const Rankings: React.FC = () => {
             />
             <input
               type="text"
-              placeholder="Tìm người dùng..."
+              placeholder={t("ranking.searchPlaceholder")}
               value={keyword}
               onChange={(e) => {
                 setKeyword(e.target.value);
@@ -190,7 +206,7 @@ const Rankings: React.FC = () => {
           </div>
         ) : isError ? (
           <div className="py-10 text-center text-sm text-red-500">
-            Không thể tải bảng xếp hạng. Vui lòng thử lại sau.
+            {t("ranking.loadError")}
           </div>
         ) : (
           <>
@@ -198,12 +214,12 @@ const Rankings: React.FC = () => {
               <table className="w-full min-w-[640px] text-left">
                 <thead className="bg-white dark:bg-slate-900 text-xs uppercase text-slate-400 font-bold tracking-wider border-b border-slate-100 dark:border-slate-800">
                   <tr>
-                    <th className="px-4 sm:px-6 py-3 sm:py-4">Hạng</th>
-                    <th className="px-4 sm:px-6 py-3 sm:py-4">Người học</th>
-                    <th className="px-4 sm:px-6 py-3 sm:py-4">Điểm TB</th>
-                    <th className="px-4 sm:px-6 py-3 sm:py-4">Số câu</th>
-                    <th className="px-4 sm:px-6 py-3 sm:py-4">Tổng thời gian</th>
-                    <th className="px-4 sm:px-6 py-3 sm:py-4">Chuỗi ngày</th>
+                    <th className="px-4 sm:px-6 py-3 sm:py-4">{t("ranking.colRank")}</th>
+                    <th className="px-4 sm:px-6 py-3 sm:py-4">{t("ranking.colLearner")}</th>
+                    <th className="px-4 sm:px-6 py-3 sm:py-4">{t("ranking.colAvg")}</th>
+                    <th className="px-4 sm:px-6 py-3 sm:py-4">{t("ranking.colSentences")}</th>
+                    <th className="px-4 sm:px-6 py-3 sm:py-4">{t("ranking.colTime")}</th>
+                    <th className="px-4 sm:px-6 py-3 sm:py-4">{t("ranking.colStreak")}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-50 dark:divide-slate-800">
@@ -220,14 +236,14 @@ const Rankings: React.FC = () => {
                           {row.urlAvatar ? (
                             <img
                               src={row.urlAvatar}
-                              alt={row.fullName || "Ẩn danh"}
+                              alt={row.fullName || t("ranking.anonymous")}
                               className="w-8 h-8 md:w-10 md:h-10 rounded-full border-2 border-slate-100 dark:border-slate-700 shadow-sm"
                             />
                           ) : (
                             <Avatar size={32} icon={<User size={16} />} />
                           )}
                           <span className="font-semibold text-slate-900 dark:text-slate-100 group-hover:text-primary transition-colors">
-                            {row.fullName || "Ẩn danh"}
+                            {row.fullName || t("ranking.anonymous")}
                           </span>
                         </div>
                       </td>
@@ -250,8 +266,7 @@ const Rankings: React.FC = () => {
                         </div>
                       </td>
                       <td className="px-4 sm:px-6 py-3 sm:py-4 text-sm font-medium text-slate-600 dark:text-slate-300">
-                        {row.totalUserSentenceAnswers?.toLocaleString("vi-VN") ??
-                          0}
+                        {row.totalUserSentenceAnswers?.toLocaleString(numLocale) ?? 0}
                       </td>
                       <td className="px-4 sm:px-6 py-3 sm:py-4 text-sm font-medium text-slate-600 dark:text-slate-300">
                         <span className="flex items-center gap-1">
@@ -272,7 +287,7 @@ const Rankings: React.FC = () => {
             {showPagination && (
               <div className="p-4 border-t border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-4">
                 <div className="text-xs text-slate-500 dark:text-slate-400 order-2 sm:order-1">
-                  <span className="font-semibold">{totalElements}</span> người học
+                  {t("ranking.learnerCount", { count: totalElements })}
                 </div>
                 <div className="order-1 sm:order-2">
                   <Pagination
@@ -288,7 +303,6 @@ const Rankings: React.FC = () => {
           </>
         )}
       </div>
-
     </div>
   );
 };

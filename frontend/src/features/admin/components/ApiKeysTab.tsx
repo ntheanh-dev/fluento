@@ -4,6 +4,7 @@ import type { ColumnsType } from "antd/es/table";
 import { ExclamationCircleFilled } from "@ant-design/icons";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useSearchParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 import { maskApiKey } from "@/entities/apiKey/schema";
 import type { AdminApiKeyResponse } from "../api";
@@ -15,6 +16,7 @@ import {
 } from "../api";
 
 const ApiKeysTab = () => {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const { confirm } = Modal;
 
@@ -56,31 +58,33 @@ const ApiKeysTab = () => {
 
   const columns: ColumnsType<AdminApiKeyResponse> = useMemo(
     () => [
-      { title: "ID", dataIndex: "id", key: "id", width: 80 },
+      { title: t("admin.columns.id"), dataIndex: "id", key: "id", width: 80 },
       {
-        title: "User",
+        title: t("admin.columns.user"),
         key: "user",
         width: 160,
         render: (_, r) => (r.username ? `${r.username} (#${r.userId})` : `#${r.userId}`),
       },
-      { title: "Model", dataIndex: "model", key: "model", width: 140 },
+      { title: t("admin.columns.model"), dataIndex: "model", key: "model", width: 140 },
       {
-        title: "API Key",
+        title: t("admin.columns.apiKey"),
         dataIndex: "apiKey",
         key: "apiKey",
         render: (v) => maskApiKey(String(v)),
       },
-      { title: "Credit", dataIndex: "credit", key: "credit", width: 100 },
+      { title: t("admin.columns.credit"), dataIndex: "credit", key: "credit", width: 100 },
       {
-        title: "Active",
+        title: t("admin.columns.active"),
         dataIndex: "isActive",
         key: "isActive",
         width: 90,
-        render: (v) => (v ? <Tag color="green">ACTIVE</Tag> : <Tag color="red">INACTIVE</Tag>),
+        render: (v) => (
+          <Tag color={v ? "green" : "red"}>{v ? t("admin.statusTag.active") : t("admin.statusTag.inactive")}</Tag>
+        ),
       },
-      { title: "Created", dataIndex: "createdAt", key: "createdAt", render: (v) => v ?? "-" },
+      { title: t("admin.columns.created"), dataIndex: "createdAt", key: "createdAt", render: (v) => v ?? "-" },
       {
-        title: "Actions",
+        title: t("admin.columns.actions"),
         key: "actions",
         width: 220,
         render: (_, record) => (
@@ -93,34 +97,34 @@ const ApiKeysTab = () => {
                 setSetCreditOpen(true);
               }}
             >
-              Set Credit
+              {t("admin.apiKeys.setCredit")}
             </Button>
             <Button
               size="small"
               danger
               onClick={() =>
                 confirm({
-                  title: "Delete API key group?",
+                  title: t("admin.apiKeys.confirmDeleteTitle"),
                   icon: <ExclamationCircleFilled />,
                   okType: "danger",
                   onOk: () => deleteApiKeyMutation.mutate(record.id),
                 })
               }
             >
-              Delete
+              {t("admin.delete")}
             </Button>
           </Space>
         ),
       },
     ],
-    [confirm, deleteApiKeyMutation],
+    [t, confirm, deleteApiKeyMutation],
   );
 
   return (
     <Spin spinning={apiKeysQuery.isLoading}>
       <div className="flex flex-col sm:flex-row gap-3 sm:items-end justify-between mb-3">
         <Space>
-          <span className="text-sm text-slate-600 dark:text-slate-300">User ID:</span>
+          <span className="text-sm text-slate-600 dark:text-slate-300">{t("admin.labels.userId")}</span>
           <InputNumber
             value={apiKeysUserId}
             min={1}
@@ -141,9 +145,11 @@ const ApiKeysTab = () => {
         </Space>
         <Space>
           <Button onClick={() => setCreateOpen(true)} type="primary">
-            Create for user
+            {t("admin.apiKeys.createForUser")}
           </Button>
-          <Button onClick={() => queryClient.invalidateQueries({ queryKey: ["adminApiKeys"] })}>Refresh</Button>
+          <Button onClick={() => queryClient.invalidateQueries({ queryKey: ["adminApiKeys"] })}>
+            {t("admin.refresh")}
+          </Button>
         </Space>
       </div>
 
@@ -175,7 +181,7 @@ const ApiKeysTab = () => {
 
       <Modal
         open={setCreditOpen}
-        title="Set API key credit"
+        title={t("admin.apiKeys.modalCreditTitle")}
         onCancel={() => setSetCreditOpen(false)}
         onOk={() => {
           if (setCreditTargetId == null) return;
@@ -189,7 +195,7 @@ const ApiKeysTab = () => {
       >
         <div className="space-y-2">
           <div className="text-sm text-slate-600">
-            API key row ID: {setCreditTargetId}
+            {t("admin.labels.apiKeyRowId")} {setCreditTargetId}
           </div>
           <InputNumber
             value={setCreditValue}
@@ -200,16 +206,16 @@ const ApiKeysTab = () => {
         </div>
       </Modal>
 
-      <Modal open={createOpen} title="Create API key for user" onCancel={() => setCreateOpen(false)} footer={null}>
+      <Modal open={createOpen} title={t("admin.apiKeys.createModalTitle")} onCancel={() => setCreateOpen(false)} footer={null}>
         <Space direction="vertical" style={{ width: "100%" }}>
           <InputNumber
-            placeholder="User ID"
+            placeholder={t("admin.placeholders.userId")}
             value={createUserId ?? undefined}
             onChange={(v) => setCreateUserId(v ?? null)}
             style={{ width: "100%" }}
           />
           <Input
-            placeholder="API key (Gemini)"
+            placeholder={t("admin.placeholders.apiKeyGemini")}
             value={createApiKeyValue}
             onChange={(e) => setCreateApiKeyValue(e.target.value)}
           />
@@ -230,7 +236,7 @@ const ApiKeysTab = () => {
               );
             }}
           >
-            Create
+            {t("admin.create")}
           </Button>
         </Space>
       </Modal>
@@ -239,4 +245,3 @@ const ApiKeysTab = () => {
 };
 
 export default React.memo(ApiKeysTab);
-

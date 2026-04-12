@@ -1,34 +1,29 @@
+import type { TFunction } from "i18next";
 import { z } from "zod";
 import { PASSWORD_MIN, PASSWORD_MAX } from "../../shared/validation/constant";
 
-const newPasswordField = z
-    .string()
-    .min(PASSWORD_MIN, `Mật khẩu phải có ít nhất ${PASSWORD_MIN} ký tự`)
-    .max(PASSWORD_MAX, `Mật khẩu không được vượt quá ${PASSWORD_MAX} ký tự`);
-
-const confirmPasswordField = z
-    .string()
-    .min(PASSWORD_MIN, `Mật khẩu xác nhận phải có ít nhất ${PASSWORD_MIN} ký tự`)
-    .max(PASSWORD_MAX, `Mật khẩu xác nhận không được vượt quá ${PASSWORD_MAX} ký tự`);
-
 /** noPassword = true: first-time set (không verify current). noPassword = false: đổi mật khẩu (bắt buộc current). */
-export function getSetPasswordSchema(noPassword: boolean) {
+export function getSetPasswordSchema(noPassword: boolean, t: TFunction) {
+    const newPasswordField = z
+        .string()
+        .min(PASSWORD_MIN, t("validation.passwordMin", { min: PASSWORD_MIN }))
+        .max(PASSWORD_MAX, t("validation.passwordMax"));
+
+    const confirmPasswordField = z
+        .string()
+        .min(PASSWORD_MIN, t("validation.passwordMin", { min: PASSWORD_MIN }))
+        .max(PASSWORD_MAX, t("validation.passwordMax"));
+
     return z
         .object({
             currentPassword: noPassword
                 ? z.string().optional()
-                : z.string().min(1, "Vui lòng nhập mật khẩu hiện tại"),
+                : z.string().min(1, t("validation.currentPasswordRequired")),
             newPassword: newPasswordField,
             confirmPassword: confirmPasswordField,
         })
         .refine((data) => data.newPassword === data.confirmPassword, {
-            message: "Mật khẩu xác nhận không khớp",
+            message: t("validation.passwordConfirmMismatch"),
             path: ["confirmPassword"],
         });
 }
-
-export type SetPasswordInput = {
-    currentPassword?: string;
-    newPassword: string;
-    confirmPassword: string;
-};

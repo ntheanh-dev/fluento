@@ -1,4 +1,5 @@
 import { Modal } from "antd";
+import { Trans, useTranslation } from "react-i18next";
 
 export interface SetDefaultApiKeyDialogProps {
     open: boolean;
@@ -13,6 +14,8 @@ export default function SetDefaultApiKeyDialog({
     onClose,
     onConfirm,
 }: SetDefaultApiKeyDialogProps) {
+    const { t } = useTranslation();
+
     const handleOk = async () => {
         try {
             const result = onConfirm();
@@ -28,16 +31,20 @@ export default function SetDefaultApiKeyDialog({
     return (
         <Modal
             centered
-            title="Đặt khóa làm mặc định"
+            title={t("profile.dialogs.setDefault.title")}
             open={open}
             onCancel={onClose}
             onOk={handleOk}
-            okText="Đặt mặc định"
-            cancelText="Hủy"
+            okText={t("profile.dialogs.setDefault.ok")}
+            cancelText={t("profile.dialogs.setDefault.cancel")}
         >
             {label && (
                 <p className="text-slate-600">
-                    Đặt <span className="font-medium text-slate-800">{label}</span> làm khóa API mặc định cho dịch và phản hồi AI?
+                    <Trans
+                        i18nKey="profile.dialogs.setDefault.body"
+                        values={{ label }}
+                        components={{ 1: <span className="font-medium text-slate-800" /> }}
+                    />
                 </p>
             )}
         </Modal>

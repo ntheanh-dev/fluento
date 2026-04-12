@@ -3,6 +3,7 @@ import { Button, Input, InputNumber, Select, Space, Spin, Table } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useSearchParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 import type { UserPractice } from "@/entities/userPractice/schema";
 import { adminListUserPractices } from "../api";
@@ -10,6 +11,7 @@ import { adminListUserPractices } from "../api";
 type SortOrder = "asc" | "desc";
 
 const UserPracticesTab = () => {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [searchParams, setSearchParams] = useSearchParams();
   const userPracticesUserIdRaw = searchParams.get("userPracticesUserId");
@@ -35,23 +37,23 @@ const UserPracticesTab = () => {
 
   const columns: ColumnsType<UserPractice> = useMemo(
     () => [
-      { title: "Practice ID", dataIndex: "id", key: "id", width: 110 },
-      { title: "Attempt", dataIndex: "attemptNumber", key: "attemptNumber", width: 90 },
-      { title: "Type", dataIndex: ["paragraph", "type"], key: "type", width: 110 },
-      { title: "Topic", dataIndex: ["paragraph", "topic"], key: "topic", width: 150 },
-      { title: "Level", dataIndex: ["paragraph", "level"], key: "level", width: 110 },
-      { title: "Score", dataIndex: "score", key: "score", width: 100 },
-      { title: "Learning time (ms)", dataIndex: "learningTime", key: "learningTime", width: 150 },
-      { title: "Created", dataIndex: "createdAt", key: "createdAt", render: (v) => v ?? "-" },
+      { title: t("admin.columns.practiceId"), dataIndex: "id", key: "id", width: 110 },
+      { title: t("admin.columns.attempt"), dataIndex: "attemptNumber", key: "attemptNumber", width: 90 },
+      { title: t("admin.columns.type"), dataIndex: ["paragraph", "type"], key: "type", width: 110 },
+      { title: t("admin.columns.topic"), dataIndex: ["paragraph", "topic"], key: "topic", width: 150 },
+      { title: t("admin.columns.level"), dataIndex: ["paragraph", "level"], key: "level", width: 110 },
+      { title: t("admin.columns.score"), dataIndex: "score", key: "score", width: 100 },
+      { title: t("admin.columns.learningTimeMs"), dataIndex: "learningTime", key: "learningTime", width: 150 },
+      { title: t("admin.columns.created"), dataIndex: "createdAt", key: "createdAt", render: (v) => v ?? "-" },
     ],
-    [],
+    [t],
   );
 
   return (
     <Spin spinning={userPracticesQuery.isLoading}>
       <div className="flex flex-col sm:flex-row gap-3 sm:items-end justify-between mb-3">
         <Space>
-          <span className="text-sm text-slate-600 dark:text-slate-300">User ID:</span>
+          <span className="text-sm text-slate-600 dark:text-slate-300">{t("admin.labels.userId")}</span>
           <InputNumber
             value={userId}
             onChange={(v) => {
@@ -72,7 +74,7 @@ const UserPracticesTab = () => {
         </Space>
         <Space>
           <Button onClick={() => queryClient.invalidateQueries({ queryKey: ["adminUserPractices"] })}>
-            Refresh
+            {t("admin.refresh")}
           </Button>
           <Select
             value={sort}
@@ -88,11 +90,11 @@ const UserPracticesTab = () => {
               );
             }}
           >
-            <Select.Option value="desc">Latest</Select.Option>
-            <Select.Option value="asc">Oldest</Select.Option>
+            <Select.Option value="desc">{t("admin.sort.latest")}</Select.Option>
+            <Select.Option value="asc">{t("admin.sort.oldest")}</Select.Option>
           </Select>
           <Input
-            placeholder="Search (optional)"
+            placeholder={t("admin.placeholders.searchOptional")}
             value={search}
             onChange={(e) => {
               const nextSearch = e.target.value;
@@ -142,4 +144,3 @@ const UserPracticesTab = () => {
 };
 
 export default React.memo(UserPracticesTab);
-
