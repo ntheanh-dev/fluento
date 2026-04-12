@@ -2,7 +2,6 @@ package com.nta.common.enums;
 
 public enum Tone {
     FORMAL,
-    INFORMAL,
     FRIENDLY,
     PROFESSIONAL;
 

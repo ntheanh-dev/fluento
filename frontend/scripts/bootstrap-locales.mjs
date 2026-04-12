@@ -146,12 +146,10 @@ const en = {
   },
   practice: {
     groups: {
-      "1": "General topics",
+      "1": "Daily life",
       "2": "Health & education",
       "3": "Travel & geography",
-      "4": "Business & economics",
-      "5": "Arts, entertainment & sports",
-      "6": "Society & community",
+      "4": "Business, science & society",
     },
     topicLabel: "Topic",
     type: {
@@ -164,7 +162,6 @@ const en = {
     },
     tone: {
       FORMAL: "Formal",
-      INFORMAL: "Informal",
       FRIENDLY: "Friendly",
       PROFESSIONAL: "Professional",
     },
@@ -473,12 +470,10 @@ const vi = {
   },
   practice: {
     groups: {
-      "1": "Chủ đề chung",
+      "1": "Đời sống hàng ngày",
       "2": "Sức khỏe & Giáo dục",
       "3": "Du lịch & Địa lý",
-      "4": "Kinh doanh & Kinh tế",
-      "5": "Nghệ thuật, Giải trí & Thể thao",
-      "6": "Xã hội & Cộng đồng",
+      "4": "Kinh doanh, khoa học & xã hội",
     },
     topicLabel: "Chủ đề",
     type: {
@@ -491,7 +486,6 @@ const vi = {
     },
     tone: {
       FORMAL: "Trang trọng",
-      INFORMAL: "Văn phong",
       FRIENDLY: "Thân thiện",
       PROFESSIONAL: "Chuyên nghiệp",
     },

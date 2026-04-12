@@ -6,7 +6,6 @@ export const TOPIC_GROUPS = [
       { value: "TECHNOLOGY" },
       { value: "CULTURE" },
       { value: "FOOD" },
-      { value: "ENVIRONMENT" },
     ],
   },
   {
@@ -15,10 +14,7 @@ export const TOPIC_GROUPS = [
       { value: "HEALTH" },
       { value: "EDUCATION" },
       { value: "FITNESS" },
-      { value: "YOGA" },
-      { value: "NUTRITION" },
       { value: "MENTAL_HEALTH" },
-      { value: "MEDICINE" },
     ],
   },
   {
@@ -28,8 +24,6 @@ export const TOPIC_GROUPS = [
       { value: "TOURISM" },
       { value: "COUNTRIES" },
       { value: "LANDMARKS" },
-      { value: "TRANSPORTATION" },
-      { value: "WEATHER" },
     ],
   },
   {
@@ -37,51 +31,8 @@ export const TOPIC_GROUPS = [
     topics: [
       { value: "BUSINESS" },
       { value: "SCIENCE" },
-      { value: "ECONOMICS" },
-      { value: "MARKETING" },
-      { value: "FINANCE" },
-      { value: "STARTUPS" },
-      { value: "ECOMMERCE" },
-    ],
-  },
-  {
-    group: 5,
-    topics: [
-      { value: "ART" },
-      { value: "HISTORY" },
-      { value: "LITERATURE" },
-      { value: "PHILOSOPHY" },
-      { value: "PSYCHOLOGY" },
-      { value: "MUSIC" },
-      { value: "MOVIES" },
-      { value: "THEATRE" },
-      { value: "FASHION" },
-      { value: "GAMES" },
-      { value: "SPORTS" },
       { value: "ENTERTAINMENT" },
-    ],
-  },
-  {
-    group: 6,
-    topics: [
-      { value: "POLITICS" },
-      { value: "RELIGION" },
       { value: "SOCIETY" },
-      { value: "SHOPPING" },
-      { value: "HOUSEWORK" },
-      { value: "RELATIONSHIPS" },
-      { value: "PETS" },
-      { value: "HOLIDAYS" },
-      { value: "CLIMATE_CHANGE" },
-      { value: "SUSTAINABILITY" },
-      { value: "GLOBALIZATION" },
-      { value: "POVERTY" },
-      { value: "HUMAN_RIGHTS" },
-      { value: "PARENTING" },
-      { value: "MARRIAGE" },
-      { value: "COMMUNITY" },
-      { value: "VOLUNTEERING" },
-      { value: "TRADITIONS" },
     ],
   },
 ];
@@ -103,7 +54,6 @@ export const PRACTICE_TYPES = [
 
 export const TONES = [
   { value: "FORMAL" },
-  { value: "INFORMAL" },
   { value: "FRIENDLY" },
   { value: "PROFESSIONAL" },
 ];
