@@ -101,12 +101,20 @@ public class Service {
         AtomicInteger orderIndex = new AtomicInteger(0);
         return sentences.stream()
                 .map(String::trim)
-                .filter(sentence -> !sentence.isBlank())
+                .filter(sentence -> !isMeaninglessSentence(sentence))
                 .map(sentence -> ParagraphSentence.builder()
                         .paragraph(paragraph)
                         .orderIndex(orderIndex.getAndIncrement())
                         .content(sentence)
                         .build())
                 .toList();
+    }
+
+    private static boolean isMeaninglessSentence(String sentence) {
+        if (sentence == null || sentence.isBlank()) {
+            return true;
+        }
+        String stripped = sentence.replace("\n", "").replace("\r", "").replace("\\n", "");
+        return stripped.isBlank();
     }
 }
