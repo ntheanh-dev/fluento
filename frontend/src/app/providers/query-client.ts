@@ -14,12 +14,19 @@ export const queryClient = new QueryClient({
             refetchOnWindowFocus: false,
             refetchOnMount: false,
             refetchOnReconnect: false,
-            retry: (failureCount, error: any) => {
-                if (error.response?.status === 400 || error.response?.status === 500) {
+            retry: (failureCount, error: unknown) => {
+                const status = (error as { response?: { status?: number } })?.response?.status;
+                // Client / permanent errors: retrying wastes time and hurts UX (e.g. 404 × 4).
+                if (
+                    status === 400 ||
+                    status === 401 ||
+                    status === 403 ||
+                    status === 404 ||
+                    status === 500
+                ) {
                     return false;
-                } else {
-                    return failureCount < 3;
                 }
+                return failureCount < 3;
             },
         },mutations: {
                 retry: false,

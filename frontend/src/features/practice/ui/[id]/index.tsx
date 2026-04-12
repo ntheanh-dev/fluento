@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useRef, useCallback } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, Navigate } from "react-router-dom";
 import {
   ArrowLeft,
   ArrowRight,
@@ -30,6 +30,8 @@ const SentencePracticePage = () => {
   // --- Router & device ---
   const { id } = useParams();
   const navigate = useNavigate();
+  const practiceId = Number(id);
+  const idValid = id != null && id !== "" && Number.isFinite(practiceId) && practiceId > 0;
   const { isMobile, isTablet } = useDeviceType();
 
   // --- State: practice (câu hiện tại, bản dịch, gợi ý, feedback) ---
@@ -49,7 +51,7 @@ const SentencePracticePage = () => {
   const startedAtRef = useRef<number | null>(null);
 
   // --- Data hooks ---
-  const { data, error: errorUserPracticeData } = useUserPracticeData(Number(id));
+  const { data, error: errorUserPracticeData } = useUserPracticeData(practiceId);
   const { data: creditBalance, refetch: refetchCredits } = useCredits();
 
   const answerPreviewPayload = useMemo(
@@ -65,7 +67,7 @@ const SentencePracticePage = () => {
     mutateAsync: getAnswerPreview,
     isPending: isLoadingAnswerPreview,
     error: errorAnswerPreview,
-  } = useAnswerPreviewFeedback(Number(id), answerPreviewPayload);
+  } = useAnswerPreviewFeedback(practiceId, answerPreviewPayload);
 
   const [feedback, setFeedback] = useState<SentenceFeedback | null>(null);
 
@@ -84,7 +86,7 @@ const SentencePracticePage = () => {
   const { mutateAsync: getVocabularyHints, isPending: isLoadingVocabularyHints } =
     useSentenceVocabularyHints(currentVietNameseSentence?.id ?? -1);
   const { mutateAsync: submitUserSentence, isPending: isLoadingSubmitUserSentence } =
-    useSubmitUserSentence(Number(id), submitPayload);
+    useSubmitUserSentence(practiceId, submitPayload);
 
   // --- Effects ---
 
@@ -102,10 +104,9 @@ const SentencePracticePage = () => {
       }
     }
     if (errorUserPracticeData) {
-      showApiError(errorUserPracticeData);
-      if ((errorUserPracticeData as AxiosError)?.response?.status === 404) {
-        navigate("/dashboard");
-        return;
+      const status = (errorUserPracticeData as AxiosError)?.response?.status;
+      if (status !== 404) {
+        showApiError(errorUserPracticeData);
       }
     }
   }, [id, data, errorUserPracticeData]);
@@ -208,6 +209,15 @@ const SentencePracticePage = () => {
     () => (data?.paragraph?.type === "SINGLE_SENTENCE" ? currentVietNameseSentence : null),
     [data?.paragraph?.type, currentVietNameseSentence]
   );
+
+  const practiceNotFound =
+    idValid &&
+    errorUserPracticeData != null &&
+    (errorUserPracticeData as AxiosError)?.response?.status === 404;
+
+  if (!idValid || practiceNotFound) {
+    return <Navigate to="/404" replace />;
+  }
 
   return (
     <div className="h-[calc(100vh-130px+4rem)] max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col overflow-hidden dark:text-slate-100">
