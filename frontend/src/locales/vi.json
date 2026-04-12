@@ -493,6 +493,7 @@
       "type": "Loại",
       "topic": "Chủ đề",
       "level": "Trình độ",
+      "tone": "Giọng điệu",
       "sentenceCount": "Số câu",
       "practiceId": "ID bài luyện",
       "attempt": "Lần thử",

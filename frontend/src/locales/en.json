@@ -493,6 +493,7 @@
       "type": "Type",
       "topic": "Topic",
       "level": "Level",
+      "tone": "Tone",
       "sentenceCount": "# Sentences",
       "practiceId": "Practice ID",
       "attempt": "Attempt",

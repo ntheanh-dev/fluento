@@ -88,6 +88,13 @@ const ParagraphsTab = () => {
       { title: t("admin.columns.topic"), dataIndex: "topic", key: "topic", width: 160 },
       { title: t("admin.columns.level"), dataIndex: "level", key: "level", width: 120 },
       {
+        title: t("admin.columns.tone"),
+        dataIndex: "tone",
+        key: "tone",
+        width: 120,
+        render: (v: string) => (v ? t(`practice.tone.${v}`) : "-"),
+      },
+      {
         title: t("admin.columns.sentenceCount"),
         dataIndex: "sentences",
         key: "sentences",
@@ -200,6 +207,10 @@ const ParagraphsTab = () => {
               <div className="font-mono">{selectedParagraph.topic}</div>
               <div className="text-slate-500">{t("admin.columns.level")}</div>
               <div className="font-mono">{selectedParagraph.level}</div>
+              <div className="text-slate-500">{t("admin.columns.tone")}</div>
+              <div className="font-mono">
+                {selectedParagraph.tone ? t(`practice.tone.${selectedParagraph.tone}`) : "-"}
+              </div>
               <div className="text-slate-500">{t("admin.columns.sentenceCount")}</div>
               <div className="font-mono">{selectedParagraph.sentences?.length ?? 0}</div>
               <div className="text-slate-500">{t("admin.columns.created")}</div>
