@@ -25,6 +25,11 @@ const ParagraphsTab = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const paragraphsPage = Math.max(0, parseInt(searchParams.get("paragraphsPage") ?? "0", 10) || 0);
   const paragraphsSize = Math.max(1, parseInt(searchParams.get("paragraphsSize") ?? "10", 10) || 10);
+  const filterType = searchParams.get("paragraphsType")?.trim() || undefined;
+  const filterTone = searchParams.get("paragraphsTone")?.trim() || undefined;
+  const filterTopic = searchParams.get("paragraphsTopic")?.trim() || undefined;
+  const filterLevel = searchParams.get("paragraphsLevel")?.trim() || undefined;
+  const filterSentenceCount = searchParams.get("paragraphsSentenceCount")?.trim() || undefined;
 
   const [detailOpen, setDetailOpen] = useState(false);
   const [selectedParagraph, setSelectedParagraph] = useState<Paragraph | null>(null);
@@ -34,8 +39,26 @@ const ParagraphsTab = () => {
   const [editTitleValue, setEditTitleValue] = useState("");
 
   const paragraphsQuery = useQuery({
-    queryKey: ["adminParagraphs", paragraphsPage, paragraphsSize],
-    queryFn: () => adminListParagraphs(paragraphsPage, paragraphsSize),
+    queryKey: [
+      "adminParagraphs",
+      paragraphsPage,
+      paragraphsSize,
+      filterType,
+      filterTone,
+      filterTopic,
+      filterLevel,
+      filterSentenceCount,
+    ],
+    queryFn: () =>
+      adminListParagraphs({
+        page: paragraphsPage,
+        size: paragraphsSize,
+        type: filterType,
+        tone: filterTone,
+        topic: filterTopic,
+        level: filterLevel,
+        sentenceCount: filterSentenceCount,
+      }),
   });
 
   const deleteParagraphMutation = useMutation({
@@ -79,6 +102,19 @@ const ParagraphsTab = () => {
       ),
     [t],
   );
+
+  const setFilterParam = (key: string, value: string | undefined) => {
+    setSearchParams(
+      (prev) => {
+        const next = new URLSearchParams(prev);
+        if (value == null || value === "") next.delete(key);
+        else next.set(key, value);
+        next.set("paragraphsPage", "0");
+        return next;
+      },
+      { replace: true },
+    );
+  };
 
   const columns: ColumnsType<Paragraph> = useMemo(
     () => [
@@ -144,14 +180,70 @@ const ParagraphsTab = () => {
 
   return (
     <Spin spinning={paragraphsQuery.isLoading}>
-      <div className="flex flex-col sm:flex-row gap-3 sm:items-end justify-between mb-3">
-        <Space>
-          <Button type="primary" onClick={() => setCreateOpen(true)}>
-            {t("admin.paragraphs.createButton")}
-          </Button>
-          <Button onClick={() => queryClient.invalidateQueries({ queryKey: ["adminParagraphs"] })}>
-            {t("admin.refresh")}
-          </Button>
+      <div className="flex flex-col gap-3 mb-3">
+        <div className="flex flex-col sm:flex-row gap-3 sm:items-end justify-between">
+          <Space wrap>
+            <Button type="primary" onClick={() => setCreateOpen(true)}>
+              {t("admin.paragraphs.createButton")}
+            </Button>
+            <Button onClick={() => queryClient.invalidateQueries({ queryKey: ["adminParagraphs"] })}>
+              {t("admin.refresh")}
+            </Button>
+          </Space>
+        </div>
+        <Space wrap className="w-full" size={[8, 8]}>
+          <Select
+            allowClear
+            placeholder={t("admin.columns.type")}
+            style={{ minWidth: 160 }}
+            value={filterType}
+            onChange={(v) => setFilterParam("paragraphsType", v ?? undefined)}
+            options={PRACTICE_TYPES.map((x) => ({
+              value: x.value,
+              label: t(`practice.type.${x.value}`),
+            }))}
+          />
+          <Select
+            allowClear
+            placeholder={t("admin.columns.topic")}
+            style={{ minWidth: 180 }}
+            value={filterTopic}
+            onChange={(v) => setFilterParam("paragraphsTopic", v ?? undefined)}
+            options={topicOptions}
+          />
+          <Select
+            allowClear
+            placeholder={t("admin.columns.level")}
+            style={{ minWidth: 120 }}
+            value={filterLevel}
+            onChange={(v) => setFilterParam("paragraphsLevel", v ?? undefined)}
+            options={LEVELS.map((l) => ({
+              value: l.value,
+              label: t(`practice.level.${l.value}`),
+            }))}
+          />
+          <Select
+            allowClear
+            placeholder={t("admin.columns.tone")}
+            style={{ minWidth: 140 }}
+            value={filterTone}
+            onChange={(v) => setFilterParam("paragraphsTone", v ?? undefined)}
+            options={TONES.map((x) => ({
+              value: x.value,
+              label: t(`practice.tone.${x.value}`),
+            }))}
+          />
+          <Select
+            allowClear
+            placeholder={t("admin.columns.sentenceCount")}
+            style={{ minWidth: 160 }}
+            value={filterSentenceCount}
+            onChange={(v) => setFilterParam("paragraphsSentenceCount", v ?? undefined)}
+            options={SENTENCE_COUNTS.map((c) => ({
+              value: c.value,
+              label: t(`practice.sentenceCount.${c.value}`),
+            }))}
+          />
         </Space>
       </div>
 

@@ -2,6 +2,7 @@ package com.nta.domain.paragraph;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -29,6 +30,33 @@ public interface Repository extends JpaRepository<Paragraph, Long> {
 			ORDER BY p.id ASC
 			""")
     List<Paragraph> findMatchingSetup(
+            @Param("type") Type type,
+            @Param("tone") Tone tone,
+            @Param("topic") Topic topic,
+            @Param("level") Level level,
+            @Param("sentenceCount") SentenceCount sentenceCount,
+            Pageable pageable);
+
+    @Query(
+            value =
+                    """
+			SELECT p FROM Paragraph p
+			WHERE (:type IS NULL OR p.type = :type)
+			AND (:tone IS NULL OR p.tone = :tone)
+			AND (:topic IS NULL OR p.topic = :topic)
+			AND (:level IS NULL OR p.level = :level)
+			AND (:sentenceCount IS NULL OR p.sentenceCount = :sentenceCount)
+			""",
+            countQuery =
+                    """
+			SELECT count(p) FROM Paragraph p
+			WHERE (:type IS NULL OR p.type = :type)
+			AND (:tone IS NULL OR p.tone = :tone)
+			AND (:topic IS NULL OR p.topic = :topic)
+			AND (:level IS NULL OR p.level = :level)
+			AND (:sentenceCount IS NULL OR p.sentenceCount = :sentenceCount)
+			""")
+    Page<Paragraph> findWithOptionalFilters(
             @Param("type") Type type,
             @Param("tone") Tone tone,
             @Param("topic") Topic topic,

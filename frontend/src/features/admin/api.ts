@@ -98,8 +98,25 @@ export const adminDeleteApiKey = async (id: number): Promise<void> => {
   await http.delete<ApiResponse<void>>(`/admin/api-keys/${id}`);
 };
 
-export const adminListParagraphs = async (page: number, size: number): Promise<AdminPage<Paragraph>> => {
-  return getResource<AdminPage<Paragraph>>(`/admin/paragraphs?page=${page}&size=${size}`);
+export type AdminParagraphListParams = {
+  page: number;
+  size: number;
+  type?: string;
+  tone?: string;
+  topic?: string;
+  level?: string;
+  sentenceCount?: string;
+};
+
+export const adminListParagraphs = async (params: AdminParagraphListParams): Promise<AdminPage<Paragraph>> => {
+  const { page, size, type, tone, topic, level, sentenceCount } = params;
+  let url = `/admin/paragraphs?page=${page}&size=${size}`;
+  if (type) url += `&type=${encodeURIComponent(type)}`;
+  if (tone) url += `&tone=${encodeURIComponent(tone)}`;
+  if (topic) url += `&topic=${encodeURIComponent(topic)}`;
+  if (level) url += `&level=${encodeURIComponent(level)}`;
+  if (sentenceCount) url += `&sentenceCount=${encodeURIComponent(sentenceCount)}`;
+  return getResource<AdminPage<Paragraph>>(url);
 };
 
 export const adminCreateParagraph = async (payload: PracticeSetupInput): Promise<Paragraph> => {

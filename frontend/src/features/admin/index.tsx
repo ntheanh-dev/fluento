@@ -122,7 +122,7 @@ const Admin = () => {
   // ===== Paragraphs =====
   const paragraphsQuery = useQuery({
     queryKey: ["adminParagraphs", paragraphsPage, paragraphsSize],
-    queryFn: () => adminListParagraphs(paragraphsPage, paragraphsSize),
+    queryFn: () => adminListParagraphs({ page: paragraphsPage, size: paragraphsSize }),
   });
 
   const deleteParagraphMutation = useMutation({

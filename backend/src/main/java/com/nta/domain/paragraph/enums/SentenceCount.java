@@ -21,4 +21,13 @@ public enum SentenceCount {
     public static SentenceCount fromSize(int size) {
         return Arrays.stream(values()).filter(sc -> sc.size == size).findFirst().orElse(null);
     }
+
+    public static SentenceCount fromString(String s) {
+        if (s == null || s.isBlank()) return null;
+        try {
+            return valueOf(s.trim().toUpperCase());
+        } catch (IllegalArgumentException e) {
+            return null;
+        }
+    }
 }

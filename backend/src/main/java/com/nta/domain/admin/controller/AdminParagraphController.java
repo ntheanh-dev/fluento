@@ -24,6 +24,11 @@ import com.nta.domain.paragraph.Paragraph;
 import com.nta.domain.paragraph.Repository;
 import com.nta.domain.paragraph.Service;
 import com.nta.domain.paragraph.dto.request.CreateParagraphRequest;
+import com.nta.domain.paragraph.enums.Level;
+import com.nta.domain.paragraph.enums.SentenceCount;
+import com.nta.domain.paragraph.enums.Tone;
+import com.nta.domain.paragraph.enums.Topic;
+import com.nta.domain.paragraph.enums.Type;
 
 import lombok.RequiredArgsConstructor;
 
@@ -38,9 +43,23 @@ public class AdminParagraphController {
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse<Page<Paragraph>> list(
-            @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "20") int size) {
+            @RequestParam(required = false) String type,
+            @RequestParam(required = false) String tone,
+            @RequestParam(required = false) String topic,
+            @RequestParam(required = false) String level,
+            @RequestParam(required = false) String sentenceCount,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
+        Type typeEnum = type != null && !type.isBlank() ? Type.fromString(type) : null;
+        Tone toneEnum = tone != null && !tone.isBlank() ? Tone.fromString(tone) : null;
+        Topic topicEnum = topic != null && !topic.isBlank() ? Topic.fromString(topic) : null;
+        Level levelEnum = level != null && !level.isBlank() ? Level.fromString(level) : null;
+        SentenceCount sentenceCountEnum =
+                sentenceCount != null && !sentenceCount.isBlank() ? SentenceCount.fromString(sentenceCount) : null;
+
         PageRequest pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
-        Page<Paragraph> result = paragraphRepository.findAll(pageable);
+        Page<Paragraph> result = paragraphRepository.findWithOptionalFilters(
+                typeEnum, toneEnum, topicEnum, levelEnum, sentenceCountEnum, pageable);
         return ApiResponse.<Page<Paragraph>>builder().result(result).build();
     }
 
