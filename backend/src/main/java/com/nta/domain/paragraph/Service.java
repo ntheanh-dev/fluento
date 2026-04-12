@@ -41,6 +41,23 @@ public class Service {
         });
     }
 
+    public Paragraph create(CreateParagraphRequest request) {
+        switch (request.getType()) {
+            case BASIC: {
+                return handleBasicParagraph(request);
+            }
+            case STORY, EMAIL, IELTS_TASK1, IELTS_TASK2: {
+                return handleOtherParagraph(request);
+            }
+            case SINGLE_SENTENCE: {
+                return handleSingleSentence(request);
+            }
+            default: {
+                throw new IllegalArgumentException("Invalid paragraph type: " + request.getType());
+            }
+        }
+    }
+
     /** Tái sử dụng paragraph đã có cùng type/tone/topic/level/sentenceCount trước khi gọi AI. */
     private Optional<Paragraph> findExistingWithSameSetup(CreateParagraphRequest request) {
         List<Paragraph> hits = repository.findMatchingSetup(
