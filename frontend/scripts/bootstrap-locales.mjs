@@ -23,6 +23,7 @@ const en = {
     practice: "Practice",
     history: "History",
     rankings: "Rankings",
+    admin: "Admin",
     profile: "Profile",
   },
   layout: {
@@ -153,11 +154,12 @@ const en = {
     },
     topicLabel: "Topic",
     type: {
-      BASIC: "Basic writing",
+      DIARIES: "Diaries",
       IELTS_TASK1: "IELTS Writing Task 1",
       IELTS_TASK2: "IELTS Writing Task 2",
       EMAIL: "Email writing",
       STORY: "Story writing",
+      ESSAYS: "Essay writing",
       SINGLE_SENTENCE: "Single sentence",
     },
     tone: {
@@ -257,7 +259,7 @@ const en = {
     paragraphType: {
       EMAIL: "Email",
       STORY: "Story",
-      BASIC: "Basic",
+      DIARIES: "Diaries",
       IELTS_TASK1: "IELTS Task 1",
       IELTS_TASK2: "IELTS Task 2",
     },
@@ -346,6 +348,7 @@ const vi = {
     practice: "Luyện tập",
     history: "Lịch sử",
     rankings: "Bảng xếp hạng",
+    admin: "Quản trị",
     profile: "Hồ sơ",
   },
   layout: {
@@ -477,11 +480,12 @@ const vi = {
     },
     topicLabel: "Chủ đề",
     type: {
-      BASIC: "Viết cơ bản",
+      DIARIES: "Nhật ký",
       IELTS_TASK1: "IELTS Writing Task 1",
       IELTS_TASK2: "IELTS Writing Task 2",
       EMAIL: "Viết Email",
       STORY: "Viết Câu chuyện",
+      ESSAYS: "Viết luận",
       SINGLE_SENTENCE: "Dịch theo câu",
     },
     tone: {
@@ -582,7 +586,7 @@ const vi = {
     paragraphType: {
       EMAIL: "EMAIL",
       STORY: "STORY",
-      BASIC: "BASIC",
+      DIARIES: "Nhật ký",
       IELTS_TASK1: "IELTS Task 1",
       IELTS_TASK2: "IELTS Task 2",
     },

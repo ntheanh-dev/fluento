@@ -14,52 +14,55 @@ public class ParagraphPromptFactory {
     public PromptMessage buildPrompt(CreateParagraphRequest request) {
 
         return switch (request.getType()) {
-            case BASIC -> buildBasicPrompt(request);
-            case STORY, EMAIL, IELTS_TASK1, IELTS_TASK2 -> buildWritingPrompt(request);
+            case DIARIES -> buildDiariesPrompt(request);
+            case STORY, EMAIL, IELTS_TASK1, IELTS_TASK2, ESSAYS -> buildWritingPrompt(request);
             case SINGLE_SENTENCE -> buildSingleSentencePrompt(request);
         };
     }
 
-    private PromptMessage buildBasicPrompt(CreateParagraphRequest request) {
+    private PromptMessage buildDiariesPrompt(CreateParagraphRequest request) {
 
         int sentenceCount =
                 request.getSentenceCount() != null ? request.getSentenceCount().getSize() : SentenceCount.TEN.getSize();
 
-        String system = "You are an expert English-learning content creator for Vietnamese learners. "
-                + "Generate Vietnamese content for English translation practice. "
-                + "Return ONLY valid JSON. No markdown, no explanation. "
-                + "Strict schema: {\"title\":\"string\",\"sentences\":[\"string\"]}. "
-                + "The sentences array contain around "
-                + sentenceCount
-                + " items. "
-                + "Each sentence must be complete and natural Vietnamese. "
-                + "Do not use double quotes inside sentences. "
-                + "Do not include line breaks. "
-                + "Ensure the JSON is valid and properly escaped.";
+        String system =
+                "You are an expert creator of Vietnamese diary and journal texts for English-translation practice. "
+                        + "Learners will translate your Vietnamese into English, so keep phrasing clear and level-appropriate. "
+                        + "Return ONLY valid JSON. No markdown, no explanation. "
+                        + "Strict schema: {\"title\":\"string\",\"sentences\":[\"string\"]}. "
+                        + "The \"sentences\" array must contain EXACTLY "
+                        + sentenceCount
+                        + " separate strings. "
+                        + "Each string is ONE complete Vietnamese sentence (no line breaks inside a sentence). "
+                        + "Do not use double quotes inside sentence text. "
+                        + "Together, the sentences should read as one coherent diary entry or a tight sequence of entries on the same thread. "
+                        + "Escape JSON correctly.";
 
         String user = String.format(
                 """
-				Create a %s in Vietnamese.
+				Write Vietnamese diary / journal content for English translation practice.
 
-				Topic: %s
-				Level: %s
-				Tone: %s
+				Topic anchor: %s (weave naturally; do not mechanically repeat the topic label)
+				Target difficulty (CEFR-style): %s
+				Tone setting: %s
+				- FORMAL: reflective, measured, like a careful personal journal.
+				- FRIENDLY: warm, conversational diary voice.
+				- PROFESSIONAL: clear, task- or work-day log style when the topic allows; still first person.
 
-				Requirements:
-				- EXACTLY %d sentences
-				- Suitable for translation into English
-				- Clear, natural, and practical
-				- Use varied sentence structures
+				Sentence rules:
+				- Output EXACTLY %d items in \"sentences\"; each item is one standalone sentence.
+				- Use first person (e.g. \"tôi\", \"mình\") consistently.
+				- Include concrete detail: actions, places, people, feelings, or small events—not abstract filler.
+				- Show continuity (same day, same stretch of time, or linked moments); optional time phrases only when natural.
+				- Vocabulary and grammar must suit %s learners translating into English.
+				- NEVER use placeholders like [Tên], [địa điểm], or [...]; invent believable specifics.
+				- Varied sentence openings and lengths; mix statements with occasional questions or exclamations if natural.
 
-				Title:
-				- 5–12 words
-				- Relevant to content
+				Title (field \"title\"):
+				- 5–12 words in Vietnamese, diary-style (mood, day, or moment—not a generic essay title).
+				- Must match the body content.
 				""",
-                request.getType().getDisplayName(),
-                request.getTopic(),
-                request.getLevel(),
-                request.getTone(),
-                sentenceCount);
+                request.getTopic(), request.getLevel(), request.getTone(), sentenceCount, request.getLevel());
 
         return new PromptMessage(system, user);
     }
@@ -112,6 +115,16 @@ Ensure the narrative flow is natural but the break is marked by "\\n".
 							- Ensure the sentences follow a logical flow when read in order.
 							- Academic tone
 							""";
+
+                    case ESSAYS -> """
+Write as a short essay in Vietnamese.
+- Clear thesis or main idea in the opening.
+- Supporting points in the middle with examples or reasoning.
+- Brief conclusion that ties back to the thesis.
+- Constraint: Use the literal string "\\n" to separate introduction, body (one or more blocks), and conclusion.
+- Each sentence must be one element in the 'sentences' array; order must read as a coherent essay.
+- Suitable tone for the requested Tone and Level.
+""";
 
                     default -> """
 Write as a coherent structured paragraph.

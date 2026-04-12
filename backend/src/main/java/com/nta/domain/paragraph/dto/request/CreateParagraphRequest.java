@@ -22,7 +22,7 @@ import lombok.NoArgsConstructor;
 public class CreateParagraphRequest {
 
     @NotNull
-    @Schema(description = "Paragraph type", example = "BASIC")
+    @Schema(description = "Paragraph type", example = "DIARIES")
     private Type type;
 
     @NotNull

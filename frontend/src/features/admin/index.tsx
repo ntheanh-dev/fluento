@@ -208,7 +208,7 @@ const Admin = () => {
 
   const [createParagraphModalOpen, setCreateParagraphModalOpen] = useState(false);
   const [createParagraphPayload, setCreateParagraphPayload] = useState<PracticeSetupInput>({
-    type: "BASIC" as any,
+    type: "DIARIES" as any,
     topic: "LIFE" as any,
     level: "A2" as any,
     tone: "FORMAL" as any,

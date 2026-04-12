@@ -4,6 +4,7 @@ import {
   BookOpen,
   History,
   Trophy,
+  Shield,
   User,
   X,
 } from "lucide-react";
@@ -12,6 +13,9 @@ import { useLogoutMutation } from "@/features/auth/mutation";
 import Cookies from "js-cookie";
 import logo from "../assets/image/logo3.png";
 import { useTranslation } from "react-i18next";
+import { useProfile } from "@/stores/profile";
+
+const ADMIN_ROLE = "ADMIN";
 
 const SidebarItem = ({
   icon: Icon,
@@ -45,6 +49,8 @@ const Sidebar = ({
   onClose?: () => void;
 }) => {
   const { t } = useTranslation();
+  const { profile } = useProfile();
+  const isAdmin = (profile?.roles ?? []).some((r) => r.name === ADMIN_ROLE);
   const navigate = useNavigate();
   const { mutateAsync: logout } = useLogoutMutation();
   const handleLogout = async () => {
@@ -101,6 +107,14 @@ const Sidebar = ({
           to="/rankings"
           active={activePath === "/rankings"}
         />
+        {isAdmin && (
+          <SidebarItem
+            icon={Shield}
+            label={t("nav.admin")}
+            to="/admin"
+            active={activePath.startsWith("/admin")}
+          />
+        )}
         <SidebarItem
           icon={User}
           label={t("nav.profile")}

@@ -31,9 +31,10 @@ const PARAGRAPH_TYPE_KEYS = [
     "",
     "EMAIL",
     "STORY",
-    "BASIC",
+    "DIARIES",
     "IELTS_TASK1",
     "IELTS_TASK2",
+    "ESSAYS",
 ] as const;
 
 const TOPIC_KEYS = [

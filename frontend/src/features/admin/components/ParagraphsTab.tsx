@@ -62,7 +62,7 @@ const ParagraphsTab = () => {
 
   const [createOpen, setCreateOpen] = useState(false);
   const [payload, setPayload] = useState<PracticeSetupInput>({
-    type: "BASIC" as never,
+    type: "DIARIES" as never,
     topic: "LIFE" as never,
     level: "A2" as never,
     tone: "FORMAL" as never,

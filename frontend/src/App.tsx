@@ -37,6 +37,7 @@ const Admin = lazy(() => import("@/features/admin"));
 const Layout = lazy(() => import("@/layouts/Layout"));
 import { Suspense } from "react";
 import LandingPage from "@/features/landing/index.tsx";
+import NotFoundPage from "@/features/NotFoundPage";
 
 function AntdThemeConfig({ children }: PropsWithChildren) {
   const { theme } = useTheme();
@@ -84,6 +85,7 @@ function App() {
                   <Route path="history" element={<History />} />
                   <Route path="rankings" element={<Rankings />} />
                   <Route path="profile" element={<Profile />} />
+                  <Route path="404" element={<NotFoundPage />} />
                   <Route
                     path="admin"
                     element={

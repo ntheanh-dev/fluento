@@ -35,18 +35,18 @@ public class Service {
 
     public Paragraph findOrcreate(CreateParagraphRequest request) {
         return findExistingWithSameSetup(request).orElseGet(() -> switch (request.getType()) {
-            case BASIC -> handleBasicParagraph(request);
-            case STORY, EMAIL, IELTS_TASK1, IELTS_TASK2 -> handleOtherParagraph(request);
+            case DIARIES -> handleBasicParagraph(request);
+            case STORY, EMAIL, IELTS_TASK1, IELTS_TASK2, ESSAYS -> handleOtherParagraph(request);
             case SINGLE_SENTENCE -> handleSingleSentence(request);
         });
     }
 
     public Paragraph create(CreateParagraphRequest request) {
         switch (request.getType()) {
-            case BASIC: {
+            case DIARIES: {
                 return handleBasicParagraph(request);
             }
-            case STORY, EMAIL, IELTS_TASK1, IELTS_TASK2: {
+            case STORY, EMAIL, IELTS_TASK1, IELTS_TASK2, ESSAYS: {
                 return handleOtherParagraph(request);
             }
             case SINGLE_SENTENCE: {

@@ -104,6 +104,7 @@
     "practice": "Practice",
     "history": "History",
     "rankings": "Rankings",
+    "admin": "Admin",
     "profile": "Profile"
   },
   "layout": {
@@ -198,7 +199,7 @@
     "aiBody": "Our neural models go beyond spelling: grammar analysis, vocabulary upgrades, and structure tips in real time—like a native editor 24/7.",
     "aiBullet1": "Context-aware grammar fixes",
     "aiBullet2": "Synonym suggestions to avoid repetition",
-    "aiBullet3": "Tone and style adjustments",
+    "aiBullet3": "Style and clarity adjustments",
     "aiCta": "Explore the analysis tool",
     "demoDraft": "Your draft:",
     "demoAiLabel": "AI fix:",
@@ -223,17 +224,13 @@
     },
     "topicLabel": "Topic",
     "type": {
-      "BASIC": "Basic writing",
+      "DIARIES": "Diaries",
       "IELTS_TASK1": "IELTS Writing Task 1",
       "IELTS_TASK2": "IELTS Writing Task 2",
       "EMAIL": "Email writing",
       "STORY": "Story writing",
+      "ESSAYS": "Essay writing",
       "SINGLE_SENTENCE": "Single sentence"
-    },
-    "tone": {
-      "FORMAL": "Formal",
-      "FRIENDLY": "Friendly",
-      "PROFESSIONAL": "Professional"
     },
     "level": {
       "A2": "Beginner",
@@ -248,20 +245,56 @@
       "TWENTY": "20 sentences",
       "MAX": "Max (30 sentences)"
     },
+    "tone": {
+      "FORMAL": "Formal",
+      "FRIENDLY": "Friendly",
+      "PROFESSIONAL": "Professional"
+    },
     "setup": {
       "title": "Start a practice session",
       "subtitle": "Choose how you want to practice translating Vietnamese to English.",
+      "flowTitle": "Practice session setup",
+      "flowSubtitle": "Personalize your learning path in three simple steps.",
+      "progressLabel": "Step {{current}} of {{total}}",
+      "progressPercent": "{{percent}}%",
+      "stepLabel": {
+        "step1": "Mode",
+        "step2": "Topic",
+        "step3": "Details"
+      },
+      "step1Heading": "Step 1: Choose practice mode",
+      "step2Heading": "Step 2: Topic",
+      "step3Heading": "Step 3: Fine-tune details",
+      "step3Subtitle": "Choose tone, difficulty, and session length before you start.",
+      "toneHeading": "Writing tone",
+      "toneSubtitle": "How the Vietnamese source text should sound in this session.",
       "modeParagraph": "Paragraph",
       "modeSentence": "Sentence by sentence",
+      "modeParagraphCardTitle": "Paragraph",
+      "modeParagraphCardDesc": "Practice reading comprehension and coherent expression through short paragraphs.",
+      "modeSentenceCardTitle": "Single sentence",
+      "modeSentenceCardDesc": "Focus on grammar structures and vocabulary in standalone sentences.",
       "topicHeading": "Topic",
+      "topicSectionTitle": "Lesson topic",
+      "topicSectionSubtitle": "Pick a topic to anchor your practice session.",
+      "topicSearchPlaceholder": "Search topics (Health, Technology, Education…)",
+      "topicCountHint": "Showing {{shown}} of {{total}} topics",
+      "formatSectionTitle": "Paragraph format",
+      "formatSectionSubtitle": "Choose the writing style you want to practice.",
+      "sentenceModeFormatNote": "Single-sentence mode uses focused translation drills; no paragraph format is required.",
+      "selectionPreview": "Your selections:",
+      "summaryTitle": "Configuration summary",
+      "summaryMode": "Mode",
       "assignmentType": "Assignment type",
       "level": "Level",
-      "tone": "Tone",
       "sentenceCount": "Number of sentences",
       "estimatedTime": "Estimated time",
       "estimatedTimeDesc": "About 10–20 minutes depending on length and level.",
       "footerReady": "Ready to practice",
       "reset": "Reset",
+      "back": "Back",
+      "continue": "Continue",
+      "backToStep2": "Back to step 2",
       "start": "Start",
       "creating": "AI is generating your practice…",
       "needApiKey": "Add an API key in your profile to use this feature.",
@@ -350,9 +383,10 @@
     "paragraphType": {
       "EMAIL": "Email",
       "STORY": "Story",
-      "BASIC": "Basic",
+      "DIARIES": "Diaries",
       "IELTS_TASK1": "IELTS Task 1",
-      "IELTS_TASK2": "IELTS Task 2"
+      "IELTS_TASK2": "IELTS Task 2",
+      "ESSAYS": "Essays"
     },
     "sortNewest": "Newest first",
     "sortOldest": "Oldest first",

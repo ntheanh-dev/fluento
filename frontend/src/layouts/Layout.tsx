@@ -1,6 +1,15 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useLocation, Outlet, Link } from "react-router-dom";
-import { Menu, Flame, User } from "lucide-react";
+import {
+    Menu,
+    Flame,
+    User,
+    LayoutDashboard,
+    BookOpen,
+    History,
+    Trophy,
+    Shield,
+} from "lucide-react";
 import Sidebar from "./Sidebar";
 import { useProfile, useProfileStore } from "@/stores/profile";
 import { PROFILE_EMBED_PRACTICESTATS, useProfileData } from "@/features/profile/query";
@@ -10,17 +19,30 @@ import logo from "../assets/image/logo3.png";
 import { getLevelLabel } from "@/i18n/labels";
 import { useTranslation } from "react-i18next";
 
+const ADMIN_ROLE = "ADMIN";
+
 const Layout = () => {
     const { t } = useTranslation();
-    const navItems = [
-        { label: t("nav.dashboard"), to: "/dashboard" },
-        { label: t("nav.practice"), to: "/practice" },
-        { label: t("nav.history"), to: "/history" },
-        { label: t("nav.rankings"), to: "/rankings" },
-    ];
+    const { profile } = useProfile();
+    const isAdmin = useMemo(
+        () => (profile?.roles ?? []).some((r) => r.name === ADMIN_ROLE),
+        [profile?.roles],
+    );
+    const navItems = useMemo(
+        () => {
+            const base = [
+                { label: t("nav.dashboard"), to: "/dashboard", icon: LayoutDashboard },
+                { label: t("nav.practice"), to: "/practice", icon: BookOpen },
+                { label: t("nav.history"), to: "/history", icon: History },
+                { label: t("nav.rankings"), to: "/rankings", icon: Trophy },
+            ];
+            if (!isAdmin) return base;
+            return [...base, { label: t("nav.admin"), to: "/admin", icon: Shield }];
+        },
+        [t, isAdmin],
+    );
     const location = useLocation();
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-    const { profile } = useProfile();
     const { setProfile } = useProfileStore();
     const { data: profileData } = useProfileData({
         queryParams: PROFILE_EMBED_PRACTICESTATS,
@@ -38,6 +60,7 @@ const Layout = () => {
     const isActive = (to: string) => {
         if (to === "/dashboard") return location.pathname === "/dashboard";
         if (to === "/practice") return location.pathname.startsWith("/practice") || location.pathname.startsWith("/session");
+        if (to === "/admin") return location.pathname.startsWith("/admin");
         return location.pathname.startsWith(to);
     };
 
@@ -89,15 +112,21 @@ const Layout = () => {
 
                         {isAuthenticated && (
                             <nav className="hidden md:flex items-end items-center pt-2 gap-6 h-full">
-                                {navItems.map(({ label, to }) => (
+                                {navItems.map(({ label, to, icon: Icon }) => (
                                     <Link
                                         key={to}
                                         to={to}
-                                        className={`px-1 pb-4 pt-2 text-sm font-medium transition-colors ${isActive(to)
+                                        className={`flex items-center gap-2 px-1 pb-4 pt-2 text-sm font-medium transition-colors ${isActive(to)
                                             ? "text-blue-600 dark:text-blue-400"
                                             : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100"
                                             }`}
                                     >
+                                        <Icon
+                                            size={18}
+                                            strokeWidth={isActive(to) ? 2.25 : 2}
+                                            className="shrink-0 opacity-90"
+                                            aria-hidden
+                                        />
                                         {label}
                                     </Link>
                                 ))}

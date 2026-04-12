@@ -3,11 +3,12 @@ package com.nta.domain.paragraph.enums;
 import java.util.Arrays;
 
 public enum Type {
-    BASIC("WRITING_BASIC", "Basic"),
+    DIARIES("DIARIES", "diary entry"),
     IELTS_TASK1("IELTS_TASK1", "IELTS Writing Task 1"),
     IELTS_TASK2("IELTS_TASK2", "IELTS Writing Task 2"),
     EMAIL("EMAIL", "Email"),
     STORY("STORY", "Story"),
+    ESSAYS("ESSAYS", "Essays"),
     SINGLE_SENTENCE("SINGLE_SENTENCE", "Single Sentence");
 
     private final String code;
@@ -32,6 +33,9 @@ public enum Type {
     public static Type fromString(String s) {
         if (s == null || s.isBlank()) return null;
         String normalized = s.trim().toUpperCase().replace("-", "_");
+        if ("BASIC".equals(normalized) || "WRITING_BASIC".equals(normalized)) {
+            return DIARIES;
+        }
         return Arrays.stream(values())
                 .filter(tt -> tt.name().equals(normalized) || tt.code.equals(normalized))
                 .findFirst()

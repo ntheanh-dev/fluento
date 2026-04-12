@@ -45,11 +45,12 @@ export const SENTENCE_COUNTS = [
 ];
 
 export const PRACTICE_TYPES = [
-  { value: "BASIC" },
+  { value: "DIARIES" },
   { value: "IELTS_TASK1" },
   { value: "IELTS_TASK2" },
   { value: "EMAIL" },
   { value: "STORY" },
+  { value: "ESSAYS" },
 ];
 
 export const TONES = [
