@@ -68,9 +68,9 @@ app:
   # Seed paragraph (profile local + enabled=true), chạy trong cùng ApplicationRunner
   data-init:
     paragraphs:
-      enabled: true
+      enabled: false
       max-retries-per-item: 3
-      parallelism: 4
+      parallelism: 6
   api-key-encryption-secret: "0123456789abcdef0123456789abcdef"
   cors:
     allowed-origins: http://localhost:5173
