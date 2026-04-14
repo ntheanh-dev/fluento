@@ -12,7 +12,7 @@ const RequiredAuth: React.FC<RequiredAuthProps> = ({ children }) => {
     const isAuthenticated = !!accessToken;
 
     if (!isAuthenticated) {
-        return <Navigate to="/home" state={{ from: location }} replace />;
+        return <Navigate to="/" state={{ from: location }} replace />;
     }
 
     return <>{children}</>;

@@ -17,7 +17,7 @@ export default function RequiredAdmin({ children }: { children: React.ReactNode 
   const isAdmin = roles.some((r) => r.name === ADMIN_ROLE);
 
   if (!isAdmin) {
-    return <Navigate to="/dashboard" replace />;
+    return <Navigate to="/home" replace />;
   }
 
   return <>{children}</>;

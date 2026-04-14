@@ -344,7 +344,7 @@ const vi = {
     topic: TOPICS_VI,
   },
   nav: {
-    dashboard: "Bảng điều khiển",
+    dashboard: "Home",
     practice: "Luyện tập",
     history: "Lịch sử",
     rankings: "Bảng xếp hạng",

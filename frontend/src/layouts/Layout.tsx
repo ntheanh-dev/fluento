@@ -1,20 +1,21 @@
 import { useState, useEffect, useMemo } from "react";
-import { useLocation, Outlet, Link } from "react-router-dom";
+import { useLocation, Outlet, Link, useNavigate } from "react-router-dom";
 import {
     Menu,
-    Flame,
     User,
-    LayoutDashboard,
     BookOpen,
     History,
     Trophy,
     Shield,
+    LogOut,
 } from "lucide-react";
 import Sidebar from "./Sidebar";
 import { useProfile, useProfileStore } from "@/stores/profile";
 import { PROFILE_EMBED_PRACTICESTATS, useProfileData } from "@/features/profile/query";
+import { useLogoutMutation } from "@/features/auth/mutation";
 import Cookies from "js-cookie";
-import { Avatar, Button } from "antd";
+import { Avatar, Button, Dropdown } from "antd";
+import type { MenuProps } from "antd";
 import logo from "../assets/image/logo3.png";
 import { getLevelLabel } from "@/i18n/labels";
 import { useTranslation } from "react-i18next";
@@ -22,7 +23,7 @@ import { useTranslation } from "react-i18next";
 const ADMIN_ROLE = "ADMIN";
 
 const Layout = () => {
-    const { t } = useTranslation();
+    const { t, i18n } = useTranslation();
     const { profile } = useProfile();
     const isAdmin = useMemo(
         () => (profile?.roles ?? []).some((r) => r.name === ADMIN_ROLE),
@@ -31,7 +32,6 @@ const Layout = () => {
     const navItems = useMemo(
         () => {
             const base = [
-                { label: t("nav.dashboard"), to: "/dashboard", icon: LayoutDashboard },
                 { label: t("nav.practice"), to: "/paragraphs", icon: BookOpen },
                 { label: t("nav.history"), to: "/history", icon: History },
                 { label: t("nav.rankings"), to: "/rankings", icon: Trophy },
@@ -42,8 +42,10 @@ const Layout = () => {
         [t, isAdmin],
     );
     const location = useLocation();
+    const navigate = useNavigate();
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
     const { setProfile } = useProfileStore();
+    const { mutateAsync: logout } = useLogoutMutation();
     const { data: profileData } = useProfileData({
         queryParams: PROFILE_EMBED_PRACTICESTATS,
     });
@@ -58,10 +60,40 @@ const Layout = () => {
     }, [location.pathname]);
 
     const isActive = (to: string) => {
-        if (to === "/dashboard") return location.pathname === "/dashboard";
+        if (to === "/home") return location.pathname === "/home";
         if (to === "/paragraphs") return location.pathname.startsWith("/paragraphs");
         if (to === "/admin") return location.pathname.startsWith("/admin");
         return location.pathname.startsWith(to);
+    };
+
+    const userMenuItems = useMemo<MenuProps["items"]>(
+        () => [
+            { key: "profile", label: t("nav.profile"), icon: <User size={16} /> },
+            {
+                key: "history",
+                label: i18n.language.startsWith("vi") ? "Bài đã luyện" : "Practiced lessons",
+                icon: <History size={16} />,
+            },
+            { key: "logout", label: t("profile.logout"), danger: true, icon: <LogOut size={16} /> },
+        ],
+        [t, i18n.language],
+    );
+
+    const handleUserMenuClick: MenuProps["onClick"] = async ({ key }) => {
+        if (key === "profile") {
+            navigate("/profile");
+            return;
+        }
+
+        if (key === "history") {
+            navigate("/history");
+            return;
+        }
+
+        if (key === "logout") {
+            await logout(Cookies.get("accessToken") || "");
+            navigate("/");
+        }
     };
 
     return (
@@ -103,7 +135,7 @@ const Layout = () => {
 
                             {/* Desktop: Luyenviet + horizontal nav */}
                             <div className="hidden md:flex items-center justify-between gap-1 h-full">
-                                <Link to="/dashboard" className="flex items-center gap-2">
+                                <Link to="/home" className="flex items-center gap-2">
                                     <img src={logo} alt="logo" className="w-10 h-10" />
                                     <span className="text-xl font-bold tracking-tight font-display text-slate-900 dark:text-slate-100">{t("common.brand")}</span>
                                 </Link>
@@ -136,8 +168,16 @@ const Layout = () => {
 
                         <div className="flex items-center gap-3 md:gap-6">
                             {isAuthenticated ? (
-                                <Link to="/profile">
-                                    <div className="flex items-center gap-3">
+                                <Dropdown
+                                    menu={{ items: userMenuItems, onClick: handleUserMenuClick }}
+                                    trigger={["click"]}
+                                    placement="bottomRight"
+                                    overlayStyle={{ minWidth: 190 }}
+                                >
+                                    <button
+                                        type="button"
+                                        className="flex items-center gap-3 cursor-pointer"
+                                    >
                                         <div className="text-right hidden sm:block">
                                             <p className="text-sm font-bold text-slate-800 dark:text-slate-100">
                                                 {profile?.fullName}
@@ -153,12 +193,12 @@ const Layout = () => {
                                         ) : (
                                             <Avatar size={32} icon={<User size={16} />} />
                                         )}
-                                    </div>
-                                </Link>
+                                    </button>
+                                </Dropdown>
                             ) : (
                                 <>
-                                    <Link to="/register">
-                                        <Button type="primary" className="bg-[#137fec] font-bold font-display h-9 shadow-md shadow-[#137fec]/20">{t("layout.register")}</Button>
+                                    <Link to="/login">
+                                        <Button type="primary" className="hidden sm:inline-flex font-bold font-display">{t("layout.login")}</Button>
                                     </Link>
                                 </>
                             )}

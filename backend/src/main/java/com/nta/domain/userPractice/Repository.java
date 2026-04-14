@@ -40,4 +40,6 @@ public interface Repository extends JpaRepository<UserPractice, Long> {
 
     @Query("SELECT COALESCE(SUM(up.learningTime), 0) FROM UserPractice up WHERE up.user.id = :userId")
     Long getTotalLearningTimeByUserId(@Param("userId") Long userId);
+
+    void deleteByParagraphId(Long paragraphId);
 }

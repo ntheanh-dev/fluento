@@ -34,11 +34,11 @@ const Login = () => {
           username: z
             .string()
             .min(8, t("validation.usernameMin"))
-            .max(20, t("validation.usernameMax")),
+            .max(40, t("validation.usernameMax")),
           password: z
             .string()
             .min(PASSWORD_MIN, t("validation.passwordMin", { min: PASSWORD_MIN }))
-            .max(20, t("validation.passwordMax")),
+            .max(40, t("validation.passwordMax")),
         })
         .strict(),
     [t],
@@ -53,7 +53,8 @@ const Login = () => {
     resolver: zodResolver(loginSchema),
   });
 
-  const from = location.state?.from?.pathname || "/";
+  const from = location.state?.from?.pathname;
+  const redirectPath = from && from !== "/" ? from : "/home";
 
   const onSubmit = method.handleSubmit(async (data) => {
     try {
@@ -74,7 +75,7 @@ const Login = () => {
       setProfile(profile);
 
       message.success(t("auth.loginSuccess"));
-      navigate(from, { replace: true });
+      navigate(redirectPath, { replace: true });
     } catch (error: unknown) {
       const err = error as {
         response?: { data?: { message?: string } };
@@ -132,11 +133,10 @@ const Login = () => {
                 />
                 <input
                   type="text"
-                  className={`w-full pl-10 pr-4 py-3 rounded-xl border bg-slate-50 dark:bg-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-blue-100 dark:focus:ring-blue-900 focus:border-blue-400 outline-none transition-all ${
-                    errors.username
-                      ? "border-red-400 focus:border-red-400 focus:ring-red-100"
-                      : "border-slate-200 dark:border-slate-600"
-                  }`}
+                  className={`w-full pl-10 pr-4 py-3 rounded-xl border bg-slate-50 dark:bg-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-blue-100 dark:focus:ring-blue-900 focus:border-blue-400 outline-none transition-all ${errors.username
+                    ? "border-red-400 focus:border-red-400 focus:ring-red-100"
+                    : "border-slate-200 dark:border-slate-600"
+                    }`}
                   placeholder={t("auth.usernamePlaceholder")}
                   {...method.register("username")}
                 />
@@ -167,11 +167,10 @@ const Login = () => {
                 />
                 <input
                   type={showPassword ? "text" : "password"}
-                  className={`w-full pl-10 pr-12 py-3 rounded-xl border bg-slate-50 dark:bg-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-blue-100 dark:focus:ring-blue-900 focus:border-blue-400 outline-none transition-all ${
-                    errors.password
-                      ? "border-red-400 focus:border-red-400 focus:ring-red-100"
-                      : "border-slate-200 dark:border-slate-600"
-                  }`}
+                  className={`w-full pl-10 pr-12 py-3 rounded-xl border bg-slate-50 dark:bg-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-blue-100 dark:focus:ring-blue-900 focus:border-blue-400 outline-none transition-all ${errors.password
+                    ? "border-red-400 focus:border-red-400 focus:ring-red-100"
+                    : "border-slate-200 dark:border-slate-600"
+                    }`}
                   placeholder={t("auth.passwordPlaceholder")}
                   {...method.register("password")}
                 />

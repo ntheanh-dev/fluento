@@ -100,7 +100,7 @@
     }
   },
   "nav": {
-    "dashboard": "Bảng điều khiển",
+    "dashboard": "Home",
     "practice": "Luyện tập",
     "history": "Lịch sử",
     "rankings": "Bảng xếp hạng",
@@ -181,6 +181,32 @@
     "range30": "30 ngày gần đây",
     "loadingChart": "Đang tải dữ liệu...",
     "chartError": "Không thể tải dữ liệu hiệu suất viết."
+  },
+  "home": {
+    "slider": {
+      "previous": "Danh mục trước",
+      "next": "Danh mục tiếp theo"
+    },
+    "common": {
+      "untitled": "Không tiêu đề",
+      "sentenceCount": "{{count}} câu"
+    },
+    "recent": {
+      "title": "Bài làm gần đây",
+      "progress": "{{completed}}/{{total}} câu",
+      "viewResult": "Xem kết quả",
+      "continue": "Làm tiếp",
+      "empty": "Chưa có bài làm gần đây.",
+      "startPractice": "Bắt đầu luyện tập"
+    },
+    "sections": {
+      "ieltsTask1": "IELTS Task 1",
+      "ieltsTask2": "IELTS Task 2",
+      "email": "Email",
+      "viewMore": "Xem thêm",
+      "similarFilter": "Lọc bài tương tự",
+      "empty": "Chưa có dữ liệu cho mục này."
+    }
   },
   "landing": {
     "heroTitle": "Làm chủ kỹ năng viết tiếng Anh với phản hồi từ <span>AI</span>",

@@ -15,9 +15,6 @@ const Authenticate = lazy(() => import("@/features/auth/ui/Authenticated"));
 const RequiredAuth = lazy(() => import("@/features/auth/ui/RequiredAuth"));
 const RequiredAdmin = lazy(() => import("@/features/auth/ui/RequiredAdmin"));
 
-// Dashboard
-const Dashboard = lazy(() => import("@/features/dashboard"));
-
 // Practice
 import PracticeSetup from "@/features/practice/ui/PracticeSetup";
 const ParagraphLibraryPage = lazy(() => import("@/features/paragraph/ui"));
@@ -39,6 +36,7 @@ const Layout = lazy(() => import("@/layouts/Layout"));
 import { Suspense } from "react";
 import LandingPage from "@/features/landing/index.tsx";
 import NotFoundPage from "@/features/NotFoundPage";
+import Home from "@/features/home/ui/index.tsx";
 
 function AntdThemeConfig({ children }: PropsWithChildren) {
   const { theme } = useTheme();
@@ -78,7 +76,7 @@ function App() {
                     </RequiredAuth>
                   }
                 >
-                  <Route index path="/dashboard" element={<Dashboard />} />
+                  <Route path="/home" index element={<Home />} />
                   <Route path="practice" element={<PracticeSetup />} />
                   <Route path="paragraphs" element={<ParagraphLibraryPage />} />
                   <Route path="practice/:id" element={<SentencePracticePage />} />
@@ -96,13 +94,13 @@ function App() {
                       </RequiredAdmin>
                     }
                   />
-                  <Route path="*" element={<Navigate to="/dashboard" replace />} />
+                  <Route path="*" element={<Navigate to="/home" replace />} />
                 </Route>
 
                 <Route path="login" element={<Login />} />
                 <Route path="register" element={<Register />} />
                 <Route path="/oauth/authenticate" element={<Authenticate />} />
-                <Route path="/home" element={<Layout />}>
+                <Route path="/" element={<Layout />}>
                   <Route index element={<LandingPage />} />
                 </Route>
               </Routes>

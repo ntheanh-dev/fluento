@@ -113,11 +113,10 @@ const Register = () => {
                 />
                 <input
                   type="text"
-                  className={`w-full pl-10 pr-4 py-3 rounded-xl border bg-slate-50 dark:bg-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-blue-100 dark:focus:ring-blue-900 focus:border-blue-400 outline-none transition-all ${
-                    errors.fullName
-                      ? "border-red-400 focus:border-red-400 focus:ring-red-100"
-                      : "border-slate-200 dark:border-slate-600"
-                  }`}
+                  className={`w-full pl-10 pr-4 py-3 rounded-xl border bg-slate-50 dark:bg-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-blue-100 dark:focus:ring-blue-900 focus:border-blue-400 outline-none transition-all ${errors.fullName
+                    ? "border-red-400 focus:border-red-400 focus:ring-red-100"
+                    : "border-slate-200 dark:border-slate-600"
+                    }`}
                   placeholder={t("auth.registerFullNamePlaceholder")}
                   {...method.register("fullName")}
                 />
@@ -140,11 +139,10 @@ const Register = () => {
                 />
                 <input
                   type="text"
-                  className={`w-full pl-10 pr-4 py-3 rounded-xl border bg-slate-50 dark:bg-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-blue-100 dark:focus:ring-blue-900 focus:border-blue-400 outline-none transition-all ${
-                    errors.username
-                      ? "border-red-400 focus:border-red-400 focus:ring-red-100"
-                      : "border-slate-200 dark:border-slate-600"
-                  }`}
+                  className={`w-full pl-10 pr-4 py-3 rounded-xl border bg-slate-50 dark:bg-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-blue-100 dark:focus:ring-blue-900 focus:border-blue-400 outline-none transition-all ${errors.username
+                    ? "border-red-400 focus:border-red-400 focus:ring-red-100"
+                    : "border-slate-200 dark:border-slate-600"
+                    }`}
                   placeholder={t("auth.registerUsernamePlaceholder")}
                   {...method.register("username")}
                 />
@@ -167,11 +165,10 @@ const Register = () => {
                 />
                 <input
                   type={showPassword ? "text" : "password"}
-                  className={`w-full pl-10 pr-12 py-3 rounded-xl border bg-slate-50 dark:bg-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-blue-100 dark:focus:ring-blue-900 focus:border-blue-400 outline-none transition-all ${
-                    errors.password
-                      ? "border-red-400 focus:border-red-400 focus:ring-red-100"
-                      : "border-slate-200 dark:border-slate-600"
-                  }`}
+                  className={`w-full pl-10 pr-12 py-3 rounded-xl border bg-slate-50 dark:bg-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-blue-100 dark:focus:ring-blue-900 focus:border-blue-400 outline-none transition-all ${errors.password
+                    ? "border-red-400 focus:border-red-400 focus:ring-red-100"
+                    : "border-slate-200 dark:border-slate-600"
+                    }`}
                   placeholder={t("auth.createStrongPassword")}
                   {...method.register("password")}
                 />
@@ -196,7 +193,6 @@ const Register = () => {
               className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed text-white font-bold py-3.5 rounded-xl shadow-lg shadow-blue-200 dark:shadow-blue-900/40 transition-all flex items-center justify-center gap-2 mt-4"
             >
               {isPending ? t("auth.registering") : t("auth.registerSubmit")}{" "}
-              <ArrowRight size={20} />
             </button>
           </form>
 

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { Button, Drawer, Grid, message, Pagination, Select, Spin } from "antd";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import {
   BookOpenText,
@@ -13,8 +13,9 @@ import {
 import { useParagraphs } from "../query";
 import { LEVELS, PRACTICE_TYPES, SENTENCE_COUNTS, TONES, TOPIC_GROUPS } from "@/features/practice/constants";
 import { useCreateUserPracticeMutation } from "@/features/paragraph/mutation";
+import { getCoverImage } from "@/shared/constants/practice-covers";
 
-const DESKTOP_PAGE_SIZE = 12;
+const DESKTOP_PAGE_SIZE = 9;
 const MOBILE_PAGE_SIZE = 6;
 const SENTENCE_COUNT_LABEL: Record<string, string> = {
   TEN: "10",
@@ -23,16 +24,26 @@ const SENTENCE_COUNT_LABEL: Record<string, string> = {
   MAX: "30",
 };
 
+
 const ParagraphLibraryPage = () => {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { t } = useTranslation();
-  const [type, setType] = useState<string | undefined>();
-  const [tone, setTone] = useState<string | undefined>();
-  const [topic, setTopic] = useState<string | undefined>();
-  const [level, setLevel] = useState<string | undefined>();
-  const [sentenceCount, setSentenceCount] = useState<string | undefined>();
-  const [sort, setSort] = useState<"asc" | "desc" | "most_practiced">("desc");
-  const [page, setPage] = useState(0);
+  const [type, setType] = useState<string | undefined>(() => searchParams.get("type") ?? undefined);
+  const [tone, setTone] = useState<string | undefined>(() => searchParams.get("tone") ?? undefined);
+  const [topic, setTopic] = useState<string | undefined>(() => searchParams.get("topic") ?? undefined);
+  const [level, setLevel] = useState<string | undefined>(() => searchParams.get("level") ?? undefined);
+  const [sentenceCount, setSentenceCount] = useState<string | undefined>(
+    () => searchParams.get("sentenceCount") ?? undefined,
+  );
+  const [sort, setSort] = useState<"asc" | "desc" | "most_practiced">(() => {
+    const q = searchParams.get("sort");
+    return q === "asc" || q === "desc" || q === "most_practiced" ? q : "desc";
+  });
+  const [page, setPage] = useState<number>(() => {
+    const parsed = Number(searchParams.get("page") ?? "0");
+    return Number.isFinite(parsed) && parsed >= 0 ? parsed : 0;
+  });
   const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
   const screens = Grid.useBreakpoint();
   const pageSize = screens.md ? DESKTOP_PAGE_SIZE : MOBILE_PAGE_SIZE;
@@ -63,6 +74,43 @@ const ParagraphLibraryPage = () => {
     setPage(0);
     setter(value);
   };
+
+  useEffect(() => {
+    const urlType = searchParams.get("type") ?? undefined;
+    const urlTone = searchParams.get("tone") ?? undefined;
+    const urlTopic = searchParams.get("topic") ?? undefined;
+    const urlLevel = searchParams.get("level") ?? undefined;
+    const urlSentenceCount = searchParams.get("sentenceCount") ?? undefined;
+    const urlSort = searchParams.get("sort");
+    const safeSort: "asc" | "desc" | "most_practiced" =
+      urlSort === "asc" || urlSort === "desc" || urlSort === "most_practiced" ? urlSort : "desc";
+    const urlPage = Number(searchParams.get("page") ?? "0");
+    const safePage = Number.isFinite(urlPage) && urlPage >= 0 ? urlPage : 0;
+
+    setType(urlType);
+    setTone(urlTone);
+    setTopic(urlTopic);
+    setLevel(urlLevel);
+    setSentenceCount(urlSentenceCount);
+    setSort(safeSort);
+    setPage(safePage);
+  }, [searchParams]);
+
+  useEffect(() => {
+    const next = new URLSearchParams();
+    if (type) next.set("type", type);
+    if (tone) next.set("tone", tone);
+    if (topic) next.set("topic", topic);
+    if (level) next.set("level", level);
+    if (sentenceCount) next.set("sentenceCount", sentenceCount);
+    if (sort !== "desc") next.set("sort", sort);
+    if (page > 0) next.set("page", String(page));
+    next.set("size", String(pageSize));
+
+    if (next.toString() !== searchParams.toString()) {
+      setSearchParams(next, { replace: true });
+    }
+  }, [type, tone, topic, level, sentenceCount, sort, page, pageSize, searchParams, setSearchParams]);
 
   const { mutateAsync: createUserPractice, isPending } = useCreateUserPracticeMutation();
 
@@ -272,10 +320,16 @@ const ParagraphLibraryPage = () => {
                   return (
                     <article
                       key={item.id}
-                      className="bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 shadow-sm"
+                      className="overflow-hidden bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm"
                       onClick={() => handlePractice(item.id)}
                       style={{ cursor: "pointer" }}
                     >
+                      <img
+                        src={getCoverImage(item.topic, item.type, String(item.id))}
+                        alt={item.title || item.topic}
+                        className="h-36 w-full object-cover"
+                      />
+                      <div className="p-4">
                       <div className="flex items-center justify-between text-xs mb-3">
                         <span className="px-2 py-1 rounded-full bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-200 font-semibold">
                           {item.topic}
@@ -308,6 +362,7 @@ const ParagraphLibraryPage = () => {
                         >
                           {t("paragraphLibrary.card.practiceButton")}
                         </Button>
+                      </div>
                       </div>
 
                     </article>

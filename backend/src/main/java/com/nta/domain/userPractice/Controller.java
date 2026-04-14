@@ -18,7 +18,6 @@ import com.nta.domain.paragraph.enums.Type;
 import com.nta.domain.userPractice.dto.request.SentenceTranslationRequest;
 import com.nta.domain.userPractice.dto.request.SubmitAnswerRequest;
 import com.nta.domain.userPractice.dto.response.UserPracticeResponse;
-import com.nta.domain.userPractice.dto.response.WritingPerformanceSeriesResponse;
 import com.nta.domain.userSentenceAnswer.SentenceFeedback;
 import com.nta.domain.userSentenceAnswer.dto.response.UserSentenceAnswerResponse;
 
@@ -52,13 +51,6 @@ public class Controller {
         String searchTrimmed = search != null && !search.isBlank() ? search.trim() : null;
         return ApiResponse.<Page<UserPracticeResponse>>builder()
                 .result(service.getAllFiltered(typeEnum, topicEnum, levelEnum, searchTrimmed, sort, page, size))
-                .build();
-    }
-
-    @GetMapping("/writing-performance")
-    ApiResponse<WritingPerformanceSeriesResponse> getWritingPerformance(@RequestParam String range) {
-        return ApiResponse.<WritingPerformanceSeriesResponse>builder()
-                .result(service.getWritingPerformance(range))
                 .build();
     }
 

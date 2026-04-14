@@ -30,11 +30,10 @@ const SidebarItem = ({
 }) => (
   <Link
     to={to}
-    className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 ${
-      active
+    className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 ${active
         ? "bg-blue-600 text-white shadow-md shadow-blue-200 dark:shadow-blue-900/40"
         : "text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-100"
-    }`}
+      }`}
   >
     <Icon size={20} strokeWidth={active ? 2.5 : 2} />
     <span className="font-medium">{label}</span>
@@ -55,7 +54,7 @@ const Sidebar = ({
   const { mutateAsync: logout } = useLogoutMutation();
   const handleLogout = async () => {
     await logout(Cookies.get("accessToken") || "");
-    navigate("/login");
+    navigate("/");
   };
 
   return (
@@ -83,8 +82,8 @@ const Sidebar = ({
         <SidebarItem
           icon={LayoutDashboard}
           label={t("nav.dashboard")}
-          to="/dashboard"
-          active={activePath === "/dashboard"}
+          to="/home"
+          active={activePath === "/home"}
         />
         <SidebarItem
           icon={BookOpen}

@@ -1,5 +1,6 @@
 package com.nta.domain.admin.controller;
 
+import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 
 import org.springframework.data.domain.Page;
@@ -39,6 +40,8 @@ public class AdminParagraphController {
 
     private final Repository paragraphRepository;
     private final Service paragraphService;
+    private final com.nta.domain.userPractice.Repository userPracticeRepository;
+    private final com.nta.domain.userSentenceAnswer.Repository userSentenceAnswerRepository;
 
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
@@ -54,13 +57,35 @@ public class AdminParagraphController {
         Tone toneEnum = tone != null && !tone.isBlank() ? Tone.fromString(tone) : null;
         Topic topicEnum = topic != null && !topic.isBlank() ? Topic.fromString(topic) : null;
         Level levelEnum = level != null && !level.isBlank() ? Level.fromString(level) : null;
-        SentenceCount sentenceCountEnum =
-                sentenceCount != null && !sentenceCount.isBlank() ? SentenceCount.fromString(sentenceCount) : null;
+        Integer maxSentenceCount = parseMaxSentenceCount(sentenceCount);
+        SentenceCount sentenceCountEnum = maxSentenceCount == null && sentenceCount != null && !sentenceCount.isBlank()
+                ? SentenceCount.fromString(sentenceCount)
+                : null;
 
         PageRequest pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
         Page<Paragraph> result = paragraphRepository.findWithOptionalFilters(
-                typeEnum, toneEnum, topicEnum, levelEnum, sentenceCountEnum, pageable);
+                typeEnum, toneEnum, topicEnum, levelEnum, sentenceCountEnum, maxSentenceCount, pageable);
         return ApiResponse.<Page<Paragraph>>builder().result(result).build();
+    }
+
+    private Integer parseMaxSentenceCount(String sentenceCount) {
+        if (sentenceCount == null) {
+            return null;
+        }
+        String trimmed = sentenceCount.trim();
+        if (!trimmed.startsWith("<=")) {
+            return null;
+        }
+        String numberPart = trimmed.substring(2).trim();
+        if (numberPart.isBlank()) {
+            return null;
+        }
+        try {
+            int parsed = Integer.parseInt(numberPart);
+            return parsed > 0 ? parsed : null;
+        } catch (NumberFormatException ex) {
+            return null;
+        }
     }
 
     @GetMapping("/{id}")
@@ -82,11 +107,17 @@ public class AdminParagraphController {
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
+    @Transactional
     public ApiResponse<Void> delete(@PathVariable Long id) {
         if (!paragraphRepository.existsById(id)) {
             throw new AppException(ErrorCode.RESOURCE_NOT_FOUND);
         }
+
+        // Ensure child rows are removed first to satisfy FK constraints.
+        userSentenceAnswerRepository.deleteByPracticeParagraphId(id);
+        userPracticeRepository.deleteByParagraphId(id);
         paragraphRepository.deleteById(id);
+
         return ApiResponse.<Void>builder()
                 .message("Paragraph deleted successfully")
                 .build();

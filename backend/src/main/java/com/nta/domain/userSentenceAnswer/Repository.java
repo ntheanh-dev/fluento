@@ -1,6 +1,5 @@
 package com.nta.domain.userSentenceAnswer;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -8,8 +7,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-
-import com.nta.domain.userSentenceAnswer.projection.DailyScoreStatsProjection;
 
 @org.springframework.stereotype.Repository("userSentenceAnswerRepository")
 public interface Repository extends JpaRepository<UserSentenceAnswer, Long> {
@@ -39,29 +36,6 @@ public interface Repository extends JpaRepository<UserSentenceAnswer, Long> {
 			""")
     Object[] getUserSentenceAnswerStats(@Param("userId") Long userId);
 
-    @Query(
-            value =
-                    """
-			SELECT
-				DATE(CONVERT_TZ(a.created_at, '+00:00', :tzOffset)) AS statDate,
-				COALESCE(AVG(a.score), 0) AS avgScore,
-				COUNT(a.id) AS totalAnswers
-			FROM user_sentence_answers a
-			INNER JOIN user_practices p ON a.practice_id = p.id
-			WHERE a.is_submitted = TRUE
-			AND p.user_id = :userId
-			AND a.created_at >= :start
-			AND a.created_at <= :end
-			GROUP BY DATE(CONVERT_TZ(a.created_at, '+00:00', :tzOffset))
-			ORDER BY statDate
-			""",
-            nativeQuery = true)
-    List<DailyScoreStatsProjection> getDailyScoreStats(
-            @Param("userId") Long userId,
-            @Param("start") LocalDateTime start,
-            @Param("end") LocalDateTime end,
-            @Param("tzOffset") String tzOffset);
-
     /**
      * @param scoreBand 0 = điểm ≤ 7; 1 = (7, 8]; 2 = điểm &gt; 8. Chỉ lấy bản ghi có score.
      */
@@ -87,4 +61,6 @@ public interface Repository extends JpaRepository<UserSentenceAnswer, Long> {
             @Param("excludeUserId") Long excludeUserId,
             @Param("scoreBand") int scoreBand,
             Pageable pageable);
+
+    void deleteByPracticeParagraphId(Long paragraphId);
 }

@@ -37,7 +37,7 @@ const refreshAccessToken = async (): Promise<string> => {
                 // Nếu refresh fail thì redirect về login 1 lần
                 console.error("Token refresh failed:", err);
                 Cookies.remove("accessToken");
-                window.location.href = "/login";
+                window.location.href = "/";
                 throw err;
             })
             .finally(() => {

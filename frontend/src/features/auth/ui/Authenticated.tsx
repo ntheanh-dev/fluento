@@ -21,7 +21,8 @@ export default function Authenticate() {
   });
   const [error, setError] = useState<string | null>(null);
 
-  const from = location.state?.from?.pathname || "/";
+  const from = location.state?.from?.pathname;
+  const redirectPath = from && from !== "/" ? from : "/home";
 
   const authInProgress = useRef(false);
 
@@ -64,7 +65,7 @@ export default function Authenticate() {
         if (profile) {
           setProfile(profile);
           message.success(tr("oauth.success"));
-          navigate(from, { replace: true });
+          navigate(redirectPath, { replace: true });
         } else {
           throw new Error(tr("auth.noUserInfo"));
         }

@@ -30,9 +30,15 @@ const ParagraphsTab = () => {
   const filterTopic = searchParams.get("paragraphsTopic")?.trim() || undefined;
   const filterLevel = searchParams.get("paragraphsLevel")?.trim() || undefined;
   const filterSentenceCount = searchParams.get("paragraphsSentenceCount")?.trim() || undefined;
+  const filterSentenceCountMax = useMemo(() => {
+    if (!filterSentenceCount?.startsWith("<=")) return undefined;
+    const parsed = Number.parseInt(filterSentenceCount.slice(2), 10);
+    return Number.isFinite(parsed) && parsed > 0 ? String(parsed) : undefined;
+  }, [filterSentenceCount]);
 
   const [detailOpen, setDetailOpen] = useState(false);
   const [selectedParagraph, setSelectedParagraph] = useState<Paragraph | null>(null);
+  const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
 
   const [editTitleOpen, setEditTitleOpen] = useState(false);
   const [editTitleTargetId, setEditTitleTargetId] = useState<number | null>(null);
@@ -64,6 +70,15 @@ const ParagraphsTab = () => {
   const deleteParagraphMutation = useMutation({
     mutationFn: (id: number) => adminDeleteParagraph(id),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["adminParagraphs"] }),
+  });
+  const deleteSelectedParagraphsMutation = useMutation({
+    mutationFn: async (ids: number[]) => {
+      await Promise.all(ids.map((id) => adminDeleteParagraph(id)));
+    },
+    onSuccess: () => {
+      setSelectedRowKeys([]);
+      queryClient.invalidateQueries({ queryKey: ["adminParagraphs"] });
+    },
   });
 
   const createParagraphMutation = useMutation({
@@ -186,6 +201,23 @@ const ParagraphsTab = () => {
             <Button type="primary" onClick={() => setCreateOpen(true)}>
               {t("admin.paragraphs.createButton")}
             </Button>
+            <Button
+              danger
+              disabled={selectedRowKeys.length === 0}
+              loading={deleteSelectedParagraphsMutation.isPending}
+              onClick={() => {
+                const ids = selectedRowKeys.map((key) => Number(key)).filter((id) => Number.isFinite(id));
+                if (!ids.length) return;
+                confirm({
+                  title: `Delete ${ids.length} selected paragraph(s)?`,
+                  icon: <ExclamationCircleFilled />,
+                  okType: "danger",
+                  onOk: () => deleteSelectedParagraphsMutation.mutate(ids),
+                });
+              }}
+            >
+              Delete selected ({selectedRowKeys.length})
+            </Button>
             <Button onClick={() => queryClient.invalidateQueries({ queryKey: ["adminParagraphs"] })}>
               {t("admin.refresh")}
             </Button>
@@ -244,6 +276,23 @@ const ParagraphsTab = () => {
               label: t(`practice.sentenceCount.${c.value}`),
             }))}
           />
+          <Input
+            placeholder={`${t("admin.columns.sentenceCount")} <=`}
+            type="number"
+            min={1}
+            style={{ width: 170 }}
+            value={filterSentenceCountMax}
+            onChange={(e) => {
+              const raw = e.target.value.trim();
+              if (!raw) {
+                setFilterParam("paragraphsSentenceCount", undefined);
+                return;
+              }
+              const parsed = Number.parseInt(raw, 10);
+              if (!Number.isFinite(parsed) || parsed <= 0) return;
+              setFilterParam("paragraphsSentenceCount", `<=${parsed}`);
+            }}
+          />
         </Space>
       </div>
 
@@ -251,8 +300,14 @@ const ParagraphsTab = () => {
         rowKey="id"
         columns={columns}
         dataSource={paragraphsQuery.data?.content ?? []}
+        rowSelection={{
+          selectedRowKeys,
+          onChange: (keys) => setSelectedRowKeys(keys),
+        }}
         onRow={(record) => ({
-          onClick: () => {
+          onClick: (event) => {
+            const target = event.target as HTMLElement;
+            if (target.closest(".ant-checkbox-wrapper") || target.closest(".ant-checkbox")) return;
             setSelectedParagraph(record);
             setDetailOpen(true);
           },

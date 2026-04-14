@@ -182,6 +182,32 @@
     "loadingChart": "Loading data…",
     "chartError": "Could not load writing performance."
   },
+  "home": {
+    "slider": {
+      "previous": "Previous category",
+      "next": "Next category"
+    },
+    "common": {
+      "untitled": "Untitled",
+      "sentenceCount": "{{count}} sentences"
+    },
+    "recent": {
+      "title": "Recent Practices",
+      "progress": "{{completed}}/{{total}} sentences",
+      "viewResult": "View result",
+      "continue": "Continue",
+      "empty": "No recent practices yet.",
+      "startPractice": "Start practicing"
+    },
+    "sections": {
+      "ieltsTask1": "IELTS Task 1",
+      "ieltsTask2": "IELTS Task 2",
+      "email": "Email",
+      "viewMore": "View more",
+      "similarFilter": "Filter similar",
+      "empty": "No data for this section yet."
+    }
+  },
   "landing": {
     "heroTitle": "Master English writing with feedback from <span>AI</span>",
     "heroSubtitle": "Improve your skills with real-time corrections, sharp vocabulary suggestions, and a personalized learning path.",

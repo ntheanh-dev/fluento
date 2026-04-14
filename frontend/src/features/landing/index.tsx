@@ -12,7 +12,7 @@ const Hero = () => {
   const isAuthenticated = Cookies.get("accessToken") !== undefined;
   const handleStart = () => {
     if (isAuthenticated) {
-      navigate("/dashboard");
+      navigate("/home");
     } else {
       navigate("/login");
     }

@@ -46,6 +46,7 @@ public interface Repository extends JpaRepository<Paragraph, Long> {
 			AND (:topic IS NULL OR p.topic = :topic)
 			AND (:level IS NULL OR p.level = :level)
 			AND (:sentenceCount IS NULL OR p.sentenceCount = :sentenceCount)
+			AND (:maxSentenceCount IS NULL OR SIZE(p.sentences) <= :maxSentenceCount)
 			""",
             countQuery =
                     """
@@ -55,6 +56,7 @@ public interface Repository extends JpaRepository<Paragraph, Long> {
 			AND (:topic IS NULL OR p.topic = :topic)
 			AND (:level IS NULL OR p.level = :level)
 			AND (:sentenceCount IS NULL OR p.sentenceCount = :sentenceCount)
+			AND (:maxSentenceCount IS NULL OR SIZE(p.sentences) <= :maxSentenceCount)
 			""")
     Page<Paragraph> findWithOptionalFilters(
             @Param("type") Type type,
@@ -62,6 +64,7 @@ public interface Repository extends JpaRepository<Paragraph, Long> {
             @Param("topic") Topic topic,
             @Param("level") Level level,
             @Param("sentenceCount") SentenceCount sentenceCount,
+            @Param("maxSentenceCount") Integer maxSentenceCount,
             Pageable pageable);
 
     @Query(
