@@ -29,10 +29,10 @@ import lombok.extern.slf4j.Slf4j;
 public class CloudFlareChatService implements ChatService {
 
     private static final List<String> CLOUDFLARE_WORKER_BASE_URLS = List.of(
-            "https://throbbing-smoke-c078.5dnpnjsjf6.workers.dev/",
-            "https://luyenviet.theanhmgt1011.workers.dev/",
-            "https://luyenviet.2151013002anh.workers.dev/",
-            "https://luyenviet.theanhmgt66.workers.dev/",
+            //            "https://luyenviet.thamnguyenvv83.workers.dev/",
+            //            "https://throbbing-smoke-c078.5dnpnjsjf6.workers.dev/",
+            //            "https://luyenviet.theanhmgt1011.workers.dev/",
+            //            "https://luyenviet.2151013002anh.workers.dev/",
             "https://fluento.anhthenguyen-work.workers.dev/");
 
     private static final String CLOUDFLARE_WORKER_API_KEY = "12345";

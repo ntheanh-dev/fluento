@@ -552,6 +552,35 @@
       "noHints": "Chưa có gợi ý"
     }
   },
+  "paragraphLibrary": {
+    "title": "Thư viện bài luyện tập",
+    "subtitle": "Khám phá các đoạn văn theo bộ lọc của bạn",
+    "empty": "Không có đoạn văn phù hợp với bộ lọc hiện tại.",
+    "filters": {
+      "title": "Bộ lọc",
+      "type": "Dạng đề bài",
+      "level": "Cấp độ",
+      "topic": "Chủ đề",
+      "sentenceLength": "Độ dài câu",
+      "tone": "Tone",
+      "sortBy": "Sắp xếp theo",
+      "allTopics": "Tất cả chủ đề",
+      "allSentenceLengths": "Tất cả độ dài",
+      "allTones": "Tất cả tone"
+    },
+    "sort": {
+      "current": "Sắp xếp",
+      "newest": "Mới nhất",
+      "oldest": "Cũ nhất",
+      "mostPracticed": "Nhiều lượt luyện tập nhất"
+    },
+    "card": {
+      "untitled": "Đoạn văn không tiêu đề",
+      "emptyPreview": "Chưa có nội dung",
+      "sentenceCount": "{{count}} câu",
+      "practiceButton": "Luyện tập"
+    }
+  },
   "errors": {
     "default": "Đã xảy ra lỗi không xác định. Vui lòng thử lại sau.",
     "requestTimeout": "Yêu cầu quá thời gian (timeout). Vui lòng kiểm tra kết nối và thử lại.",

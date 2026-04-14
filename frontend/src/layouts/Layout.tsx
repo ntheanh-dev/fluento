@@ -32,7 +32,7 @@ const Layout = () => {
         () => {
             const base = [
                 { label: t("nav.dashboard"), to: "/dashboard", icon: LayoutDashboard },
-                { label: t("nav.practice"), to: "/practice", icon: BookOpen },
+                { label: t("nav.practice"), to: "/paragraphs", icon: BookOpen },
                 { label: t("nav.history"), to: "/history", icon: History },
                 { label: t("nav.rankings"), to: "/rankings", icon: Trophy },
             ];
@@ -59,7 +59,7 @@ const Layout = () => {
 
     const isActive = (to: string) => {
         if (to === "/dashboard") return location.pathname === "/dashboard";
-        if (to === "/practice") return location.pathname.startsWith("/practice") || location.pathname.startsWith("/session");
+        if (to === "/paragraphs") return location.pathname.startsWith("/paragraphs");
         if (to === "/admin") return location.pathname.startsWith("/admin");
         return location.pathname.startsWith(to);
     };
@@ -135,38 +135,28 @@ const Layout = () => {
 
 
                         <div className="flex items-center gap-3 md:gap-6">
-
                             {isAuthenticated ? (
-                                <>
-                                    <div className="hidden lg:flex items-center gap-2 bg-orange-50 dark:bg-orange-950/40 px-3 py-1.5 rounded-full border border-orange-100 dark:border-orange-900/50 text-orange-600 dark:text-orange-400">
-                                        <span className="text-sm font-bold">{t("layout.streak", { count: profile?.currentStreak || 0 })}</span>
-                                        <Flame size={16} fill="currentColor" />
-                                    </div>
-                                    <Link to="/profile">
-                                        <div className="flex items-center gap-3">
-                                            <div className="text-right hidden sm:block">
-                                                <p className="text-sm font-bold text-slate-800 dark:text-slate-100">
-                                                    {profile?.fullName}
-                                                </p>
-                                                <p className="text-xs text-slate-500 dark:text-slate-400">{getLevelLabel(profile?.embedded?.totalUserSentenceAnswers ?? 0, t)}</p>
-                                            </div>
-                                            {profile?.urlAvatar ? (
-                                                <img
-                                                    src={profile?.urlAvatar}
-                                                    alt={profile?.fullName}
-                                                    className="w-8 h-8 md:w-10 md:h-10 rounded-full border-2 border-slate-100 dark:border-slate-700 shadow-sm"
-                                                />
-                                            ) : (
-                                                <Avatar size={32} icon={<User size={16} />} />
-                                            )}
+                                <Link to="/profile">
+                                    <div className="flex items-center gap-3">
+                                        <div className="text-right hidden sm:block">
+                                            <p className="text-sm font-bold text-slate-800 dark:text-slate-100">
+                                                {profile?.fullName}
+                                            </p>
+                                            <p className="text-xs text-slate-500 dark:text-slate-400">{getLevelLabel(profile?.embedded?.totalUserSentenceAnswers ?? 0, t)}</p>
                                         </div>
-                                    </Link>
-                                </>
+                                        {profile?.urlAvatar ? (
+                                            <img
+                                                src={profile?.urlAvatar}
+                                                alt={profile?.fullName}
+                                                className="w-8 h-8 md:w-10 md:h-10 rounded-full border-2 border-slate-100 dark:border-slate-700 shadow-sm"
+                                            />
+                                        ) : (
+                                            <Avatar size={32} icon={<User size={16} />} />
+                                        )}
+                                    </div>
+                                </Link>
                             ) : (
                                 <>
-                                    <Link to="/login">
-                                        <Button type="text" className="hidden sm:inline-flex font-bold font-display">{t("layout.login")}</Button>
-                                    </Link>
                                     <Link to="/register">
                                         <Button type="primary" className="bg-[#137fec] font-bold font-display h-9 shadow-md shadow-[#137fec]/20">{t("layout.register")}</Button>
                                     </Link>

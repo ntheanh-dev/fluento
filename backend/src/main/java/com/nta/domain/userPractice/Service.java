@@ -29,7 +29,6 @@ import com.nta.common.service.ai.ParagraphPromptFactory;
 import com.nta.common.service.ai.PromptMessage;
 import com.nta.common.time.MysqlTime;
 import com.nta.domain.paragraph.Paragraph;
-import com.nta.domain.paragraph.dto.request.CreateParagraphRequest;
 import com.nta.domain.paragraph.enums.Level;
 import com.nta.domain.paragraph.enums.Topic;
 import com.nta.domain.paragraph.enums.Type;
@@ -69,15 +68,10 @@ public class Service {
     ZoneId appZoneId;
 
     @Transactional
-    UserPracticeResponse create(CreateParagraphRequest request) {
-        // NOTE: Sau khi có một lượng data paragraph rồi thì ko cần dùng ai để tạo nữa mà sẽ query trong db
-        Paragraph paragraph = paragraphService.findOrcreate(request);
-
-        // NOTE: Cần querry để tìm maxAttempt
-        // Integer nextAttempt = repository
-        //         .findMaxAttempt(userId, paragraph.getId())
-        //         .orElse(0) + 1;
-
+    UserPracticeResponse create(Long paragraphId) {
+        Paragraph paragraph = paragraphService
+                .findById(paragraphId)
+                .orElseThrow(() -> new AppException(ErrorCode.PARAGRAPH_NOT_FOUND));
         UserPractice practice = UserPractice.builder()
                 .user(commonUserService.getUserFromContext())
                 .paragraph(paragraph)

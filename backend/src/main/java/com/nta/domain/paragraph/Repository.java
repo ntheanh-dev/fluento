@@ -63,4 +63,65 @@ public interface Repository extends JpaRepository<Paragraph, Long> {
             @Param("level") Level level,
             @Param("sentenceCount") SentenceCount sentenceCount,
             Pageable pageable);
+
+    @Query(
+            value =
+                    """
+			SELECT p, COUNT(up)
+			FROM Paragraph p
+			LEFT JOIN p.practices up
+			WHERE (:type IS NULL OR p.type = :type)
+			AND (:tone IS NULL OR p.tone = :tone)
+			AND (:topic IS NULL OR p.topic = :topic)
+			AND (:level IS NULL OR p.level = :level)
+			AND (:sentenceCount IS NULL OR p.sentenceCount = :sentenceCount)
+			GROUP BY p
+			""",
+            countQuery =
+                    """
+			SELECT count(p) FROM Paragraph p
+			WHERE (:type IS NULL OR p.type = :type)
+			AND (:tone IS NULL OR p.tone = :tone)
+			AND (:topic IS NULL OR p.topic = :topic)
+			AND (:level IS NULL OR p.level = :level)
+			AND (:sentenceCount IS NULL OR p.sentenceCount = :sentenceCount)
+			""")
+    Page<Object[]> findWithOptionalFiltersAndPracticeCount(
+            @Param("type") Type type,
+            @Param("tone") Tone tone,
+            @Param("topic") Topic topic,
+            @Param("level") Level level,
+            @Param("sentenceCount") SentenceCount sentenceCount,
+            Pageable pageable);
+
+    @Query(
+            value =
+                    """
+			SELECT p, COUNT(up)
+			FROM Paragraph p
+			LEFT JOIN p.practices up
+			WHERE (:type IS NULL OR p.type = :type)
+			AND (:tone IS NULL OR p.tone = :tone)
+			AND (:topic IS NULL OR p.topic = :topic)
+			AND (:level IS NULL OR p.level = :level)
+			AND (:sentenceCount IS NULL OR p.sentenceCount = :sentenceCount)
+			GROUP BY p
+			ORDER BY COUNT(up) DESC, p.createdAt DESC
+			""",
+            countQuery =
+                    """
+			SELECT count(p) FROM Paragraph p
+			WHERE (:type IS NULL OR p.type = :type)
+			AND (:tone IS NULL OR p.tone = :tone)
+			AND (:topic IS NULL OR p.topic = :topic)
+			AND (:level IS NULL OR p.level = :level)
+			AND (:sentenceCount IS NULL OR p.sentenceCount = :sentenceCount)
+			""")
+    Page<Object[]> findWithOptionalFiltersAndPracticeCountOrderByMostPracticed(
+            @Param("type") Type type,
+            @Param("tone") Tone tone,
+            @Param("topic") Topic topic,
+            @Param("level") Level level,
+            @Param("sentenceCount") SentenceCount sentenceCount,
+            Pageable pageable);
 }

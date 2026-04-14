@@ -59,7 +59,7 @@ public enum ErrorCode {
 
     // PARAGRAPH, USERPRACTICE
     NOT_OWN_PRACTICE(4000, "Bạn không phải là chủ của bài tập này", HttpStatus.NOT_ACCEPTABLE),
-
+    PARAGRAPH_NOT_FOUND(4001, "Bài tập không tồn tại", HttpStatus.NOT_FOUND),
     // CREDIT, PAYMENT
     NOT_ENOUGH_CREDITS(4001, "Bạn không đủ credits để sử dụng tính năng này", HttpStatus.BAD_REQUEST),
     THIS_MODEL_NOT_ENOUGH_CREDITS(4002, "Model này đã hết credit", HttpStatus.BAD_REQUEST),

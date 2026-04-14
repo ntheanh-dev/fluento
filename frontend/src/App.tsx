@@ -20,6 +20,7 @@ const Dashboard = lazy(() => import("@/features/dashboard"));
 
 // Practice
 import PracticeSetup from "@/features/practice/ui/PracticeSetup";
+const ParagraphLibraryPage = lazy(() => import("@/features/paragraph/ui"));
 const ResultScreen = lazy(() => import("@/features/practice/ui/[id]/ResultScreen.tsx"));
 const ResultDetailScreen = lazy(() => import("@/features/practice/ui/[id]/ResultDetailScreen.tsx"));
 const SentencePracticePage = lazy(() => import("@/features/practice/ui/[id]"));
@@ -79,6 +80,7 @@ function App() {
                 >
                   <Route index path="/dashboard" element={<Dashboard />} />
                   <Route path="practice" element={<PracticeSetup />} />
+                  <Route path="paragraphs" element={<ParagraphLibraryPage />} />
                   <Route path="practice/:id" element={<SentencePracticePage />} />
                   <Route path="practice/:id/result" element={<ResultScreen />} />
                   <Route path="practice/:id/result/detail" element={<ResultDetailScreen />} />

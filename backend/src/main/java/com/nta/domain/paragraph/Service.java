@@ -6,14 +6,22 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import jakarta.transaction.Transactional;
 
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 
 import com.nta.common.service.ai.ChatService;
 import com.nta.common.service.ai.ParagraphPromptFactory;
 import com.nta.common.service.ai.PromptMessage;
 import com.nta.domain.paragraph.dto.request.CreateParagraphRequest;
 import com.nta.domain.paragraph.dto.response.ParagraphAiResponse;
+import com.nta.domain.paragraph.dto.response.ParagraphResponse;
 import com.nta.domain.paragraph.dto.response.ParagraphWithTitleAiResponse;
+import com.nta.domain.paragraph.enums.Level;
+import com.nta.domain.paragraph.enums.SentenceCount;
+import com.nta.domain.paragraph.enums.Tone;
+import com.nta.domain.paragraph.enums.Topic;
+import com.nta.domain.paragraph.enums.Type;
 import com.nta.domain.paragraphSentence.ParagraphSentence;
 
 import lombok.AccessLevel;
@@ -32,6 +40,33 @@ public class Service {
     ParagraphPromptFactory promptFactory;
     ChatService chatService;
     Mapper mapper;
+
+    public Optional<Paragraph> findById(Long id) {
+        return repository.findById(id);
+    }
+
+    public Page<ParagraphResponse> getAllFiltered(
+            Type type,
+            Tone tone,
+            Topic topic,
+            Level level,
+            SentenceCount sentenceCount,
+            String sort,
+            int page,
+            int size) {
+        PageRequest pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+        Page<Object[]> paragraphsWithCount;
+        if ("most_practiced".equalsIgnoreCase(sort)) {
+            paragraphsWithCount = repository.findWithOptionalFiltersAndPracticeCountOrderByMostPracticed(
+                    type, tone, topic, level, sentenceCount, pageable);
+        } else {
+            Sort.Direction direction = "asc".equalsIgnoreCase(sort) ? Sort.Direction.ASC : Sort.Direction.DESC;
+            pageable = PageRequest.of(page, size, Sort.by(direction, "createdAt"));
+            paragraphsWithCount = repository.findWithOptionalFiltersAndPracticeCount(
+                    type, tone, topic, level, sentenceCount, pageable);
+        }
+        return paragraphsWithCount.map(row -> toResponse((Paragraph) row[0], (Long) row[1]));
+    }
 
     public Paragraph findOrcreate(CreateParagraphRequest request) {
         return findExistingWithSameSetup(request).orElseGet(() -> switch (request.getType()) {
@@ -133,5 +168,20 @@ public class Service {
         }
         String stripped = sentence.replace("\n", "").replace("\r", "").replace("\\n", "");
         return stripped.isBlank();
+    }
+
+    private ParagraphResponse toResponse(Paragraph paragraph, Long practiceCount) {
+        return ParagraphResponse.builder()
+                .id(paragraph.getId())
+                .title(paragraph.getTitle())
+                .type(paragraph.getType())
+                .tone(paragraph.getTone())
+                .topic(paragraph.getTopic())
+                .level(paragraph.getLevel())
+                .sentenceCount(paragraph.getSentenceCount())
+                .practiceCount(practiceCount != null ? practiceCount : 0L)
+                .createdAt(paragraph.getCreatedAt())
+                .sentences(paragraph.getSentenceContents())
+                .build();
     }
 }

@@ -552,6 +552,35 @@
       "noHints": "No hints"
     }
   },
+  "paragraphLibrary": {
+    "title": "Practice Library",
+    "subtitle": "Explore paragraphs based on your filters",
+    "empty": "No paragraphs match the current filters.",
+    "filters": {
+      "title": "Filters",
+      "type": "Exercise Type",
+      "level": "Level",
+      "topic": "Topic",
+      "sentenceLength": "Sentence Length",
+      "tone": "Tone",
+      "sortBy": "Sort By",
+      "allTopics": "All topics",
+      "allSentenceLengths": "All lengths",
+      "allTones": "All tones"
+    },
+    "sort": {
+      "current": "Sort",
+      "newest": "Newest",
+      "oldest": "Oldest",
+      "mostPracticed": "Most practiced"
+    },
+    "card": {
+      "untitled": "Untitled paragraph",
+      "emptyPreview": "No content available",
+      "sentenceCount": "{{count}} sentences",
+      "practiceButton": "Practice"
+    }
+  },
   "errors": {
     "default": "Something went wrong. Please try again later.",
     "requestTimeout": "The request timed out. Check your connection and try again.",
