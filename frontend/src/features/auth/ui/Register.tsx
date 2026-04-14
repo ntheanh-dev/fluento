@@ -2,7 +2,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState, useMemo } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Lock, User, ArrowRight, Eye, EyeOff, UserCircle } from "lucide-react";
+import { Lock, User, Eye, EyeOff, UserCircle } from "lucide-react";
 import { message } from "antd";
 import Cookies from "js-cookie";
 import { z } from "zod";
