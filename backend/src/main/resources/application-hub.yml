@@ -21,7 +21,7 @@ logging:
 
 spring:
   datasource:
-    url: ${DB_URL:jdbc:mysql://mysql:3306/luyenviet?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC}
+    url: ${DB_URL:jdbc:mysql://mysql:3306/luyenviet?useSSL=false&allowPublicKeyRetrieval=true&useUnicode=true&characterEncoding=UTF-8&connectionCollation=utf8mb4_unicode_ci&serverTimezone=UTC}
     username: ${DB_USERNAME:root}
     password: ${DB_PASSWORD:}
     driverClassName: com.mysql.cj.jdbc.Driver
