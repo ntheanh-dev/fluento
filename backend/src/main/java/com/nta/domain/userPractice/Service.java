@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.function.Consumer;
 
 import jakarta.transaction.Transactional;
 
@@ -98,6 +99,11 @@ public class Service {
 
     @Transactional
     SentenceFeedback previewFeedback(Long practiceId, SentenceTranslationRequest request) {
+        return previewFeedback(practiceId, request, null);
+    }
+
+    @Transactional
+    SentenceFeedback previewFeedback(Long practiceId, SentenceTranslationRequest request, Consumer<String> onChunk) {
         String originalSentence = validateAndGetOriginalSentence(practiceId, request.getOrderIndex());
         String normalizedTranslatedSentence =
                 appendLineBreakTokenIfNeeded(originalSentence, request.getTranslatedSentence());
@@ -105,8 +111,10 @@ public class Service {
         PromptMessage prompt = paragraphPromptFactory.buildFeedbackTranslationMarkdownPrompt(
                 originalSentence, normalizedTranslatedSentence);
 
-        SentenceFeedback feedback = chatService
-                .sendMessage(prompt.systemMessage(), prompt.userMessage(), SentenceFeedback.class)
+        SentenceFeedback feedback = (onChunk == null
+                        ? chatService.sendMessage(prompt.systemMessage(), prompt.userMessage(), SentenceFeedback.class)
+                        : chatService.sendMessageStream(
+                                prompt.systemMessage(), prompt.userMessage(), SentenceFeedback.class, onChunk))
                 .getResult();
 
         // Tìm bản nháp trước đó cho cùng practice + orderIndex (chưa submit)

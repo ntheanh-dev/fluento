@@ -1,8 +1,16 @@
 package com.nta.domain.userPractice;
 
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.util.concurrent.CompletableFuture;
+
 import jakarta.validation.Valid;
 
 import org.springframework.data.domain.Page;
+import org.springframework.http.MediaType;
+import org.springframework.security.concurrent.DelegatingSecurityContextRunnable;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -10,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import com.nta.common.dto.ApiResponse;
 import com.nta.domain.paragraph.enums.Level;
@@ -68,12 +77,36 @@ public class Controller {
                 .build();
     }
 
-    @PostMapping("/{practiceId}/answers/preview")
-    ApiResponse<SentenceFeedback> previewAnswer(
-            @PathVariable Long practiceId, @RequestBody @Valid SentenceTranslationRequest request) {
-        return ApiResponse.<SentenceFeedback>builder()
-                .result(service.previewFeedback(practiceId, request))
-                .build();
+    @PostMapping(value = "/{practiceId}/answers/preview", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    SseEmitter previewAnswer(@PathVariable Long practiceId, @RequestBody @Valid SentenceTranslationRequest request) {
+        SseEmitter emitter = new SseEmitter(60_000L);
+        SecurityContext securityContext = SecurityContextHolder.getContext();
+        Runnable streamTask = () -> {
+            try {
+                SentenceFeedback feedback = service.previewFeedback(practiceId, request, chunk -> {
+                    try {
+                        emitter.send(SseEmitter.event()
+                                .name("preview-feedback-chunk")
+                                .data(chunk));
+                    } catch (IOException ioException) {
+                        throw new UncheckedIOException(ioException);
+                    }
+                });
+                ApiResponse<SentenceFeedback> payload =
+                        ApiResponse.<SentenceFeedback>builder().result(feedback).build();
+                emitter.send(SseEmitter.event().name("preview-feedback").data(payload));
+                emitter.complete();
+            } catch (IOException ex) {
+                emitter.completeWithError(ex);
+            } catch (UncheckedIOException ex) {
+                emitter.completeWithError(ex.getCause());
+            } catch (Exception ex) {
+                emitter.completeWithError(ex);
+            }
+        };
+
+        CompletableFuture.runAsync(new DelegatingSecurityContextRunnable(streamTask, securityContext));
+        return emitter;
     }
 
     @PostMapping("/{practiceId}/answers")

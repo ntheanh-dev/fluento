@@ -62,14 +62,20 @@ const SentencePracticePage = () => {
     [translation, currentVietNameseSentence]
   );
 
+  const [feedback, setFeedback] = useState<SentenceFeedback | null>(null);
+  const [streamingFeedback, setStreamingFeedback] = useState<Partial<SentenceFeedback> | null>(null);
+  const [streamingFeedbackText, setStreamingFeedbackText] = useState("");
 
   const {
     mutateAsync: getAnswerPreview,
     isPending: isLoadingAnswerPreview,
     error: errorAnswerPreview,
-  } = useAnswerPreviewFeedback(practiceId, answerPreviewPayload);
-
-  const [feedback, setFeedback] = useState<SentenceFeedback | null>(null);
+  } = useAnswerPreviewFeedback(
+    practiceId,
+    answerPreviewPayload,
+    setStreamingFeedbackText,
+    setStreamingFeedback,
+  );
 
   const submitPayload = useMemo(
     () => ({
@@ -165,15 +171,22 @@ const SentencePracticePage = () => {
     if (!translation.trim() || isLoadingAnswerPreview || !currentVietNameseSentence) return;
     setRenderAsideType("markdownFeedback");
     if (isMobile || isTablet) setShowMobileSidebar(true);
+    setStreamingFeedbackText("");
+    setStreamingFeedback(null);
+    setFeedback(null);
 
     setLastCheckedTranslation(translation);
 
     try {
       const res = await getAnswerPreview();
       setFeedback(res as SentenceFeedback);
+      setStreamingFeedbackText("");
+      setStreamingFeedback(null);
       await refetchCredits();
     } catch {
       setShowMobileSidebar(false);
+      setStreamingFeedbackText("");
+      setStreamingFeedback(null);
     }
   }, [translation, isLoadingAnswerPreview, isMobile, isTablet, getAnswerPreview, currentVietNameseSentence, refetchCredits]);
 
@@ -194,6 +207,8 @@ const SentencePracticePage = () => {
       setTranslation("");
       setRenderAsideType(null);
       setLastCheckedTranslation(null);
+      setStreamingFeedbackText("");
+      setStreamingFeedback(null);
     } catch (error) {
       showApiError(error);
     }
@@ -431,6 +446,8 @@ const SentencePracticePage = () => {
               hintsSentenceId={currentVietNameseSentence?.id ?? 0}
               feedback={feedback}
               userTranslation={lastCheckedTranslation ?? translation}
+              streamingFeedback={streamingFeedback}
+              streamingFeedbackText={streamingFeedbackText}
             />
           </div>
         </aside>

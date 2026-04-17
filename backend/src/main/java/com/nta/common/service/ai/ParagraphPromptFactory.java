@@ -255,22 +255,22 @@ Use logical transitions. If there are distinct points, separate them with the li
 
 			JSON SCHEMA (dùng đúng key, đúng kiểu dữ liệu):
 			{
+			"score": 0.0,
 			"correction": "string",
-			"improved": "string",
 			"suggestions": ["string", "string"],
 			"summary": "string",
-			"score": 0.0
+			"improved": "string"
 			}
 
 			DIỄN GIẢI CHI TIẾT:
+			- score: Điểm số tổng quan từ 1–10 đánh giá chất lượng câu dịch.
 			- correction: Câu tiếng Anh đã CHỈNH SỬA, dạng gợi ý tổng quát giống như phần "Suggestion".
-			+ Viết lại toàn bộ câu theo bản dịch đúng và tự nhiên hơn.
-			- improved: Câu tiếng Anh dùng từ ngữ, cấu trúc, thì, từ vựng tốt hơn.
 			- suggestions: Danh sách 2–5 gợi ý chi tiết bằng tiếng Việt, mỗi phần tử là MỘT câu hoàn chỉnh.
 			+ Giải thích ngắn gọn từng lỗi (thì, số ít/số nhiều, từ vựng, cấu trúc câu...).
 			+ Có thể dùng `backtick` để làm nổi bật từ/cụm từ tiếng Anh hoặc thuật ngữ như `past tense`, `was`, `friends`...
-			- summary: 1 đoạn nhận xét ngắn gọn bằng tiếng Việt (1–3 câu) tổng kết các lỗi chính và lời khuyên chung.
-			- score: Điểm số tổng quan từ 1–10 (số thực, ví dụ 7.5) đánh giá chất lượng câu dịch.
+			- summary: 1 đoạn nhận xét ngắn gọn bằng tiếng Việt (1–3 câu) chỉ tổng kết lại các lỗi chính và lời khuyên chung.
+			+ Viết lại toàn bộ câu theo bản dịch đúng và tự nhiên hơn.
+			- improved: Câu tiếng Anh dùng từ ngữ, cấu trúc, thì, từ vựng tốt hơn.
 
 			YÊU CẦU QUAN TRỌNG:
 			- Nội dung phải phù hợp cho người học tiếng Anh trình độ phổ thông.

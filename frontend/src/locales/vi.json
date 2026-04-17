@@ -388,7 +388,10 @@
       "correctionHeading": "Chỉnh sửa:",
       "improvementsHeading": "Cải thiện:",
       "suggestionTitle": "Gợi ý",
-      "copy": "Sao chép"
+      "copy": "Sao chép",
+      "expandSentence": "Mở rộng câu",
+      "expandSentenceLoadingShort": "Đang tải...",
+      "expandSentenceLoading": "Đang mở rộng câu..."
     }
   },
   "history": {

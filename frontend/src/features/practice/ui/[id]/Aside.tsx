@@ -16,6 +16,8 @@ type AsideProps = {
   renderAsideType: RenderAsideType;
   feedback: SentenceFeedback | null;
   userTranslation?: string;
+  streamingFeedback?: Partial<SentenceFeedback> | null;
+  streamingFeedbackText?: string;
 };
 
 export const Aside = ({
@@ -26,10 +28,20 @@ export const Aside = ({
   renderAsideType,
   feedback,
   userTranslation,
+  streamingFeedback,
+  streamingFeedbackText,
 }: AsideProps) => {
   const { t } = useTranslation();
+  const hasStreamingFeedbackData =
+    streamingFeedback != null && (
+      streamingFeedback.correction != null
+      || streamingFeedback.improved != null
+      || streamingFeedback.summary != null
+      || streamingFeedback.score != null
+      || (streamingFeedback.suggestions != null && streamingFeedback.suggestions.length > 0)
+    );
 
-  if (isLoadingAnswerPreview || isLoadingVocabularyHints) {
+  if (isLoadingVocabularyHints) {
     return <Analyzing />;
   }
 
@@ -43,6 +55,24 @@ export const Aside = ({
   }
 
   if (renderAsideType === "markdownFeedback") {
+    if (isLoadingAnswerPreview && hasStreamingFeedbackData) {
+      return (
+        <DetailedSuggestionCard
+          feedback={streamingFeedback}
+          userTranslation={userTranslation}
+          isStreaming
+        />
+      );
+    }
+    if (isLoadingAnswerPreview && streamingFeedbackText?.trim()) {
+      return (
+        <div className="flex-1 overflow-y-auto p-4">
+          <pre className="whitespace-pre-wrap break-words text-xs leading-6 text-slate-700 dark:text-slate-200">
+            {streamingFeedbackText}
+          </pre>
+        </div>
+      );
+    }
     if (!feedback) {
       return <Analyzing />;
     }
@@ -50,6 +80,7 @@ export const Aside = ({
       <DetailedSuggestionCard
         feedback={feedback}
         userTranslation={userTranslation}
+        isStreaming={false}
       />
     );
   }

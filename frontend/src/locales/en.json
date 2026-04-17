@@ -388,7 +388,10 @@
       "correctionHeading": "Correction:",
       "improvementsHeading": "Improvements:",
       "suggestionTitle": "Suggestion",
-      "copy": "Copy"
+      "copy": "Copy",
+      "expandSentence": "Expand sentence",
+      "expandSentenceLoadingShort": "Loading...",
+      "expandSentenceLoading": "Expanding sentence..."
     }
   },
   "history": {

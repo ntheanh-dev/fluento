@@ -12,9 +12,11 @@ type UseAnswerPreviewFeedbackResult = {
 export function useAnswerPreviewFeedback(
   id: number,
   payload: AnswerPreviewInput,
+  onTextChunk?: (fullText: string) => void,
+  onPartialFeedback?: (partial: Partial<SentenceFeedback>) => void,
 ): UseAnswerPreviewFeedbackResult {
   const mutation = useMutation({
-    mutationFn: () => getAnswerPreview(id, payload),
+    mutationFn: () => getAnswerPreview(id, payload, onTextChunk, onPartialFeedback),
   });
 
   return {

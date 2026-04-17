@@ -1,23 +1,103 @@
 import type { SentenceFeedback } from "@/entities/userPracticeAnswer/schema";
-import { Copy, Sparkles } from "lucide-react";
+import { Copy, Loader2, Sparkles } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { renderBacktickHighlight, renderWordDiff } from "../../fnc";
 
 export type DetailedSuggestionCardProps = {
-  feedback: SentenceFeedback | null;
+  feedback: Partial<SentenceFeedback> | null;
   userTranslation?: string;
+  isStreaming?: boolean;
 };
 
 export function DetailedSuggestionCard({
   feedback,
   userTranslation,
+  isStreaming = false,
 }: DetailedSuggestionCardProps) {
   const { t } = useTranslation();
+  const [expandState, setExpandState] = useState<"idle" | "loading" | "streaming" | "done">("idle");
+  const [displayedExpandedText, setDisplayedExpandedText] = useState("");
+  const loadingTimeoutRef = useRef<number | null>(null);
+  const streamIntervalRef = useRef<number | null>(null);
   if (!feedback) {
     return <></>;
   }
 
   const { correction, suggestions, summary, score, improved } = feedback;
+  const suggestionItems = suggestions ?? [];
+  const clearExpandTimers = () => {
+    if (loadingTimeoutRef.current != null) {
+      window.clearTimeout(loadingTimeoutRef.current);
+      loadingTimeoutRef.current = null;
+    }
+    if (streamIntervalRef.current != null) {
+      window.clearInterval(streamIntervalRef.current);
+      streamIntervalRef.current = null;
+    }
+  };
+
+  useEffect(() => {
+    clearExpandTimers();
+    setExpandState("idle");
+    setDisplayedExpandedText("");
+    return () => {
+      clearExpandTimers();
+    };
+  }, [improved]);
+
+  const handleExpandSentence = () => {
+    if (!improved || expandState !== "idle") return;
+    setExpandState("loading");
+    setDisplayedExpandedText("");
+
+    loadingTimeoutRef.current = window.setTimeout(() => {
+      setExpandState("streaming");
+      let cursor = 0;
+      streamIntervalRef.current = window.setInterval(() => {
+        if (!improved) {
+          clearExpandTimers();
+          setExpandState("done");
+          return;
+        }
+        const step = Math.min(3, improved.length - cursor);
+        cursor += step;
+        setDisplayedExpandedText(improved.slice(0, cursor));
+        if (cursor >= improved.length) {
+          clearExpandTimers();
+          setExpandState("done");
+        }
+      }, 40);
+    }, 700);
+  };
+  const isStableChunk = (value: string): boolean => {
+    const trimmed = value.trim();
+    if (!trimmed) return false;
+    return /[.!?。！？]$/.test(trimmed);
+  };
+
+  const splitStableAndPendingText = (value: string): { stable: string; pending: string } => {
+    if (!isStreaming) {
+      return { stable: value, pending: "" };
+    }
+    const normalized = value ?? "";
+    if (!normalized) {
+      return { stable: "", pending: "" };
+    }
+    if (isStableChunk(normalized)) {
+      return { stable: normalized, pending: "" };
+    }
+
+    const match = normalized.match(/^(.*[.!?。！？]\s*)([^.!?。！？]*)$/s);
+    if (!match) {
+      return { stable: "", pending: normalized };
+    }
+
+    return {
+      stable: match[1] ?? "",
+      pending: match[2] ?? "",
+    };
+  };
 
   return (
     <div className="flex flex-col p-4 gap-4 text-[11px] leading-relaxed text-slate-800 dark:text-slate-100 overflow-y-auto scrollbar-thin scrollbar-thumb-slate-200">
@@ -70,27 +150,42 @@ export function DetailedSuggestionCard({
         </div>
       )}
 
-      {correction != null && correction !== "" && score < 9.5 && (
+      {correction != null && correction !== "" && (score == null || score < 9.5) && (
         <p className="text-[11px] font-bold text-orange-600">
           {t("practice.feedback.correctionHeading")}
           <span className="ml-1 font-semibold text-slate-800 dark:text-slate-100">
-            {userTranslation?.trim()
-              ? renderWordDiff(userTranslation.trim(), correction)
-              : correction}
+            {(() => {
+              const { stable, pending } = splitStableAndPendingText(correction);
+              if (isStreaming) {
+                return (
+                  <>
+                    {stable && (userTranslation?.trim()
+                      ? renderWordDiff(userTranslation.trim(), stable)
+                      : stable)}
+                    {pending}
+                  </>
+                );
+              }
+              return userTranslation?.trim()
+                ? renderWordDiff(userTranslation.trim(), correction)
+                : correction;
+            })()}
           </span>
         </p>
       )}
 
       {/* Suggested improvements */}
-      {suggestions?.length > 0 && (
+      {suggestionItems.length > 0 && (
         <div>
           <p className="text-[12px] font-semibold text-slate-800 dark:text-slate-100 mb-1">
             {t("practice.feedback.improvementsHeading")}
           </p>
           <ul className="space-y-1 pl-4 list-disc text-slate-700 dark:text-slate-300">
-            {suggestions.map((item, idx) => (
+            {suggestionItems.map((item, idx) => (
               <li key={idx} className="text-[12px]">
-                {renderBacktickHighlight(item)}
+                {isStreaming && idx === suggestionItems.length - 1 && !isStableChunk(item)
+                  ? item
+                  : renderBacktickHighlight(item)}
               </li>
             ))}
           </ul>
@@ -102,7 +197,18 @@ export function DetailedSuggestionCard({
         <div className="mt-1">
           <p className="font-bold text-emerald-600 mb-1">{t("practice.feedback.commentLabel")}</p>
           <p className="text-[12px] text-slate-700 dark:text-slate-300">
-            {renderBacktickHighlight(summary)}
+            {(() => {
+              const { stable, pending } = splitStableAndPendingText(summary);
+              if (!isStreaming) {
+                return renderBacktickHighlight(summary);
+              }
+              return (
+                <>
+                  {stable ? renderBacktickHighlight(stable) : null}
+                  {pending}
+                </>
+              );
+            })()}
           </p>
         </div>
       )}
@@ -114,19 +220,36 @@ export function DetailedSuggestionCard({
               <Sparkles className="size-3.5" />
               {t("practice.feedback.suggestionTitle")}
             </span>
-            <button
-              className="text-green-600 hover:text-green-700 transition-colors"
-              title={t("practice.feedback.copy")}
-            >
-              <Copy
-                className="size-3.5"
-                onClick={() => navigator.clipboard.writeText(improved)}
-              />
-            </button>
+            {expandState === "idle" && (
+              <a
+                type="button"
+                onClick={handleExpandSentence}
+                className="inline-flex items-center rounded-md bg-emerald-600 px-2 py-1 text-[10px] font-semibold text-white transition-colors hover:bg-emerald-700"
+              >
+                {t("practice.feedback.expandSentence")}
+              </a>
+            )}
+            {(expandState === "streaming" || expandState === "done") && (
+              <button
+                className="text-green-600 hover:text-green-700 transition-colors"
+                title={t("practice.feedback.copy")}
+                onClick={() => navigator.clipboard.writeText(displayedExpandedText || improved)}
+              >
+                <Copy className="size-3.5" />
+              </button>
+            )}
           </div>
-          <p className="text-[12px] text-slate-800 dark:text-slate-100">
-            {improved}
-          </p>
+          {expandState === "loading" && (
+            <div className="inline-flex items-center gap-2 text-[12px] text-emerald-700 dark:text-emerald-300">
+              <Loader2 className="size-3.5 animate-spin" />
+              {t("practice.feedback.expandSentenceLoading")}
+            </div>
+          )}
+          {(expandState === "streaming" || expandState === "done") && (
+            <p className="text-[12px] text-slate-800 dark:text-slate-100">
+              {displayedExpandedText}
+            </p>
+          )}
         </div>
       )}
     </div>
