@@ -59,4 +59,7 @@ public class User {
 
     @Column(nullable = false)
     private Integer credits = 0;
+
+    @Column(nullable = false)
+    private Integer coins = 0;
 }

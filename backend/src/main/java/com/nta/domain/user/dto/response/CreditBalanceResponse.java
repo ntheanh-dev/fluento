@@ -15,4 +15,5 @@ import lombok.experimental.FieldDefaults;
 public class CreditBalanceResponse {
 
     Integer credits;
+    Integer coins;
 }

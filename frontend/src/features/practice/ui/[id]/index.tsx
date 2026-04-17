@@ -22,6 +22,7 @@ import { useAnswerPreviewFeedback } from "../../hooks/useAnswerPreviewFeedbackSt
 import { AxiosError } from "axios";
 import type { ParagraphSentence } from "@/entities/paragraphSentence/schema";
 import { useTranslation } from "react-i18next";
+import coinRewardAudioSrc from "@/assets/audio/chieuk-coin-257878.mp3";
 
 export type RenderAsideType = "hints" | "markdownFeedback" | null;
 
@@ -49,6 +50,7 @@ const SentencePracticePage = () => {
   // --- Refs ---
   /** Thời điểm bắt đầu luyện (ms), dùng để tính elapsed và learningTime. */
   const startedAtRef = useRef<number | null>(null);
+  const coinAudioRef = useRef<HTMLAudioElement | null>(null);
 
   // --- Data hooks ---
   const { data, error: errorUserPracticeData } = useUserPracticeData(practiceId);
@@ -65,6 +67,7 @@ const SentencePracticePage = () => {
   const [feedback, setFeedback] = useState<SentenceFeedback | null>(null);
   const [streamingFeedback, setStreamingFeedback] = useState<Partial<SentenceFeedback> | null>(null);
   const [streamingFeedbackText, setStreamingFeedbackText] = useState("");
+  const [coinBurstCount, setCoinBurstCount] = useState(0);
 
   const {
     mutateAsync: getAnswerPreview,
@@ -145,6 +148,22 @@ const SentencePracticePage = () => {
 
   const handleCloseMobileSidebar = useCallback(() => setShowMobileSidebar(false), []);
   const handleBackToSetup = useCallback(() => navigate("/setup"), [navigate]);
+  const playCoinRewardSound = useCallback(() => {
+    if (!coinAudioRef.current) return;
+    coinAudioRef.current.currentTime = 0;
+    void coinAudioRef.current.play().catch(() => undefined);
+  }, []);
+
+  useEffect(() => {
+    const audio = new Audio(coinRewardAudioSrc);
+    audio.preload = "auto";
+    audio.volume = 0.45;
+    coinAudioRef.current = audio;
+    return () => {
+      audio.pause();
+      coinAudioRef.current = null;
+    };
+  }, []);
 
   /** Mở sidebar và load/hiển thị gợi ý dịch cho câu hiện tại. */
   const handleGetVocabularyHints = useCallback(async () => {
@@ -182,6 +201,7 @@ const SentencePracticePage = () => {
       setFeedback(res as SentenceFeedback);
       setStreamingFeedbackText("");
       setStreamingFeedback(null);
+      setCoinBurstCount(Math.max(0, Number(res.coinAwarded ?? 0)));
       await refetchCredits();
     } catch {
       setShowMobileSidebar(false);
@@ -189,6 +209,14 @@ const SentencePracticePage = () => {
       setStreamingFeedback(null);
     }
   }, [translation, isLoadingAnswerPreview, isMobile, isTablet, getAnswerPreview, currentVietNameseSentence, refetchCredits]);
+
+
+  useEffect(() => {
+    if (coinBurstCount <= 0) return;
+    playCoinRewardSound();
+    const timeout = setTimeout(() => setCoinBurstCount(0), 1800);
+    return () => clearTimeout(timeout);
+  }, [coinBurstCount, playCoinRewardSound]);
 
   /** Nộp câu đã kiểm tra, chuyển sang câu tiếp theo hoặc sang trang result nếu hết. */
   const handleNextSentence = useCallback(async () => {
@@ -284,8 +312,22 @@ const SentencePracticePage = () => {
                 </div>
               </>
             )}
+            {typeof creditBalance?.coins === "number" && (
+              <>
+                <div className="h-8 w-px bg-slate-100 dark:bg-slate-700"></div>
+                <div className="flex flex-col items-start">
+                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">{t("profile.coinsRemaining")}</span>
+                  <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-700 dark:text-slate-200">
+                    <Coins size={14} className="text-yellow-500" />
+                    {creditBalance.coins}
+                  </span>
+                </div>
+              </>
+            )}
+
           </div>
         </div>
+        <div className="h-8 w-px bg-slate-100 dark:bg-slate-700"></div>
         <div className="flex-[2] hidden md:flex items-center gap-4 lg:gap-6 w-full">
           <span className="text-xs md:text-sm font-medium text-slate-500 dark:text-slate-400 whitespace-nowrap">
             {t("practice.session.sentenceProgress", {
@@ -429,6 +471,19 @@ const SentencePracticePage = () => {
         >
 
           <div className="bg-white dark:bg-slate-900/90 rounded-lg sm:rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col overflow-hidden relative">
+            {coinBurstCount > 0 && (
+              <div className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center">
+                <div className="relative flex flex-col items-center">
+                  <span className="inline-flex items-center gap-2 px-6 py-3 text-4xl font-extrabold text-amber-600 dark:text-amber-300 animate-bounce">
+                    {`+${coinBurstCount}`}
+                    <Coins size={40} className="text-yellow-500" />
+                  </span>
+                  <span className="absolute -left-2 top-8 h-3 w-3 rounded-full bg-yellow-300 animate-ping" />
+                  <span className="absolute -right-2 top-6 h-3 w-3 rounded-full bg-amber-400 animate-ping [animation-delay:120ms]" />
+                  <span className="absolute left-1/2 -translate-x-1/2 -top-3 h-2.5 w-2.5 rounded-full bg-orange-300 animate-ping [animation-delay:200ms]" />
+                </div>
+              </div>
+            )}
             {/* Mobile Close Button */}
             <div className="lg:hidden absolute top-3 right-3 sm:top-4 sm:right-4 z-10">
               <button

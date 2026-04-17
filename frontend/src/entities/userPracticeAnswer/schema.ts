@@ -13,4 +13,5 @@ export interface SentenceFeedback {
   suggestions: string[];
   summary: string;
   score: number;
+  coinAwarded?: number;
 }

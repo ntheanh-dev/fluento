@@ -255,6 +255,13 @@ export const getAnswerPreview = (
       return Number.isFinite(n) ? n : undefined;
     };
 
+    const extractCoinAwarded = (raw: string): number | undefined => {
+      const match = raw.match(/"coinAwarded"\s*:\s*(-?\d+)/);
+      if (!match) return undefined;
+      const n = Number(match[1]);
+      return Number.isFinite(n) ? n : undefined;
+    };
+
     const parseSentenceFeedbackFromStream = (raw: string, allowPartial: boolean): Partial<SentenceFeedback> => {
       const text = toCleanJson(raw);
       const partial: Partial<SentenceFeedback> = {};
@@ -263,12 +270,14 @@ export const getAnswerPreview = (
       const summary = extractStringField(text, "summary", allowPartial);
       const suggestions = extractSuggestions(text, allowPartial);
       const score = extractScore(text);
+      const coinAwarded = extractCoinAwarded(text);
 
       if (correction !== undefined) partial.correction = correction;
       if (improved !== undefined) partial.improved = improved;
       if (summary !== undefined) partial.summary = summary;
       if (suggestions !== undefined) partial.suggestions = suggestions;
       if (score !== undefined) partial.score = score;
+      if (coinAwarded !== undefined) partial.coinAwarded = coinAwarded;
       return partial;
     };
 

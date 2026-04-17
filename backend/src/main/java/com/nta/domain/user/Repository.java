@@ -75,6 +75,14 @@ public interface Repository extends JpaRepository<User, Long> {
     void addCredits(@Param("userId") Long userId, @Param("amount") Integer amount);
 
     @Modifying
+    @Query("""
+		UPDATE User
+		SET coins = coins + :amount
+		WHERE id = :userId
+	""")
+    void addCoins(@Param("userId") Long userId, @Param("amount") Integer amount);
+
+    @Modifying
     @Query(
             """
 		UPDATE User u
@@ -101,4 +109,7 @@ public interface Repository extends JpaRepository<User, Long> {
 
     @Query("SELECT u.credits FROM User u WHERE u.id = :userId")
     Integer findCreditsByUserId(@Param("userId") Long userId);
+
+    @Query("SELECT u.coins FROM User u WHERE u.id = :userId")
+    Integer findCoinsByUserId(@Param("userId") Long userId);
 }

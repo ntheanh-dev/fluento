@@ -44,6 +44,9 @@ import lombok.extern.slf4j.Slf4j;
 public class Service {
     static final String LINE_BREAK_TOKEN = "\\n";
     static final String ALT_LINE_BREAK_TOKEN = "//n";
+    static final int PREVIEW_REWARD_CONSECUTIVE_TARGET = 3;
+    static final double PREVIEW_REWARD_MIN_SCORE = 8.0d;
+    static final int PREVIEW_REWARD_COINS = 1;
     com.nta.domain.paragraph.Service paragraphService;
     Repository repository;
     CommonUserService commonUserService;
@@ -64,6 +67,7 @@ public class Service {
                 .user(commonUserService.getUserFromContext())
                 .paragraph(paragraph)
                 .attemptNumber(1)
+                .previewCount(0)
                 .sentenceAnswers(List.of())
                 .build();
 
@@ -104,7 +108,11 @@ public class Service {
 
     @Transactional
     SentenceFeedback previewFeedback(Long practiceId, SentenceTranslationRequest request, Consumer<String> onChunk) {
-        String originalSentence = validateAndGetOriginalSentence(practiceId, request.getOrderIndex());
+        Long currentUserId = commonUserService.getCurrentUserIdFromContext();
+        UserPractice practice = repository
+                .findByIdAndUserIdForUpdate(practiceId, currentUserId)
+                .orElseThrow(() -> new AppException(ErrorCode.RESOURCE_NOT_FOUND));
+        String originalSentence = validateAndGetOriginalSentence(practice, request.getOrderIndex());
         String normalizedTranslatedSentence =
                 appendLineBreakTokenIfNeeded(originalSentence, request.getTranslatedSentence());
 
@@ -140,6 +148,22 @@ public class Service {
                     .build();
             userSentenceAnswerRepo.save(answer);
         }
+
+        int previewStreakCount = practice.getPreviewCount() == null ? 0 : practice.getPreviewCount();
+        boolean coinAwarded = false;
+        double score = feedback.getScore() == null ? 0.0d : feedback.getScore();
+        if (score >= PREVIEW_REWARD_MIN_SCORE) {
+            previewStreakCount += 1;
+        } else {
+            previewStreakCount = 0;
+        }
+        if (previewStreakCount >= PREVIEW_REWARD_CONSECUTIVE_TARGET) {
+            userRepository.addCoins(currentUserId, PREVIEW_REWARD_COINS);
+            previewStreakCount = 0;
+            coinAwarded = true;
+        }
+        practice.setPreviewCount(previewStreakCount);
+        feedback.setCoinAwarded(coinAwarded ? PREVIEW_REWARD_COINS : 0);
 
         return feedback;
     }
@@ -229,15 +253,7 @@ public class Service {
         user.setLastSubmissionDate(today);
     }
 
-    private String validateAndGetOriginalSentence(Long practiceId, int orderIndex) {
-        UserPractice practice =
-                repository.findById(practiceId).orElseThrow(() -> new AppException(ErrorCode.RESOURCE_NOT_FOUND));
-
-        Long currentUserId = commonUserService.getCurrentUserIdFromContext();
-        if (!practice.getUser().getId().equals(currentUserId)) {
-            throw new AppException(ErrorCode.NOT_OWN_PRACTICE);
-        }
-
+    private String validateAndGetOriginalSentence(UserPractice practice, int orderIndex) {
         Paragraph paragraph = practice.getParagraph();
         List<String> sentences = paragraph.getSentenceContents();
 

@@ -35,6 +35,9 @@ public class UserPractice {
 
     private Long learningTime;
 
+    @Column(nullable = false)
+    private Integer previewCount;
+
     @CreationTimestamp
     private LocalDateTime createdAt;
 

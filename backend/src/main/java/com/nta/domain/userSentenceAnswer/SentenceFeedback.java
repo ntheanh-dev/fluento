@@ -13,4 +13,5 @@ public class SentenceFeedback {
     private java.util.List<String> suggestions;
     private String summary;
     private Double score;
+    private Integer coinAwarded;
 }

@@ -3,9 +3,12 @@ package com.nta.domain.userPractice;
 import java.util.List;
 import java.util.Optional;
 
+import jakarta.persistence.LockModeType;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -16,6 +19,10 @@ import com.nta.domain.paragraph.enums.Type;
 @org.springframework.stereotype.Repository("userPracticeRepository")
 public interface Repository extends JpaRepository<UserPractice, Long> {
     Optional<UserPractice> findByIdAndUserId(Long id, Long userId);
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT p FROM UserPractice p WHERE p.id = :id AND p.user.id = :userId")
+    Optional<UserPractice> findByIdAndUserIdForUpdate(@Param("id") Long id, @Param("userId") Long userId);
 
     List<UserPractice> findByUserId(Long userId);
 

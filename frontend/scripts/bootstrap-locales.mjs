@@ -92,7 +92,7 @@ const en = {
     addApiKey:
       'Add an API key on your <profileLink>profile page</profileLink> to start practicing.',
     startPractice: "Start new practice",
-    credits: "Credits left",
+    credits: "Credits",
     totalAnswers: "Total answers",
     avgScore: "Average score",
     totalStudyTime: "Total study time",

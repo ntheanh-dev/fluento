@@ -124,8 +124,10 @@ public class Service {
     public CreditBalanceResponse getMyCredits() {
         Long userId = commonUserService.getCurrentUserIdFromContext();
         Integer credits = repository.findCreditsByUserId(userId);
+        Integer coins = repository.findCoinsByUserId(userId);
         return CreditBalanceResponse.builder()
                 .credits(credits != null ? credits : 0)
+                .coins(coins != null ? coins : 0)
                 .build();
     }
 

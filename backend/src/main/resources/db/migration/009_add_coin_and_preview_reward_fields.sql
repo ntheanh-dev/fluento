@@ -1,0 +1,5 @@
+ALTER TABLE users
+ADD COLUMN coins INT NOT NULL DEFAULT 0;
+
+ALTER TABLE user_practices
+ADD COLUMN preview_count INT NOT NULL DEFAULT 0;
