@@ -12,6 +12,7 @@ import org.springframework.ai.openai.OpenAiChatOptions;
 import org.springframework.ai.openai.api.OpenAiApi;
 import org.springframework.ai.retry.NonTransientAiException;
 import org.springframework.context.annotation.Primary;
+import org.springframework.retry.support.RetryTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpStatusCodeException;
 
@@ -28,13 +29,11 @@ import lombok.extern.slf4j.Slf4j;
 @Primary
 public class CloudFlareChatService implements ChatService {
 
-    private static final List<String> CLOUDFLARE_WORKER_BASE_URLS = List.of(
-            //            "https://luyenviet.thamnguyenvv83.workers.dev/",
-            //            "https://throbbing-smoke-c078.5dnpnjsjf6.workers.dev/",
-            //            "https://luyenviet.theanhmgt1011.workers.dev/",
-            //            "https://luyenviet.2151013002anh.workers.dev/",
-            "https://fluento.anhthenguyen-work.workers.dev/");
-
+    private static final List<String> CLOUDFLARE_WORKER_BASE_URLS =
+            List.of("https://fluento.anhthenguyen-work.workers.dev/", "https://luyenviet.2151013002anh.workers.dev/");
+    //            "https://luyenviet.thamnguyenvv83.workers.dev/",
+    //            "https://throbbing-smoke-c078.5dnpnjsjf6.workers.dev/",
+    //            "https://luyenviet.theanhmgt1011.workers.dev/",
     private static final String CLOUDFLARE_WORKER_API_KEY = "12345";
 
     private final ObjectMapper objectMapper;
@@ -52,28 +51,19 @@ public class CloudFlareChatService implements ChatService {
     }
 
     private <T> T parseResponse(String outputText, Class<T> responseType) {
-
         if (responseType == String.class) {
             return responseType.cast(outputText.trim());
         }
-
         try {
-
             ChatCompletionResponse outer = objectMapper.readValue(outputText, ChatCompletionResponse.class);
-
             log.info(
                     "AI call success - total tokens={} prompt tokens={} completion tokens={}",
                     outer.usage().total_tokens(),
                     outer.usage().prompt_tokens(),
                     outer.usage().completion_tokens());
-
             String content = outer.choices().getFirst().message().content();
-
             String cleanJson = extractJson(content);
-
             return objectMapper.readValue(cleanJson, responseType);
-
-            //            return objectMapper.readValue(extractJson(outputText), responseType);
         } catch (Exception e) {
             log.error(
                     "Failed to parse AI response into {}. Output was: {}", responseType.getSimpleName(), outputText, e);
@@ -104,6 +94,7 @@ public class CloudFlareChatService implements ChatService {
         OpenAiChatModel chatModel = OpenAiChatModel.builder()
                 .openAiApi(openAiApi)
                 .defaultOptions(OpenAiChatOptions.builder().build())
+                .retryTemplate(RetryTemplate.builder().maxAttempts(0).build())
                 .build();
 
         return ChatClient.builder(chatModel).build();
@@ -123,9 +114,6 @@ public class CloudFlareChatService implements ChatService {
         return code == 429 || code == 502 || code == 503 || code == 504;
     }
 
-    /**
-     * Lỗi có thể chuyển sang worker khác (limit, quá tải, HTTP tạm thời).
-     */
     private boolean isRetryableWorkerFailure(Throwable e) {
         if (e instanceof NonTransientAiException nte) {
             return isRetryableError(nte);

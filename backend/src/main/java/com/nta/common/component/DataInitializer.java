@@ -1,6 +1,7 @@
 package com.nta.common.component;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -26,6 +27,7 @@ import com.nta.domain.paragraph.enums.SentenceCount;
 import com.nta.domain.paragraph.enums.Tone;
 import com.nta.domain.paragraph.enums.Topic;
 import com.nta.domain.paragraph.enums.Type;
+import com.nta.domain.paragraphSentence.ParagraphSentence;
 import com.nta.domain.role.Role;
 import com.nta.domain.user.User;
 
@@ -37,6 +39,7 @@ import lombok.extern.slf4j.Slf4j;
 @Configuration
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+@Slf4j
 public class DataInitializer {
 
     @Bean
@@ -47,6 +50,8 @@ public class DataInitializer {
     ApplicationRunner init(
             com.nta.domain.role.Repository roleRepository,
             com.nta.domain.user.Repository userRepository,
+            com.nta.domain.paragraph.Repository paragraphRepository,
+            @Value("${app.data-init.paragraph-sentence-fixer.enabled:false}") boolean paragraphSentenceFixerEnabled,
             PasswordEncoder passwordEncoder) {
         return args -> {
             System.out.println("DataInitializer: Application started, performing initialization...");
@@ -71,7 +76,54 @@ public class DataInitializer {
                         .roles(roles)
                         .build());
             }
+
+            if (paragraphSentenceFixerEnabled) {
+                fixParagraphSentences(paragraphRepository);
+            }
         };
+    }
+
+    private void fixParagraphSentences(com.nta.domain.paragraph.Repository paragraphRepository) {
+        for (var paragraph : paragraphRepository.findAll()) {
+            if (paragraph.getType() == Type.EMAIL) {
+                continue;
+            }
+
+            List<String> normalizedSentences = new ArrayList<>();
+            for (ParagraphSentence sentence : paragraph.getSentences()) {
+                String content = sentence.getContent() == null
+                        ? ""
+                        : sentence.getContent().trim();
+                if (content.isEmpty()) {
+                    continue;
+                }
+
+                normalizedSentences.addAll(Arrays.stream(content.split("\\\\n|\\R"))
+                        .map(String::trim)
+                        .filter(line -> !line.isEmpty())
+                        .flatMap(line -> Arrays.stream(line.split("(?<=[.!?])\\s+")))
+                        .map(String::trim)
+                        .filter(line -> !line.isEmpty())
+                        .toList());
+            }
+
+            List<ParagraphSentence> rebuiltSentences = new ArrayList<>();
+            for (int i = 0; i < normalizedSentences.size(); i++) {
+                ParagraphSentence newSentence = ParagraphSentence.builder()
+                        .paragraph(paragraph)
+                        .orderIndex(i)
+                        .content(normalizedSentences.get(i))
+                        .build();
+                rebuiltSentences.add(newSentence);
+            }
+            log.info(
+                    "Paragraph sentence fixer for paragraphId={}: before={} after={}",
+                    paragraph.getId(),
+                    paragraph.getSentences().size(),
+                    normalizedSentences.size());
+            paragraph.setSentences(rebuiltSentences);
+            paragraphRepository.save(paragraph);
+        }
     }
 
     @Configuration
@@ -91,11 +143,6 @@ public class DataInitializer {
             return args -> runParagraphAiSeed(paragraphService, maxRetriesPerItem, parallelism);
         }
 
-        /**
-         * One task per (type, level, topic, tone, sentenceCount). Uses {@link com.nta.domain.paragraph.Service#findOrcreate}
-         * so an existing paragraph with the same setup is reused — no second row for the same combo. Parallelism is
-         * capped by {@code parallelism} (fixed pool).
-         */
         private void runParagraphAiSeed(
                 com.nta.domain.paragraph.Service paragraphService, int maxRetriesPerItem, int parallelism) {
             int poolSize = Math.max(1, parallelism);
@@ -104,7 +151,11 @@ public class DataInitializer {
 
             List<Callable<Void>> tasks = new ArrayList<>();
             for (Type type : Type.values()) {
-                if (type == Type.SINGLE_SENTENCE) {
+                if (type == Type.SINGLE_SENTENCE
+                        || type == Type.EMAIL
+                        || type == Type.IELTS_TASK1
+                        || type == Type.IELTS_TASK2
+                        || type == Type.DIARIES) {
                     continue;
                 }
                 for (Level level : Level.values()) {

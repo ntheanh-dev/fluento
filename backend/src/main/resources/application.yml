@@ -67,6 +67,8 @@ app:
   time-zone: Asia/Ho_Chi_Minh
   # Seed paragraph (profile local + enabled=true), chạy trong cùng ApplicationRunner
   data-init:
+    paragraph-sentence-fixer:
+      enabled: false
     paragraphs:
       enabled: false
       max-retries-per-item: 3
