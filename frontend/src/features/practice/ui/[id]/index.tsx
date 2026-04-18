@@ -276,21 +276,18 @@ const SentencePracticePage = () => {
             </div>
           )}
           <div className="flex flex-row items-center gap-1.5 sm:gap-4">
-            <div className="flex flex-col items-start">
-              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">{t("practice.result.topic")}</span>
-              <span className="text-xs font-semibold text-slate-700 dark:text-slate-200">{data?.paragraph.topic.toLowerCase()}</span>
+            <div className="hidden lg:flex flex-row items-center gap-1.5 sm:gap-4">
+              <div className="flex flex-col items-start">
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">{t("practice.result.topic")}</span>
+                <span className="text-xs font-semibold text-slate-700 dark:text-slate-200">{data?.paragraph.topic.toLowerCase()}</span>
+              </div>
+              <div className="h-8 w-px bg-slate-100 dark:bg-slate-700"></div>
+              <div className="flex flex-col items-start">
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">{t("practice.result.level")}</span>
+                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-50 dark:bg-blue-950/50 text-blue-700 dark:text-blue-300">{data?.paragraph.level}</span>
+              </div>
             </div>
-            <div className="h-8 w-px bg-slate-100 dark:bg-slate-700"></div>
-            <div className="flex flex-col items-start">
-              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">{t("practice.result.tone")}</span>
-              <span className="text-xs font-semibold text-slate-700 dark:text-slate-200">{data?.paragraph.tone.toLowerCase()}</span>
-            </div>
-            <div className="h-8 w-px bg-slate-100 dark:bg-slate-700"></div>
-            <div className="flex flex-col items-start">
-              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">{t("practice.result.level")}</span>
-              <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-50 dark:bg-blue-950/50 text-blue-700 dark:text-blue-300">{data?.paragraph.level}</span>
-            </div>
-            {data && <div className="h-8 w-px bg-slate-100 dark:bg-slate-700"></div>}
+            {data && <div className="hidden lg:block h-8 w-px shrink-0 bg-slate-100 dark:bg-slate-700"></div>}
             {data && (
               <div className="flex flex-col items-start">
                 <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">{t("practice.session.time")}</span>

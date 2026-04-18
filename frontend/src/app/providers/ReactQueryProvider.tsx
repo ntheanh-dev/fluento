@@ -13,7 +13,7 @@ export const ReactQueryProvider = ({ children }: PropsWithChildren) => {
             <Suspense fallback={<Spin indicator={<LoadingOutlined />} />}>
                 {children}
             </Suspense>
-            {isDEV && <ReactQueryDevtools initialIsOpen={false} buttonPosition="bottom-right" />}
+            {isDEV && <ReactQueryDevtools initialIsOpen={false} buttonPosition="bottom-left" />}
         </QueryClientProvider>
     );
 };

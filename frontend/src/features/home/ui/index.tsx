@@ -1,13 +1,14 @@
 import { useMemo, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Grid } from "antd";
+import { Grid, message } from "antd";
 import { Link, useNavigate } from "react-router-dom";
-import { ChevronLeft, ChevronRight, PauseCircle } from "lucide-react";
+import { ChevronLeft, ChevronRight, Loader2, PauseCircle } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useParagraphs } from "@/features/paragraph/query";
 import { getHistory } from "@/features/history/api";
 import { OK } from "@/shared/api/query-keys";
 import { getCoverImage } from "@/shared/constants/practice-covers";
+import { useCreateUserPracticeMutation } from "@/features/paragraph/mutation";
 import type { ParagraphItem } from "@/features/paragraph/schema";
 import type { UserPractice } from "@/entities/userPractice/schema";
 
@@ -69,6 +70,20 @@ function Home() {
     const navigate = useNavigate();
     const sliderRef = useRef<HTMLDivElement | null>(null);
     const [activeSlide, setActiveSlide] = useState(0);
+    const [startingParagraphId, setStartingParagraphId] = useState<number | null>(null);
+    const { mutateAsync: createUserPractice } = useCreateUserPracticeMutation();
+
+    const handleStartParagraph = async (paragraphId: number) => {
+        setStartingParagraphId(paragraphId);
+        try {
+            const data = await createUserPractice(paragraphId);
+            navigate(`/practice/${data.id}`);
+        } catch (error) {
+            message.error(error as string);
+        } finally {
+            setStartingParagraphId(null);
+        }
+    };
 
     const { data: paragraphData } = useParagraphs({
         sort: "most_practiced",
@@ -302,10 +317,6 @@ function Home() {
 
                         <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-4">
                             {(isMobile ? section.items.slice(0, 2) : section.items).map((item) => {
-                                const params = new URLSearchParams();
-                                if (item.type) params.set("type", item.type);
-                                if (item.topic) params.set("topic", item.topic);
-                                const link = `/paragraphs?${params.toString()}`;
                                 const title = item.title || item.sentences?.[0] || t("home.common.untitled");
                                 const preview = item.sentences?.slice(0, 2).join(" ") || "";
                                 const cover = getCoverImage(item.topic, item.type, String(item.id));
@@ -323,16 +334,26 @@ function Home() {
                                                 </span>
                                                 <span className="line-clamp-1">{t(`common.topic.${item.topic}`)}</span>
                                             </div>
-                                            <h3 className="line-clamp-2 text-lg font-semibold leading-tight text-slate-900 dark:text-slate-100">
-                                                {title}
-                                            </h3>
-                                            <p className="line-clamp-2 text-sm text-slate-500 dark:text-slate-400">{preview}</p>
-                                            <Link
-                                                to={link}
-                                                className="inline-flex items-center rounded-lg border border-slate-200 px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800"
+                                            <button
+                                                type="button"
+                                                onClick={() => void handleStartParagraph(item.id)}
+                                                disabled={startingParagraphId === item.id}
+                                                aria-busy={startingParagraphId === item.id}
+                                                className="line-clamp-2 w-full text-left text-lg font-semibold leading-tight text-slate-900 transition hover:text-[#198de6] focus-visible:rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#198de6]/50 dark:text-slate-100 dark:hover:text-blue-300 disabled:cursor-wait disabled:opacity-70"
                                             >
-                                                {t("home.sections.similarFilter")}
-                                            </Link>
+                                                {startingParagraphId === item.id ? (
+                                                    <span className="inline-flex items-start gap-2">
+                                                        <Loader2
+                                                            className="mt-0.5 h-4 w-4 shrink-0 animate-spin text-[#198de6]"
+                                                            aria-hidden
+                                                        />
+                                                        <span>{title}</span>
+                                                    </span>
+                                                ) : (
+                                                    title
+                                                )}
+                                            </button>
+                                            <p className="line-clamp-2 text-sm text-slate-500 dark:text-slate-400">{preview}</p>
                                         </div>
                                     </article>
                                 );

@@ -80,6 +80,7 @@
   },
   "common": {
     "all": "Tất cả",
+    "supportOnFacebook": "Hỗ trợ trên Facebook",
     "brand": "Luyenviet",
     "topic": {
       "LIFE": "Cuộc sống",
@@ -205,7 +206,6 @@
       "ieltsTask2": "IELTS Task 2",
       "email": "Email",
       "viewMore": "Xem thêm",
-      "similarFilter": "Lọc bài tương tự",
       "empty": "Chưa có dữ liệu cho mục này."
     }
   },

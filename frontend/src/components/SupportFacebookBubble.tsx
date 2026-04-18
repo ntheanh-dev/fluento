@@ -1,0 +1,27 @@
+import { useTranslation } from "react-i18next";
+import { getSupportFacebookUrl } from "@/shared/config/runtime-env";
+
+export function SupportFacebookBubble() {
+    const { t } = useTranslation();
+    const href = getSupportFacebookUrl() || "https://www.facebook.com/share/1EWSTCPa5N/?mibextid=wwXIfr";
+
+    return (
+        <a
+            href={href}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="fixed bottom-4 right-4 z-[45] hidden h-14 w-14 items-center justify-center rounded-full bg-[#1877F2] text-white shadow-lg ring-4 ring-white/20 transition hover:scale-105 hover:bg-[#166FE5] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1877F2] dark:ring-slate-900/40 md:flex"
+            aria-label={t("common.supportOnFacebook")}
+            title={t("common.supportOnFacebook")}
+        >
+            <svg
+                aria-hidden
+                className="h-8 w-8"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+            >
+                <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
+            </svg>
+        </a>
+    );
+}
