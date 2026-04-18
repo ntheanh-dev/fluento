@@ -4,13 +4,11 @@ import {
   ArrowLeft,
   ArrowRight,
   Lightbulb,
-  X,
   Check,
   Loader2,
   Clock,
   Coins,
 } from "lucide-react";
-import { useDeviceType } from "@/shared/utilities/useDeviceType";
 import { useSentenceVocabularyHints, useUserPracticeData } from "../../hooks/useUserPractice";
 import { useCredits } from "@/features/credits/query";
 import { formatElapsed } from "@/utils/utils";
@@ -33,8 +31,6 @@ const SentencePracticePage = () => {
   const navigate = useNavigate();
   const practiceId = Number(id);
   const idValid = id != null && id !== "" && Number.isFinite(practiceId) && practiceId > 0;
-  const { isMobile, isTablet } = useDeviceType();
-
   // --- State: practice (câu hiện tại, bản dịch, gợi ý, feedback) ---
   const [currentVietNameseSentence, setCurrentVietNameseSentence] = useState<ParagraphSentence | null>(null);
   const [translation, setTranslation] = useState("");
@@ -45,8 +41,6 @@ const SentencePracticePage = () => {
 
   // --- State: UI (sidebar, nội dung aside) ---
   const [renderAsideType, setRenderAsideType] = useState<RenderAsideType>(null);
-  const [showMobileSidebar, setShowMobileSidebar] = useState(false);
-
   // --- Refs ---
   /** Thời điểm bắt đầu luyện (ms), dùng để tính elapsed và learningTime. */
   const startedAtRef = useRef<number | null>(null);
@@ -114,11 +108,10 @@ const SentencePracticePage = () => {
     }
   }, [id, data, errorUserPracticeData]);
 
-  /** Hiển thị lỗi khi lấy feedback thất bại; đóng sidebar mobile. */
+  /** Hiển thị lỗi khi lấy feedback thất bại. */
   useEffect(() => {
     if (errorAnswerPreview != null) {
       showApiError(errorAnswerPreview);
-      setShowMobileSidebar(false);
     }
   }, [errorAnswerPreview]);
 
@@ -131,16 +124,8 @@ const SentencePracticePage = () => {
     return () => clearInterval(interval);
   }, [data, errorUserPracticeData]);
 
-  /** Trên desktop thì tắt sidebar mobile (chỉ dùng trên mobile/tablet). */
-  useEffect(() => {
-    if (!isMobile) {
-      setShowMobileSidebar(false);
-    }
-  }, [isMobile]);
-
   // --- Handlers ---
 
-  const handleCloseMobileSidebar = useCallback(() => setShowMobileSidebar(false), []);
   const handleBackToSetup = useCallback(() => navigate("/setup"), [navigate]);
   const playCoinRewardSound = useCallback(() => {
     if (!coinAudioRef.current) return;
@@ -162,7 +147,6 @@ const SentencePracticePage = () => {
   /** Mở sidebar và load/hiển thị gợi ý dịch cho câu hiện tại. */
   const handleGetVocabularyHints = useCallback(async () => {
     if (currentVietNameseSentence == null) return;
-    setShowMobileSidebar(true);
     setRenderAsideType("hints");
     if (currentVietNameseSentence?.vocabularyHints) return;
     try {
@@ -173,7 +157,6 @@ const SentencePracticePage = () => {
       );
       await refetchCredits();
     } catch (error) {
-      setShowMobileSidebar(false);
       setRenderAsideType(null);
       showApiError(error);
     }
@@ -183,7 +166,6 @@ const SentencePracticePage = () => {
   const handleGetAnswerPreview = useCallback(async () => {
     if (!translation.trim() || isLoadingAnswerPreview || !currentVietNameseSentence) return;
     setRenderAsideType("markdownFeedback");
-    if (isMobile || isTablet) setShowMobileSidebar(true);
     setStreamingFeedback(null);
     setFeedback(null);
 
@@ -196,10 +178,9 @@ const SentencePracticePage = () => {
       setCoinBurstCount(Math.max(0, Number(res.coinAwarded ?? 0)));
       await refetchCredits();
     } catch {
-      setShowMobileSidebar(false);
       setStreamingFeedback(null);
     }
-  }, [translation, isLoadingAnswerPreview, isMobile, isTablet, getAnswerPreview, currentVietNameseSentence, refetchCredits]);
+  }, [translation, isLoadingAnswerPreview, getAnswerPreview, currentVietNameseSentence, refetchCredits]);
 
 
   useEffect(() => {
@@ -331,9 +312,9 @@ const SentencePracticePage = () => {
 
 
 
-      <main className="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-3 sm:gap-4 overflow-hidden sm:pb-4 sm:px-0">
+      <main className="flex-1 min-h-0 grid grid-cols-1 md:grid-cols-12 gap-3 sm:gap-4 overflow-y-auto md:overflow-hidden sm:pb-4 sm:px-0">
         {/* Left Column: Workspace (Source & Input) */}
-        <section className="lg:col-span-8 flex flex-col gap-3 sm:gap-4 overflow-y-auto pr-1 sm:pr-2 custom-scrollbar">
+        <section className="md:col-span-8 flex flex-col gap-3 sm:gap-4 max-md:min-h-0 max-md:overflow-visible md:overflow-y-auto pr-1 sm:pr-2 custom-scrollbar">
           {/* Source Context View */}
           {singleSentenceText != null ? (
             <div className="bg-slate-50/50 dark:bg-slate-950/30 rounded-lg bg-white dark:bg-slate-900/90 sm:rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden p-3 md:px-6 text-slate-800 dark:text-slate-100 font-medium leading-6 sm:leading-7 space-y-3 sm:space-y-4">
@@ -384,7 +365,7 @@ const SentencePracticePage = () => {
               <div className="flex items-center gap-2">
                 <button
                   onClick={handleBackToSetup}
-                  className="shrink-0 group p-2 sm:p-2.5 hover:bg-slate-100 dark:hover:bg-slate-800 active:bg-slate-200 dark:active:bg-slate-700 rounded-lg sm:rounded-xl text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition-all border border-slate-200 dark:border-slate-700 shadow-sm bg-white dark:bg-slate-900 touch-manipulation"
+                  className="hidden md:inline-flex shrink-0 group p-2 md:p-2.5 hover:bg-slate-100 dark:hover:bg-slate-800 active:bg-slate-200 dark:active:bg-slate-700 rounded-lg sm:rounded-xl text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition-all border border-slate-200 dark:border-slate-700 shadow-sm bg-white dark:bg-slate-900 touch-manipulation"
                 >
                   <ArrowLeft
                     size={20}
@@ -440,24 +421,9 @@ const SentencePracticePage = () => {
           </div>
         </section>
 
-        {/* Right Column: Sidebar (Hints & Analysis) */}
-        {showMobileSidebar && (
-          <div
-            className="fixed inset-0 bg-black/50 z-40 lg:hidden backdrop-blur-sm transition-opacity"
-            onClick={handleCloseMobileSidebar}
-          />
-        )}
-        <aside
-          className={`
-              lg:col-span-4 flex flex-col transition-all duration-300 ease-in-out overflow-hidden
-              ${showMobileSidebar
-              ? "fixed inset-x-0 bottom-0 top-20 z-50 rounded-t-2xl shadow-[0_-10px_40px_-15px_rgba(0,0,0,0.3)] p-3 sm:p-4 lg:static lg:p-0 lg:shadow-none lg:bg-transparent lg:rounded-none"
-              : "hidden lg:flex"
-            }
-          `}
-        >
-
-          <div className="bg-white dark:bg-slate-900/90 rounded-lg sm:rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col overflow-hidden relative">
+        {/* Right column: hints & feedback — stacked under main workspace on mobile; two columns from tablet (md) up */}
+        <aside className="md:col-span-4 flex flex-col min-h-0 md:overflow-hidden transition-all duration-300 ease-in-out">
+          <div className="bg-white dark:bg-slate-900/90 rounded-lg sm:rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm flex flex-col min-h-[200px] md:min-h-0 overflow-hidden relative">
             {coinBurstCount > 0 && (
               <div className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center">
                 <div className="relative flex flex-col items-center">
@@ -471,15 +437,6 @@ const SentencePracticePage = () => {
                 </div>
               </div>
             )}
-            {/* Mobile Close Button */}
-            <div className="lg:hidden absolute top-3 right-3 sm:top-4 sm:right-4 z-10">
-              <button
-                onClick={handleCloseMobileSidebar}
-                className="p-1.5 sm:p-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-full text-slate-500 dark:text-slate-400 transition-colors"
-              >
-                <X size={18} className="sm:w-5 sm:h-5" />
-              </button>
-            </div>
             <Aside
               renderAsideType={renderAsideType}
               isLoadingAnswerPreview={isLoadingAnswerPreview}
