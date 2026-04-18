@@ -214,21 +214,14 @@ export function DetailedSuggestionCard({
       )}
 
       {improved && (
-        <div className="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-950/40 dark:to-emerald-950/40 rounded-xl border border-green-200/50 dark:border-green-900/50 p-4 shadow-sm">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-[12px] font-bold text-green-700 flex items-center gap-1.5">
+        <div>
+          <div className="flex items-center justify-between mb-1">
+            <span className="text-[10px] font-bold text-green-700 flex items-center gap-1.5 cursor-pointer hover:text-green-700 transition-colors text-underline" onClick={() => {
+              handleExpandSentence();
+            }} >
               <Sparkles className="size-3.5" />
-              {t("practice.feedback.suggestionTitle")}
+              {t("practice.feedback.expandSentence")}
             </span>
-            {expandState === "idle" && (
-              <a
-                type="button"
-                onClick={handleExpandSentence}
-                className="inline-flex items-center rounded-md bg-emerald-600 px-2 py-1 text-[10px] font-semibold text-white transition-colors hover:bg-emerald-700"
-              >
-                {t("practice.feedback.expandSentence")}
-              </a>
-            )}
             {(expandState === "streaming" || expandState === "done") && (
               <button
                 className="text-green-600 hover:text-green-700 transition-colors"
@@ -242,11 +235,10 @@ export function DetailedSuggestionCard({
           {expandState === "loading" && (
             <div className="inline-flex items-center gap-2 text-[12px] text-emerald-700 dark:text-emerald-300">
               <Loader2 className="size-3.5 animate-spin" />
-              {t("practice.feedback.expandSentenceLoading")}
             </div>
           )}
           {(expandState === "streaming" || expandState === "done") && (
-            <p className="text-[12px] text-slate-800 dark:text-slate-100">
+            <p className="text-[12px]  elaxed text-slate-800 dark:text-slate-100">
               {displayedExpandedText}
             </p>
           )}

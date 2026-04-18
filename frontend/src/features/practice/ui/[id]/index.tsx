@@ -66,19 +66,13 @@ const SentencePracticePage = () => {
 
   const [feedback, setFeedback] = useState<SentenceFeedback | null>(null);
   const [streamingFeedback, setStreamingFeedback] = useState<Partial<SentenceFeedback> | null>(null);
-  const [streamingFeedbackText, setStreamingFeedbackText] = useState("");
   const [coinBurstCount, setCoinBurstCount] = useState(0);
 
   const {
     mutateAsync: getAnswerPreview,
     isPending: isLoadingAnswerPreview,
     error: errorAnswerPreview,
-  } = useAnswerPreviewFeedback(
-    practiceId,
-    answerPreviewPayload,
-    setStreamingFeedbackText,
-    setStreamingFeedback,
-  );
+  } = useAnswerPreviewFeedback(practiceId, answerPreviewPayload, undefined, setStreamingFeedback);
 
   const submitPayload = useMemo(
     () => ({
@@ -190,7 +184,6 @@ const SentencePracticePage = () => {
     if (!translation.trim() || isLoadingAnswerPreview || !currentVietNameseSentence) return;
     setRenderAsideType("markdownFeedback");
     if (isMobile || isTablet) setShowMobileSidebar(true);
-    setStreamingFeedbackText("");
     setStreamingFeedback(null);
     setFeedback(null);
 
@@ -199,13 +192,11 @@ const SentencePracticePage = () => {
     try {
       const res = await getAnswerPreview();
       setFeedback(res as SentenceFeedback);
-      setStreamingFeedbackText("");
       setStreamingFeedback(null);
       setCoinBurstCount(Math.max(0, Number(res.coinAwarded ?? 0)));
       await refetchCredits();
     } catch {
       setShowMobileSidebar(false);
-      setStreamingFeedbackText("");
       setStreamingFeedback(null);
     }
   }, [translation, isLoadingAnswerPreview, isMobile, isTablet, getAnswerPreview, currentVietNameseSentence, refetchCredits]);
@@ -235,7 +226,6 @@ const SentencePracticePage = () => {
       setTranslation("");
       setRenderAsideType(null);
       setLastCheckedTranslation(null);
-      setStreamingFeedbackText("");
       setStreamingFeedback(null);
     } catch (error) {
       showApiError(error);
@@ -499,7 +489,6 @@ const SentencePracticePage = () => {
               feedback={feedback}
               userTranslation={lastCheckedTranslation ?? translation}
               streamingFeedback={streamingFeedback}
-              streamingFeedbackText={streamingFeedbackText}
             />
           </div>
         </aside>

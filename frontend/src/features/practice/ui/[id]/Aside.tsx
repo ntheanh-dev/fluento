@@ -17,7 +17,6 @@ type AsideProps = {
   feedback: SentenceFeedback | null;
   userTranslation?: string;
   streamingFeedback?: Partial<SentenceFeedback> | null;
-  streamingFeedbackText?: string;
 };
 
 export const Aside = ({
@@ -29,7 +28,6 @@ export const Aside = ({
   feedback,
   userTranslation,
   streamingFeedback,
-  streamingFeedbackText,
 }: AsideProps) => {
   const { t } = useTranslation();
   const hasStreamingFeedbackData =
@@ -62,15 +60,6 @@ export const Aside = ({
           userTranslation={userTranslation}
           isStreaming
         />
-      );
-    }
-    if (isLoadingAnswerPreview && streamingFeedbackText?.trim()) {
-      return (
-        <div className="flex-1 overflow-y-auto p-4">
-          <pre className="whitespace-pre-wrap break-words text-xs leading-6 text-slate-700 dark:text-slate-200">
-            {streamingFeedbackText}
-          </pre>
-        </div>
       );
     }
     if (!feedback) {
