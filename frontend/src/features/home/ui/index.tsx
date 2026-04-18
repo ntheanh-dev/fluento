@@ -318,7 +318,7 @@ function Home() {
                         <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-4">
                             {(isMobile ? section.items.slice(0, 2) : section.items).map((item) => {
                                 const title = item.title || item.sentences?.[0] || t("home.common.untitled");
-                                const preview = item.sentences?.slice(0, 2).join(" ") || "";
+                                const preview = item.sentences?.slice(0, 2).join(" ").replace("\\n", " ") || "";
                                 const cover = getCoverImage(item.topic, item.type, String(item.id));
 
                                 return (

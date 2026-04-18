@@ -25,7 +25,7 @@ import { useDebounce } from "@/shared/hooks/useDebounce";
 import { useTranslation } from "react-i18next";
 import type { TFunction } from "i18next";
 
-const PAGE_SIZE = 6;
+const PAGE_SIZE = 9;
 
 const PARAGRAPH_TYPE_KEYS = [
     "",
@@ -355,8 +355,8 @@ const PracticeHistory = () => {
                         {content.map((item: UserPractice) => {
                             const isParagraph = item.paragraph?.type !== "SINGLE_SENTENCE";
                             const paragraphSentences = (item.paragraph?.sentences ?? []).map((sentence) => sentence.content);
-                            const vietnamese = paragraphSentences.join(" ");
-                            const english = item.sentenceAnswers?.[0]?.userTranslation ?? "";
+                            const vietnamese = paragraphSentences.join(" ").replace("\\n", " ");
+                            const english = item.sentenceAnswers?.[0]?.userTranslation?.replace("\\n", " ") ?? "";
                             const score = item.score ?? (item.sentenceAnswers?.length ? item.sentenceAnswers.reduce((a, s) => a + (s.score ?? 0), 0) / item.sentenceAnswers.length : 0);
                             const corrections = item.sentenceAnswers?.filter((a) => a.feedback).length ?? 0;
                             const isFinished = paragraphSentences.length === item.sentenceAnswers?.length;
@@ -394,10 +394,10 @@ const PracticeHistory = () => {
                                             <span className="text-slate-400 text-[10px]">
                                                 {item.createdAt
                                                     ? formatRelativeDate(
-                                                          item.createdAt,
-                                                          t,
-                                                          i18n.language,
-                                                      )
+                                                        item.createdAt,
+                                                        t,
+                                                        i18n.language,
+                                                    )
                                                     : "—"}
                                             </span>
                                         </div>
