@@ -22,8 +22,7 @@ public class UserResponse {
     Set<Role> roles;
     LocalDateTime createdAt;
 
-    Long activeApiKeyId;
-    /** Điền khi GET /me?embedded=... (vd: embedded=apiKey → embedded.apiKey = [...]) */
+    /** Điền khi GET /me?embedded=... */
     UserMeEmbeddedResponse embedded;
 
     Integer credits;

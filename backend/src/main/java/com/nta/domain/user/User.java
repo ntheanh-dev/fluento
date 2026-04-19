@@ -41,9 +41,6 @@ public class User {
 
     @Column(name = "url_avatar", columnDefinition = "TEXT")
     private String urlAvatar;
-    /** ID của row api_keys đang được chọn (một row = một key + một model). */
-    @Column(name = "active_api_key_id")
-    private Long activeApiKeyId;
 
     @Column(name = "created_at")
     private LocalDateTime createdAt = LocalDateTime.now();

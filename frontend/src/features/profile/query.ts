@@ -1,9 +1,14 @@
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import Cookies from "js-cookie";
 import type { User } from "../../entities/users/schema";
-import type { ApiKey } from "../../entities/apiKey/schema";
 import { OK } from "../../shared/api/query-keys";
-import { getMyApiKeys, getProfile } from "./api";
+import {
+    getProfile,
+    getSubscriptionUsage,
+    type SubscriptionUsage,
+    type UsageSortDir,
+    type UsageSortField,
+} from "./api";
 
 export const PROFILE_EMBED_PRACTICESTATS = "embedded=practiceStats";
 
@@ -24,11 +29,18 @@ export function useProfileData(params?: UseProfileDataParams | string) {
     });
 }
 
-export function useApiKeys() {
+export function useSubscriptionUsage(
+    page = 0,
+    size = 10,
+    sortBy: UsageSortField = "createdAt",
+    sortDir: UsageSortDir = "desc"
+) {
     const hasToken = !!Cookies.get("accessToken");
-    return useQuery<ApiKey[]>({
-        queryKey: [OK.API_KEYS],
-        queryFn: () => getMyApiKeys(),
+
+    return useQuery<SubscriptionUsage>({
+        queryKey: [OK.SUBSCRIPTION_USAGE, page, size, sortBy, sortDir],
+        queryFn: () => getSubscriptionUsage(page, size, sortBy, sortDir),
+        placeholderData: keepPreviousData,
         enabled: hasToken,
     });
 }

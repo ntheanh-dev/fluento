@@ -17,7 +17,6 @@ import com.nta.common.dto.ApiResponse;
 import com.nta.common.enums.ErrorCode;
 import com.nta.common.exception.AppException;
 import com.nta.domain.admin.dto.request.UpdateUserAdminRequest;
-import com.nta.domain.apikey.ApiKey;
 import com.nta.domain.role.Role;
 import com.nta.domain.user.Repository;
 import com.nta.domain.user.dto.response.UserResponse;
@@ -38,7 +37,6 @@ public class AdminUserController {
     private final Repository userRepository;
     private final com.nta.domain.user.Mapper userMapper;
     private final com.nta.domain.role.Repository roleRepository;
-    private final com.nta.domain.apikey.Repository apiKeyRepository;
     private final com.nta.domain.userPractice.Repository userPracticeRepository;
     private final com.nta.domain.creditTransaction.Repository creditTransactionRepository;
 
@@ -92,12 +90,6 @@ public class AdminUserController {
                     .collect(Collectors.toSet());
             user.setRoles(roles);
         }
-        if (request.getActiveApiKeyId() != null) {
-            ApiKey apiKey = apiKeyRepository
-                    .findByIdAndUserId(request.getActiveApiKeyId(), id)
-                    .orElseThrow(() -> new AppException(ErrorCode.PROVIDER_API_KEY_NOT_FOUND));
-            user.setActiveApiKeyId(apiKey.getId());
-        }
 
         com.nta.domain.user.User saved = userRepository.save(user);
         return ApiResponse.<UserResponse>builder()
@@ -111,14 +103,6 @@ public class AdminUserController {
     public ApiResponse<Void> delete(@PathVariable Long id) {
         com.nta.domain.user.User user =
                 userRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.RESOURCE_NOT_FOUND));
-
-        // Detach API keys to avoid FK issues (api_keys.user_id is nullable=true).
-        apiKeyRepository.findByUserIdOrderByCreatedAtAsc(id).forEach(row -> {
-            row.setCredit(0);
-            row.setActive(false);
-            row.setUser(null);
-            apiKeyRepository.save(row);
-        });
 
         // Delete user practices (cascade will remove sentenceAnswers).
         userPracticeRepository.findByUserId(id).forEach(userPracticeRepository::delete);

@@ -63,6 +63,8 @@ spring:
           model: ${CHAT_MODEL}
 app:
   time-zone: Asia/Ho_Chi_Minh
+  credits:
+    daily-reset: 30
   data-init:
     paragraph-sentence-fixer:
       enabled: false
@@ -74,7 +76,6 @@ app:
       enabled: false
       max-retries-per-item: 3
       parallelism: 6
-  api-key-encryption-secret: "0123456789abcdef0123456789abcdef"
   cors:
     allowed-origins: http://localhost:5173
     allowed-methods: GET,POST,PUT,DELETE,OPTIONS

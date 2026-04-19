@@ -3,7 +3,6 @@ import { useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 
 import UsersTab from "./components/UsersTab";
-import ApiKeysTab from "./components/ApiKeysTab";
 import ParagraphsTab from "./components/ParagraphsTab";
 import UserPracticesTab from "./components/UserPracticesTab";
 import CreditTransactionsTab from "./components/CreditTransactionsTab";
@@ -15,7 +14,6 @@ const { TabPane } = Tabs;
 
 const TAB_QUERY_KEYS: Record<string, string[]> = {
   users: ["usersPage", "usersSize"],
-  "api-keys": ["apiKeysPage", "apiKeysSize", "apiKeysUserId"],
   paragraphs: ["paragraphsPage", "paragraphsSize"],
   "user-practices": [
     "userPracticesUserId",
@@ -72,9 +70,6 @@ const AdminPage = () => {
       >
         <TabPane tab={t("admin.tabUsers")} key="users">
           <UsersTab />
-        </TabPane>
-        <TabPane tab={t("admin.tabApiKeys")} key="api-keys">
-          <ApiKeysTab />
         </TabPane>
         <TabPane tab={t("admin.tabParagraphs")} key="paragraphs">
           <ParagraphsTab />

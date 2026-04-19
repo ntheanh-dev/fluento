@@ -26,17 +26,6 @@ export type AdminRole = {
   permissions?: AdminRolePermission[];
 };
 
-export type AdminApiKeyResponse = {
-  id: number;
-  apiKey: string;
-  model: string;
-  credit: number;
-  isActive: boolean;
-  createdAt: string | null;
-  userId: number | null;
-  username: string | null;
-};
-
 export type AdminCreditTransaction = {
   id: number;
   userId: number | null;
@@ -60,7 +49,6 @@ export type UpdateUserAdminPayload = {
   fullName?: string;
   credits?: number;
   roleNames?: string[];
-  activeApiKeyId?: number;
 };
 
 export const adminUpdateUser = async (id: number, payload: UpdateUserAdminPayload): Promise<User> => {
@@ -70,32 +58,6 @@ export const adminUpdateUser = async (id: number, payload: UpdateUserAdminPayloa
 
 export const adminDeleteUser = async (id: number): Promise<void> => {
   await http.delete<ApiResponse<void>>(`/admin/users/${id}`);
-};
-
-export const adminListApiKeys = async (params: {
-  userId?: number;
-  page: number;
-  size: number;
-}): Promise<AdminPage<AdminApiKeyResponse>> => {
-  const url =
-    `/admin/api-keys?page=${params.page}&size=${params.size}` +
-    (params.userId != null ? `&userId=${params.userId}` : "");
-  return getResource<AdminPage<AdminApiKeyResponse>>(url);
-};
-
-export const adminCreateApiKey = async (params: {
-  userId: number;
-  apiKey: string;
-}): Promise<unknown> => {
-  return createRestClient<unknown>(`/admin/api-keys?userId=${params.userId}`, { apiKey: params.apiKey });
-};
-
-export const adminUpdateApiKeyCredit = async (id: number, payload: { credit: number }): Promise<void> => {
-  await http.put<ApiResponse<void>>(`/admin/api-keys/${id}`, payload);
-};
-
-export const adminDeleteApiKey = async (id: number): Promise<void> => {
-  await http.delete<ApiResponse<void>>(`/admin/api-keys/${id}`);
 };
 
 export type AdminParagraphListParams = {

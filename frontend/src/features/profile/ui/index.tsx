@@ -1,5 +1,5 @@
 import { useState, useRef } from "react";
-import { User, LogOut, Camera, History, CreditCard } from "lucide-react";
+import { User, LogOut, Camera, CreditCard } from "lucide-react";
 import { Avatar, message } from "antd";
 import {
   ACCEPT_IMAGE,
@@ -13,6 +13,8 @@ import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import { PROFILE_EMBED_PRACTICESTATS, useProfileData } from "../query";
 import { useUpdateMe } from "../hook/useUpdateMe";
 import { getLevelLabel } from "@/i18n/labels";
+
+
 const Profile = () => {
   const { t } = useTranslation();
 
@@ -115,9 +117,11 @@ const Profile = () => {
             <h2 className="text-xl font-bold text-slate-800 dark:text-slate-100">
               {profile?.fullName}
             </h2>
-            <p className="text-xs text-slate-500 dark:text-slate-400">
-              {getLevelLabel(profile?.embedded?.totalUserSentenceAnswers ?? 0, t)}
-            </p>
+            <div className="min-w-0">
+              <span className="mt-2 inline-flex items-center rounded-full bg-slate-900/5 px-3 py-1 text-xs font-semibold text-slate-700 dark:bg-white/10 dark:text-slate-200">
+                {t("profile.subscriptionPage.planBadgeFree")}
+              </span>
+            </div>
           </div>
 
           <div className="bg-white dark:bg-slate-900/90 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
@@ -127,12 +131,6 @@ const Profile = () => {
                 className={({ isActive }) => navItemClass(isActive)}
               >
                 <User size={18} /> {t("profile.profileDetails")}
-              </NavLink>
-              <NavLink
-                to="/profile/history"
-                className={({ isActive }) => navItemClass(isActive)}
-              >
-                <History size={18} /> {t("profile.history")}
               </NavLink>
               <NavLink
                 to="/profile/subscription"

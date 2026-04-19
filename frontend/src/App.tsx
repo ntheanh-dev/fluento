@@ -32,14 +32,9 @@ const ProfileDetailsSection = lazy(() =>
     default: m.ProfileDetailsSection,
   })),
 );
-const HistoryTransactionSection = lazy(() =>
-  import("@/features/profile/ui/HistoryTransactionSection").then((m) => ({
-    default: m.HistoryTransactionSection,
-  })),
-);
-const SubscriptionSection = lazy(() =>
-  import("@/features/profile/ui/SubscriptionSection").then((m) => ({
-    default: m.SubscriptionSection,
+const Subscription = lazy(() =>
+  import("@/features/profile/ui/Subscription").then((m) => ({
+    default: m.Subscription,
   })),
 );
 
@@ -112,11 +107,11 @@ function App() {
                     />
                     <Route
                       path="history"
-                      element={<HistoryTransactionSection />}
+                      element={<Navigate to="/profile/details" replace />}
                     />
                     <Route
                       path="subscription"
-                      element={<SubscriptionSection />}
+                      element={<Subscription />}
                     />
                     <Route
                       path="*"

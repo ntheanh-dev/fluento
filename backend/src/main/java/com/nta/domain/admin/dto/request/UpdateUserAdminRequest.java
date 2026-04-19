@@ -18,7 +18,4 @@ public class UpdateUserAdminRequest {
 
     /** Role names to assign to the user (e.g. ["ADMIN", "USER"]). */
     private List<String> roleNames;
-
-    /** ID of a row in api_keys (one row = api key + one model). */
-    private Long activeApiKeyId;
 }

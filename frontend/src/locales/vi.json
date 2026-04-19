@@ -96,6 +96,31 @@
         "payment": "Lịch sử thanh toán"
       },
       "usagePlaceholder": "Thống kê sử dụng sẽ hiển thị tại đây.",
+      "usage": {
+        "loading": "Đang tải dữ liệu sử dụng...",
+        "recentTransactions": "Giao dịch credit gần đây",
+        "noTransactions": "Chưa có giao dịch credit nào.",
+        "pagination": "Trang {{page}} / {{total}}",
+        "prev": "Trước",
+        "next": "Sau",
+        "table": {
+          "type": "Loại",
+          "amount": "Số credit",
+          "status": "Trạng thái",
+          "time": "Thời gian"
+        },
+        "type": {
+          "AI_USAGE": "Sử dụng AI",
+          "TOP_UP": "Nạp credit",
+          "COIN_EXCHANGE": "Đổi coin",
+          "REFUND": "Hoàn credit"
+        },
+        "status": {
+          "PENDING": "Đang xử lý",
+          "SUCCESS": "Thành công",
+          "FAILED": "Thất bại"
+        }
+      },
       "paymentPlaceholder": "Hóa đơn và lịch sử thanh toán sẽ hiển thị tại đây.",
       "tiersTitle": "Hạn mức credit mỗi ngày",
       "tiersSub": "Gói Free và Pro làm mới theo ngày.",

@@ -1,7 +1,6 @@
 package com.nta.common.cron;
 
-import java.util.List;
-
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -9,35 +8,23 @@ import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * Reset credit người dùng theo ngày (hạn mức miễn phí), không còn phụ thuộc bảng api_keys.
+ */
 @Component
 @RequiredArgsConstructor
 @Slf4j
 public class CreditResetJob {
 
-    private final com.nta.domain.apikey.Repository apiKeyRepository;
     private final com.nta.domain.user.Repository userRepository;
 
-    private static final int CREDIT_PER_API_KEY_ROW = 20;
+    @Value("${app.credits.daily-reset:30}")
+    private int dailyResetCredits;
 
-    /**
-     * Reset toàn bộ credit: mỗi row ApiKey về 20, mỗi user về (số row ApiKey đang sở hữu) * 20.
-     * Chạy mỗi ngày 00:00 theo {@code app.time-zone} (mặc định Asia/Ho_Chi_Minh).
-     */
     @Scheduled(cron = "0 0 0 * * *", zone = "${app.time-zone:Asia/Ho_Chi_Minh}")
     @Transactional
-    public void resetDailyCreditsBasedOnApiKeys() {
-        int apiKeyRowsReset = apiKeyRepository.resetAllCredits(CREDIT_PER_API_KEY_ROW);
-        log.info("Daily credit reset - {} api key rows set to {}", apiKeyRowsReset, CREDIT_PER_API_KEY_ROW);
-
-        List<Object[]> rows = apiKeyRepository.countByUser();
-        for (Object[] row : rows) {
-            Long userId = (Long) row[0];
-            Long apiKeyCount = (Long) row[1];
-            int credits = apiKeyCount.intValue() * CREDIT_PER_API_KEY_ROW;
-            userRepository.setCredits(userId, credits);
-            log.info("Daily credit reset - userId={} apiKeyCount={} userCredits={}", userId, apiKeyCount, credits);
-        }
-
-        userRepository.resetCreditsForUsersWithoutApiKeys();
+    public void resetDailyUserCredits() {
+        int updated = userRepository.setAllUsersCredits(dailyResetCredits);
+        log.info("Daily credit reset: {} users set to {} credits", updated, dailyResetCredits);
     }
 }

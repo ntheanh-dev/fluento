@@ -21,10 +21,6 @@ public interface Repository extends JpaRepository<User, Long> {
 
     Optional<User> findByUsername(String username);
 
-    @Modifying
-    @Query("UPDATE User u SET u.activeApiKeyId = :id WHERE u.id = :userId")
-    void updateActiveApiKeyIdById(Long userId, Long id);
-
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("select u from User u where u.id = :id")
     Optional<User> findByIdForUpdate(@Param("id") Long id);
@@ -100,12 +96,8 @@ public interface Repository extends JpaRepository<User, Long> {
     void setCredits(@Param("userId") Long userId, @Param("amount") Integer amount);
 
     @Modifying
-    @Query("""
-		UPDATE User u
-		SET u.credits = 0
-		WHERE NOT EXISTS (SELECT a FROM ApiKey a WHERE a.user = u)
-		""")
-    void resetCreditsForUsersWithoutApiKeys();
+    @Query("UPDATE User u SET u.credits = :amount")
+    int setAllUsersCredits(@Param("amount") Integer amount);
 
     @Query("SELECT u.credits FROM User u WHERE u.id = :userId")
     Integer findCreditsByUserId(@Param("userId") Long userId);

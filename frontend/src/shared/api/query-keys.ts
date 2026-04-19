@@ -1,8 +1,8 @@
 export const OK = {
   AUTH_USER: "auth_user",
   PROFILE: "profile",
+  SUBSCRIPTION_USAGE: "subscription_usage",
   OAUTH_AUTHENTICATE: "oauth_authenticate",
-  API_KEYS: "api_keys",
   userPractice: (id: number) => ["userPractice", id] as const,
   usePracticeSentenceVocabularyHints: (sentenceId: number) => ["usePracticeSentenceVocabularyHints", sentenceId] as const,
   communityTranslations: (sentenceId: number, score: string) =>

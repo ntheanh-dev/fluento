@@ -47,16 +47,14 @@ public class Service {
     Mapper mapper;
     PasswordEncoder passwordEncoder;
     CloudinaryFileUploadService cloudinaryFileUploadService;
-    com.nta.domain.apikey.Repository apiKeyRepository;
-
-    @org.springframework.context.annotation.Lazy
-    com.nta.domain.apikey.Service apiKeyService;
 
     com.nta.domain.userSentenceAnswer.Repository userSentenceAnswerRepository;
 
     com.nta.domain.userPractice.Repository userPracticeRepository;
 
     CommonUserService commonUserService;
+
+    com.nta.domain.creditTransaction.Service creditTransactionService;
 
     ZoneId appZoneId;
 
@@ -109,15 +107,6 @@ public class Service {
             }
         }
 
-        // Case: update activeApiKey
-        if (profile != null && profile.getActiveApiKeyId() != null) {
-            var apiKey = apiKeyRepository.findById(profile.getActiveApiKeyId()).orElse(null);
-            if (apiKey == null || !apiKey.getUser().getId().equals(user.getId())) {
-                throw new AppException(ErrorCode.AI_MODEL_NOT_FOUND);
-            }
-            user.setActiveApiKeyId(apiKey.getId());
-        }
-
         user = repository.save(user);
         log.info("Profile updated for user: {}", user.getUsername());
 
@@ -152,6 +141,8 @@ public class Service {
         if (updated == 0) {
             throw new AppException(ErrorCode.NOT_ENOUGH_COINS);
         }
+
+        creditTransactionService.recordCoinExchange(userId, creditsGain.longValue(), cost);
 
         log.info("User {} exchanged {} coins for {} credits", userId, cost, creditsGain);
         return getMyCredits();

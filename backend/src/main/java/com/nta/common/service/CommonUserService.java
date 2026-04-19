@@ -5,7 +5,6 @@ import org.springframework.security.oauth2.jwt.Jwt;
 
 import com.nta.common.enums.ErrorCode;
 import com.nta.common.exception.AppException;
-import com.nta.domain.apikey.ApiKey;
 import com.nta.domain.user.Repository;
 import com.nta.domain.user.User;
 
@@ -20,7 +19,6 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class CommonUserService {
     Repository repository;
-    com.nta.domain.apikey.Repository apiKeyRepository;
 
     public Long getCurrentUserIdFromContext() {
         var authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -40,16 +38,5 @@ public class CommonUserService {
     public User getUserFromContext() {
         Long userId = this.getCurrentUserIdFromContext();
         return repository.findById(userId).orElseThrow(() -> new AppException(ErrorCode.RESOURCE_NOT_FOUND));
-    }
-
-    public ApiKey getApiKeyFromContext() {
-        Long userId = this.getCurrentUserIdFromContext();
-        var apiKey = apiKeyRepository.findActiveApiKeyByUserId(userId);
-        if (apiKey == null) {
-            log.error("API key not found for user ID: {}", userId);
-            throw new AppException(ErrorCode.AI_API_KEY_MISSING_FOR_USER);
-        }
-
-        return apiKey;
     }
 }

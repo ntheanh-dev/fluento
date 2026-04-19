@@ -96,6 +96,31 @@
         "payment": "Payment history"
       },
       "usagePlaceholder": "Usage charts will appear here soon.",
+      "usage": {
+        "loading": "Loading usage data...",
+        "recentTransactions": "Recent credit transactions",
+        "noTransactions": "No credit transactions yet.",
+        "pagination": "Page {{page}} / {{total}}",
+        "prev": "Prev",
+        "next": "Next",
+        "table": {
+          "type": "Type",
+          "amount": "Credits",
+          "status": "Status",
+          "time": "Time"
+        },
+        "type": {
+          "AI_USAGE": "AI usage",
+          "TOP_UP": "Top up",
+          "COIN_EXCHANGE": "Coin exchange",
+          "REFUND": "Refund"
+        },
+        "status": {
+          "PENDING": "Pending",
+          "SUCCESS": "Success",
+          "FAILED": "Failed"
+        }
+      },
       "paymentPlaceholder": "Your payment receipts will appear here soon.",
       "tiersTitle": "Daily credit allowance",
       "tiersSub": "Free and Pro renew every day. No storage limits — credits only.",

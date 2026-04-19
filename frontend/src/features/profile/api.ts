@@ -1,5 +1,4 @@
 import type { User } from "../../entities/users/schema";
-import type { ApiKey } from "../../entities/apiKey/schema";
 import { getResource } from "../../shared/api/rest-client";
 import { http } from "../../shared/api/http-client";
 import type { ApiResponse } from "../../shared/api/type";
@@ -10,11 +9,41 @@ export const getProfile = (queryParams?: string): Promise<User> => {
     return getResource<User>(BASE + (queryParams ? `?${queryParams}` : ""));
 };
 
+export type UsageTransaction = {
+    id: number;
+    amount: number;
+    type: "AI_USAGE" | "TOP_UP" | "COIN_EXCHANGE" | "REFUND";
+    status: "PENDING" | "SUCCESS" | "FAILED";
+    referenceId?: string | null;
+    createdAt: string;
+};
+
+export type SubscriptionUsage = {
+    content: UsageTransaction[];
+    number: number;
+    size: number;
+    totalElements: number;
+    totalPages: number;
+};
+
+export type UsageSortField = "type" | "amount" | "status" | "createdAt";
+export type UsageSortDir = "asc" | "desc";
+
+export const getSubscriptionUsage = (
+    page = 0,
+    size = 10,
+    sortBy: UsageSortField = "createdAt",
+    sortDir: UsageSortDir = "desc"
+): Promise<SubscriptionUsage> => {
+    return getResource<SubscriptionUsage>(
+        `/credit-transactions?page=${page}&size=${size}&sortBy=${sortBy}&sortDir=${sortDir}`
+    );
+};
+
 export type UpdateMePayload = {
     fullName?: string;
     newPassword?: string;
     currentPassword?: string;
-    activeApiKeyId?: number;
 };
 
 export function updateMe(payload: UpdateMePayload, avatar?: File): Promise<User> {
@@ -28,22 +57,4 @@ export function updateMe(payload: UpdateMePayload, avatar?: File): Promise<User>
     if (avatar) form.append("avatar", avatar);
 
     return http.put<ApiResponse<User>>(BASE, form).then((res) => res.data.result);
-}
-
-export function getMyApiKeys(): Promise<ApiKey[]> {
-    return http
-        .get<ApiResponse<ApiKey[]>>("/api-keys")
-        .then((res) => res.data.result);
-}
-
-/** Tạo API key mới (backend tạo 3 model cho key). */
-export function createApiKey(apiKey: string): Promise<void> {
-    return http
-        .post<ApiResponse<unknown>>("/api-keys", { apiKey })
-        .then(() => undefined);
-}
-
-/** Xóa API key theo id (xóa toàn bộ nhóm key + model, trừ credit còn lại khỏi user). */
-export function deleteApiKey(id: number): Promise<void> {
-    return http.delete(`/api-keys/${id}`).then(() => undefined);
 }

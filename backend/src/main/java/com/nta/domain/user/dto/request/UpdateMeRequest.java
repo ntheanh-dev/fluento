@@ -34,6 +34,4 @@ public class UpdateMeRequest {
             example = "newpassword123")
     @Size(min = 8, max = 20, message = "VALIDATION_PASSWORD_INVALID")
     String newPassword;
-
-    Long activeApiKeyId;
 }

@@ -154,19 +154,11 @@ const PracticeSetup = () => {
         response?: { data?: { message?: string; code?: number } };
         message?: string;
       };
-      if (err.response?.data?.code === 1102) {
-        message.warning({
-          content: t("practice.setup.needApiKey"),
-          pauseOnHover: true,
-          duration: 5,
-        });
-      } else {
-        const errorMessage =
-          err?.response?.data?.message ??
-          err?.message ??
-          t("practice.setup.createFailed");
-        message.error(errorMessage);
-      }
+      const errorMessage =
+        err?.response?.data?.message ??
+        err?.message ??
+        t("practice.setup.createFailed");
+      message.error(errorMessage);
     }
   };
 
