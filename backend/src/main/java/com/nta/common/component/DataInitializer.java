@@ -73,6 +73,7 @@ public class DataInitializer {
                         .username("admin123456")
                         .password(passwordEncoder.encode("admin123"))
                         .credits(100)
+                        .coins(0)
                         .roles(roles)
                         .build());
             }
@@ -141,6 +142,17 @@ public class DataInitializer {
                 @Value("${app.data-init.paragraphs.max-retries-per-item:5}") int maxRetriesPerItem,
                 @Value("${app.data-init.paragraphs.parallelism:4}") int parallelism) {
             return args -> runParagraphAiSeed(paragraphService, maxRetriesPerItem, parallelism);
+        }
+
+        @Bean
+        @ConditionalOnProperty(name = "app.data-init.sentences.enabled", havingValue = "true")
+        ApplicationRunner initSentenceHintsFromAi(
+                com.nta.domain.paragraphSentence.Repository paragraphSentenceRepository,
+                com.nta.domain.paragraphSentence.Service paragraphSentenceService,
+                @Value("${app.data-init.sentences.max-retries-per-item:5}") int maxRetriesPerItem,
+                @Value("${app.data-init.sentences.parallelism:4}") int parallelism) {
+            return args -> runSentenceAiSeed(
+                    paragraphSentenceRepository, paragraphSentenceService, maxRetriesPerItem, parallelism);
         }
 
         private void runParagraphAiSeed(
@@ -269,6 +281,92 @@ public class DataInitializer {
                     tone,
                     sentenceCount,
                     last);
+            return null;
+        }
+
+        private void runSentenceAiSeed(
+                com.nta.domain.paragraphSentence.Repository paragraphSentenceRepository,
+                com.nta.domain.paragraphSentence.Service paragraphSentenceService,
+                int maxRetriesPerItem,
+                int parallelism) {
+            List<ParagraphSentence> targets = paragraphSentenceRepository.findByVocabularyHintsIsNull();
+            if (targets.isEmpty()) {
+                log.info("Sentence AI init: no sentence without vocabulary hints");
+                return;
+            }
+
+            int poolSize = Math.max(1, parallelism);
+            AtomicInteger done = new AtomicInteger();
+            AtomicInteger failed = new AtomicInteger();
+
+            List<Callable<Void>> tasks = new ArrayList<>();
+            for (ParagraphSentence sentence : targets) {
+                Long sentenceId = sentence.getId();
+                tasks.add(() -> {
+                    ParagraphSentence saved =
+                            generateSentenceHintsWithRetries(paragraphSentenceService, sentenceId, maxRetriesPerItem);
+                    if (saved != null) {
+                        done.incrementAndGet();
+                        log.info("Sentence AI init: sentenceId={} orderIndex={}", saved.getId(), saved.getOrderIndex());
+                    } else {
+                        failed.incrementAndGet();
+                    }
+                    return null;
+                });
+            }
+
+            ExecutorService executor = Executors.newFixedThreadPool(poolSize);
+            try {
+                List<Future<Void>> futures = executor.invokeAll(tasks);
+                for (Future<Void> future : futures) {
+                    try {
+                        future.get();
+                    } catch (ExecutionException e) {
+                        failed.incrementAndGet();
+                        log.error("Sentence AI init task failed", e.getCause());
+                    }
+                }
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                log.error("Sentence AI init interrupted", e);
+            } finally {
+                executor.shutdown();
+                try {
+                    if (!executor.awaitTermination(7, TimeUnit.DAYS)) {
+                        executor.shutdownNow();
+                    }
+                } catch (InterruptedException e) {
+                    executor.shutdownNow();
+                    Thread.currentThread().interrupt();
+                }
+            }
+            log.info(
+                    "Sentence AI init finished: total={}, created={}, failed={}",
+                    targets.size(),
+                    done.get(),
+                    failed.get());
+        }
+
+        private ParagraphSentence generateSentenceHintsWithRetries(
+                com.nta.domain.paragraphSentence.Service paragraphSentenceService,
+                Long sentenceId,
+                int maxRetriesPerItem) {
+            Exception last = null;
+            for (int attempt = 1; attempt <= maxRetriesPerItem; attempt++) {
+                try {
+                    return paragraphSentenceService.getOrCreateVocabularyHints(sentenceId);
+                } catch (Exception e) {
+                    last = e;
+                    log.warn(
+                            "Sentence AI init attempt {}/{} sentenceId={}: {}",
+                            attempt,
+                            maxRetriesPerItem,
+                            sentenceId,
+                            e.getMessage());
+                }
+            }
+
+            log.error("Sentence AI init gave up after {} attempts sentenceId={}", maxRetriesPerItem, sentenceId, last);
             return null;
         }
     }

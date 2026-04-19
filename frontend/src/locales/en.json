@@ -6,6 +6,12 @@
     "avatarUpdated": "Profile photo updated.",
     "avatarUpdateFailed": "Could not update profile photo.",
     "profileDetails": "Profile details",
+    "history": "Transactions",
+    "subscription": "Subscription",
+    "historyTransactionsTitle": "Transaction history",
+    "historyTransactionsEmpty": "No transactions yet. Purchases and credit changes will appear here.",
+    "subscriptionTitle": "Subscription & billing",
+    "subscriptionPlaceholder": "Manage your plan and payment methods here when available.",
     "logout": "Log out",
     "creditsRemaining": "Credits",
     "coinsRemaining": "Coins",
@@ -75,6 +81,64 @@
         "ok": "Delete",
         "cancel": "Cancel",
         "body": "Are you sure you want to delete key <1>{{masked}}</1> and all related models? This cannot be undone."
+      }
+    },
+    "subscriptionPage": {
+      "greeting": "Hello, {{name}}",
+      "memberSince": "Member since {{date}}",
+      "planBadgeFree": "Free plan",
+      "planBadgePro": "Pro plan",
+      "creditBalance": "Credit balance",
+      "creditUnit": "credits",
+      "tabs": {
+        "plan": "Plans",
+        "usage": "Usage",
+        "payment": "Payment history"
+      },
+      "usagePlaceholder": "Usage charts will appear here soon.",
+      "paymentPlaceholder": "Your payment receipts will appear here soon.",
+      "tiersTitle": "Daily credit allowance",
+      "tiersSub": "Free and Pro renew every day. No storage limits — credits only.",
+      "free": {
+        "name": "Free",
+        "perDay": "{{count}} credits per day",
+        "desc": "Default plan for every account."
+      },
+      "pro": {
+        "name": "Pro",
+        "perDay": "{{count}} credits per day",
+        "desc": "More daily credits for intensive practice."
+      },
+      "active": "Active",
+      "upgradeToPro": "Upgrade to Pro",
+      "proSubscriptionPrice": "{{price}} per month",
+      "currentPlanHint": "You are on the Free plan. Upgrade to Pro for {{count}} credits per day.",
+      "topupTitle": "Buy extra credits",
+      "topupSub": "One-time packs added to your balance. Bonus applies on top of the base amount.",
+      "topupCreditsLine": "{{total}} credits",
+      "topupBonusLine": "{{base}} credits + {{percent}}% bonus → {{total}} credits",
+      "buyNow": "Buy now",
+      "coinExchangeTitle": "Exchange coins for credits",
+      "coinExchangeSub": "Spend coins from your wallet. Credits are added to your balance right away.",
+      "costCoins": "{{count}} coins",
+      "exchangeNow": "Exchange",
+      "exchangeSuccess": "Received +{{credits}} credits",
+      "insufficientCoins": "Not enough coins in your wallet",
+      "coinBalance": "Coin balance",
+      "coinUnit": "coins",
+      "bestValue": "Best value",
+      "dailyLabel": "Per day",
+      "creditsPerDayCaption": "credits per day",
+      "youReceive": "You get",
+      "youPay": "You pay",
+      "bonusChip": "+{{percent}}%",
+      "emptyStateHint": "Coming soon",
+      "footer": {
+        "safe": "Secure payments",
+        "refund": "7-day refund",
+        "support": "24/7 support",
+        "quality": "Premium quality",
+        "copyright": "© {{year}} {{brand}}. All rights reserved."
       }
     }
   },

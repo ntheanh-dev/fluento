@@ -27,6 +27,21 @@ const SentencePracticePage = lazy(() => import("@/features/practice/ui/[id]"));
 const History = lazy(() => import("@/features/history"));
 const Rankings = lazy(() => import("@/features/ranking"));
 const Profile = lazy(() => import("@/features/profile/ui"));
+const ProfileDetailsSection = lazy(() =>
+  import("@/features/profile/ui/ProfileDetails").then((m) => ({
+    default: m.ProfileDetailsSection,
+  })),
+);
+const HistoryTransactionSection = lazy(() =>
+  import("@/features/profile/ui/HistoryTransactionSection").then((m) => ({
+    default: m.HistoryTransactionSection,
+  })),
+);
+const SubscriptionSection = lazy(() =>
+  import("@/features/profile/ui/SubscriptionSection").then((m) => ({
+    default: m.SubscriptionSection,
+  })),
+);
 
 // Admin
 const Admin = lazy(() => import("@/features/admin"));
@@ -86,7 +101,28 @@ function App() {
                   <Route path="practice/:id/result/detail" element={<ResultDetailScreen />} />
                   <Route path="history" element={<History />} />
                   <Route path="rankings" element={<Rankings />} />
-                  <Route path="profile" element={<Profile />} />
+                  <Route path="profile" element={<Profile />}>
+                    <Route
+                      index
+                      element={<Navigate to="/profile/details" replace />}
+                    />
+                    <Route
+                      path="details"
+                      element={<ProfileDetailsSection />}
+                    />
+                    <Route
+                      path="history"
+                      element={<HistoryTransactionSection />}
+                    />
+                    <Route
+                      path="subscription"
+                      element={<SubscriptionSection />}
+                    />
+                    <Route
+                      path="*"
+                      element={<Navigate to="/profile/details" replace />}
+                    />
+                  </Route>
                   <Route path="404" element={<NotFoundPage />} />
                   <Route
                     path="admin"

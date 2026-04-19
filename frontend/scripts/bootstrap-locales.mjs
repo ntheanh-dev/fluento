@@ -417,7 +417,7 @@ const vi = {
     addApiKey:
       "Hãy bắt thêm API key trong <profileLink>trang cá nhân</profileLink> để bắt đầu luyện tập.",
     startPractice: "Bắt đầu luyện tập mới",
-    credits: "Credits còn lại",
+    credits: "Credits",
     totalAnswers: "Tổng số câu đã trả lời",
     avgScore: "Điểm trung bình",
     totalStudyTime: "Tổng thời gian học",

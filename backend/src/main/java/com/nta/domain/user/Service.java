@@ -20,6 +20,7 @@ import com.nta.common.enums.ErrorCode;
 import com.nta.common.exception.AppException;
 import com.nta.common.service.CommonUserService;
 import com.nta.common.service.cloudinary.CloudinaryFileUploadService;
+import com.nta.domain.user.dto.request.ExchangeCoinsRequest;
 import com.nta.domain.user.dto.request.UpdateMeRequest;
 import com.nta.domain.user.dto.response.CreditBalanceResponse;
 import com.nta.domain.user.dto.response.UserMeEmbeddedResponse;
@@ -38,6 +39,10 @@ import lombok.extern.slf4j.Slf4j;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Slf4j
 public class Service {
+
+    /** Phải khớp gói đổi ở frontend (SubscriptionSection COIN_EXCHANGE_PACKS). */
+    private static final Map<Integer, Integer> COIN_EXCHANGE_CREDITS = Map.of(10, 1, 20, 2, 50, 6, 100, 12);
+
     Repository repository;
     Mapper mapper;
     PasswordEncoder passwordEncoder;
@@ -129,6 +134,27 @@ public class Service {
                 .credits(credits != null ? credits : 0)
                 .coins(coins != null ? coins : 0)
                 .build();
+    }
+
+    /**
+     * Đổi coin lấy credit: chỉ các gói cố định; trừ coin và cộng credit trong một câu UPDATE có điều kiện {@code coins >= cost}.
+     */
+    @Transactional
+    public CreditBalanceResponse exchangeCoinsForCredits(ExchangeCoinsRequest request) {
+        Integer cost = request.getCoins();
+        Integer creditsGain = COIN_EXCHANGE_CREDITS.get(cost);
+        if (creditsGain == null) {
+            throw new AppException(ErrorCode.COIN_EXCHANGE_INVALID);
+        }
+
+        Long userId = commonUserService.getCurrentUserIdFromContext();
+        int updated = repository.exchangeCoinsForCredits(userId, cost, creditsGain);
+        if (updated == 0) {
+            throw new AppException(ErrorCode.NOT_ENOUGH_COINS);
+        }
+
+        log.info("User {} exchanged {} coins for {} credits", userId, cost, creditsGain);
+        return getMyCredits();
     }
 
     public UserResponse getMyInfo(String embedded) {

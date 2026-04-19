@@ -19,6 +19,7 @@ import org.springframework.ai.openai.OpenAiChatModel;
 import org.springframework.ai.openai.OpenAiChatOptions;
 import org.springframework.ai.openai.api.OpenAiApi;
 import org.springframework.ai.retry.NonTransientAiException;
+import org.springframework.ai.retry.TransientAiException;
 import org.springframework.context.annotation.Primary;
 import org.springframework.retry.support.RetryTemplate;
 import org.springframework.stereotype.Service;
@@ -38,15 +39,16 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 @Primary
 public class CloudFlareChatService implements ChatService {
+    //            "https://luyenviet.hoangthithanh04051980.workers.dev/",
 
     private static final List<String> CLOUDFLARE_WORKER_BASE_URLS = List.of(
-            "https://fluento.anhthenguyen-work.workers.dev/",
-            "https://luyenviet.hoangthithanh04051980.workers.dev/",
-            "https://luyenviet.thamnguyen38vv.workers.dev/ ",
-            "https://luyenviet.2151013002anh.workers.dev/");
-    //            "https://luyenviet.thamnguyenvv83.workers.dev/",
-    //            "https://throbbing-smoke-c078.5dnpnjsjf6.workers.dev/",
-    //            "https://luyenviet.theanhmgt1011.workers.dev/",
+            //            "https://fluento.anhthenguyen-work.workers.dev/",
+            //            "https://luyenviet.thamnguyen38vv.workers.dev/ ",
+            //            "https://luyenviet.2151013002anh.workers.dev/",
+            //            "https://luyenviet.thamnguyenvv83.workers.dev/",
+            //            "https://throbbing-smoke-c078.5dnpnjsjf6.workers.dev/",
+            //            "https://luyenviet.theanhmgt1011.workers.dev/"
+            "https://luyenviet.saixuanloanww12apni9atf.workers.dev/");
     private static final String CLOUDFLARE_WORKER_API_KEY = "12345";
     private static final String DEFAULT_MODEL = "@cf/aisingapore/gemma-sea-lion-v4-27b-it";
 
@@ -135,10 +137,14 @@ public class CloudFlareChatService implements ChatService {
         if (e.getMessage() == null) return false;
         String msg = e.getMessage().toLowerCase();
         return msg.contains("429")
+                || msg.contains("4006")
                 || msg.contains("resource_exhausted")
                 || msg.contains("quota")
                 || msg.contains("rate limit")
-                || msg.contains("limit exceeded");
+                || msg.contains("limit exceeded")
+                || msg.contains("daily free allocation")
+                || msg.contains("used up your daily free allocation")
+                || msg.contains("neurons");
     }
 
     private static boolean isRetryableHttpStatus(int code) {
@@ -148,6 +154,9 @@ public class CloudFlareChatService implements ChatService {
     private boolean isRetryableWorkerFailure(Throwable e) {
         if (e instanceof NonTransientAiException nte) {
             return isRetryableError(nte);
+        }
+        if (e instanceof TransientAiException) {
+            return true;
         }
         Throwable t = e;
         while (t != null) {
@@ -159,11 +168,15 @@ public class CloudFlareChatService implements ChatService {
             if (msg != null) {
                 String lower = msg.toLowerCase();
                 if (lower.contains("429")
+                        || lower.contains("4006")
                         || lower.contains("resource_exhausted")
                         || lower.contains("quota")
                         || lower.contains("rate limit")
                         || lower.contains("limit exceeded")
-                        || lower.contains("too many requests")) {
+                        || lower.contains("too many requests")
+                        || lower.contains("daily free allocation")
+                        || lower.contains("used up your daily free allocation")
+                        || lower.contains("neurons")) {
                     return true;
                 }
             }
@@ -292,7 +305,9 @@ public class CloudFlareChatService implements ChatService {
         HttpResponse<java.io.InputStream> response =
                 httpClient.send(request, HttpResponse.BodyHandlers.ofInputStream());
         if (response.statusCode() < 200 || response.statusCode() >= 300) {
-            throw new RuntimeException("Cloudflare stream fallback failed with status " + response.statusCode());
+            String errorBody = new String(response.body().readAllBytes(), StandardCharsets.UTF_8);
+            throw new RuntimeException(
+                    "Cloudflare stream fallback failed with status " + response.statusCode() + " body: " + errorBody);
         }
 
         StringBuilder fullText = new StringBuilder();

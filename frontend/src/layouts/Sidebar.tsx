@@ -118,7 +118,7 @@ const Sidebar = ({
           icon={User}
           label={t("nav.profile")}
           to="/profile"
-          active={activePath === "/profile"}
+          active={activePath.startsWith("/profile")}
         />
       </nav>
 

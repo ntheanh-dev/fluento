@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useRef, useCallback } from "react";
-import { useParams, useNavigate, Navigate } from "react-router-dom";
+import { Link, useParams, useNavigate, Navigate } from "react-router-dom";
 import {
   ArrowLeft,
   ArrowRight,
@@ -20,6 +20,7 @@ import { useAnswerPreviewFeedback } from "../../hooks/useAnswerPreviewFeedbackSt
 import { AxiosError } from "axios";
 import type { ParagraphSentence } from "@/entities/paragraphSentence/schema";
 import { useTranslation } from "react-i18next";
+import { subscriptionHref } from "@/features/profile/subscriptionAnchors";
 import coinRewardAudioSrc from "@/assets/audio/chieuk-coin-257878.mp3";
 
 export type RenderAsideType = "hints" | "markdownFeedback" | null;
@@ -213,6 +214,38 @@ const SentencePracticePage = () => {
     }
   }, [isLoadingSubmitUserSentence, feedback, currentVietNameseSentence, submitUserSentence, refetchCredits, vietNameseSentences, navigate, id]);
 
+  const handleTranslationKeyDown = useCallback(
+    (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+      if (e.key !== "Enter" || e.shiftKey || e.nativeEvent.isComposing) return;
+      e.preventDefault();
+
+      const canSubmit =
+        Boolean(feedback) &&
+        !isLoadingSubmitUserSentence &&
+        !isLoadingAnswerPreview &&
+        Boolean(lastCheckedTranslation) &&
+        lastCheckedTranslation === translation;
+
+      if (canSubmit) {
+        void handleNextSentence();
+        return;
+      }
+
+      if (!isLoadingAnswerPreview && translation.trim()) {
+        void handleGetAnswerPreview();
+      }
+    },
+    [
+      feedback,
+      isLoadingSubmitUserSentence,
+      isLoadingAnswerPreview,
+      lastCheckedTranslation,
+      translation,
+      handleNextSentence,
+      handleGetAnswerPreview,
+    ]
+  );
+
   // --- Derived (cho UI) ---
   const progressPercent = useMemo(
     () => Math.round((((currentVietNameseSentence?.orderIndex ?? 0)) / (vietNameseSentences.length || 1)) * 100),
@@ -271,25 +304,35 @@ const SentencePracticePage = () => {
             {typeof creditBalance?.credits === "number" && (
               <>
                 <div className="h-8 w-px bg-slate-100 dark:bg-slate-700"></div>
-                <div className="flex flex-col items-start">
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">{t("profile.creditsRemaining")}</span>
+                <Link
+                  to={subscriptionHref("topup")}
+                  className="group flex flex-col items-start rounded-md px-1 -mx-1 py-0.5 outline-none transition-colors hover:bg-slate-100/80 dark:hover:bg-slate-800/60 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-900"
+                >
+                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 group-hover:text-slate-500 dark:group-hover:text-slate-300">
+                    {t("profile.creditsRemaining")}
+                  </span>
                   <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-700 dark:text-slate-200">
                     <Coins size={14} className="text-amber-500" />
                     {creditBalance.credits}
                   </span>
-                </div>
+                </Link>
               </>
             )}
             {typeof creditBalance?.coins === "number" && (
               <>
                 <div className="h-8 w-px bg-slate-100 dark:bg-slate-700"></div>
-                <div className="flex flex-col items-start">
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">{t("profile.coinsRemaining")}</span>
+                <Link
+                  to={subscriptionHref("coin")}
+                  className="group flex flex-col items-start rounded-md px-1 -mx-1 py-0.5 outline-none transition-colors hover:bg-slate-100/80 dark:hover:bg-slate-800/60 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-900"
+                >
+                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1 group-hover:text-slate-500 dark:group-hover:text-slate-300">
+                    {t("profile.coinsRemaining")}
+                  </span>
                   <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-700 dark:text-slate-200">
                     <Coins size={14} className="text-yellow-500" />
                     {creditBalance.coins}
                   </span>
-                </div>
+                </Link>
               </>
             )}
 
@@ -359,6 +402,7 @@ const SentencePracticePage = () => {
               rows={2}
               value={translation}
               onChange={(e) => setTranslation(e.target.value)}
+              onKeyDown={handleTranslationKeyDown}
             />
 
             <div className="flex justify-between items-center mt-2 sm:mt-3 gap-2">

@@ -112,4 +112,20 @@ public interface Repository extends JpaRepository<User, Long> {
 
     @Query("SELECT u.coins FROM User u WHERE u.id = :userId")
     Integer findCoinsByUserId(@Param("userId") Long userId);
+
+    /**
+     * Atomically deducts coins and adds credits only if {@code coins >= cost}.
+     *
+     * @return number of rows updated (1 if success, 0 if insufficient coins)
+     */
+    @Modifying
+    @Query(
+            """
+		UPDATE User u
+		SET u.coins = u.coins - :cost,
+			u.credits = u.credits + :creditsGain
+		WHERE u.id = :userId AND u.coins >= :cost
+		""")
+    int exchangeCoinsForCredits(
+            @Param("userId") Long userId, @Param("cost") Integer cost, @Param("creditsGain") Integer creditsGain);
 }

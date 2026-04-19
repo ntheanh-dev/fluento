@@ -46,6 +46,14 @@ public class Controller {
                 .build();
     }
 
+    @PostMapping("/me/exchange-coins")
+    ApiResponse<CreditBalanceResponse> exchangeCoins(@RequestBody @Valid ExchangeCoinsRequest request) {
+        return ApiResponse.<CreditBalanceResponse>builder()
+                .result(service.exchangeCoinsForCredits(request))
+                .message("Đổi coin thành công")
+                .build();
+    }
+
     @PutMapping(
             value = "/me",
             consumes = {MediaType.MULTIPART_FORM_DATA_VALUE, MediaType.APPLICATION_JSON_VALUE})

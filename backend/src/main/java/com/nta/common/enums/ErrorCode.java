@@ -63,6 +63,8 @@ public enum ErrorCode {
     // CREDIT, PAYMENT
     NOT_ENOUGH_CREDITS(4001, "Bạn không đủ credits để sử dụng tính năng này", HttpStatus.BAD_REQUEST),
     THIS_MODEL_NOT_ENOUGH_CREDITS(4002, "Model này đã hết credit", HttpStatus.BAD_REQUEST),
+    NOT_ENOUGH_COINS(4003, "Không đủ coin để đổi", HttpStatus.BAD_REQUEST),
+    COIN_EXCHANGE_INVALID(4004, "Gói đổi coin không hợp lệ", HttpStatus.BAD_REQUEST),
 
     // Generic errors (90xx)
     THIS_METHOD_DOES_NOTE_SUPPORT_YET(9001, "Phương thức này không được hỗ trợ", HttpStatus.BAD_REQUEST);

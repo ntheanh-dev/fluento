@@ -12,3 +12,9 @@ export function getMyCredits(): Promise<CreditBalance> {
         .then((res) => res.data.result);
 }
 
+export function exchangeCoins(coins: number): Promise<CreditBalance> {
+    return http
+        .post<ApiResponse<CreditBalance>>("/users/me/exchange-coins", { coins })
+        .then((res) => res.data.result);
+}
+
