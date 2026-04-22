@@ -20,7 +20,6 @@ import org.springframework.ai.openai.OpenAiChatOptions;
 import org.springframework.ai.openai.api.OpenAiApi;
 import org.springframework.ai.retry.NonTransientAiException;
 import org.springframework.ai.retry.TransientAiException;
-import org.springframework.context.annotation.Primary;
 import org.springframework.retry.support.RetryTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpStatusCodeException;
@@ -28,10 +27,8 @@ import org.springframework.web.client.UnknownContentTypeException;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.nta.common.service.CommonUserService;
 import com.nta.common.service.ai.ChatResponse;
 import com.nta.common.service.ai.ChatService;
-import com.nta.domain.creditTransaction.CreditTransaction;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -39,24 +36,19 @@ import lombok.extern.slf4j.Slf4j;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-@Primary
 public class CloudFlareChatService implements ChatService {
-
-    private static final List<String> CLOUDFLARE_WORKER_BASE_URLS = List.of(
-            //            "https://fluento.anhthenguyen-work.workers.dev/",
-            //            "https://luyenviet.thamnguyen38vv.workers.dev/ ",
-            //            "https://luyenviet.2151013002anh.workers.dev/",
-            //            "https://luyenviet.thamnguyenvv83.workers.dev/",
-            //            "https://throbbing-smoke-c078.5dnpnjsjf6.workers.dev/",
-            //            "https://luyenviet.theanhmgt1011.workers.dev/"
-            "https://luyenviet.hoangthithanh04051980.workers.dev/");
+    //    "https://fluento.anhthenguyen-work.workers.dev/"
+    //            "https://luyenviet.hoangthithanh04051980.workers.dev/"
+    //            "https://luyenviet.thamnguyen38vv.workers.dev/",
+    //            "https://luyenviet.2151013002anh.workers.dev/",
+    //            "https://luyenviet.thamnguyenvv83.workers.dev/",
+    //            "https://throbbing-smoke-c078.5dnpnjsjf6.workers.dev/",
+    //            "https://luyenviet.theanhmgt1011.workers.dev/");
+    private static final List<String> CLOUDFLARE_WORKER_BASE_URLS = List.of("http://localhost:1234/v1");
     private static final String CLOUDFLARE_WORKER_API_KEY = "12345";
     private static final String DEFAULT_MODEL = "@cf/aisingapore/gemma-sea-lion-v4-27b-it";
-    private static final long CREDIT_PER_AI_CALL = 1L;
 
     private final ObjectMapper objectMapper;
-    private final CommonUserService commonUserService;
-    private final com.nta.domain.creditTransaction.Service creditTransactionService;
     private final HttpClient httpClient = HttpClient.newHttpClient();
 
     @Override
@@ -67,22 +59,14 @@ public class CloudFlareChatService implements ChatService {
     @Override
     public <T> ChatResponse<T> sendMessageStream(
             String systemMessage, String userMessage, Class<T> responseType, Consumer<String> onChunk) {
-        Long userId = commonUserService.getCurrentUserIdFromContext();
-        CreditTransaction tx = creditTransactionService.reserveCredit(userId, CREDIT_PER_AI_CALL);
-        try {
-            String outputText = doChatCall(systemMessage, userMessage, onChunk);
-            T result = parseResponse(outputText, responseType);
-            creditTransactionService.commitTransaction(tx.getId());
-            return ChatResponse.<T>builder()
-                    .result(result)
-                    .promptTokens(0)
-                    .completionTokens(0)
-                    .totalTokens(0)
-                    .build();
-        } catch (Exception e) {
-            creditTransactionService.refundTransaction(tx.getId());
-            throw e;
-        }
+        String outputText = doChatCall(systemMessage, userMessage, onChunk);
+        T result = parseResponse(outputText, responseType);
+        return ChatResponse.<T>builder()
+                .result(result)
+                .promptTokens(0)
+                .completionTokens(0)
+                .totalTokens(0)
+                .build();
     }
 
     private <T> T parseResponse(String outputText, Class<T> responseType) {

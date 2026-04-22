@@ -307,7 +307,11 @@ public class DataInitializer {
                             generateSentenceHintsWithRetries(paragraphSentenceService, sentenceId, maxRetriesPerItem);
                     if (saved != null) {
                         done.incrementAndGet();
-                        log.info("Sentence AI init: sentenceId={} orderIndex={}", saved.getId(), saved.getOrderIndex());
+                        log.info(
+                                "Sentence AI init: sentenceId={} orderIndex={} hint={}",
+                                saved.getId(),
+                                saved.getOrderIndex(),
+                                saved.getVocabularyHints());
                     } else {
                         failed.incrementAndGet();
                     }
