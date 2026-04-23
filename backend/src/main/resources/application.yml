@@ -54,6 +54,12 @@ spring:
           api-uri: https://oauth2.googleapis.com # fixed
           user-info-uri: https://www.googleapis.com/oauth2/v3/userinfo # fixed
   ai:
+    chat:
+      memory:
+        repository:
+          jdbc:
+            initialize-schema: always
+            platform: mysql
     openai:
       api-key: ${OPENAI_API_KEY}
       chat:

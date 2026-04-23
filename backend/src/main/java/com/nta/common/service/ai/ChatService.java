@@ -9,4 +9,22 @@ public interface ChatService {
             String systemMessage, String userMessage, Class<T> responseType, Consumer<String> onChunk) {
         return sendMessage(systemMessage, userMessage, responseType);
     }
+
+    default <T> ChatResponse<T> sendMessageWithMemory(
+            String conversationId, String systemMessage, String userMessage, Class<T> responseType) {
+        return sendMessage(systemMessage, userMessage, responseType);
+    }
+
+    default <T> ChatResponse<T> sendMessageStreamWithMemory(
+            String conversationId,
+            String systemMessage,
+            String userMessage,
+            Class<T> responseType,
+            Consumer<String> onChunk) {
+        return sendMessageStream(systemMessage, userMessage, responseType, onChunk);
+    }
+
+    default void clearConversationMemory(String conversationId) {}
+
+    default void clearConversationMemoryByPrefix(String conversationPrefix) {}
 }

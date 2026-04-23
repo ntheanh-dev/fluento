@@ -8,7 +8,6 @@ import java.time.Duration;
 import java.util.function.Consumer;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -22,7 +21,6 @@ import lombok.extern.slf4j.Slf4j;
 
 @Service
 @Slf4j
-@Primary
 public class LocalLlmChatService implements ChatService {
 
     @Value("${app.ai.local.base-url:http://localhost:1234/v1}")

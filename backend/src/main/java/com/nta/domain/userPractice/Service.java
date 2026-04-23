@@ -118,11 +118,17 @@ public class Service {
 
         PromptMessage prompt = paragraphPromptFactory.buildFeedbackTranslationMarkdownPrompt(
                 originalSentence, normalizedTranslatedSentence);
+        String conversationId = buildPreviewConversationId(practice, request.getOrderIndex());
 
         SentenceFeedback feedback = (onChunk == null
-                        ? chatService.sendMessage(prompt.systemMessage(), prompt.userMessage(), SentenceFeedback.class)
-                        : chatService.sendMessageStream(
-                                prompt.systemMessage(), prompt.userMessage(), SentenceFeedback.class, onChunk))
+                        ? chatService.sendMessageWithMemory(
+                                conversationId, prompt.systemMessage(), prompt.userMessage(), SentenceFeedback.class)
+                        : chatService.sendMessageStreamWithMemory(
+                                conversationId,
+                                prompt.systemMessage(),
+                                prompt.userMessage(),
+                                SentenceFeedback.class,
+                                onChunk))
                 .getResult();
 
         // Tìm bản nháp trước đó cho cùng practice + orderIndex (chưa submit)
@@ -187,6 +193,7 @@ public class Service {
         String originalSentence = sentences.get(request.getOrderIndex());
         String normalizedVietnameseSentence =
                 appendLineBreakTokenIfNeeded(originalSentence, request.getVietnameseSentence());
+        String conversationPrefix = buildPreviewConversationPrefix(practice);
 
         // Lấy bản nháp feedback gần nhất cho câu này (đã được AI chấm)
         UserSentenceAnswer answer = userSentenceAnswerRepo
@@ -197,6 +204,7 @@ public class Service {
         answer.setOriginalText(originalSentence);
         answer.setUserTranslation(normalizedVietnameseSentence);
         answer.setIsSubmitted(true);
+        chatService.clearConversationMemoryByPrefix(conversationPrefix);
 
         // Save learningTime on every submit
         if (request.getLearningTime() != null) {
@@ -323,5 +331,15 @@ public class Service {
         }
 
         return normalizedSentence;
+    }
+
+    private String buildPreviewConversationId(UserPractice practice, Integer orderIndex) {
+        return buildPreviewConversationPrefix(practice) + orderIndex;
+    }
+
+    private String buildPreviewConversationPrefix(UserPractice practice) {
+        Long paragraphId = practice.getParagraph().getId();
+        Long userPracticeId = practice.getId();
+        return "preview:" + paragraphId + ":" + userPracticeId + ":";
     }
 }
