@@ -113,6 +113,8 @@ export const VocabularyHintsAside = ({
     const [hintsTab, setHintsTab] = useState<HintsTab>("vocabulary");
     const [communityScoreBand, setCommunityScoreBand] = useState<CommunityScoreBand>("LE7");
     const [speakingWord, setSpeakingWord] = useState<string | null>(null);
+    const [visibleVocabularyCount, setVisibleVocabularyCount] = useState(0);
+    const [visibleCommunityCount, setVisibleCommunityCount] = useState(0);
     const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
 
     const {
@@ -124,6 +126,8 @@ export const VocabularyHintsAside = ({
     useEffect(() => {
         setHintsTab("vocabulary");
         setCommunityScoreBand("LE7");
+        setVisibleVocabularyCount(0);
+        setVisibleCommunityCount(0);
     }, [sentenceId]);
 
     useEffect(() => {
@@ -134,6 +138,59 @@ export const VocabularyHintsAside = ({
             utteranceRef.current = null;
         };
     }, []);
+
+    useEffect(() => {
+        if (hintsTab !== "vocabulary") return;
+
+        const total = vocabularyHints?.length ?? 0;
+        if (total === 0) {
+            setVisibleVocabularyCount(0);
+            return;
+        }
+
+        setVisibleVocabularyCount(1);
+        if (total === 1) return;
+
+        let current = 1;
+        const timer = window.setInterval(() => {
+            current += 1;
+            setVisibleVocabularyCount(current);
+            if (current >= total) {
+                window.clearInterval(timer);
+            }
+        }, 70);
+
+        return () => window.clearInterval(timer);
+    }, [hintsTab, vocabularyHints, sentenceId]);
+
+    useEffect(() => {
+        if (hintsTab !== "community") return;
+
+        if (isLoadingCommunity) {
+            setVisibleCommunityCount(0);
+            return;
+        }
+
+        const total = communityList?.length ?? 0;
+        if (total === 0) {
+            setVisibleCommunityCount(0);
+            return;
+        }
+
+        setVisibleCommunityCount(1);
+        if (total === 1) return;
+
+        let current = 1;
+        const timer = window.setInterval(() => {
+            current += 1;
+            setVisibleCommunityCount(current);
+            if (current >= total) {
+                window.clearInterval(timer);
+            }
+        }, 90);
+
+        return () => window.clearInterval(timer);
+    }, [hintsTab, communityList, isLoadingCommunity, communityScoreBand]);
 
     const handleSpeak = useCallback((word: string) => {
         if (typeof window === "undefined") return;
@@ -218,8 +275,8 @@ export const VocabularyHintsAside = ({
                 aria-labelledby={hintsTab === "vocabulary" ? "hints-tab-vocabulary" : "hints-tab-community"}
             >
                 {hintsTab === "vocabulary" && (
-                    <div>
-                        {vocabularyHints.map((hint, index) => (
+                    <div className="space-y-2">
+                        {vocabularyHints.slice(0, visibleVocabularyCount).map((hint, index) => (
                             <div className="group pb-6 last:pb-0" key={index}>
                                 <div className="flex items-center gap-2 mb-2">
                                     <h3 className="text-[12px] sm:text-xs text-slate-500 dark:text-slate-400 truncate">{hint.vietnamese.toLocaleLowerCase()}</h3>
@@ -246,6 +303,12 @@ export const VocabularyHintsAside = ({
                                 </motion.div>
                             </div>
                         ))}
+                        {visibleVocabularyCount < vocabularyHints.length && (
+                            <div className="flex items-center justify-center gap-2 rounded-lg border border-dashed border-slate-200/90 px-2 py-2 text-[11px] text-slate-500 dark:border-slate-700 dark:text-slate-400">
+                                <Loader2 className="size-3.5 animate-spin" aria-hidden />
+                                <span>Streaming...</span>
+                            </div>
+                        )}
                     </div>
                 )}
 
@@ -295,10 +358,10 @@ export const VocabularyHintsAside = ({
                         )}
                         {!isCommunityError && communityList && communityList.length > 0 && (
                             <ul className="space-y-2">
-                                {communityList.map((item, i) => (
+                                {communityList.slice(0, visibleCommunityCount).map((item, i) => (
                                     <li
                                         key={`${i}-${item.translation.slice(0, 24)}`}
-                                        className="rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50/80 dark:bg-slate-800/40 px-3 py-2.5 text-xs text-slate-800 dark:text-slate-100 whitespace-pre-wrap break-words"
+                                        className="rounded-xl border border-slate-200/90 dark:border-slate-700 bg-slate-50/85 dark:bg-slate-800/50 px-3 py-2.5 text-xs text-slate-800 dark:text-slate-100 whitespace-pre-wrap break-words"
                                     >
                                         <div className="flex flex-wrap items-center gap-x-2 gap-y-1 mb-2">
                                             <span className="text-[11px] font-semibold text-slate-700 dark:text-slate-200 truncate max-w-full">
@@ -317,6 +380,12 @@ export const VocabularyHintsAside = ({
                                     </li>
                                 ))}
                             </ul>
+                        )}
+                        {!isCommunityError && (communityList?.length ?? 0) > 0 && visibleCommunityCount < (communityList?.length ?? 0) && (
+                            <div className="mt-2 flex items-center justify-center gap-2 rounded-lg border border-dashed border-slate-200/90 px-2 py-2 text-[11px] text-slate-500 dark:border-slate-700 dark:text-slate-400">
+                                <Loader2 className="size-3.5 animate-spin" aria-hidden />
+                                <span>Streaming...</span>
+                            </div>
                         )}
                     </div>
                 )}
