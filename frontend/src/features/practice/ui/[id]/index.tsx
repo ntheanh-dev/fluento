@@ -19,6 +19,7 @@ import { showApiError } from "@/shared/api/showApiError";
 import { useAnswerPreviewFeedback } from "../../hooks/useAnswerPreviewFeedbackStream";
 import { AxiosError } from "axios";
 import type { ParagraphSentence } from "@/entities/paragraphSentence/schema";
+import type { VocabularyHint } from "@/entities/paragraphSentence/schema";
 import { useTranslation } from "react-i18next";
 import { subscriptionHref } from "@/features/profile/subscriptionAnchors";
 import coinRewardAudioSrc from "@/assets/audio/chieuk-coin-257878.mp3";
@@ -61,6 +62,7 @@ const SentencePracticePage = () => {
 
   const [feedback, setFeedback] = useState<SentenceFeedback | null>(null);
   const [streamingFeedback, setStreamingFeedback] = useState<Partial<SentenceFeedback> | null>(null);
+  const [streamingVocabularyHints, setStreamingVocabularyHints] = useState<VocabularyHint[] | null>(null);
   const [coinBurstCount, setCoinBurstCount] = useState(0);
 
   const {
@@ -149,15 +151,23 @@ const SentencePracticePage = () => {
   const handleGetVocabularyHints = useCallback(async () => {
     if (currentVietNameseSentence == null) return;
     setRenderAsideType("hints");
-    if (currentVietNameseSentence?.vocabularyHints) return;
+    if (currentVietNameseSentence?.vocabularyHints) {
+      setStreamingVocabularyHints(null);
+      return;
+    }
+    setStreamingVocabularyHints([]);
     try {
-      const sentenceWithHints = await getVocabularyHints();
+      const sentenceWithHints = await getVocabularyHints({
+        onPartialHints: (partial) => setStreamingVocabularyHints(partial),
+      });
       setCurrentVietNameseSentence(sentenceWithHints);
       setVietNameseSentences((prev) =>
         prev.map((sentence) => (sentence.id === sentenceWithHints.id ? sentenceWithHints : sentence))
       );
+      setStreamingVocabularyHints(null);
       await refetchCredits();
     } catch (error) {
+      setStreamingVocabularyHints(null);
       setRenderAsideType(null);
       showApiError(error);
     }
@@ -180,6 +190,7 @@ const SentencePracticePage = () => {
       await refetchCredits();
     } catch {
       setStreamingFeedback(null);
+      setRenderAsideType(null);
     }
   }, [translation, isLoadingAnswerPreview, getAnswerPreview, currentVietNameseSentence, refetchCredits]);
 
@@ -297,7 +308,7 @@ const SentencePracticePage = () => {
                 <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">{t("practice.session.time")}</span>
                 <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-700 dark:text-slate-200">
                   <Clock size={14} className="text-slate-500 dark:text-slate-400" />
-                  {formatElapsed(elapsedSeconds)}
+                  <span className="inline-block min-w-[5ch] tabular-nums">{formatElapsed(elapsedSeconds)}</span>
                 </span>
               </div>
             )}
@@ -485,7 +496,7 @@ const SentencePracticePage = () => {
               renderAsideType={renderAsideType}
               isLoadingAnswerPreview={isLoadingAnswerPreview}
               isLoadingVocabularyHints={isLoadingVocabularyHints}
-              vocabularyHints={currentVietNameseSentence?.vocabularyHints ?? null}
+              vocabularyHints={currentVietNameseSentence?.vocabularyHints ?? streamingVocabularyHints}
               hintsSentenceId={currentVietNameseSentence?.id ?? 0}
               feedback={feedback}
               userTranslation={lastCheckedTranslation ?? translation}

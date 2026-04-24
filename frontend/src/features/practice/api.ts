@@ -5,6 +5,7 @@ import type {
   CommunityScoreBand,
   CommunityTranslation,
   ParagraphSentence,
+  VocabularyHint,
 } from "@/entities/paragraphSentence/schema";
 import type { SentenceFeedback, UserSentenceAnswer } from "@/entities/userPracticeAnswer/schema";
 import type { ApiResponse } from "@/shared/api/type";
@@ -61,10 +62,152 @@ export const getUserPracticeById = (
 
 export const getSentenceVocabularyHints = (
   sentenceId: number,
+  onTextChunk?: (fullText: string) => void,
+  onPartialHints?: (partial: VocabularyHint[]) => void,
 ): Promise<ParagraphSentence> => {
-  return getResource<ParagraphSentence>(
-    PARAGRAPH_SENTENCE_BASE + `/${sentenceId}/vocabularyHints`,
-  );
+  return (async () => {
+    let token = Cookies.get("accessToken");
+    let response = await fetch(`${API_BASE_URL}${PARAGRAPH_SENTENCE_BASE}/${sentenceId}/vocabularyHints`, {
+      method: "GET",
+      credentials: "include",
+      headers: {
+        Accept: "text/event-stream, application/json",
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+    });
+
+    if (response.status === 401) {
+      token = await refreshAccessTokenForStream();
+      response = await fetch(`${API_BASE_URL}${PARAGRAPH_SENTENCE_BASE}/${sentenceId}/vocabularyHints`, {
+        method: "GET",
+        credentials: "include",
+        headers: {
+          Accept: "text/event-stream, application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+    }
+
+    if (!response.ok) {
+      try {
+        throw await response.json();
+      } catch {
+        throw new Error(`Vocabulary hints request failed: ${response.status}`);
+      }
+    }
+
+    if (!response.body) {
+      throw new Error("Empty stream body");
+    }
+
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = "";
+    let fullStreamText = "";
+    let lastPartialSignature = "";
+
+    const toCleanJson = (raw: string): string => {
+      let text = raw.trim();
+      if (text.startsWith("```")) {
+        text = text.replace(/^```json\s*/i, "").replace(/^```\s*/i, "");
+        text = text.replace(/\s*```$/, "");
+      }
+      return text.trim();
+    };
+
+    const extractCompleteHints = (raw: string): VocabularyHint[] => {
+      const text = toCleanJson(raw);
+      const arrayStart = text.indexOf("[");
+      if (arrayStart < 0) return [];
+      const out: VocabularyHint[] = [];
+      let depth = 0;
+      let inString = false;
+      let escaped = false;
+      let objectStart = -1;
+      for (let i = arrayStart; i < text.length; i += 1) {
+        const ch = text[i];
+        if (inString) {
+          if (escaped) {
+            escaped = false;
+          } else if (ch === "\\") {
+            escaped = true;
+          } else if (ch === "\"") {
+            inString = false;
+          }
+          continue;
+        }
+        if (ch === "\"") {
+          inString = true;
+          continue;
+        }
+        if (ch === "{") {
+          if (depth === 0) objectStart = i;
+          depth += 1;
+          continue;
+        }
+        if (ch === "}") {
+          depth -= 1;
+          if (depth === 0 && objectStart >= 0) {
+            const objectRaw = text.slice(objectStart, i + 1);
+            try {
+              out.push(JSON.parse(objectRaw) as VocabularyHint);
+            } catch {
+              // Ignore incomplete object.
+            }
+            objectStart = -1;
+          }
+        }
+      }
+      return out;
+    };
+
+    const pushPartialHints = () => {
+      if (!onPartialHints) return;
+      const partial = extractCompleteHints(fullStreamText);
+      const signature = JSON.stringify(partial);
+      if (signature === lastPartialSignature) return;
+      lastPartialSignature = signature;
+      onPartialHints(partial);
+    };
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+
+      buffer += decoder.decode(value, { stream: true });
+      const sseBlocks = buffer.split("\n\n");
+      buffer = sseBlocks.pop() ?? "";
+
+      for (const block of sseBlocks) {
+        const dataLines = block
+          .split("\n")
+          .filter((line) => line.startsWith("data:"))
+          .map((line) => line.slice(5));
+        const ssePayload = dataLines.join("\n");
+
+        if (ssePayload) {
+          try {
+            const parsed = JSON.parse(ssePayload) as ApiResponse<ParagraphSentence>;
+            if (parsed?.result) {
+              return parsed.result;
+            }
+          } catch {
+            // chunk payload
+          }
+
+          fullStreamText += ssePayload;
+          onTextChunk?.(fullStreamText);
+          pushPartialHints();
+        }
+      }
+    }
+
+    throw new Error(
+      fullStreamText.trim()
+        ? "Vocabulary hints stream ended without final payload"
+        : "No vocabulary hints stream content received",
+    );
+  })();
 };
 
 export const getCommunityTranslations = (

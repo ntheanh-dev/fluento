@@ -1,5 +1,5 @@
 import type { CommunityScoreBand, VocabularyHint } from "@/entities/paragraphSentence/schema";
-import { Loader2, Sparkles, Users, Volume2 } from "lucide-react";
+import { Bookmark, BookmarkCheck, Loader2, Sparkles, Users, Volume2 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { motion } from "motion/react";
 import { useCommunityTranslations } from "../../hooks/useUserPractice";
@@ -67,36 +67,61 @@ const VocabularyItem = ({
     type,
     pronunciation,
     onSpeak,
-    isSpeaking
+    isSpeaking,
+    isSaved,
+    onToggleSave,
 }: {
     word: string,
     type: string,
     pronunciation: string,
     onSpeak: (word: string) => void,
-    isSpeaking: boolean
+    isSpeaking: boolean,
+    isSaved: boolean,
+    onToggleSave: (word: string) => void,
 }) => {
     const typeClasses = useMemo(() => getColorByType(type), [type]);
 
     return (
-
-        <div className="bg-white dark:bg-slate-900/90 rounded-lg p-2 sm:p-3 border border-slate-200 dark:border-slate-700 shadow-sm hover:border-blue-200 dark:hover:border-blue-800 transition-colors cursor-pointer">
+        <li className="bg-white dark:bg-slate-900/90 sm:p-3 py-2">
             <div className="flex items-center justify-between gap-2 mb-1">
-                <span className="text-slate-800 dark:text-slate-100 text-[12px] font-semibold min-w-0 truncate">{word.toLocaleLowerCase()}</span>
-                <button
-                    className="shrink-0 text-slate-500 hover:text-blue-700 hover:bg-blue-50 rounded-full p-1 transition-colors touch-manipulation disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-transparent disabled:hover:text-slate-500"
-                    onClick={() => onSpeak(word)}
-                    disabled={isSpeaking}
-                    aria-label={`Speak ${word}`}
-                >
-                    <Volume2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-500" />
-                </button>
+                <div className="flex items-center gap-2">
+
+                    <span className="relative pl-3 text-slate-800 dark:text-slate-100 text-[12px] font-semibold truncate before:content-['•'] before:absolute before:left-0 before:text-white">
+                        {word.toLowerCase()}
+                    </span>
+                    <span className={`shrink-0 px-1.5 py-0.5 rounded-lg text-[8px] font-bold uppercase tracking-wide ${typeClasses}`}>{type}</span>
+                </div>
+
+                <div className="shrink-0 flex items-center gap-1">
+                    <button
+                        className="shrink-0 text-slate-500 hover:text-blue-700 hover:bg-blue-50 rounded-full p-1 transition-colors touch-manipulation disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-transparent disabled:hover:text-slate-500"
+                        onClick={() => onSpeak(word)}
+                        disabled={isSpeaking}
+                        aria-label={`Speak ${word}`}
+                    >
+                        <Volume2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-500" />
+                    </button>
+                    <button
+                        className={`shrink-0 rounded-full p-1 transition-colors touch-manipulation ${isSaved
+                            ? "text-amber-600 bg-amber-50 hover:bg-amber-100 dark:text-amber-400 dark:bg-amber-950/30 dark:hover:bg-amber-900/40"
+                            : "text-slate-500 hover:text-amber-600 hover:bg-amber-50 dark:hover:text-amber-400 dark:hover:bg-amber-950/30"
+                            }`}
+                        onClick={() => onToggleSave(word)}
+                        aria-label={isSaved ? `Unsave ${word}` : `Save ${word}`}
+                        title={isSaved ? "Saved" : "Save vocabulary"}
+                    >
+                        {isSaved ? (
+                            <BookmarkCheck className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                        ) : (
+                            <Bookmark className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                        )}
+                    </button>
+                </div>
             </div>
             <div className="flex items-center justify-between gap-2 min-w-0">
                 <div className="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 italic truncate">{pronunciation}</div>
-                <span className={`shrink-0 px-1.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wide ${typeClasses}`}>{type}</span>
             </div>
-        </div>
-
+        </li>
     );
 };
 
@@ -105,15 +130,19 @@ type HintsTab = "vocabulary" | "community";
 export const VocabularyHintsAside = ({
     vocabularyHints,
     sentenceId,
+    isStreamingVocabularyHints = false,
 }: {
     vocabularyHints: VocabularyHint[] | null;
     sentenceId: number;
+    isStreamingVocabularyHints?: boolean;
 }) => {
     const { t } = useTranslation();
     const [hintsTab, setHintsTab] = useState<HintsTab>("vocabulary");
     const [communityScoreBand, setCommunityScoreBand] = useState<CommunityScoreBand>("LE7");
     const [speakingWord, setSpeakingWord] = useState<string | null>(null);
+    const [savedVocabulary, setSavedVocabulary] = useState<Set<string>>(new Set());
     const [visibleVocabularyCount, setVisibleVocabularyCount] = useState(0);
+    const [visibleVocabularyRowCount, setVisibleVocabularyRowCount] = useState(0);
     const [visibleCommunityCount, setVisibleCommunityCount] = useState(0);
     const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
 
@@ -127,7 +156,9 @@ export const VocabularyHintsAside = ({
         setHintsTab("vocabulary");
         setCommunityScoreBand("LE7");
         setVisibleVocabularyCount(0);
+        setVisibleVocabularyRowCount(0);
         setVisibleCommunityCount(0);
+        setSavedVocabulary(new Set());
     }, [sentenceId]);
 
     useEffect(() => {
@@ -145,9 +176,36 @@ export const VocabularyHintsAside = ({
         const total = vocabularyHints?.length ?? 0;
         if (total === 0) {
             setVisibleVocabularyCount(0);
+            setVisibleVocabularyRowCount(0);
             return;
         }
 
+        if (isStreamingVocabularyHints) {
+            setVisibleVocabularyCount(total);
+            const totalRows = (vocabularyHints ?? []).reduce((sum, hint) => sum + hint.english.length, 0);
+            if (totalRows === 0) {
+                setVisibleVocabularyRowCount(0);
+                return;
+            }
+            setVisibleVocabularyRowCount((prev) => {
+                if (prev <= 0) return 1;
+                return Math.min(prev, totalRows);
+            });
+
+            const timer = window.setInterval(() => {
+                setVisibleVocabularyRowCount((prev) => {
+                    if (prev >= totalRows) {
+                        window.clearInterval(timer);
+                        return totalRows;
+                    }
+                    return prev + 1;
+                });
+            }, 70);
+
+            return () => window.clearInterval(timer);
+        }
+
+        setVisibleVocabularyRowCount((vocabularyHints ?? []).reduce((sum, hint) => sum + hint.english.length, 0));
         setVisibleVocabularyCount(1);
         if (total === 1) return;
 
@@ -161,7 +219,7 @@ export const VocabularyHintsAside = ({
         }, 70);
 
         return () => window.clearInterval(timer);
-    }, [hintsTab, vocabularyHints, sentenceId]);
+    }, [hintsTab, vocabularyHints, sentenceId, isStreamingVocabularyHints]);
 
     useEffect(() => {
         if (hintsTab !== "community") return;
@@ -224,7 +282,21 @@ export const VocabularyHintsAside = ({
         synth.speak(utterance);
     }, [speakingWord]);
 
+    const handleToggleSaveVocabulary = useCallback((word: string) => {
+        const normalized = word.trim().toLowerCase();
+        setSavedVocabulary((prev) => {
+            const next = new Set(prev);
+            if (next.has(normalized)) {
+                next.delete(normalized);
+            } else {
+                next.add(normalized);
+            }
+            return next;
+        });
+    }, []);
+
     if (!vocabularyHints) return null;
+    let streamedRowCursor = 0;
     return (
         <div className="flex flex-col flex-1 min-h-0 bg-white dark:bg-slate-900/90">
             <div className="shrink-0 overflow-hidden rounded-t-[0.65rem] bg-white dark:bg-slate-900" role="tablist" aria-label={t("practice.hints.hintTypesAria")}>
@@ -276,39 +348,44 @@ export const VocabularyHintsAside = ({
             >
                 {hintsTab === "vocabulary" && (
                     <div className="space-y-2">
+                        {isStreamingVocabularyHints && (vocabularyHints?.length ?? 0) === 0 && (
+                            <div className="flex items-center justify-center rounded-lg border border-dashed border-slate-200/90 px-2 py-2 text-[11px] text-slate-500 dark:border-slate-700 dark:text-slate-400">
+                                <Loader2 className="size-3.5 animate-spin" aria-hidden />
+                            </div>
+                        )}
                         {vocabularyHints.slice(0, visibleVocabularyCount).map((hint, index) => (
-                            <div className="group pb-6 last:pb-0" key={index}>
+                            <div className="group pb-2 last:pb-0" key={`${hint.vietnamese}-${index}`}>
                                 <div className="flex items-center gap-2 mb-2">
                                     <h3 className="text-[12px] sm:text-xs text-slate-500 dark:text-slate-400 truncate">{hint.vietnamese.toLocaleLowerCase()}</h3>
                                     <div className="h-px bg-slate-200 dark:bg-slate-700 flex-1 min-w-0" />
                                 </div>
-                                <motion.div
-                                    initial={{ opacity: 0, y: 10 }}
+                                <motion.ul
+                                    initial={isStreamingVocabularyHints ? false : { opacity: 0, y: 10 }}
                                     animate={{ opacity: 1, y: 0 }}
-                                    exit={{ opacity: 0, y: -10 }}
-                                    transition={{ duration: 0.1 }}
+                                    exit={isStreamingVocabularyHints ? undefined : { opacity: 0, y: -10 }}
+                                    transition={isStreamingVocabularyHints ? { duration: 0 } : { duration: 0.1 }}
                                 >
-                                    <div className="space-y-1.5">
-                                        {hint.english.map((word, idx) => (
-                                            <VocabularyItem
-                                                key={idx}
-                                                word={word.english}
-                                                type={word.partsOfSpeech}
-                                                pronunciation={word.ipaPronunciation}
-                                                onSpeak={handleSpeak}
-                                                isSpeaking={speakingWord === word.english}
-                                            />
-                                        ))}
-                                    </div>
-                                </motion.div>
+                                    {(isStreamingVocabularyHints
+                                        ? hint.english.filter(() => {
+                                            streamedRowCursor += 1;
+                                            return streamedRowCursor <= visibleVocabularyRowCount;
+                                        })
+                                        : hint.english
+                                    ).map((word, idx) => (
+                                        <VocabularyItem
+                                            key={`${word.english}-${word.partsOfSpeech}-${idx}`}
+                                            word={word.english}
+                                            type={word.partsOfSpeech}
+                                            pronunciation={word.ipaPronunciation}
+                                            onSpeak={handleSpeak}
+                                            isSpeaking={speakingWord === word.english}
+                                            isSaved={savedVocabulary.has(word.english.trim().toLowerCase())}
+                                            onToggleSave={handleToggleSaveVocabulary}
+                                        />
+                                    ))}
+                                </motion.ul>
                             </div>
                         ))}
-                        {visibleVocabularyCount < vocabularyHints.length && (
-                            <div className="flex items-center justify-center gap-2 rounded-lg border border-dashed border-slate-200/90 px-2 py-2 text-[11px] text-slate-500 dark:border-slate-700 dark:text-slate-400">
-                                <Loader2 className="size-3.5 animate-spin" aria-hidden />
-                                <span>Streaming...</span>
-                            </div>
-                        )}
                     </div>
                 )}
 
@@ -382,9 +459,8 @@ export const VocabularyHintsAside = ({
                             </ul>
                         )}
                         {!isCommunityError && (communityList?.length ?? 0) > 0 && visibleCommunityCount < (communityList?.length ?? 0) && (
-                            <div className="mt-2 flex items-center justify-center gap-2 rounded-lg border border-dashed border-slate-200/90 px-2 py-2 text-[11px] text-slate-500 dark:border-slate-700 dark:text-slate-400">
+                            <div className="mt-2 flex items-center justify-center rounded-lg border border-dashed border-slate-200/90 px-2 py-2 text-[11px] text-slate-500 dark:border-slate-700 dark:text-slate-400">
                                 <Loader2 className="size-3.5 animate-spin" aria-hidden />
-                                <span>Streaming...</span>
                             </div>
                         )}
                     </div>

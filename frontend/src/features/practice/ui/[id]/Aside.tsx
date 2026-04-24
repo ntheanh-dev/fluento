@@ -38,18 +38,25 @@ export const Aside = ({
       || streamingFeedback.score != null
       || (streamingFeedback.suggestions != null && streamingFeedback.suggestions.length > 0)
     );
+  const hasVocabularyHintData = (vocabularyHints?.length ?? 0) > 0;
+
+  if (renderAsideType === "hints") {
+    if (isLoadingVocabularyHints && !hasVocabularyHintData) {
+      return <Analyzing />;
+    }
+    if (vocabularyHints) {
+      return (
+        <VocabularyHintsAside
+          vocabularyHints={vocabularyHints}
+          sentenceId={hintsSentenceId}
+          isStreamingVocabularyHints={isLoadingVocabularyHints}
+        />
+      );
+    }
+  }
 
   if (isLoadingVocabularyHints) {
     return <Analyzing />;
-  }
-
-  if (renderAsideType === "hints" && vocabularyHints) {
-    return (
-      <VocabularyHintsAside
-        vocabularyHints={vocabularyHints}
-        sentenceId={hintsSentenceId}
-      />
-    );
   }
 
   if (renderAsideType === "markdownFeedback") {

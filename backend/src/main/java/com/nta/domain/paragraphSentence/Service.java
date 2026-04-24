@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
 import jakarta.transaction.Transactional;
 
@@ -42,6 +43,10 @@ public class Service {
     CommonUserService commonUserService;
 
     public ParagraphSentence getOrCreateVocabularyHints(Long sentenceId) {
+        return getOrCreateVocabularyHints(sentenceId, null);
+    }
+
+    public ParagraphSentence getOrCreateVocabularyHints(Long sentenceId, Consumer<String> onChunk) {
         ParagraphSentence sentence =
                 repository.findById(sentenceId).orElseThrow(() -> new AppException(ErrorCode.RESOURCE_NOT_FOUND));
 
@@ -51,8 +56,10 @@ public class Service {
 
         PromptMessage prompt = promptFactory.buildHintTranslationPrompt(
                 sentence.getContent(), sentence.getParagraph().getLevel().getCode());
-        VocabularyHint[] response = chatService
-                .sendMessage(prompt.systemMessage(), prompt.userMessage(), VocabularyHint[].class)
+        VocabularyHint[] response = (onChunk == null
+                        ? chatService.sendMessage(prompt.systemMessage(), prompt.userMessage(), VocabularyHint[].class)
+                        : chatService.sendMessageStream(
+                                prompt.systemMessage(), prompt.userMessage(), VocabularyHint[].class, onChunk))
                 .getResult();
 
         List<VocabularyHint> vocabularyHints = response != null ? Arrays.asList(response) : List.of();

@@ -18,7 +18,13 @@ export function useUserPracticeData(id: number) {
 
 export function useSentenceVocabularyHints(sentenceId: number) {
   const mutation = useMutation({
-    mutationFn: () => getSentenceVocabularyHints(sentenceId),
+    mutationFn: ({
+      onTextChunk,
+      onPartialHints,
+    }: {
+      onTextChunk?: (fullText: string) => void;
+      onPartialHints?: (partial: VocabularyHint[]) => void;
+    } = {}) => getSentenceVocabularyHints(sentenceId, onTextChunk, onPartialHints),
     onSuccess: (data) => {
       if (data.vocabularyHints) {
         queryClient.setQueryData<VocabularyHint[]>(
@@ -30,7 +36,10 @@ export function useSentenceVocabularyHints(sentenceId: number) {
   });
 
   return {
-    mutateAsync: mutation.mutateAsync as () => Promise<ParagraphSentence>,
+    mutateAsync: mutation.mutateAsync as (params?: {
+      onTextChunk?: (fullText: string) => void;
+      onPartialHints?: (partial: VocabularyHint[]) => void;
+    }) => Promise<ParagraphSentence>,
     isPending: mutation.isPending,
     error: mutation.error,
   };
