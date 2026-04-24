@@ -9,8 +9,6 @@ import { ReactQueryProvider } from "@/app/providers/ReactQueryProvider.tsx";
 import { ThemeProvider, useTheme } from "@/app/providers/ThemeProvider";
 import { lazy, type PropsWithChildren } from "react";
 // Auth
-const Login = lazy(() => import("@/features/auth/ui/Login"));
-const Register = lazy(() => import("@/features/auth/ui/Register"));
 const Authenticate = lazy(() => import("@/features/auth/ui/Authenticated"));
 const RequiredAuth = lazy(() => import("@/features/auth/ui/RequiredAuth"));
 const RequiredAdmin = lazy(() => import("@/features/auth/ui/RequiredAdmin"));
@@ -90,7 +88,6 @@ function App() {
                 >
                   <Route path="/home" index element={<Home />} />
                   <Route path="practice" element={<PracticeSetup />} />
-                  <Route path="paragraphs" element={<ParagraphLibraryPage />} />
                   <Route path="practice/:id" element={<SentencePracticePage />} />
                   <Route path="practice/:id/result" element={<ResultScreen />} />
                   <Route path="practice/:id/result/detail" element={<ResultDetailScreen />} />
@@ -130,11 +127,10 @@ function App() {
                   <Route path="*" element={<Navigate to="/home" replace />} />
                 </Route>
 
-                <Route path="login" element={<Login />} />
-                <Route path="register" element={<Register />} />
                 <Route path="/oauth/authenticate" element={<Authenticate />} />
                 <Route path="/" element={<Layout />}>
                   <Route index element={<LandingPage />} />
+                  <Route path="paragraphs" element={<ParagraphLibraryPage />} />
                 </Route>
               </Routes>
             </Suspense>

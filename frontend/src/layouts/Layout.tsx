@@ -8,6 +8,9 @@ import {
     Trophy,
     Shield,
     LogOut,
+    Languages,
+    Moon,
+    Sun,
 } from "lucide-react";
 import Sidebar from "./Sidebar";
 import { useProfile, useProfileStore } from "@/stores/profile";
@@ -19,11 +22,14 @@ import type { MenuProps } from "antd";
 import logo from "../assets/image/logo3.png";
 import { getLevelLabel } from "@/i18n/labels";
 import { useTranslation } from "react-i18next";
+import LoginWithGoogleModal from "@/features/auth/ui/LoginWithGoogleModal";
+import { useTheme } from "@/app/providers/ThemeProvider";
 
 const ADMIN_ROLE = "ADMIN";
 
 const Layout = () => {
     const { t, i18n } = useTranslation();
+    const { theme, setTheme } = useTheme();
     const { profile } = useProfile();
     const isAdmin = useMemo(
         () => (profile?.roles ?? []).some((r) => r.name === ADMIN_ROLE),
@@ -44,6 +50,7 @@ const Layout = () => {
     const location = useLocation();
     const navigate = useNavigate();
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+    const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
     const { setProfile } = useProfileStore();
     const { mutateAsync: logout } = useLogoutMutation();
     const { data: profileData } = useProfileData({
@@ -196,11 +203,32 @@ const Layout = () => {
                                     </button>
                                 </Dropdown>
                             ) : (
-                                <>
-                                    <Link to="/login">
-                                        <Button type="primary" className="hidden sm:inline-flex font-bold font-display">{t("layout.login")}</Button>
-                                    </Link>
-                                </>
+                                <div className="flex items-center gap-2">
+                                    <button
+                                        type="button"
+                                        onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+                                        className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
+                                        aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+                                        title={theme === "dark" ? "Light mode" : "Dark mode"}
+                                    >
+                                        {theme === "dark" ? <Sun size={16} /> : <Moon size={16} />}
+                                    </button>
+                                    <Button
+                                        type="default"
+                                        className="inline-flex items-center gap-1 border-slate-200 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200"
+                                        onClick={() => void i18n.changeLanguage(i18n.language.startsWith("vi") ? "en" : "vi")}
+                                    >
+                                        <Languages size={14} />
+                                        {i18n.language.startsWith("vi") ? "EN" : "VI"}
+                                    </Button>
+                                    <Button
+                                        type="primary"
+                                        className="inline-flex font-bold font-display"
+                                        onClick={() => setIsLoginModalOpen(true)}
+                                    >
+                                        {t("layout.login")}
+                                    </Button>
+                                </div>
                             )}
                         </div>
                     </div>
@@ -211,6 +239,7 @@ const Layout = () => {
                     <Outlet />
                 </main>
             </div>
+            <LoginWithGoogleModal open={isLoginModalOpen} onCancel={() => setIsLoginModalOpen(false)} />
         </main>
     );
 };

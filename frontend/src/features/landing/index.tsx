@@ -5,6 +5,9 @@ import { useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
 import { useTranslation, Trans } from "react-i18next";
 import { useMemo } from "react";
+import { getCoverImage } from "@/shared/constants/practice-covers";
+import { Grid } from "antd";
+import { useParagraphs } from "@/features/paragraph/query";
 
 const Hero = () => {
   const { t } = useTranslation();
@@ -243,12 +246,110 @@ const HowItWorks = () => {
   );
 };
 
+const LandingParagraphSections = () => {
+  const { t } = useTranslation();
+  const navigate = useNavigate();
+  const screens = Grid.useBreakpoint();
+  const isMobile = !screens.md;
+  const { data: ieltsTask1Data } = useParagraphs({
+    type: "IELTS_TASK1",
+    sort: "desc",
+    page: 0,
+    size: 4,
+  });
+  const { data: ieltsTask2Data } = useParagraphs({
+    type: "IELTS_TASK2",
+    sort: "desc",
+    page: 0,
+    size: 4,
+  });
+
+  const paragraphSections = useMemo(
+    () => [
+      {
+        key: "IELTS_TASK1",
+        title: t("home.sections.ieltsTask1"),
+        items: ieltsTask1Data?.content ?? [],
+      },
+      {
+        key: "IELTS_TASK2",
+        title: t("home.sections.ieltsTask2"),
+        items: ieltsTask2Data?.content ?? [],
+      },
+    ],
+    [ieltsTask1Data?.content, ieltsTask2Data?.content, t],
+  );
+
+  return (
+    <section className="py-20 bg-[#f6f7f8] dark:bg-slate-950">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
+        {paragraphSections.map((section) => (
+          <div key={section.key}>
+            <div className="mb-5 flex items-center justify-between gap-3">
+              <h2 className="text-2xl font-semibold text-slate-900 dark:text-slate-100 md:text-3xl">
+                {section.title}
+              </h2>
+              <button
+                type="button"
+                onClick={() => navigate(`/paragraphs?type=${section.key}`)}
+                className="text-sm font-semibold text-[#198de6] hover:underline"
+              >
+                {t("home.sections.viewMore")}
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-4">
+              {(isMobile ? section.items.slice(0, 2) : section.items).map((item) => {
+                const title = item.title || item.sentences?.[0] || t("home.common.untitled");
+                const preview = item.sentences?.slice(0, 2).join(" ").replace("\\n", " ") || "";
+                const cover = getCoverImage(item.topic, item.type, String(item.id));
+
+                return (
+                  <article
+                    key={item.id}
+                    className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-900/90"
+                  >
+                    <img src={cover} alt={title} className="h-32 w-full object-cover" />
+                    <div className="space-y-3 p-4">
+                      <div className="flex items-center justify-between gap-2 text-xs text-slate-500 dark:text-slate-400">
+                        <span className="rounded-full bg-slate-100 px-2 py-1 dark:bg-slate-800">
+                          {t("home.common.sentenceCount", { count: item.sentences?.length ?? 0 })}
+                        </span>
+                        <span className="line-clamp-1">{t(`common.topic.${item.topic}`)}</span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => navigate(`/paragraphs?type=${section.key}`)}
+                        className="line-clamp-2 w-full text-left text-lg font-semibold leading-tight text-slate-900 transition hover:text-[#198de6] focus-visible:rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#198de6]/50 dark:text-slate-100 dark:hover:text-blue-300"
+                      >
+                        {title}
+                      </button>
+                      <p className="line-clamp-2 text-sm text-slate-500 dark:text-slate-400">{preview}</p>
+                    </div>
+                  </article>
+                );
+              })}
+
+              {section.items.length === 0 && (
+                <article className="rounded-xl border border-dashed border-slate-300 p-5 text-sm text-slate-500 dark:border-slate-700 dark:text-slate-400 md:col-span-2 xl:col-span-4">
+                  {t("home.sections.empty")}
+                </article>
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+};
+
 export default function LandingPage() {
   return (
     <div className="min-h-screen bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 font-display">
       <main>
         <Hero />
         <Features />
+        <LandingParagraphSections />
         <AIFeedback />
         <HowItWorks />
       </main>

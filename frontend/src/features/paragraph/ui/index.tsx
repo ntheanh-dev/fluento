@@ -14,6 +14,8 @@ import { useParagraphs } from "../query";
 import { LEVELS, PRACTICE_TYPES, SENTENCE_COUNTS, TONES, TOPIC_GROUPS } from "@/features/practice/constants";
 import { useCreateUserPracticeMutation } from "@/features/paragraph/mutation";
 import { getCoverImage } from "@/shared/constants/practice-covers";
+import Cookies from "js-cookie";
+import LoginWithGoogleModal from "@/features/auth/ui/LoginWithGoogleModal";
 
 const DESKTOP_PAGE_SIZE = 9;
 const MOBILE_PAGE_SIZE = 6;
@@ -45,6 +47,7 @@ const ParagraphLibraryPage = () => {
     return Number.isFinite(parsed) && parsed >= 0 ? parsed : 0;
   });
   const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const screens = Grid.useBreakpoint();
   const pageSize = screens.md ? DESKTOP_PAGE_SIZE : MOBILE_PAGE_SIZE;
 
@@ -115,9 +118,14 @@ const ParagraphLibraryPage = () => {
   const { mutateAsync: createUserPractice, isPending } = useCreateUserPracticeMutation();
 
   const handlePractice = async (paragraphId: number) => {
+    const isAuthenticated = Cookies.get("accessToken") !== undefined;
+    if (!isAuthenticated) {
+      setIsLoginModalOpen(true);
+      return;
+    }
+
     try {
       const data = await createUserPractice(paragraphId);
-      console.log(data);
       navigate(`/practice/${data.id}`);
     } catch (error) {
       message.error(error as string);
@@ -330,39 +338,39 @@ const ParagraphLibraryPage = () => {
                         className="h-36 w-full object-cover"
                       />
                       <div className="p-4">
-                      <div className="flex items-center justify-between text-xs mb-3">
-                        <span className="px-2 py-1 rounded-full bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-200 font-semibold">
-                          {item.topic}
-                        </span>
-                        <span className="text-amber-500 inline-flex items-center gap-1 font-semibold">
-                          <Sparkles className="w-3.5 h-3.5" />
-                          {item.practiceCount}
-                        </span>
-                      </div>
-                      <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100 line-clamp-2 min-h-[56px]">
-                        {item.title || item.sentences?.[0] || t("paragraphLibrary.card.untitled")}
-                      </h3>
-                      <p className="text-sm text-slate-600 dark:text-slate-300 mt-2 line-clamp-3 min-h-[60px]">
-                        {preview}
-                      </p>
-                      <div className="mt-4 flex items-center justify-between gap-2 text-xs text-slate-500 dark:text-slate-400">
-                        <span className="inline-flex items-center gap-1">
-                          <ListChecks className="w-3.5 h-3.5" />
-                          {t("paragraphLibrary.card.sentenceCount", { count: item.sentences?.length ?? 0 })}
-                        </span>
-                        <span className="inline-flex items-center gap-1">
-                          <BookOpenText className="w-3.5 h-3.5" />
-                          {item.type}
-                        </span>
-                        <Button
-                          type="primary"
-                          size="small"
-                          className=" rounded-lg px-3"
-                          onClick={() => handlePractice(item.id)}
-                        >
-                          {t("paragraphLibrary.card.practiceButton")}
-                        </Button>
-                      </div>
+                        <div className="flex items-center justify-between text-xs mb-3">
+                          <span className="px-2 py-1 rounded-full bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-200 font-semibold">
+                            {item.topic}
+                          </span>
+                          <span className="text-amber-500 inline-flex items-center gap-1 font-semibold">
+                            <Sparkles className="w-3.5 h-3.5" />
+                            {item.practiceCount}
+                          </span>
+                        </div>
+                        <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100 line-clamp-2 min-h-[56px]">
+                          {item.title || item.sentences?.[0] || t("paragraphLibrary.card.untitled")}
+                        </h3>
+                        <p className="text-sm text-slate-600 dark:text-slate-300 mt-2 line-clamp-3 min-h-[60px]">
+                          {preview}
+                        </p>
+                        <div className="mt-4 flex items-center justify-between gap-2 text-xs text-slate-500 dark:text-slate-400">
+                          <span className="inline-flex items-center gap-1">
+                            <ListChecks className="w-3.5 h-3.5" />
+                            {t("paragraphLibrary.card.sentenceCount", { count: item.sentences?.length ?? 0 })}
+                          </span>
+                          <span className="inline-flex items-center gap-1">
+                            <BookOpenText className="w-3.5 h-3.5" />
+                            {item.type}
+                          </span>
+                          <Button
+                            type="primary"
+                            size="small"
+                            className=" rounded-lg px-3"
+                            onClick={() => handlePractice(item.id)}
+                          >
+                            {t("paragraphLibrary.card.practiceButton")}
+                          </Button>
+                        </div>
                       </div>
 
                     </article>
@@ -397,6 +405,7 @@ const ParagraphLibraryPage = () => {
       >
         {filterPanel}
       </Drawer>
+      <LoginWithGoogleModal open={isLoginModalOpen} onCancel={() => setIsLoginModalOpen(false)} />
     </div>
   );
 };
