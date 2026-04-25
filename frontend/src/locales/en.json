@@ -531,7 +531,7 @@
     "anonymous": "Anonymous",
     "sentences": "sentences",
     "avgShort": "Avg {{score}}",
-    "streakLine": "Streak {{count}} days",
+    "streakLine": "Streak {{count}}",
     "detailTitle": "Full leaderboard",
     "searchPlaceholder": "Search users…",
     "loadError": "Could not load leaderboard. Please try again later.",

@@ -14,7 +14,7 @@ const RequiredAuth = lazy(() => import("@/features/auth/ui/RequiredAuth"));
 const RequiredAdmin = lazy(() => import("@/features/auth/ui/RequiredAdmin"));
 
 // Practice
-import PracticeSetup from "@/features/practice/ui/PracticeSetup";
+import SingleSentenceSetup from "@/features/practice/ui/SingleSentenceSetup";
 const ParagraphLibraryPage = lazy(() => import("@/features/paragraph/ui"));
 const ResultScreen = lazy(() => import("@/features/practice/ui/[id]/ResultScreen.tsx"));
 const ResultDetailScreen = lazy(() => import("@/features/practice/ui/[id]/ResultDetailScreen.tsx"));
@@ -87,7 +87,8 @@ function App() {
                   }
                 >
                   <Route path="/home" index element={<Home />} />
-                  <Route path="practice" element={<PracticeSetup />} />
+                  <Route path="practice" element={<Navigate to="/practice/single-sentence" replace />} />
+                  <Route path="practice/single-sentence" element={<SingleSentenceSetup />} />
                   <Route path="practice/:id" element={<SentencePracticePage />} />
                   <Route path="practice/:id/result" element={<ResultScreen />} />
                   <Route path="practice/:id/result/detail" element={<ResultDetailScreen />} />

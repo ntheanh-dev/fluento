@@ -69,6 +69,11 @@ public class Service {
     }
 
     public Paragraph findOrcreate(CreateParagraphRequest request) {
+        if (request.getType() == Type.SINGLE_SENTENCE
+                && request.getSingleSentenceMix() != null
+                && !request.getSingleSentenceMix().isEmpty()) {
+            return handleSingleSentence(request);
+        }
         return findExistingWithSameSetup(request).orElseGet(() -> switch (request.getType()) {
             case DIARIES -> handleBasicParagraph(request);
             case STORY, EMAIL, IELTS_TASK1, IELTS_TASK2, ESSAYS -> handleOtherParagraph(request);

@@ -531,7 +531,7 @@
     "anonymous": "Ẩn danh",
     "sentences": "câu",
     "avgShort": "Điểm TB {{score}}",
-    "streakLine": "Chuỗi {{count}} ngày",
+    "streakLine": "Chuỗi {{count}}",
     "detailTitle": "Bảng xếp hạng chi tiết",
     "searchPlaceholder": "Tìm người dùng...",
     "loadError": "Không thể tải bảng xếp hạng. Vui lòng thử lại sau.",

@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import com.nta.common.dto.ApiResponse;
+import com.nta.domain.paragraph.dto.request.CreateParagraphRequest;
 import com.nta.domain.paragraph.enums.Level;
 import com.nta.domain.paragraph.enums.Topic;
 import com.nta.domain.paragraph.enums.Type;
@@ -74,6 +75,13 @@ public class Controller {
     ApiResponse<UserPracticeResponse> create(@PathVariable Long paragraphId) {
         return ApiResponse.<UserPracticeResponse>builder()
                 .result(service.create(paragraphId))
+                .build();
+    }
+
+    @PostMapping
+    ApiResponse<UserPracticeResponse> create(@RequestBody @Valid CreateParagraphRequest request) {
+        return ApiResponse.<UserPracticeResponse>builder()
+                .result(service.create(request))
                 .build();
     }
 

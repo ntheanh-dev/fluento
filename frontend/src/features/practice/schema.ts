@@ -7,6 +7,14 @@ const practiceTypeValues = [
 ] as unknown as [string, ...string[]];
 
 const toneValues = TONES.map((x) => x.value) as unknown as [string, ...string[]];
+const singleSentenceMixValues = [
+    "STATEMENT",
+    "QUESTION",
+    "REQUEST",
+    "PAST",
+    "PRESENT",
+    "FUTURE",
+] as const;
 
 const practiceSetupSchema = z.object({
     type: z.enum(practiceTypeValues),
@@ -14,6 +22,7 @@ const practiceSetupSchema = z.object({
     topic: z.enum(TOPIC_GROUPS.flatMap((group) => group.topics.map((topic) => topic.value))),
     level: z.enum(LEVELS.map((level) => level.value)),
     sentenceCount: z.enum(SENTENCE_COUNTS.map((sentenceCount) => sentenceCount.value)),
+    singleSentenceMix: z.array(z.enum(singleSentenceMixValues)).optional(),
 });
 
 

@@ -340,7 +340,7 @@ const PracticeHistory = () => {
                             </button>
                         )}
                         <Link
-                            to="/practice"
+                            to="/practice/single-sentence"
                             className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-[#198de6] text-white text-sm font-medium hover:opacity-90 transition-opacity"
                         >
                             {t("history.startPractice")} <ArrowRight className="w-4 h-4" />

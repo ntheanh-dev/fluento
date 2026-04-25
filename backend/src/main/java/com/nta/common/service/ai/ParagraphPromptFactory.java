@@ -1,5 +1,11 @@
 package com.nta.common.service.ai;
 
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 import org.springframework.stereotype.Component;
 
 import com.nta.domain.paragraph.dto.request.CreateParagraphRequest;
@@ -10,6 +16,16 @@ import lombok.RequiredArgsConstructor;
 @Component
 @RequiredArgsConstructor
 public class ParagraphPromptFactory {
+    private static final Map<String, String> SINGLE_SENTENCE_MIX_OPTIONS = new LinkedHashMap<>();
+
+    static {
+        SINGLE_SENTENCE_MIX_OPTIONS.put("STATEMENT", "statements");
+        SINGLE_SENTENCE_MIX_OPTIONS.put("QUESTION", "questions");
+        SINGLE_SENTENCE_MIX_OPTIONS.put("REQUEST", "requests");
+        SINGLE_SENTENCE_MIX_OPTIONS.put("PAST", "past tense");
+        SINGLE_SENTENCE_MIX_OPTIONS.put("PRESENT", "present tense");
+        SINGLE_SENTENCE_MIX_OPTIONS.put("FUTURE", "future tense");
+    }
 
     public PromptMessage buildPrompt(CreateParagraphRequest request) {
 
@@ -168,6 +184,9 @@ Use logical transitions. If there are distinct points, separate them with the li
     }
 
     private PromptMessage buildSingleSentencePrompt(CreateParagraphRequest request) {
+        int sentenceCount =
+                request.getSentenceCount() != null ? request.getSentenceCount().getSize() : SentenceCount.TEN.getSize();
+        List<String> selectedMix = resolveSingleSentenceMix(request.getSingleSentenceMix());
         String system =
                 """
 				You are an expert English teacher creating learning materials for Vietnamese learners.
@@ -185,20 +204,39 @@ Use logical transitions. If there are distinct points, separate them with the li
 				Tone: %s
 
 				Requirements:
-				- Use a variety of sentence types:
-				* statements
-				* questions
-				* exclamations
-				* requests
-				* suggestions
+				- Use the selected mix options below and distribute them naturally across the sentence set.
+				%s
 				- Sentences should feel natural in daily life
 				- Keep vocabulary suitable for the specified level
 				- Return ONLY valid JSON with schema {"sentences":["string"]}
 				- Do NOT include numbering, bullet points, or explanations
 				""",
-                request.getSentenceCount().getSize(), request.getTopic(), request.getLevel(), request.getTone());
+                sentenceCount, request.getTopic(), request.getLevel(), request.getTone(), toBulletList(selectedMix));
 
         return new PromptMessage(system, user);
+    }
+
+    private List<String> resolveSingleSentenceMix(List<String> input) {
+        if (input == null || input.isEmpty()) {
+            return List.copyOf(SINGLE_SENTENCE_MIX_OPTIONS.values());
+        }
+        List<String> normalized = input.stream()
+                .filter(value -> value != null && !value.isBlank())
+                .map(value -> value.trim().toUpperCase(Locale.ROOT))
+                .distinct()
+                .toList();
+        List<String> selected = normalized.stream()
+                .filter(SINGLE_SENTENCE_MIX_OPTIONS::containsKey)
+                .map(SINGLE_SENTENCE_MIX_OPTIONS::get)
+                .toList();
+        if (selected.isEmpty()) {
+            return List.copyOf(SINGLE_SENTENCE_MIX_OPTIONS.values());
+        }
+        return selected;
+    }
+
+    private String toBulletList(List<String> options) {
+        return options.stream().map(option -> "* " + option).collect(Collectors.joining("\n"));
     }
 
     public PromptMessage buildHintTranslationPrompt(String sentence, String level) {

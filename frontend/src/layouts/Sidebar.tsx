@@ -88,7 +88,7 @@ const Sidebar = ({
         <SidebarItem
           icon={BookOpen}
           label={t("nav.practice")}
-          to="/practice"
+          to="/practice/single-sentence"
           active={
             activePath.startsWith("/practice") ||
             activePath.startsWith("/session")

@@ -129,7 +129,7 @@ const SentencePracticePage = () => {
 
   // --- Handlers ---
 
-  const handleBackToSetup = useCallback(() => navigate("/setup"), [navigate]);
+  const handleBack = useCallback(() => history.back(), [history]);
   const playCoinRewardSound = useCallback(() => {
     if (!coinAudioRef.current) return;
     coinAudioRef.current.currentTime = 0;
@@ -419,7 +419,7 @@ const SentencePracticePage = () => {
             <div className="flex justify-between items-center mt-2 sm:mt-3 gap-2">
               <div className="flex items-center gap-2">
                 <button
-                  onClick={handleBackToSetup}
+                  onClick={handleBack}
                   className="hidden md:inline-flex shrink-0 group p-2 md:p-2.5 hover:bg-slate-100 dark:hover:bg-slate-800 active:bg-slate-200 dark:active:bg-slate-700 rounded-lg sm:rounded-xl text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition-all border border-slate-200 dark:border-slate-700 shadow-sm bg-white dark:bg-slate-900 touch-manipulation"
                 >
                   <ArrowLeft

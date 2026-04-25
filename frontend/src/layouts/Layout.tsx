@@ -26,6 +26,7 @@ import LoginWithGoogleModal from "@/features/auth/ui/LoginWithGoogleModal";
 import { useTheme } from "@/app/providers/ThemeProvider";
 
 const ADMIN_ROLE = "ADMIN";
+const PRACTICE_NAV_KEY = "practice-nav";
 
 const Layout = () => {
     const { t, i18n } = useTranslation();
@@ -38,7 +39,7 @@ const Layout = () => {
     const navItems = useMemo(
         () => {
             const base = [
-                { label: t("nav.practice"), to: "/paragraphs", icon: BookOpen },
+                { key: PRACTICE_NAV_KEY, label: t("nav.practice"), to: "/paragraphs", icon: BookOpen },
                 { label: t("nav.history"), to: "/history", icon: History },
                 { label: t("nav.rankings"), to: "/rankings", icon: Trophy },
             ];
@@ -68,9 +69,28 @@ const Layout = () => {
 
     const isActive = (to: string) => {
         if (to === "/home") return location.pathname === "/home";
-        if (to === "/paragraphs") return location.pathname.startsWith("/paragraphs");
+        if (to === "/paragraphs") {
+            return location.pathname.startsWith("/paragraphs") || location.pathname.startsWith("/practice");
+        }
         if (to === "/admin") return location.pathname.startsWith("/admin");
         return location.pathname.startsWith(to);
+    };
+    const practiceMenuItems = useMemo<MenuProps["items"]>(
+        () => [
+            { key: "paragraph", label: t("practice.setup.modeParagraphCardTitle") },
+            { key: "single-sentence", label: t("practice.setup.modeSentenceCardTitle") },
+        ],
+        [t],
+    );
+
+    const handlePracticeMenuClick: MenuProps["onClick"] = ({ key }) => {
+        if (key === "paragraph") {
+            navigate("/paragraphs");
+            return;
+        }
+        if (key === "single-sentence") {
+            navigate("/practice/single-sentence");
+        }
     };
 
     const userMenuItems = useMemo<MenuProps["items"]>(
@@ -151,24 +171,49 @@ const Layout = () => {
 
                         {isAuthenticated && (
                             <nav className="hidden md:flex items-end items-center pt-2 gap-6 h-full">
-                                {navItems.map(({ label, to, icon: Icon }) => (
-                                    <Link
-                                        key={to}
-                                        to={to}
-                                        className={`flex items-center gap-2 px-1 pb-4 pt-2 text-sm font-medium transition-colors ${isActive(to)
-                                            ? "text-blue-600 dark:text-blue-400"
-                                            : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100"
-                                            }`}
-                                    >
-                                        <Icon
-                                            size={18}
-                                            strokeWidth={isActive(to) ? 2.25 : 2}
-                                            className="shrink-0 opacity-90"
-                                            aria-hidden
-                                        />
-                                        {label}
-                                    </Link>
-                                ))}
+                                {navItems.map(({ key, label, to, icon: Icon }) => {
+                                    const itemClassName = `flex items-center gap-2 px-1 pb-4 pt-2 text-sm font-medium transition-colors ${isActive(to)
+                                        ? "text-blue-600 dark:text-blue-400"
+                                        : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100"
+                                        }`;
+                                    if (key === PRACTICE_NAV_KEY) {
+                                        return (
+                                            <Dropdown
+                                                key={to}
+                                                menu={{ items: practiceMenuItems, onClick: handlePracticeMenuClick }}
+                                                trigger={["click"]}
+                                                placement="bottom"
+                                                overlayStyle={{ minWidth: 200 }}
+                                            >
+                                                <button type="button" className={itemClassName}>
+                                                    <Icon
+                                                        size={18}
+                                                        strokeWidth={isActive(to) ? 2.25 : 2}
+                                                        className="shrink-0 opacity-90"
+                                                        aria-hidden
+                                                    />
+                                                    {label}
+                                                </button>
+                                            </Dropdown>
+                                        );
+                                    }
+
+                                    return (
+                                        <Link
+                                            key={to}
+                                            to={to}
+                                            className={itemClassName}
+                                        >
+                                            <Icon
+                                                size={18}
+                                                strokeWidth={isActive(to) ? 2.25 : 2}
+                                                className="shrink-0 opacity-90"
+                                                aria-hidden
+                                            />
+                                            {label}
+                                        </Link>
+                                    );
+                                })}
                             </nav>
                         )}
 

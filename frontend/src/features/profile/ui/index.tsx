@@ -1,5 +1,5 @@
 import { useState, useRef } from "react";
-import { User, LogOut, Camera, CreditCard } from "lucide-react";
+import { User, LogOut, Camera, CreditCard, Flame } from "lucide-react";
 import { Avatar, message } from "antd";
 import {
   ACCEPT_IMAGE,
@@ -12,7 +12,6 @@ import Cookies from "js-cookie";
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import { PROFILE_EMBED_PRACTICESTATS, useProfileData } from "../query";
 import { useUpdateMe } from "../hook/useUpdateMe";
-import { getLevelLabel } from "@/i18n/labels";
 
 
 const Profile = () => {
@@ -117,9 +116,10 @@ const Profile = () => {
             <h2 className="text-xl font-bold text-slate-800 dark:text-slate-100">
               {profile?.fullName}
             </h2>
-            <div className="min-w-0">
-              <span className="mt-2 inline-flex items-center rounded-full bg-slate-900/5 px-3 py-1 text-xs font-semibold text-slate-700 dark:bg-white/10 dark:text-slate-200">
-                {t("profile.subscriptionPage.planBadgeFree")}
+            <div className="min-w-0 flex items-center gap-2 flex-col">
+              <span className="mt-2 inline-flex items-center gap-1 rounded-full bg-orange-50 px-3 py-1 text-xs font-semibold text-orange-600 dark:bg-orange-500/10 dark:text-orange-300">
+                <Flame size={12} className="shrink-0" />
+                {t("ranking.streakLine", { count: profile?.currentStreak ?? 0 })}
               </span>
             </div>
           </div>

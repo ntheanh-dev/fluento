@@ -1,5 +1,7 @@
 package com.nta.domain.paragraph.dto.request;
 
+import java.util.List;
+
 import jakarta.validation.constraints.NotNull;
 
 import com.nta.domain.paragraph.enums.Level;
@@ -39,4 +41,10 @@ public class CreateParagraphRequest {
 
     @Schema(description = "Sentence count", example = "TEN")
     private SentenceCount sentenceCount;
+
+    @Schema(
+            description =
+                    "Optional single-sentence mix options. Example values: STATEMENT, QUESTION, EXCLAMATION, REQUEST, SUGGESTION, PAST, PRESENT, FUTURE",
+            example = "[\"STATEMENT\",\"QUESTION\",\"PAST\",\"PRESENT\"]")
+    private List<String> singleSentenceMix;
 }

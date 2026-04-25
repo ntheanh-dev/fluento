@@ -21,6 +21,7 @@ import com.nta.common.service.ai.ChatService;
 import com.nta.common.service.ai.ParagraphPromptFactory;
 import com.nta.common.service.ai.PromptMessage;
 import com.nta.domain.paragraph.Paragraph;
+import com.nta.domain.paragraph.dto.request.CreateParagraphRequest;
 import com.nta.domain.paragraph.enums.Level;
 import com.nta.domain.paragraph.enums.Topic;
 import com.nta.domain.paragraph.enums.Type;
@@ -63,6 +64,16 @@ public class Service {
         Paragraph paragraph = paragraphService
                 .findById(paragraphId)
                 .orElseThrow(() -> new AppException(ErrorCode.PARAGRAPH_NOT_FOUND));
+        return createPracticeFromParagraph(paragraph);
+    }
+
+    @Transactional
+    UserPracticeResponse create(CreateParagraphRequest request) {
+        Paragraph paragraph = paragraphService.findOrcreate(request);
+        return createPracticeFromParagraph(paragraph);
+    }
+
+    private UserPracticeResponse createPracticeFromParagraph(Paragraph paragraph) {
         UserPractice practice = UserPractice.builder()
                 .user(commonUserService.getUserFromContext())
                 .paragraph(paragraph)

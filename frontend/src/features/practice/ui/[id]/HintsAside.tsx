@@ -86,7 +86,7 @@ const VocabularyItem = ({
             <div className="flex items-center justify-between gap-2 mb-1">
                 <div className="flex items-center gap-2">
 
-                    <span className="relative pl-3 text-slate-800 dark:text-slate-100 text-[12px] font-semibold truncate before:content-['•'] before:absolute before:left-0 before:text-white">
+                    <span className="relative pl-1 text-slate-800 dark:text-slate-100 text-[12px] font-semibold truncate before:content-['•'] before:absolute before:left-0 before:text-white">
                         {word.toLowerCase()}
                     </span>
                     <span className={`shrink-0 px-1.5 py-0.5 rounded-lg text-[8px] font-bold uppercase tracking-wide ${typeClasses}`}>{type}</span>

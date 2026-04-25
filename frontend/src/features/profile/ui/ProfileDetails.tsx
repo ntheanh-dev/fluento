@@ -42,77 +42,7 @@ export function ProfileDetailsSection() {
 
   return (
     <div className="flex-1 min-w-0 space-y-6">
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-        <div className="bg-white dark:bg-slate-900/90 p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm flex items-center gap-4">
-          <div className="w-12 h-12 rounded-full bg-amber-50 dark:bg-amber-950/50 text-amber-500 flex items-center justify-center shrink-0">
-            <Coins size={24} />
-          </div>
-          <div>
-            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-              {t("profile.creditsRemaining")}
-            </p>
-            <p className="text-xl font-bold text-slate-800 dark:text-slate-100">
-              {creditBalance?.credits ?? 0}
-            </p>
-          </div>
-        </div>
-        <div className="bg-white dark:bg-slate-900/90 p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm flex items-center gap-4">
-          <div className="w-12 h-12 rounded-full bg-yellow-50 dark:bg-yellow-950/50 text-yellow-500 flex items-center justify-center shrink-0">
-            <Coins size={24} />
-          </div>
-          <div>
-            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-              {t("profile.coinsRemaining")}
-            </p>
-            <p className="text-xl font-bold text-slate-800 dark:text-slate-100">
-              {creditBalance?.coins ?? 0}
-            </p>
-          </div>
-        </div>
-        <div className="bg-white dark:bg-slate-900/90 p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm flex items-center gap-4">
-          <div className="w-12 h-12 rounded-full bg-orange-50 dark:bg-orange-950/50 text-orange-500 flex items-center justify-center shrink-0">
-            <Flame size={24} fill="currentColor" />
-          </div>
-          <div>
-            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-              {t("profile.currentStreak")}
-            </p>
-            <p className="text-xl font-bold text-slate-800 dark:text-slate-100">
-              {t("profile.streakDays", { count: profile?.currentStreak ?? 0 })}
-            </p>
-          </div>
-        </div>
 
-        <div className="bg-white dark:bg-slate-900/90 p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm flex items-center gap-4">
-          <div className="w-12 h-12 rounded-full bg-blue-50 dark:bg-blue-950/50 text-primary flex items-center justify-center shrink-0">
-            <FileText size={24} />
-          </div>
-          <div>
-            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-              {t("profile.translated")}
-            </p>
-            <p className="text-xl font-bold text-slate-800 dark:text-slate-100">
-              {totalTranslated.toLocaleString(
-                uiLang === "vi" ? "vi-VN" : "en-US",
-              )}
-            </p>
-          </div>
-        </div>
-
-        <div className="bg-white dark:bg-slate-900/90 p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm flex items-center gap-4">
-          <div className="w-12 h-12 rounded-full bg-violet-50 dark:bg-violet-950/50 text-violet-500 flex items-center justify-center shrink-0">
-            <Clock size={24} />
-          </div>
-          <div>
-            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-              {t("profile.totalPracticeTime")}
-            </p>
-            <p className="text-xl font-bold text-slate-800 dark:text-slate-100">
-              {formatTotalHours(profile?.embedded?.totalLearningTime ?? 0)}
-            </p>
-          </div>
-        </div>
-      </div>
 
       <div className="bg-white dark:bg-slate-900/90 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm p-6">
         <div className="mb-6">
