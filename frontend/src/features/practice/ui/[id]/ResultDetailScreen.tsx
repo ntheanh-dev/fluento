@@ -104,7 +104,7 @@ export default function ReviewScreen() {
                                     </h3>
                                     <div className="bg-white dark:bg-slate-900/90 p-4 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700">
                                         <p className="text-base text-slate-800 dark:text-slate-100 font-medium leading-relaxed">
-                                            {renderWordDiff(data?.sentenceAnswers[selectedSentenceIndex].userTranslation ?? '', data?.sentenceAnswers[selectedSentenceIndex].feedback.correction ?? '')}
+                                            {renderWordDiff(data?.sentenceAnswers[selectedSentenceIndex].userTranslation ?? '', data?.sentenceAnswers[selectedSentenceIndex].feedback.correction ?? '', data?.targetLanguage ?? "EN")}
                                         </p>
                                     </div>
                                 </div>

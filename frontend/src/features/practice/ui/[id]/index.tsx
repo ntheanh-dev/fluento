@@ -23,6 +23,9 @@ import type { VocabularyHint } from "@/entities/paragraphSentence/schema";
 import { useTranslation } from "react-i18next";
 import { subscriptionHref } from "@/features/profile/subscriptionAnchors";
 import coinRewardAudioSrc from "@/assets/audio/chieuk-coin-257878.mp3";
+import type { TargetLanguage } from "@/shared/constants/target-language";
+import { TARGET_LANGUAGE_FLAG } from "@/shared/constants/target-language";
+import { upperFirstCharactor } from "@/shared/utilities";
 
 export type RenderAsideType = "hints" | "markdownFeedback" | null;
 
@@ -158,6 +161,7 @@ const SentencePracticePage = () => {
     setStreamingVocabularyHints([]);
     try {
       const sentenceWithHints = await getVocabularyHints({
+        targetLanguage: (data?.targetLanguage ?? "EN") as TargetLanguage,
         onPartialHints: (partial) => setStreamingVocabularyHints(partial),
       });
       setCurrentVietNameseSentence(sentenceWithHints);
@@ -272,37 +276,53 @@ const SentencePracticePage = () => {
     idValid &&
     errorUserPracticeData != null &&
     (errorUserPracticeData as AxiosError)?.response?.status === 404;
+  const targetLanguage: TargetLanguage = (data?.targetLanguage ?? "EN") as TargetLanguage;
+  const targetLanguageLabel =
+    targetLanguage === "ZH" ? "Chinese" : targetLanguage === "KO" ? "Korean" : "English";
+  const targetLanguageFlag = TARGET_LANGUAGE_FLAG[targetLanguage];
+  const translationPlaceholder = t("practice.session.placeholderWithTarget", { language: targetLanguageLabel });
 
   if (!idValid || practiceNotFound) {
     return <Navigate to="/404" replace />;
   }
 
+
   return (
-    <div className="h-[calc(100vh-130px+4rem)] max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col overflow-hidden dark:text-slate-100">
+    <div className="h-[calc(100vh-130px+4rem)] max-md:h-auto max-md:min-h-screen max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col overflow-hidden max-md:overflow-visible dark:text-slate-100">
       {/* Top Bar for Task Info */}
       <div className="flex items-center justify-between md:py-4 mb-2 shrink-0 px-1 sm:px-0 gap-4">
         <div className="flex-[10] flex flex-row items-center justify-between gap-4">
           {data?.paragraph.type !== "DIARIES" && data?.paragraph.type !== "SINGLE_SENTENCE" && (
             <div>
-              <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100 mb-2">{data?.paragraph.type}</h1>
-              <p className="text-slate-600 dark:text-slate-400 text-sm max-w-xl">
+              <p className="text-lg font-bold text-slate-900 dark:text-slate-100 mb-2">{data?.paragraph.type}</p>
+              <p className="text-slate-600 dark:text-slate-400 text-xs max-w-xl">
                 {data?.paragraph.title}
               </p>
             </div>
           )}
           <div className="flex flex-row items-center gap-1.5 sm:gap-4">
-            <div className="hidden lg:flex flex-row items-center gap-1.5 sm:gap-4">
-              <div className="flex flex-col items-start">
-                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">{t("practice.result.topic")}</span>
-                <span className="text-xs font-semibold text-slate-700 dark:text-slate-200">{data?.paragraph.topic.toLowerCase()}</span>
+            {data?.paragraph.type === "DIARIES" && (
+              <div className="hidden lg:flex flex-row items-center gap-1.5 sm:gap-4">
+                <div className="flex flex-col items-start">
+                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">{t("practice.result.topic")}</span>
+                  <span className="text-xs font-semibold text-slate-700 dark:text-slate-200">{upperFirstCharactor(data?.paragraph.topic)}</span>
+                </div>
               </div>
-              <div className="h-8 w-px bg-slate-100 dark:bg-slate-700"></div>
+            )}
+
+            {data?.paragraph.type === "DIARIES" && (
+              <div className="hidden lg:block h-8 w-px shrink-0 bg-slate-100 dark:bg-slate-700"></div>
+            )}
+            {data && (
               <div className="flex flex-col items-start">
-                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">{t("practice.result.level")}</span>
-                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-50 dark:bg-blue-950/50 text-blue-700 dark:text-blue-300">{data?.paragraph.level}</span>
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">{t("history.language")}</span>
+                <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-700 dark:text-slate-200">
+                  <span>{targetLanguageFlag}</span>
+                  <span>{targetLanguageLabel}</span>
+                </span>
               </div>
-            </div>
-            {data && <div className="hidden lg:block h-8 w-px shrink-0 bg-slate-100 dark:bg-slate-700"></div>}
+            )}
+            {data && <div className="h-8 w-px shrink-0 bg-slate-100 dark:bg-slate-700"></div>}
             {data && (
               <div className="flex flex-col items-start">
                 <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">{t("practice.session.time")}</span>
@@ -371,13 +391,13 @@ const SentencePracticePage = () => {
         <section className="md:col-span-8 flex flex-col gap-3 sm:gap-4 max-md:min-h-0 max-md:overflow-visible md:overflow-y-auto pr-1 sm:pr-2 custom-scrollbar">
           {/* Source Context View */}
           {singleSentenceText != null ? (
-            <div className="bg-slate-50/50 dark:bg-slate-950/30 rounded-lg bg-white dark:bg-slate-900/90 sm:rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden p-3 md:px-6 text-slate-800 dark:text-slate-100 font-medium leading-6 sm:leading-7 space-y-3 sm:space-y-4">
+            <div className="bg-slate-50/50 dark:bg-slate-950/30 rounded-lg bg-white dark:bg-slate-900/90 sm:rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden p-3 md:px-6 text-slate-800 dark:text-slate-100 font-medium leading-6 sm:leading-7 space-y-3 sm:space-y-4 max-md:max-h-[40vh] max-md:overflow-y-auto">
               <span className="relative inline whitespace-pre-line text-sm py-2 text-blue-600 font-bold">
                 {singleSentenceText.content}
               </span>
             </div>
           ) : (
-            <div className="flex-[10] min-h-0 bg-slate-50/50 dark:bg-slate-950/30 rounded-lg bg-white dark:bg-slate-900/90 sm:rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden p-3 md:px-6 text-slate-800 dark:text-slate-100 font-medium h-full overflow-y-auto leading-6 sm:leading-7 space-y-3 sm:space-y-4">
+            <div className="flex-[10] min-h-0 bg-slate-50/50 dark:bg-slate-950/30 rounded-lg bg-white dark:bg-slate-900/90 sm:rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden p-3 md:px-6 text-slate-800 dark:text-slate-100 font-medium h-full overflow-y-auto leading-6 sm:leading-7 space-y-3 sm:space-y-4 max-md:max-h-[40vh]">
               {
                 vietNameseSentences.map((sentence: ParagraphSentence, index: number) => (
                   <React.Fragment key={index}>
@@ -405,16 +425,18 @@ const SentencePracticePage = () => {
             </div>
           )}
 
-          {/* English Translation Flow (Input) */}
+          {/* Target Language Translation Flow (Input) */}
           <div className="flex-[2] flex flex-col flex-1">
-            <textarea
-              className="w-full p-4 rounded-lg sm:rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/80 focus:bg-white dark:focus:bg-slate-900 focus:ring-2 focus:ring-blue-100 dark:focus:ring-blue-900 focus:border-blue-400 outline-none text-base text-slate-900 dark:text-slate-100 transition-all resize-none min-h-[72px] sm:min-h-[80px]"
-              placeholder={t("practice.session.placeholder")}
-              rows={2}
-              value={translation}
-              onChange={(e) => setTranslation(e.target.value)}
-              onKeyDown={handleTranslationKeyDown}
-            />
+            <div className="relative">
+              <textarea
+                className="w-full p-4 rounded-lg sm:rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/80 focus:bg-white dark:focus:bg-slate-900 focus:ring-2 focus:ring-blue-100 dark:focus:ring-blue-900 focus:border-blue-400 outline-none text-base text-slate-900 dark:text-slate-100 transition-all resize-none min-h-[72px] sm:min-h-[80px]"
+                placeholder={translationPlaceholder}
+                rows={2}
+                value={translation}
+                onChange={(e) => setTranslation(e.target.value)}
+                onKeyDown={handleTranslationKeyDown}
+              />
+            </div>
 
             <div className="flex justify-between items-center mt-2 sm:mt-3 gap-2">
               <div className="flex items-center gap-2">
@@ -498,6 +520,7 @@ const SentencePracticePage = () => {
               isLoadingVocabularyHints={isLoadingVocabularyHints}
               vocabularyHints={currentVietNameseSentence?.vocabularyHints ?? streamingVocabularyHints}
               hintsSentenceId={currentVietNameseSentence?.id ?? 0}
+              targetLanguage={targetLanguage}
               feedback={feedback}
               userTranslation={lastCheckedTranslation ?? translation}
               streamingFeedback={streamingFeedback}

@@ -310,6 +310,12 @@
     "feature1Desc": "Tập trung vào độ chính xác và ngữ pháp ở cấp độ vi mô. Hoàn hảo để nắm vững các thì và giới từ cụ thể.",
     "feature2Title": "Luyện dịch đoạn văn",
     "feature2Desc": "Làm chủ dòng chảy, ngữ cảnh và các cấu trúc câu nâng cao. Học cách kết nối các ý tưởng một cách tự nhiên và chuyên nghiệp.",
+    "multiBadge": "Toàn cầu hóa",
+    "multiTitlePrefix": "Phá bỏ rào cản với ",
+    "multiTitleAccent": "Dịch đa ngôn ngữ",
+    "multiDescription": "Nền tảng hiện hỗ trợ Việt, Anh, Hàn và Trung để bạn luyện tập và dịch thuật linh hoạt hơn mỗi ngày.",
+    "multiBullet1": "Độ chính xác cao - Hiểu rõ ngữ cảnh và sắc thái của từng ngôn ngữ được hỗ trợ.",
+    "multiBullet2": "Học song ngữ linh hoạt - Chuyển đổi ngôn ngữ nguồn và đích chỉ với một cú nhấp chuột.",
     "aiBadge": "Công cụ AI",
     "aiTitle": "Phản hồi AI thông minh",
     "aiBody": "Mạng lưới thần kinh tiên tiến của chúng tôi không chỉ bắt lỗi chính tả. Nó cung cấp các phân tích về ngữ pháp, nâng cao từ vựng và cấu trúc theo thời gian thực để cải thiện mọi câu bạn viết. Giống như có một biên tập viên bản ngữ bên cạnh bạn 24/7.",
@@ -321,15 +327,15 @@
     "demoAiLabel": "AI Sửa lỗi:",
     "demoNote": "Thể chủ động thường hấp dẫn và rõ ràng hơn cho các báo cáo chuyên nghiệp.",
     "howTitle": "Cách thức hoạt động",
-    "howSubtitle": "Ba bước đơn giản để đạt được sự lưu loát.",
-    "step1Title": "Đăng nhập và bắt đầu",
-    "step1Desc": "Đăng nhập nhanh bằng Google để bắt đầu luyện tập ngay lập tức.",
-    "step2Title": "Chọn chế độ",
-    "step2Desc": "Lựa chọn giữa các chế độ câu, đoạn văn hoặc dịch thuật để bắt đầu phiên học của bạn.",
-    "step3Title": "Dịch hoặc Viết",
-    "step3Desc": "Nhập văn bản của bạn hoặc dịch từ ngôn ngữ mẹ đẻ bằng trình chỉnh sửa trực quan của chúng tôi.",
-    "step4Title": "Nhận phản hồi tức thì",
-    "step4Desc": "Nhận các sửa lỗi và giải thích chi tiết ngay lập tức để học hỏi từ mọi sai lầm."
+    "howSubtitle": "Quy trình 4 bước rõ ràng từ bản nháp đến bài viết tốt hơn.",
+    "step1Title": "Đăng nhập",
+    "step1Desc": "Đăng nhập nhanh bằng Google và bắt đầu luyện tập ngay.",
+    "step2Title": "Chọn chủ đề",
+    "step2Desc": "Chọn bộ câu/đoạn văn phù hợp với trình độ và mục tiêu của bạn.",
+    "step3Title": "Viết câu trả lời",
+    "step3Desc": "Dịch hoặc tự viết từng câu trong trình soạn thảo.",
+    "step4Title": "Xem phản hồi AI",
+    "step4Desc": "Nhận sửa lỗi, giải thích và gợi ý để cải thiện lần viết tiếp theo."
   },
   "practice": {
     "groups": {
@@ -420,6 +426,7 @@
       "time": "Thời gian",
       "sentenceProgress": "Câu {{current}}/{{total}}",
       "placeholder": "Nhập câu dịch của bạn ở đây...",
+      "placeholderWithTarget": "Dịch sang {{language}}...",
       "hints": "Xem gợi ý",
       "check": "Kiểm tra",
       "next": "Tiếp theo",
@@ -483,12 +490,21 @@
       "expandSentence": "Mở rộng câu",
       "expandSentenceLoadingShort": "Đang tải...",
       "expandSentenceLoading": "Đang mở rộng câu..."
+    },
+    "singleSentenceMix": {
+      "statement": "Câu khẳng định",
+      "question": "Câu hỏi",
+      "request": "Câu yêu cầu",
+      "pastTime": "Thời quá khứ",
+      "presentTime": "Thời hiện tại",
+      "futureTime": "Thời tương lai"
     }
   },
   "history": {
     "all": "Tất cả",
     "sentence": "Câu",
     "type": "Loại",
+    "language": "Ngôn ngữ",
     "topic": "Chủ đề",
     "level": "Trình độ",
     "sort": "Ngày",
@@ -517,8 +533,16 @@
     "dateDaysAgo": "{{count}} ngày trước",
     "vietnamese": "Tiếng Việt",
     "english": "Tiếng Anh",
+    "targetLanguage": {
+      "EN": "Tiếng Anh",
+      "ZH": "Tiếng Trung",
+      "KO": "Tiếng Hàn"
+    },
+    "completion": "Trạng thái",
+    "completed": "Đã hoàn thành",
+    "incomplete": "Chưa hoàn thành",
     "viewResult": "Kết quả",
-    "continuePractice": "Tiếp tục luyện tập",
+    "continuePractice": "Tiếp Tục",
     "typeBadgeSentence": "Câu"
   },
   "ranking": {
@@ -679,6 +703,7 @@
     "filters": {
       "title": "Bộ lọc",
       "type": "Dạng đề bài",
+      "language": "Ngôn ngữ luyện tập",
       "level": "Cấp độ",
       "topic": "Chủ đề",
       "sentenceLength": "Độ dài câu",

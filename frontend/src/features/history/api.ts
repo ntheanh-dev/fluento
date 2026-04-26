@@ -16,6 +16,8 @@ export type GetHistoryParams = {
   type?: string;
   topic?: string;
   level?: string;
+  targetLanguage?: "EN" | "ZH" | "KO";
+  completed?: boolean;
   search?: string;
   sort?: "asc" | "desc";
 };

@@ -2,9 +2,9 @@ import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import type { LucideIcon } from "lucide-react";
 import {
-  BarChart3,
   Brain,
   Briefcase,
+  Filter,
   Building2,
   Cpu,
   Dumbbell,
@@ -13,14 +13,11 @@ import {
   HeartPulse,
   Home,
   Landmark,
-  ListOrdered,
   Loader2,
   MapPin,
   Microscope,
   Plane,
   Rocket,
-  ScrollText,
-  Smile,
   Sparkles,
   Tv,
   UtensilsCrossed,
@@ -29,13 +26,10 @@ import {
 import { LEVELS, TOPIC_GROUPS, SENTENCE_COUNTS, TONES } from "../constants";
 import { useCreateUserPracticeMutation } from "../mutation";
 import type { PracticeSetupInput } from "../schema";
-import { message, Slider, Spin } from "antd";
+import { Button, Drawer, message, Select, Spin } from "antd";
 import { useTranslation } from "react-i18next";
-
-const SENTENCE_COUNT_BY_INDEX = SENTENCE_COUNTS.map((item) => item.value);
-const INDEX_BY_SENTENCE_COUNT = Object.fromEntries(
-  SENTENCE_COUNT_BY_INDEX.map((value, index) => [value, index]),
-) as Record<string, number>;
+import { TARGET_LANGUAGE_ITEMS, type TargetLanguage } from "@/shared/constants/target-language";
+import { CollapsibleChecklistSection } from "@/shared/components/CollapsibleChecklistSection";
 
 const SENTENCE_COUNT_NUMBER: Record<string, number> = {
   TEN: 10,
@@ -63,55 +57,49 @@ const TOPIC_ICONS: Record<string, LucideIcon> = {
   SOCIETY: Building2,
 };
 
-const TONE_ICONS: Record<string, LucideIcon> = {
-  FORMAL: ScrollText,
-  FRIENDLY: Smile,
-  PROFESSIONAL: Briefcase,
-};
-
 const panelClassName =
   "rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900/90";
 
-const chipBaseClassName =
-  "rounded-xl border px-3 py-2 text-sm font-semibold transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500";
-
-const SINGLE_SENTENCE_MIX_OPTIONS = [
-  { value: "STATEMENT", label: "Statement" },
-  { value: "QUESTION", label: "Question" },
-  { value: "REQUEST", label: "Request" },
-  { value: "PAST", label: "Past tense" },
-  { value: "PRESENT", label: "Present tense" },
-  { value: "FUTURE", label: "Future tense" },
+const SINGLE_SENTENCE_MIX_VALUES = [
+  "STATEMENT",
+  "QUESTION",
+  "REQUEST",
+  "PAST",
+  "PRESENT",
+  "FUTURE",
 ] as const;
 
-type SingleSentenceMixOption = (typeof SINGLE_SENTENCE_MIX_OPTIONS)[number]["value"];
+type SingleSentenceMixOption = (typeof SINGLE_SENTENCE_MIX_VALUES)[number];
 
 const SingleSentenceSetup = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const singleSentenceMixOptions = useMemo(
+    () => [
+      { value: "STATEMENT", label: t("practice.singleSentenceMix.statement") },
+      { value: "QUESTION", label: t("practice.singleSentenceMix.question") },
+      { value: "REQUEST", label: t("practice.singleSentenceMix.request") },
+      { value: "PAST", label: t("practice.singleSentenceMix.pastTime") },
+      { value: "PRESENT", label: t("practice.singleSentenceMix.presentTime") },
+      { value: "FUTURE", label: t("practice.singleSentenceMix.futureTime") },
+    ] as const,
+    [t],
+  );
   const allTopics = useMemo(
     () => TOPIC_GROUPS.flatMap((group) => group.topics.map((topic) => topic.value)),
     [],
   );
 
   const { mutateAsync: createUserPractice, isPending } = useCreateUserPracticeMutation();
+  const [targetLanguage, setTargetLanguage] = useState<TargetLanguage>("EN");
+  const [mobileSetupOpen, setMobileSetupOpen] = useState(false);
 
   const [topic, setTopic] = useState<string>("LIFE");
   const [tone, setTone] = useState<string>("FORMAL");
   const [level, setLevel] = useState<string>("B1");
   const [sentenceCount, setSentenceCount] = useState<string>("TEN");
   const [singleSentenceMix, setSingleSentenceMix] = useState<SingleSentenceMixOption[]>(
-    SINGLE_SENTENCE_MIX_OPTIONS.map((item) => item.value),
-  );
-  const sentenceCountIndex = INDEX_BY_SENTENCE_COUNT[sentenceCount] ?? 0;
-
-  const sliderMarks = useMemo(
-    () =>
-      SENTENCE_COUNT_BY_INDEX.reduce<Record<number, string>>((acc, key, index) => {
-        acc[index] = String(SENTENCE_COUNT_NUMBER[key]);
-        return acc;
-      }, {}),
-    [],
+    SINGLE_SENTENCE_MIX_VALUES.map((item) => item),
   );
 
   const handleStart = async () => {
@@ -127,6 +115,7 @@ const SingleSentenceSetup = () => {
       level,
       sentenceCount,
       singleSentenceMix,
+      targetLanguage,
     };
 
     try {
@@ -148,9 +137,8 @@ const SingleSentenceSetup = () => {
     });
   };
 
-  return (
-    <div className="mx-auto grid max-w-7xl grid-cols-1 gap-6 px-4 py-6 md:px-6 md:py-8 xl:grid-cols-[320px_1fr]">
-      <aside className={`${panelClassName} h-fit space-y-5`}>
+  const setupPanel = (
+    <div className="space-y-5">
         <div>
           <h1 className="text-xl font-bold text-slate-900 dark:text-slate-100">
             {t("practice.setup.modeSentenceCardTitle")}
@@ -160,107 +148,78 @@ const SingleSentenceSetup = () => {
           </p>
         </div>
 
-        <section className="space-y-2.5">
-          <div className="flex items-center gap-2 text-slate-800 dark:text-slate-200">
-            <Sparkles className="h-4 w-4 text-violet-500" />
-            <h2 className="text-xs font-bold uppercase tracking-wide">{t("practice.setup.toneHeading")}</h2>
-          </div>
-          <div className="grid grid-cols-1 gap-2">
-            {TONES.map((item) => {
-              const active = tone === item.value;
-              const Icon = TONE_ICONS[item.value] ?? Sparkles;
-              return (
-                <button
-                  key={item.value}
-                  type="button"
-                  onClick={() => setTone(item.value)}
-                  className={`${chipBaseClassName} flex items-center gap-2 ${active
-                    ? "border-blue-500 bg-blue-50 text-blue-700 dark:border-blue-400 dark:bg-blue-950/40 dark:text-blue-200"
-                    : "border-slate-200 bg-slate-50 text-slate-600 hover:border-slate-300 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300"
-                    }`}
-                >
-                  <Icon className="h-4 w-4 shrink-0" />
-                  {t(`practice.tone.${item.value}`)}
-                </button>
-              );
-            })}
-          </div>
-        </section>
+        <CollapsibleChecklistSection
+          title={t("paragraphLibrary.filters.language")}
+          items={TARGET_LANGUAGE_ITEMS.map((item) => ({
+            key: item.value,
+            label: (
+              <span className="inline-flex items-center gap-2">
+                <span>{item.flag}</span>
+                <span>{item.name} ({item.value})</span>
+              </span>
+            ),
+            selected: targetLanguage === item.value,
+            onClick: () => setTargetLanguage(item.value as TargetLanguage),
+          }))}
+        />
+
+        <div className="h-px bg-slate-200 dark:bg-slate-700" />
+
+        <CollapsibleChecklistSection
+          title={t("paragraphLibrary.filters.level")}
+          items={LEVELS.map((item) => ({
+            key: item.value,
+            label: t(`practice.level.${item.value}`),
+            selected: level === item.value,
+            onClick: () => setLevel(item.value),
+          }))}
+        />
+
+        <div className="h-px bg-slate-200 dark:bg-slate-700" />
 
         <section className="space-y-2.5">
-          <div className="flex items-center gap-2 text-slate-800 dark:text-slate-200">
-            <BarChart3 className="h-4 w-4 text-emerald-500" />
-            <h2 className="text-xs font-bold uppercase tracking-wide">{t("practice.setup.level")}</h2>
-          </div>
-          <div className="grid grid-cols-2 gap-2">
-            {LEVELS.map((item) => {
-              const active = level === item.value;
-              return (
-                <button
-                  key={item.value}
-                  type="button"
-                  onClick={() => setLevel(item.value)}
-                  className={`${chipBaseClassName} ${active
-                    ? "border-blue-500 bg-blue-50 text-blue-700 dark:border-blue-400 dark:bg-blue-950/40 dark:text-blue-200"
-                    : "border-slate-200 bg-slate-50 text-slate-600 hover:border-slate-300 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300"
-                    }`}
-                >
-                  {t(`practice.level.${item.value}`)}
-                </button>
-              );
-            })}
-          </div>
-        </section>
-
-        <section className="space-y-2.5">
-          <div className="flex items-center justify-between gap-2">
-            <div className="flex items-center gap-2 text-slate-800 dark:text-slate-200">
-              <ListOrdered className="h-4 w-4 text-sky-500" />
-              <h2 className="text-xs font-bold uppercase tracking-wide">{t("practice.setup.sentenceCount")}</h2>
-            </div>
-            <span className="rounded-lg bg-sky-100 px-2 py-1 text-xs font-bold text-sky-700 dark:bg-sky-950/50 dark:text-sky-200">
-              {SENTENCE_COUNT_NUMBER[sentenceCount]}
-            </span>
-          </div>
-          <Slider
-            min={0}
-            max={SENTENCE_COUNT_BY_INDEX.length - 1}
-            step={1}
-            marks={sliderMarks}
-            value={sentenceCountIndex}
-            onChange={(value) => {
-              const index = typeof value === "number" ? value : value[0];
-              setSentenceCount(SENTENCE_COUNT_BY_INDEX[index]);
-            }}
-            tooltip={{ formatter: (value) => (value != null ? sliderMarks[value] : "") }}
+          <h3 className="text-slate-800 dark:text-slate-100 font-semibold uppercase tracking-wide text-xs">
+            {t("paragraphLibrary.filters.sentenceLength")}
+          </h3>
+          <Select
+            className="w-full"
+            value={sentenceCount}
+            onChange={(value) => setSentenceCount(value)}
+            options={SENTENCE_COUNTS.map((item) => ({
+              value: item.value,
+              label: `${SENTENCE_COUNT_NUMBER[item.value] ?? item.value}`,
+            }))}
           />
         </section>
 
+        <div className="h-px bg-slate-200 dark:bg-slate-700" />
+
         <section className="space-y-2.5">
-          <div className="flex items-center gap-2 text-slate-800 dark:text-slate-200">
-            <Sparkles className="h-4 w-4 text-amber-500" />
-            <h2 className="text-xs font-bold uppercase tracking-wide">Sentence mix</h2>
-          </div>
-          <div className="space-y-2">
-            {SINGLE_SENTENCE_MIX_OPTIONS.map((option) => {
-              const checked = singleSentenceMix.includes(option.value);
-              return (
-                <label
-                  key={option.value}
-                  className="flex cursor-pointer items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700 transition-colors hover:border-slate-300 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200"
-                >
-                  <input
-                    type="checkbox"
-                    checked={checked}
-                    onChange={(event) => toggleMixOption(option.value, event.target.checked)}
-                    className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
-                  />
-                  <span className="text-sm">{option.label}</span>
-                </label>
-              );
-            })}
-          </div>
+          <h3 className="text-slate-800 dark:text-slate-100 font-semibold uppercase tracking-wide text-xs">
+            {t("paragraphLibrary.filters.tone")}
+          </h3>
+          <Select
+            className="w-full"
+            value={tone}
+            onChange={(value) => setTone(value)}
+            options={TONES.map((item) => ({
+              value: item.value,
+              label: t(`practice.tone.${item.value}`),
+            }))}
+          />
         </section>
+
+        <div className="h-px bg-slate-200 dark:bg-slate-700" />
+
+        <CollapsibleChecklistSection
+          title="Sentence mix"
+          items={singleSentenceMixOptions.map((option) => ({
+            key: option.value,
+            label: option.label,
+            selected: singleSentenceMix.includes(option.value),
+            onClick: () => toggleMixOption(option.value, !singleSentenceMix.includes(option.value)),
+          }))}
+        />
 
         <button
           type="button"
@@ -271,12 +230,28 @@ const SingleSentenceSetup = () => {
           <Rocket className="h-4 w-4" />
           {t("practice.setup.start")}
         </button>
+    </div>
+  );
+
+  return (
+    <div className="mx-auto grid max-w-7xl grid-cols-1 gap-6 px-4 py-6 md:px-6 md:py-8 xl:grid-cols-[320px_1fr]">
+      <aside className={`${panelClassName} hidden xl:block h-fit`}>
+        {setupPanel}
       </aside>
 
       <section className={`${panelClassName} space-y-4`}>
-        <div className="flex items-center gap-2 text-slate-900 dark:text-slate-100">
-          <Sparkles className="h-5 w-5 text-amber-500" />
-          <h2 className="text-xl font-bold">{t("practice.setup.topicSectionTitle")}</h2>
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2 text-slate-900 dark:text-slate-100">
+            <Sparkles className="h-5 w-5 text-amber-500" />
+            <h2 className="text-xl font-bold">{t("practice.setup.topicSectionTitle")}</h2>
+          </div>
+          <Button
+            className="xl:hidden"
+            icon={<Filter className="w-4 h-4" />}
+            onClick={() => setMobileSetupOpen(true)}
+          >
+            {t("paragraphLibrary.filters.title")}
+          </Button>
         </div>
         <p className="text-sm text-slate-500 dark:text-slate-400">{t("practice.setup.topicSectionSubtitle")}</p>
 
@@ -300,7 +275,26 @@ const SingleSentenceSetup = () => {
             );
           })}
         </div>
+        <button
+          type="button"
+          onClick={handleStart}
+          disabled={isPending}
+          className="xl:hidden mt-2 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-blue-600 px-4 py-3 text-sm font-bold text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          <Rocket className="h-4 w-4" />
+          {t("practice.setup.start")}
+        </button>
       </section>
+      <Drawer
+        title={t("paragraphLibrary.filters.title")}
+        placement="right"
+        width={320}
+        onClose={() => setMobileSetupOpen(false)}
+        open={mobileSetupOpen}
+        className="xl:hidden"
+      >
+        {setupPanel}
+      </Drawer>
 
       {isPending && (
         <Spin

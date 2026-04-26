@@ -13,6 +13,7 @@ import com.nta.domain.paragraph.Paragraph;
 import com.nta.domain.paragraph.Repository;
 import com.nta.domain.paragraphSentence.ParagraphSentence;
 import com.nta.domain.paragraphSentence.Service;
+import com.nta.domain.paragraphSentenceHint.enums.TargetLanguage;
 
 import lombok.RequiredArgsConstructor;
 
@@ -38,8 +39,12 @@ public class AdminParagraphSentenceController {
 
     @PostMapping("/{sentenceId}/hints/generate")
     @PreAuthorize("hasRole('ADMIN')")
-    public ApiResponse<ParagraphSentence> generateHints(@PathVariable Long sentenceId) {
-        ParagraphSentence updated = paragraphSentenceService.getOrCreateVocabularyHints(sentenceId);
+    public ApiResponse<ParagraphSentence> generateHints(
+            @PathVariable Long sentenceId,
+            @RequestParam(name = "targetLanguage", defaultValue = "EN") String targetLanguageParam) {
+        TargetLanguage targetLanguage = parseTargetLanguageOrThrow(targetLanguageParam);
+        ParagraphSentence updated =
+                paragraphSentenceService.getOrCreateVocabularyHints(sentenceId, targetLanguage, null);
         return ApiResponse.<ParagraphSentence>builder().result(updated).build();
     }
 
@@ -65,5 +70,14 @@ public class AdminParagraphSentenceController {
         sentence.setContent(request.getContent());
         ParagraphSentence saved = paragraphSentenceRepository.save(sentence);
         return ApiResponse.<ParagraphSentence>builder().result(saved).build();
+    }
+
+    private TargetLanguage parseTargetLanguageOrThrow(String raw) {
+        try {
+            TargetLanguage parsed = TargetLanguage.fromString(raw);
+            return parsed != null ? parsed : TargetLanguage.EN;
+        } catch (IllegalArgumentException ex) {
+            throw new AppException(ErrorCode.INVALID_TARGET_LANGUAGE);
+        }
     }
 }

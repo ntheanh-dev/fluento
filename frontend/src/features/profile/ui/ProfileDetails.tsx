@@ -1,13 +1,11 @@
-import { useState, useEffect, useMemo } from "react";
-import { Flame, FileText, Save, Clock, Coins } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Save } from "lucide-react";
 import { Button, Input, Select, message } from "antd";
 import SetPasswordDialog from "../dialogs/SetPasswordDialog";
 import { useUpdateMe } from "../hook/useUpdateMe";
 import { PROFILE_EMBED_PRACTICESTATS, useProfileData } from "../query";
-import { formatTotalHours } from "@/utils/utils";
 import { useTranslation } from "react-i18next";
 import type { AppLanguage } from "@/i18n";
-import { useCredits } from "@/features/credits/query";
 import { useTheme, type ThemeMode } from "@/app/providers/ThemeProvider";
 
 export function ProfileDetailsSection() {
@@ -17,18 +15,12 @@ export function ProfileDetailsSection() {
   const { data: profile } = useProfileData({
     queryParams: PROFILE_EMBED_PRACTICESTATS,
   });
-  const { data: creditBalance } = useCredits();
   const { mutateAsync: updateMeMutation, isPending: savingFullName } =
     useUpdateMe();
   const { theme, setTheme } = useTheme();
 
   const [passwordDialogOpen, setPasswordDialogOpen] = useState(false);
   const [fullName, setFullName] = useState(profile?.fullName ?? "");
-
-  const totalTranslated = useMemo(
-    () => profile?.embedded?.totalUserSentenceAnswers ?? 0,
-    [profile?.embedded?.totalUserSentenceAnswers],
-  );
 
   useEffect(() => {
     setFullName(profile?.fullName ?? "");
@@ -118,8 +110,8 @@ export function ProfileDetailsSection() {
               onChange={(lng) => void i18n.changeLanguage(lng)}
               className="w-full font-medium"
               options={[
-                { value: "vi", label: t("profile.langVietnamese") },
-                { value: "en", label: t("profile.langEnglish") },
+                { value: "vi", label: "🇻🇳 Vietnamese" },
+                { value: "en", label: "🇺🇸 English" },
               ]}
             />
           </div>

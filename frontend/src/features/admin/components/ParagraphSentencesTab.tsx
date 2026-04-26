@@ -235,23 +235,23 @@ const ParagraphSentencesTab = () => {
                     key: String(idx),
                     label: (
                       <Space>
-                        <Typography.Text strong>{h.vietnamese}</Typography.Text>
+                        <Typography.Text strong>{h.sourceText}</Typography.Text>
                         <Typography.Text type="secondary">
-                          {t("admin.paragraphSentences.vocabCount", { count: h.english?.length ?? 0 })}
+                          {t("admin.paragraphSentences.vocabCount", { count: h.translations?.length ?? 0 })}
                         </Typography.Text>
                       </Space>
                     ),
                     children: (
                       <List
                         size="small"
-                        dataSource={h.english ?? []}
+                        dataSource={h.translations ?? []}
                         renderItem={(v) => (
                           <List.Item>
                             <Space wrap>
-                              <Tag color="geekblue">{v.english}</Tag>
+                              <Tag color="geekblue">{v.text}</Tag>
                               {v.partsOfSpeech ? <Tag>{v.partsOfSpeech}</Tag> : null}
-                              {v.ipaPronunciation ? (
-                                <Typography.Text type="secondary">/{v.ipaPronunciation}/</Typography.Text>
+                              {v.pronunciation ? (
+                                <Typography.Text type="secondary">{v.pronunciation}</Typography.Text>
                               ) : null}
                             </Space>
                           </List.Item>

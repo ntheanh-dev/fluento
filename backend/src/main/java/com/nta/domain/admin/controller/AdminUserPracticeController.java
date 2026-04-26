@@ -16,6 +16,7 @@ import com.nta.common.exception.AppException;
 import com.nta.domain.paragraph.enums.Level;
 import com.nta.domain.paragraph.enums.Topic;
 import com.nta.domain.paragraph.enums.Type;
+import com.nta.domain.paragraphSentenceHint.enums.TargetLanguage;
 import com.nta.domain.userPractice.Mapper;
 import com.nta.domain.userPractice.Repository;
 import com.nta.domain.userPractice.UserPractice;
@@ -38,6 +39,7 @@ public class AdminUserPracticeController {
             @RequestParam(required = false) String type,
             @RequestParam(required = false) String topic,
             @RequestParam(required = false) String level,
+            @RequestParam(required = false) String targetLanguage,
             @RequestParam(required = false) String search,
             @RequestParam(required = false, defaultValue = "desc") String sort,
             @RequestParam(defaultValue = "0") int page,
@@ -46,6 +48,7 @@ public class AdminUserPracticeController {
         Type typeEnum = type != null && !type.isBlank() ? Type.fromString(type) : null;
         Topic topicEnum = topic != null && !topic.isBlank() ? Topic.fromString(topic) : null;
         Level levelEnum = level != null && !level.isBlank() ? Level.fromString(level) : null;
+        TargetLanguage targetLanguageEnum = parseOptionalTargetLanguage(targetLanguage);
         String searchTrimmed = search != null && !search.isBlank() ? search.trim() : null;
 
         Sort sortObj = "asc".equalsIgnoreCase(sort)
@@ -56,10 +59,10 @@ public class AdminUserPracticeController {
         Page<UserPractice> practicePage;
         if (userId != null) {
             practicePage = userPracticeRepository.findByUserIdAndFilters(
-                    userId, typeEnum, topicEnum, levelEnum, searchTrimmed, pageable);
+                    userId, typeEnum, topicEnum, levelEnum, targetLanguageEnum, null, searchTrimmed, pageable);
         } else {
-            practicePage =
-                    userPracticeRepository.findAllWithFilters(typeEnum, topicEnum, levelEnum, searchTrimmed, pageable);
+            practicePage = userPracticeRepository.findAllWithFilters(
+                    typeEnum, topicEnum, levelEnum, targetLanguageEnum, null, searchTrimmed, pageable);
         }
 
         List<UserPracticeResponse> responses = practicePage.getContent().stream()
@@ -79,5 +82,16 @@ public class AdminUserPracticeController {
         return ApiResponse.<UserPracticeResponse>builder()
                 .result(userPracticeMapper.toUserPracticeResponse(practice))
                 .build();
+    }
+
+    private TargetLanguage parseOptionalTargetLanguage(String raw) {
+        if (raw == null || raw.isBlank()) {
+            return null;
+        }
+        try {
+            return TargetLanguage.fromString(raw);
+        } catch (IllegalArgumentException ex) {
+            throw new AppException(ErrorCode.INVALID_TARGET_LANGUAGE);
+        }
     }
 }

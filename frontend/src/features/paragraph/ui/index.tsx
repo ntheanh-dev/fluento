@@ -3,17 +3,16 @@ import { Button, Drawer, Grid, message, Pagination, Select, Spin } from "antd";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import {
-  BookOpenText,
-  CheckSquare,
   Filter,
   ListChecks,
   Sparkles,
-  Square,
 } from "lucide-react";
 import { useParagraphs } from "../query";
 import { LEVELS, PRACTICE_TYPES, SENTENCE_COUNTS, TONES, TOPIC_GROUPS } from "@/features/practice/constants";
 import { useCreateUserPracticeMutation } from "@/features/paragraph/mutation";
 import { getCoverImage } from "@/shared/constants/practice-covers";
+import { TARGET_LANGUAGE_ITEMS, type TargetLanguage } from "@/shared/constants/target-language";
+import { CollapsibleChecklistSection } from "@/shared/components/CollapsibleChecklistSection";
 import Cookies from "js-cookie";
 import LoginWithGoogleModal from "@/features/auth/ui/LoginWithGoogleModal";
 
@@ -25,13 +24,27 @@ const SENTENCE_COUNT_LABEL: Record<string, string> = {
   TWENTY: "20",
   MAX: "30",
 };
+const DEFAULT_PARAGRAPH_TYPE = PRACTICE_TYPES[0]?.value;
+
+const TARGET_LANGUAGE_OPTIONS: Array<{ value: TargetLanguage; label: string; flag: string }> =
+  TARGET_LANGUAGE_ITEMS.map((item) => ({
+    value: item.value,
+    label: `${item.name} (${item.value})`,
+    flag: item.flag,
+  }));
 
 
 const ParagraphLibraryPage = () => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const { t } = useTranslation();
-  const [type, setType] = useState<string | undefined>(() => searchParams.get("type") ?? undefined);
+  const [type, setType] = useState<string | undefined>(() => {
+    const requestedType = searchParams.get("type");
+    if (requestedType && PRACTICE_TYPES.some((item) => item.value === requestedType)) {
+      return requestedType;
+    }
+    return DEFAULT_PARAGRAPH_TYPE;
+  });
   const [tone, setTone] = useState<string | undefined>(() => searchParams.get("tone") ?? undefined);
   const [topic, setTopic] = useState<string | undefined>(() => searchParams.get("topic") ?? undefined);
   const [level, setLevel] = useState<string | undefined>(() => searchParams.get("level") ?? undefined);
@@ -48,6 +61,7 @@ const ParagraphLibraryPage = () => {
   });
   const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+  const [targetLanguage, setTargetLanguage] = useState<TargetLanguage>("EN");
   const screens = Grid.useBreakpoint();
   const pageSize = screens.md ? DESKTOP_PAGE_SIZE : MOBILE_PAGE_SIZE;
 
@@ -79,7 +93,11 @@ const ParagraphLibraryPage = () => {
   };
 
   useEffect(() => {
-    const urlType = searchParams.get("type") ?? undefined;
+    const requestedType = searchParams.get("type");
+    const urlType =
+      requestedType && PRACTICE_TYPES.some((item) => item.value === requestedType)
+        ? requestedType
+        : DEFAULT_PARAGRAPH_TYPE;
     const urlTone = searchParams.get("tone") ?? undefined;
     const urlTopic = searchParams.get("topic") ?? undefined;
     const urlLevel = searchParams.get("level") ?? undefined;
@@ -125,7 +143,10 @@ const ParagraphLibraryPage = () => {
     }
 
     try {
-      const data = await createUserPractice(paragraphId);
+      const data = await createUserPractice({
+        paragraphId,
+        targetLanguage,
+      });
       navigate(`/practice/${data.id}`);
     } catch (error) {
       message.error(error as string);
@@ -134,63 +155,47 @@ const ParagraphLibraryPage = () => {
 
   const filterPanel = (
     <div className="space-y-5">
-      <section className="space-y-2.5">
-        <h3 className="text-slate-800 dark:text-slate-100 font-semibold uppercase tracking-wide text-xs">
-          {t("paragraphLibrary.filters.type")} ({PRACTICE_TYPES.length})
-        </h3>
-        <div className="space-y-1.5">
-          {PRACTICE_TYPES.map((item) => {
-            const active = type === item.value;
-            return (
-              <button
-                key={item.value}
-                type="button"
-                onClick={() => resetPageAndSet(setType, active ? undefined : item.value)}
-                className="w-full px-2 py-1.5 flex items-center justify-between text-left rounded-lg hover:bg-slate-100/80 dark:hover:bg-slate-800/70 transition-colors"
-              >
-                <span className="text-sm leading-tight text-slate-700 dark:text-slate-200 font-medium">
-                  {t(`practice.type.${item.value}`)}
-                </span>
-                {active ? (
-                  <CheckSquare className="w-4 h-4 text-blue-500" />
-                ) : (
-                  <Square className="w-4 h-4 text-slate-400" />
-                )}
-              </button>
-            );
-          })}
-        </div>
-      </section>
+      <CollapsibleChecklistSection
+        title={t("paragraphLibrary.filters.language")}
+        items={TARGET_LANGUAGE_OPTIONS.map((item) => ({
+          key: item.value,
+          label: (
+            <span className="inline-flex items-center gap-2">
+              <span>{item.flag}</span>
+              <span>{item.label}</span>
+            </span>
+          ),
+          selected: targetLanguage === item.value,
+          onClick: () => setTargetLanguage(item.value),
+        }))}
+      />
 
       <div className="h-px bg-slate-200 dark:bg-slate-700" />
 
-      <section className="space-y-2.5">
-        <h3 className="text-slate-800 dark:text-slate-100 font-semibold uppercase tracking-wide text-xs">
-          {t("paragraphLibrary.filters.level")}
-        </h3>
-        <div className="space-y-1.5">
-          {LEVELS.map((item) => {
-            const active = level === item.value;
-            return (
-              <button
-                key={item.value}
-                type="button"
-                onClick={() => resetPageAndSet(setLevel, active ? undefined : item.value)}
-                className="w-full px-2 py-1.5 flex items-center justify-between text-left rounded-lg hover:bg-slate-100/80 dark:hover:bg-slate-800/70 transition-colors"
-              >
-                <span className="text-sm leading-tight text-slate-700 dark:text-slate-200 font-medium">
-                  {t(`practice.level.${item.value}`)}
-                </span>
-                {active ? (
-                  <CheckSquare className="w-4 h-4 text-blue-500" />
-                ) : (
-                  <Square className="w-4 h-4 text-slate-400" />
-                )}
-              </button>
-            );
-          })}
-        </div>
-      </section>
+      <CollapsibleChecklistSection
+        title={`${t("paragraphLibrary.filters.type")} (${PRACTICE_TYPES.length})`}
+        items={PRACTICE_TYPES.map((item) => ({
+          key: item.value,
+          label: t(`practice.type.${item.value}`),
+          selected: type === item.value,
+          onClick: () => {
+            if (type === item.value) return;
+            resetPageAndSet(setType, item.value);
+          },
+        }))}
+      />
+
+      <div className="h-px bg-slate-200 dark:bg-slate-700" />
+
+      <CollapsibleChecklistSection
+        title={t("paragraphLibrary.filters.level")}
+        items={LEVELS.map((item) => ({
+          key: item.value,
+          label: t(`practice.level.${item.value}`),
+          selected: level === item.value,
+          onClick: () => resetPageAndSet(setLevel, level === item.value ? undefined : item.value),
+        }))}
+      />
 
       <div className="h-px bg-slate-200 dark:bg-slate-700" />
 
@@ -248,37 +253,19 @@ const ParagraphLibraryPage = () => {
 
       <div className="h-px bg-slate-200 dark:bg-slate-700" />
 
-      <section className="space-y-2.5">
-        <h3 className="text-slate-800 dark:text-slate-100 font-semibold uppercase tracking-wide text-xs">
-          {t("paragraphLibrary.filters.sortBy")}
-        </h3>
-        <div className="space-y-1.5">
-          {[
-            { label: t("paragraphLibrary.sort.newest"), value: "desc" as const },
-            { label: t("paragraphLibrary.sort.oldest"), value: "asc" as const },
-            { label: t("paragraphLibrary.sort.mostPracticed"), value: "most_practiced" as const },
-          ].map((opt) => {
-            const active = sort === opt.value;
-            return (
-              <button
-                key={opt.value}
-                type="button"
-                onClick={() => resetPageAndSet(setSort, opt.value)}
-                className="w-full px-2 py-1.5 flex items-center justify-between text-left rounded-lg hover:bg-slate-100/80 dark:hover:bg-slate-800/70 transition-colors"
-              >
-                <span className="text-sm leading-tight text-slate-700 dark:text-slate-200 font-medium">
-                  {opt.label}
-                </span>
-                {active ? (
-                  <CheckSquare className="w-4 h-4 text-blue-500" />
-                ) : (
-                  <Square className="w-4 h-4 text-slate-400" />
-                )}
-              </button>
-            );
-          })}
-        </div>
-      </section>
+      <CollapsibleChecklistSection
+        title={t("paragraphLibrary.filters.sortBy")}
+        items={[
+          { label: t("paragraphLibrary.sort.newest"), value: "desc" as const },
+          { label: t("paragraphLibrary.sort.oldest"), value: "asc" as const },
+          { label: t("paragraphLibrary.sort.mostPracticed"), value: "most_practiced" as const },
+        ].map((opt) => ({
+          key: opt.value,
+          label: opt.label,
+          selected: sort === opt.value,
+          onClick: () => resetPageAndSet(setSort, opt.value),
+        }))}
+      />
     </div>
   );
 
@@ -320,7 +307,7 @@ const ParagraphLibraryPage = () => {
 
           <Spin spinning={isLoading || isFetching}>
             {data?.content?.length ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {data.content.map((item) => {
                   const preview =
                     item.sentences?.slice(0, 2).join(" ").replace("\\n", " ") ||
@@ -358,18 +345,10 @@ const ParagraphLibraryPage = () => {
                             <ListChecks className="w-3.5 h-3.5" />
                             {t("paragraphLibrary.card.sentenceCount", { count: item.sentences?.length ?? 0 })}
                           </span>
-                          <span className="inline-flex items-center gap-1">
-                            <BookOpenText className="w-3.5 h-3.5" />
-                            {item.type}
+
+                          <span className="text-lg">
+                            {TARGET_LANGUAGE_ITEMS.find((item) => item.value === targetLanguage)?.flag}
                           </span>
-                          <Button
-                            type="primary"
-                            size="small"
-                            className=" rounded-lg px-3"
-                            onClick={() => handlePractice(item.id)}
-                          >
-                            {t("paragraphLibrary.card.practiceButton")}
-                          </Button>
                         </div>
                       </div>
 

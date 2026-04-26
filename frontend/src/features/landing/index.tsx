@@ -1,4 +1,4 @@
-import { Target, FileText, CheckCircle, ArrowDown } from "lucide-react";
+import { Target, FileText, CheckCircle, ArrowDown, Languages, Check } from "lucide-react";
 import { motion } from "motion/react";
 import home from "../../assets/image/home.png";
 import { useNavigate } from "react-router-dom";
@@ -76,7 +76,7 @@ const Hero = () => {
 const Features = () => {
   const { t } = useTranslation();
   return (
-    <section className="py-24 bg-[#f6f7f8] dark:bg-slate-950" id="features">
+    <section className="py-24 bg-[#f3f4f6] dark:bg-slate-950" id="features">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center max-w-3xl mx-auto mb-16 space-y-4">
           <h2 className="text-3xl font-bold tracking-tight sm:text-4xl font-display text-slate-900 dark:text-slate-100">
@@ -86,13 +86,13 @@ const Features = () => {
             {t("landing.featuresSubtitle")}
           </p>
         </div>
-        <div className="grid gap-8 md:grid-cols-2">
+        <div className="grid gap-6 md:grid-cols-2">
           <motion.div
             whileHover={{ y: -5 }}
-            className="bg-white dark:bg-slate-900/90 p-8 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-md transition-all"
+            className="bg-white dark:bg-slate-900/90 p-7 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-md transition-all"
           >
-            <div className="size-12 bg-[#137fec]/10 rounded-lg flex items-center justify-center mb-6">
-              <Target className="text-[#137fec] w-8 h-8" />
+            <div className="size-10 bg-[#137fec]/10 rounded-lg flex items-center justify-center mb-5">
+              <Target className="text-[#137fec] w-5 h-5" />
             </div>
             <h3 className="text-xl font-bold mb-3 font-display text-slate-900 dark:text-slate-100">
               {t("landing.feature1Title")}
@@ -104,10 +104,10 @@ const Features = () => {
 
           <motion.div
             whileHover={{ y: -5 }}
-            className="bg-white dark:bg-slate-900/90 p-8 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-md transition-all"
+            className="bg-white dark:bg-slate-900/90 p-7 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm hover:shadow-md transition-all"
           >
-            <div className="size-12 bg-[#137fec]/10 rounded-lg flex items-center justify-center mb-6">
-              <FileText className="text-[#137fec] w-8 h-8" />
+            <div className="size-10 bg-[#137fec]/10 rounded-lg flex items-center justify-center mb-5">
+              <FileText className="text-[#137fec] w-5 h-5" />
             </div>
             <h3 className="text-xl font-bold mb-3 font-display text-slate-900 dark:text-slate-100">
               {t("landing.feature2Title")}
@@ -116,6 +116,67 @@ const Features = () => {
               {t("landing.feature2Desc")}
             </p>
           </motion.div>
+        </div>
+      </div>
+    </section>
+  );
+};
+
+const MultilingualSpotlight = () => {
+  const { t } = useTranslation();
+  const languageCards = useMemo(
+    () => [
+      { flag: "🇺🇸", label: t("profile.langEnglish") },
+      { flag: "🇻🇳", label: t("profile.langVietnamese") },
+      { flag: "🇰🇷", label: "Tiếng Hàn" },
+      { flag: "🇨🇳", label: "Tiếng Trung" },
+    ],
+    [t],
+  );
+
+  const bullets = useMemo(() => [t("landing.multiBullet1"), t("landing.multiBullet2")], [t]);
+
+  return (
+    <section className="py-24 bg-white dark:bg-slate-950">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="grid gap-10 lg:grid-cols-[1.05fr_1fr] lg:items-center">
+          <div className="grid grid-cols-2 gap-4">
+            {languageCards.map((item) => (
+              <div
+                key={item.label}
+                className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-6 text-center dark:border-slate-700 dark:bg-slate-900/70"
+              >
+                <p className="text-2xl">{item.flag}</p>
+                <p className="mt-3 text-xs font-bold uppercase tracking-[0.16em] text-slate-600 dark:text-slate-300">
+                  {item.label}
+                </p>
+              </div>
+            ))}
+          </div>
+
+          <div className="space-y-6">
+            <p className="inline-flex items-center gap-2 rounded-full bg-[#137fec]/10 px-3 py-1 text-xs font-bold uppercase tracking-wider text-[#137fec]">
+              <Languages className="size-4" />
+              {t("landing.multiBadge")}
+            </p>
+            <h3 className="text-3xl sm:text-4xl font-black leading-tight text-slate-900 dark:text-slate-100">
+              <span>{t("landing.multiTitlePrefix")}</span>
+              <span className="text-[#137fec]">{t("landing.multiTitleAccent")}</span>
+            </h3>
+            <p className="text-lg leading-relaxed text-slate-600 dark:text-slate-400">
+              {t("landing.multiDescription")}
+            </p>
+            <ul className="space-y-3">
+              {bullets.map((bullet) => (
+                <li key={bullet} className="flex items-start gap-3">
+                  <span className="mt-0.5 inline-flex size-6 items-center justify-center rounded-full bg-emerald-100 text-emerald-600 dark:bg-emerald-900/40 dark:text-emerald-300">
+                    <Check className="size-4" />
+                  </span>
+                  <p className="text-slate-700 dark:text-slate-300">{bullet}</p>
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
       </div>
     </section>
@@ -344,15 +405,24 @@ const LandingParagraphSections = () => {
 };
 
 export default function LandingPage() {
+  const { t } = useTranslation();
+
   return (
-    <div className="min-h-screen bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 font-display">
-      <main>
+    <div className="flex min-h-screen flex-col bg-white text-slate-900 dark:bg-slate-950 dark:text-slate-100 font-display">
+      <main className="flex-1">
         <Hero />
         <Features />
+        <MultilingualSpotlight />
         <LandingParagraphSections />
         <AIFeedback />
         <HowItWorks />
       </main>
+      <footer className="border-t border-slate-200 px-4 py-6 text-center text-sm text-slate-500 dark:border-slate-700 dark:text-slate-400 sm:px-6 lg:px-8">
+        {t("profile.subscriptionPage.footer.copyright", {
+          year: new Date().getFullYear(),
+          brand: t("common.brand"),
+        })}
+      </footer>
     </div>
   );
 }

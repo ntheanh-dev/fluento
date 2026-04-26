@@ -32,8 +32,8 @@ export interface PaginatedResponse<T> extends ApiResponse<T[]> {
 
 // Translation hints response types
 export interface VocabularyHint {
-  vietnamese: string;
-  english: string[];
+  sourceText: string;
+  translations: string[];
 }
 
 export interface TranslationHintsResponse {

@@ -6,14 +6,14 @@ export interface ParagraphSentence {
 }
 
 export interface VocabularyHint {
-  vietnamese: string;
-  english: Vocabulary[];
+  sourceText: string;
+  translations: Vocabulary[];
 }
 
 export interface Vocabulary {
-  english: string;
+  text: string;
   partsOfSpeech: string;
-  ipaPronunciation: string;
+  pronunciation: string;
 }
 
 /** Khớp query param `score` trên GET communityTranslations. */

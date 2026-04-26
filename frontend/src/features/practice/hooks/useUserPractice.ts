@@ -19,12 +19,14 @@ export function useUserPracticeData(id: number) {
 export function useSentenceVocabularyHints(sentenceId: number) {
   const mutation = useMutation({
     mutationFn: ({
+      targetLanguage,
       onTextChunk,
       onPartialHints,
     }: {
+      targetLanguage?: "EN" | "ZH" | "KO";
       onTextChunk?: (fullText: string) => void;
       onPartialHints?: (partial: VocabularyHint[]) => void;
-    } = {}) => getSentenceVocabularyHints(sentenceId, onTextChunk, onPartialHints),
+    } = {}) => getSentenceVocabularyHints(sentenceId, targetLanguage ?? "EN", onTextChunk, onPartialHints),
     onSuccess: (data) => {
       if (data.vocabularyHints) {
         queryClient.setQueryData<VocabularyHint[]>(
@@ -37,6 +39,7 @@ export function useSentenceVocabularyHints(sentenceId: number) {
 
   return {
     mutateAsync: mutation.mutateAsync as (params?: {
+      targetLanguage?: "EN" | "ZH" | "KO";
       onTextChunk?: (fullText: string) => void;
       onPartialHints?: (partial: VocabularyHint[]) => void;
     }) => Promise<ParagraphSentence>,
@@ -49,10 +52,11 @@ export function useCommunityTranslations(
   sentenceId: number,
   enabled: boolean,
   score: CommunityScoreBand,
+  targetLanguage: "EN" | "ZH" | "KO",
 ) {
   return useQuery<CommunityTranslation[]>({
-    queryKey: OK.communityTranslations(sentenceId, score),
-    queryFn: () => getCommunityTranslations(sentenceId, score),
+    queryKey: OK.communityTranslations(sentenceId, score, targetLanguage),
+    queryFn: () => getCommunityTranslations(sentenceId, score, targetLanguage),
     enabled: enabled && sentenceId > 0,
     staleTime: 60_000,
   });

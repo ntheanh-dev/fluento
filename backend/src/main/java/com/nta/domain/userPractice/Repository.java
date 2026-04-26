@@ -15,6 +15,7 @@ import org.springframework.data.repository.query.Param;
 import com.nta.domain.paragraph.enums.Level;
 import com.nta.domain.paragraph.enums.Topic;
 import com.nta.domain.paragraph.enums.Type;
+import com.nta.domain.paragraphSentenceHint.enums.TargetLanguage;
 
 @org.springframework.stereotype.Repository("userPracticeRepository")
 public interface Repository extends JpaRepository<UserPractice, Long> {
@@ -27,21 +28,25 @@ public interface Repository extends JpaRepository<UserPractice, Long> {
     List<UserPractice> findByUserId(Long userId);
 
     @Query(
-            "SELECT DISTINCT p FROM UserPractice p LEFT JOIN p.paragraph.sentences s WHERE p.user.id = :userId AND (:type IS NULL OR p.paragraph.type = :type) AND (:topic IS NULL OR p.paragraph.topic = :topic) AND (:level IS NULL OR p.paragraph.level = :level) AND (:search IS NULL OR LENGTH(TRIM(COALESCE(:search, ''))) = 0 OR LOWER(s.content) LIKE LOWER(CONCAT('%', :search, '%')) OR LOWER(p.paragraph.title) LIKE LOWER(CONCAT('%', :search, '%')))")
+            "SELECT DISTINCT p FROM UserPractice p LEFT JOIN p.paragraph.sentences s WHERE p.user.id = :userId AND (:type IS NULL OR p.paragraph.type = :type) AND (:topic IS NULL OR p.paragraph.topic = :topic) AND (:level IS NULL OR p.paragraph.level = :level) AND (:targetLanguage IS NULL OR p.targetLanguage = :targetLanguage) AND (:completed IS NULL OR (:completed = true AND (SELECT COUNT(sa) FROM UserSentenceAnswer sa WHERE sa.practice = p AND sa.isSubmitted = true) >= SIZE(p.paragraph.sentences)) OR (:completed = false AND (SELECT COUNT(sa) FROM UserSentenceAnswer sa WHERE sa.practice = p AND sa.isSubmitted = true) < SIZE(p.paragraph.sentences))) AND (:search IS NULL OR LENGTH(TRIM(COALESCE(:search, ''))) = 0 OR LOWER(s.content) LIKE LOWER(CONCAT('%', :search, '%')) OR LOWER(p.paragraph.title) LIKE LOWER(CONCAT('%', :search, '%')))")
     Page<UserPractice> findByUserIdAndFilters(
             @Param("userId") Long userId,
             @Param("type") Type type,
             @Param("topic") Topic topic,
             @Param("level") Level level,
+            @Param("targetLanguage") TargetLanguage targetLanguage,
+            @Param("completed") Boolean completed,
             @Param("search") String search,
             Pageable pageable);
 
     @Query(
-            "SELECT DISTINCT p FROM UserPractice p LEFT JOIN p.paragraph.sentences s WHERE (:type IS NULL OR p.paragraph.type = :type) AND (:topic IS NULL OR p.paragraph.topic = :topic) AND (:level IS NULL OR p.paragraph.level = :level) AND (:search IS NULL OR LENGTH(TRIM(COALESCE(:search, ''))) = 0 OR LOWER(s.content) LIKE LOWER(CONCAT('%', :search, '%')) OR LOWER(p.paragraph.title) LIKE LOWER(CONCAT('%', :search, '%')))")
+            "SELECT DISTINCT p FROM UserPractice p LEFT JOIN p.paragraph.sentences s WHERE (:type IS NULL OR p.paragraph.type = :type) AND (:topic IS NULL OR p.paragraph.topic = :topic) AND (:level IS NULL OR p.paragraph.level = :level) AND (:targetLanguage IS NULL OR p.targetLanguage = :targetLanguage) AND (:completed IS NULL OR (:completed = true AND (SELECT COUNT(sa) FROM UserSentenceAnswer sa WHERE sa.practice = p AND sa.isSubmitted = true) >= SIZE(p.paragraph.sentences)) OR (:completed = false AND (SELECT COUNT(sa) FROM UserSentenceAnswer sa WHERE sa.practice = p AND sa.isSubmitted = true) < SIZE(p.paragraph.sentences))) AND (:search IS NULL OR LENGTH(TRIM(COALESCE(:search, ''))) = 0 OR LOWER(s.content) LIKE LOWER(CONCAT('%', :search, '%')) OR LOWER(p.paragraph.title) LIKE LOWER(CONCAT('%', :search, '%')))")
     Page<UserPractice> findAllWithFilters(
             @Param("type") Type type,
             @Param("topic") Topic topic,
             @Param("level") Level level,
+            @Param("targetLanguage") TargetLanguage targetLanguage,
+            @Param("completed") Boolean completed,
             @Param("search") String search,
             Pageable pageable);
 

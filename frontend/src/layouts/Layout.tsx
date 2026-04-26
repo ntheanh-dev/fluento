@@ -27,7 +27,6 @@ import { useTheme } from "@/app/providers/ThemeProvider";
 
 const ADMIN_ROLE = "ADMIN";
 const PRACTICE_NAV_KEY = "practice-nav";
-
 const Layout = () => {
     const { t, i18n } = useTranslation();
     const { theme, setTheme } = useTheme();
@@ -234,7 +233,11 @@ const Layout = () => {
                                             <p className="text-sm font-bold text-slate-800 dark:text-slate-100">
                                                 {profile?.fullName}
                                             </p>
-                                            <p className="text-xs text-slate-500 dark:text-slate-400">{getLevelLabel(profile?.embedded?.totalUserSentenceAnswers ?? 0, t)}</p>
+                                            <div className="flex items-center justify-end gap-1">
+                                                <p className="text-xs text-slate-500 dark:text-slate-400">
+                                                    {getLevelLabel(profile?.embedded?.totalUserSentenceAnswers ?? 0, t)}
+                                                </p>
+                                            </div>
                                         </div>
                                         {profile?.urlAvatar ? (
                                             <img

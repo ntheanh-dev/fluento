@@ -7,7 +7,6 @@ import {
   FREE_CREDITS_PER_DAY,
   PRO_CREDITS_PER_DAY,
   PRO_PRICE_VND,
-  TOPUP_PACKS,
 } from "../../constant";
 import { SUBSCRIPTION_ANCHOR } from "../../subscriptionAnchors";
 import { useExchangeCoins } from "@/features/credits/useExchangeCoins";
@@ -151,8 +150,8 @@ export function SubscriptionPlanTab({ coins, localeNum }: SubscriptionPlanTabPro
               <div
                 key={pack.coins}
                 className={`relative flex flex-col rounded-xl border p-4 transition-all ${highlight
-                    ? "border-amber-400 bg-white/95 shadow-md shadow-amber-900/10 ring-2 ring-amber-300/60 dark:border-amber-500 dark:bg-slate-900/95 dark:ring-amber-600/40"
-                    : "border-amber-200/90 bg-white/80 hover:border-amber-300 hover:shadow-md dark:border-amber-900/50 dark:bg-slate-900/70 dark:hover:border-amber-700"
+                  ? "border-amber-400 bg-white/95 shadow-md shadow-amber-900/10 ring-2 ring-amber-300/60 dark:border-amber-500 dark:bg-slate-900/95 dark:ring-amber-600/40"
+                  : "border-amber-200/90 bg-white/80 hover:border-amber-300 hover:shadow-md dark:border-amber-900/50 dark:bg-slate-900/70 dark:hover:border-amber-700"
                   }`}
               >
                 {highlight && (

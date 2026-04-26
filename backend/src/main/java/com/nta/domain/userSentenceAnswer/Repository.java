@@ -8,6 +8,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import com.nta.domain.paragraphSentenceHint.enums.TargetLanguage;
+
 @org.springframework.stereotype.Repository("userSentenceAnswerRepository")
 public interface Repository extends JpaRepository<UserSentenceAnswer, Long> {
 
@@ -48,6 +50,7 @@ public interface Repository extends JpaRepository<UserSentenceAnswer, Long> {
 			AND a.orderIndex = :orderIndex
 			AND a.isSubmitted = true
 			AND p.user.id <> :excludeUserId
+			AND p.targetLanguage = :targetLanguage
 			AND (
 				(:scoreBand = 0 AND a.score <= 7.0)
 				OR (:scoreBand = 1 AND a.score > 7.0 AND a.score <= 8.0)
@@ -59,6 +62,7 @@ public interface Repository extends JpaRepository<UserSentenceAnswer, Long> {
             @Param("paragraphId") Long paragraphId,
             @Param("orderIndex") Integer orderIndex,
             @Param("excludeUserId") Long excludeUserId,
+            @Param("targetLanguage") TargetLanguage targetLanguage,
             @Param("scoreBand") int scoreBand,
             Pageable pageable);
 

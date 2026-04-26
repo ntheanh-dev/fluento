@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { motion } from "motion/react";
 import { useCommunityTranslations } from "../../hooks/useUserPractice";
 import { useTranslation } from "react-i18next";
+import type { TargetLanguage } from "@/shared/constants/target-language";
 
 const COMMUNITY_SCORE_BANDS: { band: CommunityScoreBand; label: string }[] = [
     { band: "LE7", label: "6" },
@@ -127,13 +128,21 @@ const VocabularyItem = ({
 
 type HintsTab = "vocabulary" | "community";
 
+const SPEECH_LANG_BY_TARGET: Record<"EN" | "ZH" | "KO", string> = {
+    EN: "en-US",
+    ZH: "zh-CN",
+    KO: "ko-KR",
+};
+
 export const VocabularyHintsAside = ({
     vocabularyHints,
     sentenceId,
+    targetLanguage,
     isStreamingVocabularyHints = false,
 }: {
     vocabularyHints: VocabularyHint[] | null;
     sentenceId: number;
+    targetLanguage: TargetLanguage;
     isStreamingVocabularyHints?: boolean;
 }) => {
     const { t } = useTranslation();
@@ -145,12 +154,11 @@ export const VocabularyHintsAside = ({
     const [visibleVocabularyRowCount, setVisibleVocabularyRowCount] = useState(0);
     const [visibleCommunityCount, setVisibleCommunityCount] = useState(0);
     const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
-
     const {
         data: communityList = [],
         isLoading: isLoadingCommunity,
         isError: isCommunityError,
-    } = useCommunityTranslations(sentenceId, hintsTab === "community", communityScoreBand);
+    } = useCommunityTranslations(sentenceId, hintsTab === "community", communityScoreBand, targetLanguage);
 
     useEffect(() => {
         setHintsTab("vocabulary");
@@ -182,7 +190,7 @@ export const VocabularyHintsAside = ({
 
         if (isStreamingVocabularyHints) {
             setVisibleVocabularyCount(total);
-            const totalRows = (vocabularyHints ?? []).reduce((sum, hint) => sum + hint.english.length, 0);
+            const totalRows = (vocabularyHints ?? []).reduce((sum, hint) => sum + hint.translations.length, 0);
             if (totalRows === 0) {
                 setVisibleVocabularyRowCount(0);
                 return;
@@ -205,7 +213,7 @@ export const VocabularyHintsAside = ({
             return () => window.clearInterval(timer);
         }
 
-        setVisibleVocabularyRowCount((vocabularyHints ?? []).reduce((sum, hint) => sum + hint.english.length, 0));
+        setVisibleVocabularyRowCount((vocabularyHints ?? []).reduce((sum, hint) => sum + hint.translations.length, 0));
         setVisibleVocabularyCount(1);
         if (total === 1) return;
 
@@ -261,7 +269,7 @@ export const VocabularyHintsAside = ({
         synth.cancel();
 
         const utterance = new SpeechSynthesisUtterance(word);
-        utterance.lang = "en-US";
+        utterance.lang = SPEECH_LANG_BY_TARGET[targetLanguage] ?? "en-US";
 
         utterance.onstart = () => setSpeakingWord(word);
         utterance.onend = () => {
@@ -280,7 +288,7 @@ export const VocabularyHintsAside = ({
         utteranceRef.current = utterance;
         setSpeakingWord(word);
         synth.speak(utterance);
-    }, [speakingWord]);
+    }, [speakingWord, targetLanguage]);
 
     const handleToggleSaveVocabulary = useCallback((word: string) => {
         const normalized = word.trim().toLowerCase();
@@ -354,9 +362,9 @@ export const VocabularyHintsAside = ({
                             </div>
                         )}
                         {vocabularyHints.slice(0, visibleVocabularyCount).map((hint, index) => (
-                            <div className="group pb-2 last:pb-0" key={`${hint.vietnamese}-${index}`}>
+                            <div className="group pb-2 last:pb-0" key={`${hint.sourceText}-${index}`}>
                                 <div className="flex items-center gap-2 mb-2">
-                                    <h3 className="text-[12px] sm:text-xs text-slate-500 dark:text-slate-400 truncate">{hint.vietnamese.toLocaleLowerCase()}</h3>
+                                    <h3 className="text-[12px] sm:text-xs text-slate-500 dark:text-slate-400 truncate">{hint.sourceText.toLocaleLowerCase()}</h3>
                                     <div className="h-px bg-slate-200 dark:bg-slate-700 flex-1 min-w-0" />
                                 </div>
                                 <motion.ul
@@ -366,20 +374,20 @@ export const VocabularyHintsAside = ({
                                     transition={isStreamingVocabularyHints ? { duration: 0 } : { duration: 0.1 }}
                                 >
                                     {(isStreamingVocabularyHints
-                                        ? hint.english.filter(() => {
+                                        ? hint.translations.filter(() => {
                                             streamedRowCursor += 1;
                                             return streamedRowCursor <= visibleVocabularyRowCount;
                                         })
-                                        : hint.english
+                                        : hint.translations
                                     ).map((word, idx) => (
                                         <VocabularyItem
-                                            key={`${word.english}-${word.partsOfSpeech}-${idx}`}
-                                            word={word.english}
+                                            key={`${word.text}-${word.partsOfSpeech}-${idx}`}
+                                            word={word.text}
                                             type={word.partsOfSpeech}
-                                            pronunciation={word.ipaPronunciation}
+                                            pronunciation={word.pronunciation}
                                             onSpeak={handleSpeak}
-                                            isSpeaking={speakingWord === word.english}
-                                            isSaved={savedVocabulary.has(word.english.trim().toLowerCase())}
+                                            isSpeaking={speakingWord === word.text}
+                                            isSaved={savedVocabulary.has(word.text.trim().toLowerCase())}
                                             onToggleSave={handleToggleSaveVocabulary}
                                         />
                                     ))}

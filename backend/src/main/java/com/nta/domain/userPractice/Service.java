@@ -25,6 +25,7 @@ import com.nta.domain.paragraph.dto.request.CreateParagraphRequest;
 import com.nta.domain.paragraph.enums.Level;
 import com.nta.domain.paragraph.enums.Topic;
 import com.nta.domain.paragraph.enums.Type;
+import com.nta.domain.paragraphSentenceHint.enums.TargetLanguage;
 import com.nta.domain.user.User;
 import com.nta.domain.userPractice.dto.request.SentenceTranslationRequest;
 import com.nta.domain.userPractice.dto.request.SubmitAnswerRequest;
@@ -48,6 +49,7 @@ public class Service {
     static final int PREVIEW_REWARD_CONSECUTIVE_TARGET = 3;
     static final double PREVIEW_REWARD_MIN_SCORE = 8.0d;
     static final int PREVIEW_REWARD_COINS = 1;
+    static final TargetLanguage DEFAULT_TARGET_LANGUAGE = TargetLanguage.EN;
     com.nta.domain.paragraph.Service paragraphService;
     Repository repository;
     CommonUserService commonUserService;
@@ -61,24 +63,33 @@ public class Service {
 
     @Transactional
     UserPracticeResponse create(Long paragraphId) {
+        return create(paragraphId, DEFAULT_TARGET_LANGUAGE);
+    }
+
+    @Transactional
+    UserPracticeResponse create(Long paragraphId, TargetLanguage targetLanguage) {
         Paragraph paragraph = paragraphService
                 .findById(paragraphId)
                 .orElseThrow(() -> new AppException(ErrorCode.PARAGRAPH_NOT_FOUND));
-        return createPracticeFromParagraph(paragraph);
+        TargetLanguage resolvedLanguage = targetLanguage != null ? targetLanguage : DEFAULT_TARGET_LANGUAGE;
+        return createPracticeFromParagraph(paragraph, resolvedLanguage);
     }
 
     @Transactional
     UserPracticeResponse create(CreateParagraphRequest request) {
         Paragraph paragraph = paragraphService.findOrcreate(request);
-        return createPracticeFromParagraph(paragraph);
+        TargetLanguage targetLanguage =
+                request.getTargetLanguage() != null ? request.getTargetLanguage() : DEFAULT_TARGET_LANGUAGE;
+        return createPracticeFromParagraph(paragraph, targetLanguage);
     }
 
-    private UserPracticeResponse createPracticeFromParagraph(Paragraph paragraph) {
+    private UserPracticeResponse createPracticeFromParagraph(Paragraph paragraph, TargetLanguage targetLanguage) {
         UserPractice practice = UserPractice.builder()
                 .user(commonUserService.getUserFromContext())
                 .paragraph(paragraph)
                 .attemptNumber(1)
                 .previewCount(0)
+                .targetLanguage(targetLanguage)
                 .sentenceAnswers(List.of())
                 .build();
 
@@ -100,14 +111,22 @@ public class Service {
     }
 
     public Page<UserPracticeResponse> getAllFiltered(
-            Type type, Topic topic, Level level, String search, String sortOrder, int page, int size) {
+            Type type,
+            Topic topic,
+            Level level,
+            TargetLanguage targetLanguage,
+            Boolean completed,
+            String search,
+            String sortOrder,
+            int page,
+            int size) {
         Long userId = commonUserService.getCurrentUserIdFromContext();
         Sort sort = "asc".equalsIgnoreCase(sortOrder)
                 ? Sort.by(Sort.Direction.ASC, "createdAt")
                 : Sort.by(Sort.Direction.DESC, "createdAt");
         Pageable pageable = PageRequest.of(page, size, sort);
-        Page<UserPractice> practicePage =
-                repository.findByUserIdAndFilters(userId, type, topic, level, search, pageable);
+        Page<UserPractice> practicePage = repository.findByUserIdAndFilters(
+                userId, type, topic, level, targetLanguage, completed, search, pageable);
         List<UserPracticeResponse> responses = mapper.toUserPracticeResponses(practicePage.getContent());
         return new PageImpl<>(responses, practicePage.getPageable(), practicePage.getTotalElements());
     }
@@ -128,7 +147,7 @@ public class Service {
                 appendLineBreakTokenIfNeeded(originalSentence, request.getTranslatedSentence());
 
         PromptMessage prompt = paragraphPromptFactory.buildFeedbackTranslationMarkdownPrompt(
-                originalSentence, normalizedTranslatedSentence);
+                originalSentence, normalizedTranslatedSentence, practice.getTargetLanguage());
         String conversationId = buildPreviewConversationId(practice, request.getOrderIndex());
 
         SentenceFeedback feedback = (onChunk == null

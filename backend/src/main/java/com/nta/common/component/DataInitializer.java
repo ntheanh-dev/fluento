@@ -28,6 +28,7 @@ import com.nta.domain.paragraph.enums.Tone;
 import com.nta.domain.paragraph.enums.Topic;
 import com.nta.domain.paragraph.enums.Type;
 import com.nta.domain.paragraphSentence.ParagraphSentence;
+import com.nta.domain.paragraphSentenceHint.enums.TargetLanguage;
 import com.nta.domain.role.Role;
 import com.nta.domain.user.User;
 
@@ -148,11 +149,16 @@ public class DataInitializer {
         @ConditionalOnProperty(name = "app.data-init.sentences.enabled", havingValue = "true")
         ApplicationRunner initSentenceHintsFromAi(
                 com.nta.domain.paragraphSentence.Repository paragraphSentenceRepository,
+                com.nta.domain.paragraphSentenceHint.Repository paragraphSentenceHintRepository,
                 com.nta.domain.paragraphSentence.Service paragraphSentenceService,
                 @Value("${app.data-init.sentences.max-retries-per-item:5}") int maxRetriesPerItem,
                 @Value("${app.data-init.sentences.parallelism:4}") int parallelism) {
             return args -> runSentenceAiSeed(
-                    paragraphSentenceRepository, paragraphSentenceService, maxRetriesPerItem, parallelism);
+                    paragraphSentenceRepository,
+                    paragraphSentenceHintRepository,
+                    paragraphSentenceService,
+                    maxRetriesPerItem,
+                    parallelism);
         }
 
         private void runParagraphAiSeed(
@@ -286,10 +292,14 @@ public class DataInitializer {
 
         private void runSentenceAiSeed(
                 com.nta.domain.paragraphSentence.Repository paragraphSentenceRepository,
+                com.nta.domain.paragraphSentenceHint.Repository paragraphSentenceHintRepository,
                 com.nta.domain.paragraphSentence.Service paragraphSentenceService,
                 int maxRetriesPerItem,
                 int parallelism) {
-            List<ParagraphSentence> targets = paragraphSentenceRepository.findByVocabularyHintsIsNull();
+            List<ParagraphSentence> targets = paragraphSentenceRepository.findAll().stream()
+                    .filter(sentence -> !paragraphSentenceHintRepository.existsByParagraphSentenceIdAndTargetLanguage(
+                            sentence.getId(), TargetLanguage.EN))
+                    .toList();
             if (targets.isEmpty()) {
                 log.info("Sentence AI init: no sentence without vocabulary hints");
                 return;

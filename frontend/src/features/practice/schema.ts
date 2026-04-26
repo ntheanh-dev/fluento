@@ -15,6 +15,7 @@ const singleSentenceMixValues = [
     "PRESENT",
     "FUTURE",
 ] as const;
+const targetLanguageValues = ["EN", "ZH", "KO"] as const;
 
 const practiceSetupSchema = z.object({
     type: z.enum(practiceTypeValues),
@@ -23,6 +24,7 @@ const practiceSetupSchema = z.object({
     level: z.enum(LEVELS.map((level) => level.value)),
     sentenceCount: z.enum(SENTENCE_COUNTS.map((sentenceCount) => sentenceCount.value)),
     singleSentenceMix: z.array(z.enum(singleSentenceMixValues)).optional(),
+    targetLanguage: z.enum(targetLanguageValues).optional(),
 });
 
 

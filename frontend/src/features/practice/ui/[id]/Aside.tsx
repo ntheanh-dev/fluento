@@ -6,6 +6,7 @@ import { DetailedSuggestionCard } from "./DetailedSuggestionCard";
 import { Lightbulb } from "lucide-react";
 import type { RenderAsideType } from ".";
 import { useTranslation } from "react-i18next";
+import type { TargetLanguage } from "@/shared/constants/target-language";
 
 type AsideProps = {
   isLoadingAnswerPreview: boolean;
@@ -17,6 +18,7 @@ type AsideProps = {
   feedback: SentenceFeedback | null;
   userTranslation?: string;
   streamingFeedback?: Partial<SentenceFeedback> | null;
+  targetLanguage: TargetLanguage;
 };
 
 export const Aside = ({
@@ -28,6 +30,7 @@ export const Aside = ({
   feedback,
   userTranslation,
   streamingFeedback,
+  targetLanguage,
 }: AsideProps) => {
   const { t } = useTranslation();
   const hasStreamingFeedbackData =
@@ -50,6 +53,7 @@ export const Aside = ({
           vocabularyHints={vocabularyHints}
           sentenceId={hintsSentenceId}
           isStreamingVocabularyHints={isLoadingVocabularyHints}
+          targetLanguage={targetLanguage}
         />
       );
     }
@@ -65,6 +69,7 @@ export const Aside = ({
         <DetailedSuggestionCard
           feedback={streamingFeedback}
           userTranslation={userTranslation}
+          targetLanguage={targetLanguage}
           isStreaming
         />
       );
@@ -76,6 +81,7 @@ export const Aside = ({
       <DetailedSuggestionCard
         feedback={feedback}
         userTranslation={userTranslation}
+        targetLanguage={targetLanguage}
         isStreaming={false}
       />
     );

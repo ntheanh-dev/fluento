@@ -21,10 +21,13 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import com.nta.common.dto.ApiResponse;
+import com.nta.common.enums.ErrorCode;
+import com.nta.common.exception.AppException;
 import com.nta.domain.paragraph.dto.request.CreateParagraphRequest;
 import com.nta.domain.paragraph.enums.Level;
 import com.nta.domain.paragraph.enums.Topic;
 import com.nta.domain.paragraph.enums.Type;
+import com.nta.domain.paragraphSentenceHint.enums.TargetLanguage;
 import com.nta.domain.userPractice.dto.request.SentenceTranslationRequest;
 import com.nta.domain.userPractice.dto.request.SubmitAnswerRequest;
 import com.nta.domain.userPractice.dto.response.UserPracticeResponse;
@@ -51,6 +54,8 @@ public class Controller {
             @RequestParam(required = false) String type,
             @RequestParam(required = false) String topic,
             @RequestParam(required = false) String level,
+            @RequestParam(required = false) String targetLanguage,
+            @RequestParam(required = false) Boolean completed,
             @RequestParam(required = false) String search,
             @RequestParam(required = false, defaultValue = "desc") String sort,
             @RequestParam(defaultValue = "0") int page,
@@ -58,9 +63,11 @@ public class Controller {
         Type typeEnum = type != null && !type.isBlank() ? Type.fromString(type) : null;
         Topic topicEnum = topic != null && !topic.isBlank() ? Topic.fromString(topic) : null;
         Level levelEnum = level != null && !level.isBlank() ? Level.fromString(level) : null;
+        TargetLanguage targetLanguageEnum = parseOptionalTargetLanguage(targetLanguage);
         String searchTrimmed = search != null && !search.isBlank() ? search.trim() : null;
         return ApiResponse.<Page<UserPracticeResponse>>builder()
-                .result(service.getAllFiltered(typeEnum, topicEnum, levelEnum, searchTrimmed, sort, page, size))
+                .result(service.getAllFiltered(
+                        typeEnum, topicEnum, levelEnum, targetLanguageEnum, completed, searchTrimmed, sort, page, size))
                 .build();
     }
 
@@ -72,9 +79,12 @@ public class Controller {
     }
 
     @PostMapping("/{paragraphId:\\d+}")
-    ApiResponse<UserPracticeResponse> create(@PathVariable Long paragraphId) {
+    ApiResponse<UserPracticeResponse> create(
+            @PathVariable Long paragraphId,
+            @RequestParam(name = "targetLanguage", required = false) String targetLanguage) {
+        TargetLanguage targetLanguageEnum = parseOptionalTargetLanguage(targetLanguage);
         return ApiResponse.<UserPracticeResponse>builder()
-                .result(service.create(paragraphId))
+                .result(service.create(paragraphId, targetLanguageEnum))
                 .build();
     }
 
@@ -123,5 +133,16 @@ public class Controller {
         return ApiResponse.<UserSentenceAnswerResponse>builder()
                 .result(service.submitAnswer(practiceId, request))
                 .build();
+    }
+
+    private TargetLanguage parseOptionalTargetLanguage(String raw) {
+        if (raw == null || raw.isBlank()) {
+            return null;
+        }
+        try {
+            return TargetLanguage.fromString(raw);
+        } catch (IllegalArgumentException ex) {
+            throw new AppException(ErrorCode.INVALID_TARGET_LANGUAGE);
+        }
     }
 }

@@ -4,9 +4,6 @@ import java.util.List;
 
 import jakarta.persistence.*;
 
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.type.SqlTypes;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.nta.domain.paragraph.Paragraph;
 
@@ -38,7 +35,6 @@ public class ParagraphSentence {
     @Column(columnDefinition = "TEXT", nullable = false)
     private String content;
 
-    @JdbcTypeCode(SqlTypes.JSON)
-    @Column(name = "hints", columnDefinition = "json")
+    @Transient
     private List<VocabularyHint> vocabularyHints;
 }

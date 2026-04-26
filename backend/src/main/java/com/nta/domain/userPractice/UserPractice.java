@@ -9,6 +9,7 @@ import org.hibernate.annotations.CreationTimestamp;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.nta.domain.paragraph.Paragraph;
+import com.nta.domain.paragraphSentenceHint.enums.TargetLanguage;
 import com.nta.domain.user.User;
 import com.nta.domain.userSentenceAnswer.UserSentenceAnswer;
 
@@ -37,6 +38,10 @@ public class UserPractice {
 
     @Column(nullable = false)
     private Integer previewCount;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "target_language", nullable = false, length = 5)
+    private TargetLanguage targetLanguage;
 
     @CreationTimestamp
     private LocalDateTime createdAt;

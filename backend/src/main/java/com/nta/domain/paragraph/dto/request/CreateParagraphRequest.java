@@ -9,6 +9,7 @@ import com.nta.domain.paragraph.enums.SentenceCount;
 import com.nta.domain.paragraph.enums.Tone;
 import com.nta.domain.paragraph.enums.Topic;
 import com.nta.domain.paragraph.enums.Type;
+import com.nta.domain.paragraphSentenceHint.enums.TargetLanguage;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
@@ -47,4 +48,7 @@ public class CreateParagraphRequest {
                     "Optional single-sentence mix options. Example values: STATEMENT, QUESTION, EXCLAMATION, REQUEST, SUGGESTION, PAST, PRESENT, FUTURE",
             example = "[\"STATEMENT\",\"QUESTION\",\"PAST\",\"PRESENT\"]")
     private List<String> singleSentenceMix;
+
+    @Schema(description = "Target translation language", example = "EN")
+    private TargetLanguage targetLanguage;
 }

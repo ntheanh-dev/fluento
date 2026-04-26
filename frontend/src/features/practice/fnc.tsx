@@ -1,4 +1,5 @@
-import { diffWords } from "diff";
+import { diffChars, diffWords } from "diff";
+import type { TargetLanguage } from "@/shared/constants/target-language";
 
 export function renderBacktickHighlight(text: string) {
     const regex = /`([^`]*)`|'([^']*)'/g;
@@ -38,13 +39,17 @@ export function renderBacktickHighlight(text: string) {
 
     return result;
 }
-export function renderWordDiff(oldText: string, newText: string) {
-    const changes = diffWords(oldText, newText);
+export function renderWordDiff(oldText: string, newText: string, targetLanguage: TargetLanguage = "EN") {
+    const isCharDiffLanguage = targetLanguage === "ZH" || targetLanguage === "KO";
+    const changes = isCharDiffLanguage
+        ? diffChars(oldText, newText)
+        : diffWords(oldText, newText);
     return changes.map((part, index) => {
+        const spacer = isCharDiffLanguage ? "" : " ";
         if (part.added) {
             return (
                 <span key={index} className="text-green-600 font-medium">
-                    {part.value}{' '}
+                    {part.value}{spacer}
                 </span>
             );
         }
@@ -54,11 +59,11 @@ export function renderWordDiff(oldText: string, newText: string) {
                     <span key={index} className="text-red-500 line-through">
                         {part.value}
                     </span>
-                    {' '}
+                    {spacer}
                 </>
 
             );
         }
-        return <span key={index}>{part.value}{' '}</span>;
+        return <span key={index}>{part.value}{spacer}</span>;
     });
 }

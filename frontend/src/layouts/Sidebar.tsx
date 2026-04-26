@@ -1,4 +1,5 @@
 import { Link, useNavigate } from "react-router-dom";
+import { useState } from "react";
 import {
   LayoutDashboard,
   BookOpen,
@@ -7,6 +8,7 @@ import {
   Shield,
   User,
   X,
+  ChevronDown,
 } from "lucide-react";
 import { LogOut } from "lucide-react";
 import { useLogoutMutation } from "@/features/auth/mutation";
@@ -48,6 +50,9 @@ const Sidebar = ({
   onClose?: () => void;
 }) => {
   const { t } = useTranslation();
+  const [isPracticeExpanded, setIsPracticeExpanded] = useState(
+    activePath.startsWith("/paragraphs") || activePath.startsWith("/practice"),
+  );
   const { profile } = useProfile();
   const isAdmin = (profile?.roles ?? []).some((r) => r.name === ADMIN_ROLE);
   const navigate = useNavigate();
@@ -85,15 +90,41 @@ const Sidebar = ({
           to="/home"
           active={activePath === "/home"}
         />
-        <SidebarItem
-          icon={BookOpen}
-          label={t("nav.practice")}
-          to="/practice/single-sentence"
-          active={
-            activePath.startsWith("/practice") ||
-            activePath.startsWith("/session")
-          }
-        />
+        <div className="space-y-1">
+          <button
+            type="button"
+            onClick={() => setIsPracticeExpanded((prev) => !prev)}
+            className={`w-full flex items-center justify-between px-4 py-3 rounded-xl transition-all duration-200 ${activePath.startsWith("/paragraphs") || activePath.startsWith("/practice")
+                ? "bg-blue-600 text-white shadow-md shadow-blue-200 dark:shadow-blue-900/40"
+                : "text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-100"
+              }`}
+          >
+            <span className="inline-flex items-center gap-3">
+              <BookOpen size={20} strokeWidth={2} />
+              <span className="font-medium">{t("nav.practice")}</span>
+            </span>
+            <ChevronDown
+              size={18}
+              className={`transition-transform ${isPracticeExpanded ? "rotate-180" : ""}`}
+            />
+          </button>
+          {isPracticeExpanded && (
+            <div className="ml-3 pl-3 border-l border-slate-200 dark:border-slate-700 space-y-1">
+              <SidebarItem
+                icon={BookOpen}
+                label={t("practice.setup.modeParagraphCardTitle")}
+                to="/paragraphs"
+                active={activePath.startsWith("/paragraphs")}
+              />
+              <SidebarItem
+                icon={BookOpen}
+                label={t("practice.setup.modeSentenceCardTitle")}
+                to="/practice/single-sentence"
+                active={activePath.startsWith("/practice/single-sentence")}
+              />
+            </div>
+          )}
+        </div>
         <SidebarItem
           icon={History}
           label={t("nav.history")}

@@ -149,8 +149,14 @@ export const adminListParagraphSentencesByParagraphId = async (
   return getResource<ParagraphSentence[]>(`/admin/paragraph-sentences/by-paragraph/${paragraphId}`);
 };
 
-export const adminGenerateParagraphSentenceHints = async (sentenceId: number): Promise<ParagraphSentence> => {
-  return createRestClient<ParagraphSentence>(`/admin/paragraph-sentences/${sentenceId}/hints/generate`, {});
+export const adminGenerateParagraphSentenceHints = async (
+  sentenceId: number,
+  targetLanguage: "EN" | "ZH" | "KO" = "EN",
+): Promise<ParagraphSentence> => {
+  return createRestClient<ParagraphSentence>(
+    `/admin/paragraph-sentences/${sentenceId}/hints/generate?targetLanguage=${targetLanguage}`,
+    {},
+  );
 };
 
 export const adminDeleteParagraphSentence = async (sentenceId: number): Promise<void> => {

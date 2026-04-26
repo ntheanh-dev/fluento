@@ -11,6 +11,7 @@ import { getCoverImage } from "@/shared/constants/practice-covers";
 import { useCreateUserPracticeMutation } from "@/features/paragraph/mutation";
 import type { ParagraphItem } from "@/features/paragraph/schema";
 import type { UserPractice } from "@/entities/userPractice/schema";
+import type { TargetLanguage } from "@/shared/constants/target-language";
 
 type SliderCard = {
     id: string;
@@ -65,6 +66,7 @@ function toSliderCards(items: ParagraphItem[], t: (key: string) => string): Slid
 
 function Home() {
     const { t } = useTranslation();
+    const targetLanguage: TargetLanguage = "EN";
     const screens = Grid.useBreakpoint();
     const isMobile = !screens.md;
     const navigate = useNavigate();
@@ -76,7 +78,10 @@ function Home() {
     const handleStartParagraph = async (paragraphId: number) => {
         setStartingParagraphId(paragraphId);
         try {
-            const data = await createUserPractice(paragraphId);
+            const data = await createUserPractice({
+                paragraphId,
+                targetLanguage,
+            });
             navigate(`/practice/${data.id}`);
         } catch (error) {
             message.error(error as string);
@@ -110,8 +115,13 @@ function Home() {
     });
 
     const { data: historyData } = useQuery({
-        queryKey: OK.historyList({ page: 0, size: 3, sort: "desc" }),
-        queryFn: () => getHistory({ page: 0, size: 3, sort: "desc" }),
+        queryKey: OK.historyList({
+            page: 0,
+            size: 3,
+            sort: "desc",
+            targetLanguage,
+        }),
+        queryFn: () => getHistory({ page: 0, size: 3, sort: "desc", targetLanguage }),
     });
 
     const sliderCards = useMemo(
@@ -368,6 +378,13 @@ function Home() {
                     </div>
                 ))}
             </section>
+
+            <footer className="mt-12 border-t border-slate-200 pt-6 text-center text-sm text-slate-500 dark:border-slate-700 dark:text-slate-400">
+                {t("profile.subscriptionPage.footer.copyright", {
+                    year: new Date().getFullYear(),
+                    brand: t("common.brand"),
+                })}
+            </footer>
         </div>
     );
 }

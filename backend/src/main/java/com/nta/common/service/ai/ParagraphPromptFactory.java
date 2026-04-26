@@ -10,12 +10,15 @@ import org.springframework.stereotype.Component;
 
 import com.nta.domain.paragraph.dto.request.CreateParagraphRequest;
 import com.nta.domain.paragraph.enums.SentenceCount;
+import com.nta.domain.paragraphSentenceHint.enums.TargetLanguage;
 
 import lombok.RequiredArgsConstructor;
 
 @Component
 @RequiredArgsConstructor
 public class ParagraphPromptFactory {
+    private static final TargetLanguage DEFAULT_TARGET_LANGUAGE = TargetLanguage.EN;
+
     private static final Map<String, String> SINGLE_SENTENCE_MIX_OPTIONS = new LinkedHashMap<>();
 
     static {
@@ -37,26 +40,28 @@ public class ParagraphPromptFactory {
     }
 
     private PromptMessage buildDiariesPrompt(CreateParagraphRequest request) {
+        String targetLanguageName = toLanguageName(resolveTargetLanguage(request));
 
         int sentenceCount =
                 request.getSentenceCount() != null ? request.getSentenceCount().getSize() : SentenceCount.TEN.getSize();
 
-        String system =
-                "You are an expert creator of Vietnamese diary and journal texts for English-translation practice. "
-                        + "Learners will translate your Vietnamese into English, so keep phrasing clear and level-appropriate. "
-                        + "Return ONLY valid JSON. No markdown, no explanation. "
-                        + "Strict schema: {\"title\":\"string\",\"sentences\":[\"string\"]}. "
-                        + "The \"sentences\" array must contain EXACTLY "
-                        + sentenceCount
-                        + " separate strings. "
-                        + "Each string is ONE complete Vietnamese sentence (no line breaks inside a sentence). "
-                        + "Do not use double quotes inside sentence text. "
-                        + "Together, the sentences should read as one coherent diary entry or a tight sequence of entries on the same thread. "
-                        + "Escape JSON correctly.";
+        String system = "You are an expert creator of Vietnamese diary and journal texts for translation practice. "
+                + "Learners will translate your Vietnamese into "
+                + targetLanguageName
+                + ", so keep phrasing clear and level-appropriate. "
+                + "Return ONLY valid JSON. No markdown, no explanation. "
+                + "Strict schema: {\"title\":\"string\",\"sentences\":[\"string\"]}. "
+                + "The \"sentences\" array must contain EXACTLY "
+                + sentenceCount
+                + " separate strings. "
+                + "Each string is ONE complete Vietnamese sentence (no line breaks inside a sentence). "
+                + "Do not use double quotes inside sentence text. "
+                + "Together, the sentences should read as one coherent diary entry or a tight sequence of entries on the same thread. "
+                + "Escape JSON correctly.";
 
         String user = String.format(
                 """
-				Write Vietnamese diary / journal content for English translation practice.
+				Write Vietnamese diary / journal content for %s translation practice.
 
 				Topic anchor: %s (weave naturally; do not mechanically repeat the topic label)
 				Target difficulty (CEFR-style): %s
@@ -70,7 +75,7 @@ public class ParagraphPromptFactory {
 				- Use first person (e.g. \"tôi\", \"mình\") consistently.
 				- Include concrete detail: actions, places, people, feelings, or small events—not abstract filler.
 				- Show continuity (same day, same stretch of time, or linked moments); optional time phrases only when natural.
-				- Vocabulary and grammar must suit %s learners translating into English.
+				- Vocabulary and grammar must suit %s learners translating into %s.
 				- NEVER use placeholders like [Tên], [địa điểm], or [...]; invent believable specifics.
 				- Varied sentence openings and lengths; mix statements with occasional questions or exclamations if natural.
 
@@ -78,16 +83,25 @@ public class ParagraphPromptFactory {
 				- 5–12 words in Vietnamese, diary-style (mood, day, or moment—not a generic essay title).
 				- Must match the body content.
 				""",
-                request.getTopic(), request.getLevel(), request.getTone(), sentenceCount, request.getLevel());
+                targetLanguageName,
+                request.getTopic(),
+                request.getLevel(),
+                request.getTone(),
+                sentenceCount,
+                request.getLevel(),
+                targetLanguageName);
 
         return new PromptMessage(system, user);
     }
 
     private PromptMessage buildWritingPrompt(CreateParagraphRequest request) {
+        String targetLanguageName = toLanguageName(resolveTargetLanguage(request));
         int sentenceCount =
                 request.getSentenceCount() != null ? request.getSentenceCount().getSize() : SentenceCount.TEN.getSize();
         String system = "You are an expert English-learning content creator. "
-                + "Task: Generate Vietnamese content for learners to translate into English. "
+                + "Task: Generate Vietnamese content for learners to translate into "
+                + targetLanguageName
+                + ". "
                 + "Output: MUST strictly follow this JSON schema: {\"title\":\"string\",\"sentences\":[\"string\"]}. "
                 + "IMPORTANT: Inside the JSON string values, any new line or section break MUST be represented by the literal character sequence '\\\\n' (a backslash and 'n'). "
                 + "Do NOT use actual line breaks (Enter key) inside the JSON strings. "
@@ -150,7 +164,7 @@ Use logical transitions. If there are distinct points, separate them with the li
 
         String user = String.format(
                 """
-					Create a %s in Vietnamese for English translation practice.
+					Create a %s in Vietnamese for %s translation practice.
 
 					Topic: %s
 					Level: %s
@@ -161,7 +175,7 @@ Use logical transitions. If there are distinct points, separate them with the li
 					%s
 
 					Translation Practice Requirements:
-					- Designed for learners to translate into English.
+					- Designed for learners to translate into %s.
 					- Use practical and real-life context.
 					- Include useful grammar patterns for English.
 					- Avoid idioms or culturally specific expressions that are hard to translate.
@@ -173,34 +187,38 @@ Use logical transitions. If there are distinct points, separate them with the li
 					- Specific and clearly related to the content
 					""",
                 request.getType().getDisplayName(),
+                targetLanguageName,
                 request.getTopic(),
                 request.getLevel(),
                 request.getTone(),
                 sentenceCount,
                 typeInstruction,
+                targetLanguageName,
                 request.getLevel());
 
         return new PromptMessage(system, user);
     }
 
     private PromptMessage buildSingleSentencePrompt(CreateParagraphRequest request) {
+        String targetLanguageName = toLanguageName(resolveTargetLanguage(request));
         int sentenceCount =
                 request.getSentenceCount() != null ? request.getSentenceCount().getSize() : SentenceCount.TEN.getSize();
         List<String> selectedMix = resolveSingleSentenceMix(request.getSingleSentenceMix());
         String system =
                 """
 				You are an expert English teacher creating learning materials for Vietnamese learners.
-				Your task is to generate Vietnamese sentences that students will translate into English.
-				Sentences must be natural, grammatically correct, and appropriate for the given English level.
+				Your task is to generate Vietnamese sentences that students will translate into %s.
+				Sentences must be natural, grammatically correct, and appropriate for the given target language level.
 				Return ONLY valid JSON with this schema: {"sentences":["string"]}.
-				""";
+				"""
+                        .formatted(targetLanguageName);
 
         String user = String.format(
                 """
-				Generate about %d Vietnamese sentences for English translation practice.
+				Generate about %d Vietnamese sentences for %s translation practice.
 
 				Topic: %s
-				English level: %s
+				Target language level: %s
 				Tone: %s
 
 				Requirements:
@@ -211,7 +229,12 @@ Use logical transitions. If there are distinct points, separate them with the li
 				- Return ONLY valid JSON with schema {"sentences":["string"]}
 				- Do NOT include numbering, bullet points, or explanations
 				""",
-                sentenceCount, request.getTopic(), request.getLevel(), request.getTone(), toBulletList(selectedMix));
+                sentenceCount,
+                targetLanguageName,
+                request.getTopic(),
+                request.getLevel(),
+                request.getTone(),
+                toBulletList(selectedMix));
 
         return new PromptMessage(system, user);
     }
@@ -240,8 +263,16 @@ Use logical transitions. If there are distinct points, separate them with the li
     }
 
     public PromptMessage buildHintTranslationPrompt(String sentence, String level) {
-        final String system = "You are an English learning assistant for Vietnamese learners. "
-                + "Provide vocabulary hints to help translate Vietnamese sentences into English. "
+        return buildHintTranslationPrompt(sentence, level, DEFAULT_TARGET_LANGUAGE);
+    }
+
+    public PromptMessage buildHintTranslationPrompt(String sentence, String level, TargetLanguage targetLanguage) {
+        TargetLanguage language = targetLanguage == null ? DEFAULT_TARGET_LANGUAGE : targetLanguage;
+        String targetLanguageName = toLanguageName(language);
+        final String system = "You are a translation-learning assistant for Vietnamese learners. "
+                + "Provide vocabulary hints to help translate Vietnamese sentences into "
+                + targetLanguageName
+                + ". "
                 + "Return ONLY valid JSON (no markdown, no explanations).\n\n"
                 + "Use vocabulary suitable for CEFR level: "
                 + level
@@ -255,12 +286,12 @@ Use logical transitions. If there are distinct points, separate them with the li
                 + "Return ONLY a valid JSON array with this item schema:\n"
                 + "[\n"
                 + "    {\n"
-                + "      \"vietnamese\": \"word or phrase\",\n"
-                + "      \"english\": [\n"
+                + "      \"sourceText\": \"word or phrase in Vietnamese\",\n"
+                + "      \"translations\": [\n"
                 + "        {\n"
-                + "          \"english\": \"translation\",\n"
+                + "          \"text\": \"translation in target language\",\n"
                 + "          \"partsOfSpeech\": \"part of speech\",\n"
-                + "          \"ipaPronunciation\": \"IPA\"\n"
+                + "          \"pronunciation\": \"English IPA OR Chinese pinyin OR Korean romanization\"\n"
                 + "        }\n"
                 + "      ]\n"
                 + "    }\n"
@@ -270,21 +301,44 @@ Use logical transitions. If there are distinct points, separate them with the li
                 "Vietnamese sentence: \"%s\"\n\n"
                         + "Tasks:\n"
                         + "- Extract important Vietnamese words/phrases.\n"
-                        + "- Provide suitable English translations for %s level learners.\n"
+                        + "- Provide suitable %s translations for %s level learners.\n"
+                        + "- Use pronunciation field by target language: IPA for English, pinyin for Chinese, romanization for Korean.\n"
                         + "- Include multiple translations when useful.\n"
                         + "- Return ONLY a JSON array that strictly follows the schema.\n",
-                sentence, level);
+                sentence, targetLanguageName, level);
 
         return new PromptMessage(system, user);
     }
 
+    private String toLanguageName(TargetLanguage language) {
+        return switch (language) {
+            case EN -> "English";
+            case ZH -> "Chinese";
+            case KO -> "Korean";
+        };
+    }
+
+    private TargetLanguage resolveTargetLanguage(CreateParagraphRequest request) {
+        if (request.getTargetLanguage() == null) {
+            return DEFAULT_TARGET_LANGUAGE;
+        }
+        return request.getTargetLanguage();
+    }
+
     public PromptMessage buildFeedbackTranslationMarkdownPrompt(String vietnamese, String translate) {
+        return buildFeedbackTranslationMarkdownPrompt(vietnamese, translate, DEFAULT_TARGET_LANGUAGE);
+    }
+
+    public PromptMessage buildFeedbackTranslationMarkdownPrompt(
+            String vietnamese, String translate, TargetLanguage targetLanguage) {
+        TargetLanguage language = targetLanguage == null ? DEFAULT_TARGET_LANGUAGE : targetLanguage;
+        String targetLanguageName = toLanguageName(language);
         String system =
                 """
-			Bạn là giáo viên tiếng Anh đang hỗ trợ người học Việt Nam cải thiện kỹ năng dịch câu.
+			Bạn là giáo viên ngôn ngữ đang hỗ trợ người học Việt Nam cải thiện kỹ năng dịch câu.
 
 			QUY TẮC CHUNG:
-			- Trả lời HOÀN TOÀN bằng TIẾNG VIỆT, ngoại trừ ví dụ câu tiếng Anh.
+			- Trả lời HOÀN TOÀN bằng TIẾNG VIỆT, ngoại trừ ví dụ câu ở ngôn ngữ đích.
 			- LUÔN trả về DUY NHẤT một JSON HỢP LỆ, KHÔNG thêm bất kỳ text, markdown hay giải thích bên ngoài JSON.
 			- Output phải BẮT ĐẦU bằng { và KẾT THÚC bằng }.
 			- KHÔNG dùng ``` hoặc bất kỳ ký hiệu code block nào.
@@ -302,20 +356,21 @@ Use logical transitions. If there are distinct points, separate them with the li
 
 			DIỄN GIẢI CHI TIẾT:
 			- score: Điểm số tổng quan từ 1–10 đánh giá chất lượng câu dịch.
-			- correction: Câu tiếng Anh đã CHỈNH SỬA, dạng gợi ý tổng quát giống như phần "Suggestion".
+			- correction: Câu ở ngôn ngữ đích đã CHỈNH SỬA, dạng gợi ý tổng quát giống như phần "Suggestion".
 			+ Viết lại toàn bộ câu theo bản dịch đúng và tự nhiên hơn.
-			- improved: Câu tiếng Anh dùng từ ngữ, cấu trúc, thì, từ vựng tốt hơn.
+			- improved: Câu ở ngôn ngữ đích dùng từ ngữ, cấu trúc, thì, từ vựng tốt hơn.
 			- suggestions: Danh sách 2–5 gợi ý chi tiết bằng tiếng Việt, mỗi phần tử là MỘT câu hoàn chỉnh.
 			+ Giải thích ngắn gọn từng lỗi (thì, số ít/số nhiều, từ vựng, cấu trúc câu...).
-			+ Có thể dùng `backtick` để làm nổi bật từ/cụm từ tiếng Anh hoặc thuật ngữ như `past tense`, `was`, `friends`...
+			+ Có thể dùng `backtick` để làm nổi bật từ/cụm từ ở ngôn ngữ đích hoặc thuật ngữ ngữ pháp.
 			- summary: 1 đoạn nhận xét ngắn gọn bằng tiếng Việt (1–3 câu) chỉ tổng kết lại các lỗi chính và lời khuyên chung.
 
 
 			YÊU CẦU QUAN TRỌNG:
-			- Nội dung phải phù hợp cho người học tiếng Anh trình độ phổ thông.
+			- Nội dung phải phù hợp cho người học ngôn ngữ đích trình độ phổ thông.
 			- Không chèn xuống dòng hoặc ký tự lạ bên ngoài cấu trúc JSON.
 			- Đảm bảo JSON hợp lệ: không dấu phẩy thừa, escape đúng ký tự đặc biệt.
-			""";
+			"""
+                        .formatted(targetLanguageName);
 
         String user =
                 """
@@ -324,19 +379,19 @@ Use logical transitions. If there are distinct points, separate them with the li
 				Câu gốc (TIẾNG VIỆT):
 				\"%s\"
 
-				Bản dịch của người học (TIẾNG ANH):
+				Bản dịch của người học (NGÔN NGỮ ĐÍCH - %s):
 				\"%s\"
 
 				Nhiệm vụ:
 				1. Phân tích các lỗi chính về thì, từ vựng, cấu trúc câu, độ tự nhiên.
-				2. Viết lại câu tiếng Anh đã chỉnh sửa vào trường "correction".
+				2. Viết lại câu ngôn ngữ đích đã chỉnh sửa vào trường "correction".
 				3. Tạo danh sách các gợi ý chi tiết bằng tiếng Việt trong "suggestions".
 				4. Viết phần tổng kết ngắn gọn, động viên người học trong "summary".
 				5. Gán điểm tổng quan (1–10, có thể số lẻ) vào trường "score".
 
 				CHỈ TRẢ VỀ JSON, KHÔNG THÊM BẤT KỲ NỘI DUNG NÀO BÊN NGOÀI.
 				"""
-                        .formatted(vietnamese, translate);
+                        .formatted(vietnamese, targetLanguageName, translate);
 
         return new PromptMessage(system, user);
     }

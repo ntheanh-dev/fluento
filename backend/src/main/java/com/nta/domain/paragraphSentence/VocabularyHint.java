@@ -2,6 +2,9 @@ package com.nta.domain.paragraphSentence;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -10,6 +13,11 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class VocabularyHint {
-    private String vietnamese;
-    private List<Vocabulary> english;
+    @JsonProperty("sourceText")
+    @JsonAlias("vietnamese")
+    private String sourceText;
+
+    @JsonProperty("translations")
+    @JsonAlias({"english", "chinese", "korean"})
+    private List<Vocabulary> translations;
 }

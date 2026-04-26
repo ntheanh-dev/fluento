@@ -19,6 +19,8 @@ import com.nta.common.service.ai.ParagraphPromptFactory;
 import com.nta.common.service.ai.PromptMessage;
 import com.nta.domain.paragraphSentence.dto.response.CommunityTranslationResponse;
 import com.nta.domain.paragraphSentence.enums.CommunityScoreBand;
+import com.nta.domain.paragraphSentenceHint.ParagraphSentenceHint;
+import com.nta.domain.paragraphSentenceHint.enums.TargetLanguage;
 import com.nta.domain.user.User;
 import com.nta.domain.userSentenceAnswer.UserSentenceAnswer;
 
@@ -35,27 +37,37 @@ import lombok.extern.slf4j.Slf4j;
 public class Service {
     private static final int COMMUNITY_FETCH_CAP = 80;
     private static final int COMMUNITY_UNIQUE_CAP = 24;
+    private static final TargetLanguage DEFAULT_TARGET_LANGUAGE = TargetLanguage.EN;
 
     Repository repository;
+    com.nta.domain.paragraphSentenceHint.Repository hintRepository;
     ParagraphPromptFactory promptFactory;
     ChatService chatService;
     com.nta.domain.userSentenceAnswer.Repository userSentenceAnswerRepository;
     CommonUserService commonUserService;
 
     public ParagraphSentence getOrCreateVocabularyHints(Long sentenceId) {
-        return getOrCreateVocabularyHints(sentenceId, null);
+        return getOrCreateVocabularyHints(sentenceId, DEFAULT_TARGET_LANGUAGE, null);
     }
 
     public ParagraphSentence getOrCreateVocabularyHints(Long sentenceId, Consumer<String> onChunk) {
+        return getOrCreateVocabularyHints(sentenceId, DEFAULT_TARGET_LANGUAGE, onChunk);
+    }
+
+    public ParagraphSentence getOrCreateVocabularyHints(
+            Long sentenceId, TargetLanguage targetLanguage, Consumer<String> onChunk) {
         ParagraphSentence sentence =
                 repository.findById(sentenceId).orElseThrow(() -> new AppException(ErrorCode.RESOURCE_NOT_FOUND));
+        TargetLanguage language = targetLanguage == null ? DEFAULT_TARGET_LANGUAGE : targetLanguage;
 
-        if (sentence.getVocabularyHints() != null) {
+        var existingHint = hintRepository.findByParagraphSentenceIdAndTargetLanguage(sentenceId, language);
+        if (existingHint.isPresent()) {
+            sentence.setVocabularyHints(existingHint.get().getHintsJson());
             return sentence;
         }
 
         PromptMessage prompt = promptFactory.buildHintTranslationPrompt(
-                sentence.getContent(), sentence.getParagraph().getLevel().getCode());
+                sentence.getContent(), sentence.getParagraph().getLevel().getCode(), language);
         VocabularyHint[] response = (onChunk == null
                         ? chatService.sendMessage(prompt.systemMessage(), prompt.userMessage(), VocabularyHint[].class)
                         : chatService.sendMessageStream(
@@ -63,23 +75,32 @@ public class Service {
                 .getResult();
 
         List<VocabularyHint> vocabularyHints = response != null ? Arrays.asList(response) : List.of();
+        ParagraphSentenceHint hint = ParagraphSentenceHint.builder()
+                .paragraphSentence(sentence)
+                .targetLanguage(language)
+                .hintsJson(vocabularyHints)
+                .build();
+        hintRepository.save(hint);
         sentence.setVocabularyHints(vocabularyHints);
-        return repository.save(sentence);
+        return sentence;
     }
 
-    public List<CommunityTranslationResponse> getCommunityTranslations(Long sentenceId, CommunityScoreBand band) {
+    public List<CommunityTranslationResponse> getCommunityTranslations(
+            Long sentenceId, CommunityScoreBand band, TargetLanguage targetLanguage) {
         ParagraphSentence sentence =
                 repository.findById(sentenceId).orElseThrow(() -> new AppException(ErrorCode.RESOURCE_NOT_FOUND));
 
         Long paragraphId = sentence.getParagraph().getId();
         Integer orderIndex = sentence.getOrderIndex();
         Long currentUserId = commonUserService.getCurrentUserIdFromContext();
+        TargetLanguage language = targetLanguage == null ? DEFAULT_TARGET_LANGUAGE : targetLanguage;
 
         List<UserSentenceAnswer> filteredRaw =
                 userSentenceAnswerRepository.findRecentSubmittedByParagraphAndOrderExcludingUser(
                         paragraphId,
                         orderIndex,
                         currentUserId,
+                        language,
                         band.getQueryIndex(),
                         PageRequest.of(0, COMMUNITY_FETCH_CAP));
 

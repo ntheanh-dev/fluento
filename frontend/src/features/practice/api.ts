@@ -62,12 +62,15 @@ export const getUserPracticeById = (
 
 export const getSentenceVocabularyHints = (
   sentenceId: number,
+  targetLanguage: "EN" | "ZH" | "KO" = "EN",
   onTextChunk?: (fullText: string) => void,
   onPartialHints?: (partial: VocabularyHint[]) => void,
 ): Promise<ParagraphSentence> => {
   return (async () => {
     let token = Cookies.get("accessToken");
-    let response = await fetch(`${API_BASE_URL}${PARAGRAPH_SENTENCE_BASE}/${sentenceId}/vocabularyHints`, {
+    let response = await fetch(
+      `${API_BASE_URL}${PARAGRAPH_SENTENCE_BASE}/${sentenceId}/vocabularyHints?targetLanguage=${targetLanguage}`,
+      {
       method: "GET",
       credentials: "include",
       headers: {
@@ -78,7 +81,9 @@ export const getSentenceVocabularyHints = (
 
     if (response.status === 401) {
       token = await refreshAccessTokenForStream();
-      response = await fetch(`${API_BASE_URL}${PARAGRAPH_SENTENCE_BASE}/${sentenceId}/vocabularyHints`, {
+      response = await fetch(
+        `${API_BASE_URL}${PARAGRAPH_SENTENCE_BASE}/${sentenceId}/vocabularyHints?targetLanguage=${targetLanguage}`,
+        {
         method: "GET",
         credentials: "include",
         headers: {
@@ -213,8 +218,9 @@ export const getSentenceVocabularyHints = (
 export const getCommunityTranslations = (
   sentenceId: number,
   score: CommunityScoreBand,
+  targetLanguage: "EN" | "ZH" | "KO" = "EN",
 ): Promise<CommunityTranslation[]> => {
-  const q = new URLSearchParams({ score });
+  const q = new URLSearchParams({ score, targetLanguage });
   return getResource<CommunityTranslation[]>(
     `${PARAGRAPH_SENTENCE_BASE}/${sentenceId}/communityTranslations?${q}`,
   );

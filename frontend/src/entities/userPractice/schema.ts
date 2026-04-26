@@ -6,6 +6,7 @@ export interface UserPractice {
     attemptNumber: number;
     score: number;
     learningTime: number;
+    targetLanguage: "EN" | "ZH" | "KO";
     createdAt: string;
     paragraph: Paragraph;
     sentenceAnswers: UserSentenceAnswer[];

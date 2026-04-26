@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import com.nta.domain.paragraph.Paragraph;
+import com.nta.domain.paragraphSentenceHint.enums.TargetLanguage;
 import com.nta.domain.userSentenceAnswer.UserSentenceAnswer;
 
 import lombok.*;
@@ -23,6 +24,8 @@ public class UserPracticeResponse {
     private Double score;
 
     private Long learningTime;
+
+    private TargetLanguage targetLanguage;
 
     private LocalDateTime createdAt;
 

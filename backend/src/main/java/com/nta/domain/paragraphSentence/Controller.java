@@ -17,8 +17,11 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import com.nta.common.dto.ApiResponse;
+import com.nta.common.enums.ErrorCode;
+import com.nta.common.exception.AppException;
 import com.nta.domain.paragraphSentence.dto.response.CommunityTranslationResponse;
 import com.nta.domain.paragraphSentence.enums.CommunityScoreBand;
+import com.nta.domain.paragraphSentenceHint.enums.TargetLanguage;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AccessLevel;
@@ -36,13 +39,19 @@ public class Controller {
     Service service;
 
     @GetMapping(value = "/{id}/vocabularyHints", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    SseEmitter getOrCreateVocabularyHints(@PathVariable Long id) {
-        log.debug("Getting or creating vocabulary hints for paragraph sentence: {}", id);
+    SseEmitter getOrCreateVocabularyHints(
+            @PathVariable Long id,
+            @RequestParam(name = "targetLanguage", defaultValue = "EN") String targetLanguageParam) {
+        final TargetLanguage targetLanguage = parseTargetLanguageOrThrow(targetLanguageParam);
+        log.debug(
+                "Getting or creating vocabulary hints for paragraph sentence: {}, targetLanguage={}",
+                id,
+                targetLanguage);
         SseEmitter emitter = new SseEmitter(60_000L);
         SecurityContext securityContext = SecurityContextHolder.getContext();
         Runnable streamTask = () -> {
             try {
-                ParagraphSentence sentence = service.getOrCreateVocabularyHints(id, chunk -> {
+                ParagraphSentence sentence = service.getOrCreateVocabularyHints(id, targetLanguage, chunk -> {
                     try {
                         emitter.send(SseEmitter.event()
                                 .name("vocabulary-hints-chunk")
@@ -71,11 +80,27 @@ public class Controller {
 
     @GetMapping("/{id}/communityTranslations")
     ApiResponse<List<CommunityTranslationResponse>> getCommunityTranslations(
-            @PathVariable Long id, @RequestParam(name = "score", defaultValue = "LE7") String scoreParam) {
+            @PathVariable Long id,
+            @RequestParam(name = "score", defaultValue = "LE7") String scoreParam,
+            @RequestParam(name = "targetLanguage", defaultValue = "EN") String targetLanguageParam) {
         CommunityScoreBand scoreBand = CommunityScoreBand.fromParam(scoreParam);
-        log.debug("Community translations for paragraph sentence: {}, score={}", id, scoreBand);
+        TargetLanguage targetLanguage = parseTargetLanguageOrThrow(targetLanguageParam);
+        log.debug(
+                "Community translations for paragraph sentence: {}, score={}, targetLanguage={}",
+                id,
+                scoreBand,
+                targetLanguage);
         return ApiResponse.<List<CommunityTranslationResponse>>builder()
-                .result(service.getCommunityTranslations(id, scoreBand))
+                .result(service.getCommunityTranslations(id, scoreBand, targetLanguage))
                 .build();
+    }
+
+    private TargetLanguage parseTargetLanguageOrThrow(String raw) {
+        try {
+            TargetLanguage parsed = TargetLanguage.fromString(raw);
+            return parsed != null ? parsed : TargetLanguage.EN;
+        } catch (IllegalArgumentException ex) {
+            throw new AppException(ErrorCode.INVALID_TARGET_LANGUAGE);
+        }
     }
 }

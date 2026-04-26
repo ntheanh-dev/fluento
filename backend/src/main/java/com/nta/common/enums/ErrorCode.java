@@ -22,6 +22,7 @@ public enum ErrorCode {
     UPDATE_ME_EMPTY(910, "Cần gửi ít nhất một phần: profile hoặc avatar", HttpStatus.BAD_REQUEST),
     AVATAR_FILE_TYPE_INVALID(911, "Avatar phải là ảnh (JPEG, PNG, GIF, WebP)", HttpStatus.BAD_REQUEST),
     AVATAR_FILE_SIZE_INVALID(912, "Kích thước avatar tối đa 5MB", HttpStatus.BAD_REQUEST),
+    INVALID_TARGET_LANGUAGE(913, "Target language không hợp lệ", HttpStatus.BAD_REQUEST),
 
     // Authentication & user errors (10xx)
     USERNAME_EXISTED(1002, "Tên đăng nhập đã tồn tại", HttpStatus.CONFLICT),

@@ -3,17 +3,20 @@ import { Copy, Loader2, Sparkles } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { renderBacktickHighlight, renderWordDiff } from "../../fnc";
+import type { TargetLanguage } from "@/shared/constants/target-language";
 
 export type DetailedSuggestionCardProps = {
   feedback: Partial<SentenceFeedback> | null;
   userTranslation?: string;
   isStreaming?: boolean;
+  targetLanguage: TargetLanguage;
 };
 
 export function DetailedSuggestionCard({
   feedback,
   userTranslation,
   isStreaming = false,
+  targetLanguage,
 }: DetailedSuggestionCardProps) {
   const { t } = useTranslation();
   const [expandState, setExpandState] = useState<"idle" | "loading" | "streaming" | "done">("idle");
@@ -160,14 +163,14 @@ export function DetailedSuggestionCard({
                 return (
                   <>
                     {stable && (userTranslation?.trim()
-                      ? renderWordDiff(userTranslation.trim(), stable)
+                      ? renderWordDiff(userTranslation.trim(), stable, targetLanguage)
                       : stable)}
                     {pending}
                   </>
                 );
               }
               return userTranslation?.trim()
-                ? renderWordDiff(userTranslation.trim(), correction)
+                ? renderWordDiff(userTranslation.trim(), correction, targetLanguage)
                 : correction;
             })()}
           </span>

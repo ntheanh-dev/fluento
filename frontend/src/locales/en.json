@@ -310,6 +310,12 @@
     "feature1Desc": "Focus on accuracy and grammar at the micro level. Perfect for mastering tenses and prepositions.",
     "feature2Title": "Paragraph writing",
     "feature2Desc": "Master flow, context, and advanced structures. Learn to connect ideas naturally and professionally.",
+    "multiBadge": "Global learning",
+    "multiTitlePrefix": "Break language barriers with ",
+    "multiTitleAccent": "multilingual translation",
+    "multiDescription": "The platform currently supports Vietnamese, English, Korean, and Chinese so you can practice and translate more flexibly every day.",
+    "multiBullet1": "High accuracy - Understand context and meaning across supported languages.",
+    "multiBullet2": "Flexible bilingual learning - Switch source and target languages with a single click.",
     "aiBadge": "AI tools",
     "aiTitle": "Smart AI feedback",
     "aiBody": "Our neural models go beyond spelling: grammar analysis, vocabulary upgrades, and structure tips in real time—like a native editor 24/7.",
@@ -321,15 +327,15 @@
     "demoAiLabel": "AI fix:",
     "demoNote": "Active voice is often clearer and more engaging for professional reports.",
     "howTitle": "How it works",
-    "howSubtitle": "A few simple steps toward fluency.",
-    "step1Title": "Sign in and start",
-    "step1Desc": "Sign in quickly with Google and start practicing right away.",
-    "step2Title": "Choose a mode",
-    "step2Desc": "Pick sentence, paragraph, or translation mode to start your session.",
-    "step3Title": "Translate or write",
-    "step3Desc": "Enter your text or translate from your native language in our editor.",
-    "step4Title": "Get instant feedback",
-    "step4Desc": "See corrections and explanations right away and learn from every mistake."
+    "howSubtitle": "A clear 4-step workflow from first draft to better writing.",
+    "step1Title": "Sign in",
+    "step1Desc": "Continue with Google and jump straight into your first practice.",
+    "step2Title": "Pick a topic",
+    "step2Desc": "Choose a sentence or paragraph set that matches your level and goals.",
+    "step3Title": "Write your answer",
+    "step3Desc": "Translate or compose naturally in the editor, sentence by sentence.",
+    "step4Title": "Review AI feedback",
+    "step4Desc": "Get corrections, explanations, and suggestions to improve your next attempt."
   },
   "practice": {
     "groups": {
@@ -420,6 +426,7 @@
       "time": "Time",
       "sentenceProgress": "Sentence {{current}}/{{total}}",
       "placeholder": "Type your English translation here…",
+      "placeholderWithTarget": "Translate to {{language}}...",
       "hints": "Hints",
       "check": "Check",
       "next": "Next",
@@ -483,12 +490,21 @@
       "expandSentence": "Expand sentence",
       "expandSentenceLoadingShort": "Loading...",
       "expandSentenceLoading": "Expanding sentence..."
+    },
+    "singleSentenceMix": {
+      "statement": "Statement",
+      "question": "Question",
+      "request": "Request",
+      "pastTime": "Past time",
+      "presentTime": "Present time",
+      "futureTime": "Future time"
     }
   },
   "history": {
     "all": "All",
     "sentence": "Sentence",
     "type": "Type",
+    "language": "Language",
     "topic": "Topic",
     "level": "Level",
     "sort": "Date",
@@ -517,6 +533,14 @@
     "dateDaysAgo": "{{count}} days ago",
     "vietnamese": "Vietnamese",
     "english": "English",
+    "targetLanguage": {
+      "EN": "English",
+      "ZH": "Chinese",
+      "KO": "Korean"
+    },
+    "completion": "Completion",
+    "completed": "Completed",
+    "incomplete": "Incomplete",
     "viewResult": "Results",
     "continuePractice": "Continue",
     "typeBadgeSentence": "Sentence"
@@ -679,6 +703,7 @@
     "filters": {
       "title": "Filters",
       "type": "Exercise Type",
+      "language": "Practice language",
       "level": "Level",
       "topic": "Topic",
       "sentenceLength": "Sentence Length",
