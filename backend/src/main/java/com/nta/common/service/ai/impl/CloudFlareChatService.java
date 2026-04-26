@@ -20,8 +20,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpStatusCodeException;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.nta.common.enums.ErrorCode;
+import com.nta.common.exception.AppException;
 import com.nta.common.service.ai.ChatResponse;
 import com.nta.common.service.ai.ChatService;
+import com.nta.domain.creditTransaction.CreditTransaction;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,19 +34,22 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 @Primary
 public class CloudFlareChatService implements ChatService {
-    //    "https://fluento.anhthenguyen-work.workers.dev/"
-    //            "https://luyenviet.hoangthithanh04051980.workers.dev/"
-    //            "https://luyenviet.thamnguyen38vv.workers.dev/",
-    //            "https://luyenviet.2151013002anh.workers.dev/",
-    //            "https://luyenviet.thamnguyenvv83.workers.dev/",
-    //            "https://throbbing-smoke-c078.5dnpnjsjf6.workers.dev/",
-    //            "https://luyenviet.theanhmgt1011.workers.dev/");
-    private static final List<String> CLOUDFLARE_WORKER_BASE_URLS =
-            List.of("https://luyenviet.theanhmgt1011.workers.dev/");
+
+    private static final List<String> CLOUDFLARE_WORKER_BASE_URLS = List.of(
+            "https://fluento.anhthenguyen-work.workers.dev/",
+            "https://luyenviet.hoangthithanh04051980.workers.dev/",
+            "https://luyenviet.thamnguyen38vv.workers.dev/",
+            "https://luyenviet.2151013002anh.workers.dev/",
+            "https://luyenviet.thamnguyenvv83.workers.dev/",
+            "https://throbbing-smoke-c078.5dnpnjsjf6.workers.dev/",
+            "https://luyenviet.theanhmgt1011.workers.dev/");
     private static final String CLOUDFLARE_WORKER_API_KEY = "12345";
+    private static final long CREDIT_COST_PER_CALL = 1L;
 
     private final ObjectMapper objectMapper;
     private final com.nta.domain.chatMemory.Service chatMemoryService;
+    private final com.nta.common.service.CommonUserService commonUserService;
+    private final com.nta.domain.creditTransaction.Service creditTransactionService;
 
     @Override
     public <T> ChatResponse<T> sendMessage(String systemMessage, String userMessage, Class<T> responseType) {
@@ -236,47 +242,56 @@ public class CloudFlareChatService implements ChatService {
     private String doChatCall(
             String systemMessage, String userMessage, Consumer<String> onChunk, String conversationId) {
         List<String> baseUrls = workerBaseUrls();
-
+        Long userId = commonUserService.getCurrentUserIdFromContext();
+        CreditTransaction creditTransaction = creditTransactionService.reserveCredit(userId, CREDIT_COST_PER_CALL);
         Prompt prompt = buildPrompt(systemMessage, userMessage, conversationId);
         Throwable lastFailure = null;
 
-        for (int i = 0; i < baseUrls.size(); i++) {
-            String baseUrl = baseUrls.get(i);
-            ChatClient client = createClient(baseUrl);
+        try {
+            for (int i = 0; i < baseUrls.size(); i++) {
+                String baseUrl = baseUrls.get(i);
+                ChatClient client = createClient(baseUrl);
 
-            try {
-                if (onChunk != null) {
-                    StringBuilder fullContent = new StringBuilder();
-                    client.prompt(prompt).stream()
-                            .content()
-                            .doOnNext(content -> {
-                                fullContent.append(content);
-                                onChunk.accept(content);
-                            })
-                            .blockLast();
+                try {
+                    if (onChunk != null) {
+                        StringBuilder fullContent = new StringBuilder();
+                        client.prompt(prompt).stream()
+                                .content()
+                                .doOnNext(content -> {
+                                    fullContent.append(content);
+                                    onChunk.accept(content);
+                                })
+                                .blockLast();
 
-                    String responseText = fullContent.toString();
-                    appendMemory(conversationId, userMessage, responseText);
-                    return responseText;
-                } else {
-                    String responseText = Objects.requireNonNull(
-                                    client.prompt(prompt).call().chatResponse())
-                            .getResult()
-                            .getOutput()
-                            .getText();
-                    appendMemory(conversationId, userMessage, responseText);
-                    return responseText;
+                        String responseText = fullContent.toString();
+                        appendMemory(conversationId, userMessage, responseText);
+                        creditTransactionService.commitTransaction(creditTransaction.getId());
+                        return responseText;
+                    } else {
+                        String responseText = Objects.requireNonNull(
+                                        client.prompt(prompt).call().chatResponse())
+                                .getResult()
+                                .getOutput()
+                                .getText();
+                        appendMemory(conversationId, userMessage, responseText);
+                        creditTransactionService.commitTransaction(creditTransaction.getId());
+                        return responseText;
+                    }
+                } catch (Exception e) {
+                    lastFailure = e;
+                    if (i < baseUrls.size() - 1 && isRetryableWorkerFailure(e)) {
+                        log.warn("Worker {} failed, retrying...", baseUrl);
+                        continue;
+                    }
+                    throw new RuntimeException("AI call failed", e);
                 }
-            } catch (Exception e) {
-                lastFailure = e;
-                if (i < baseUrls.size() - 1 && isRetryableWorkerFailure(e)) {
-                    log.warn("Worker {} failed, retrying...", baseUrl);
-                    continue;
-                }
-                throw new RuntimeException("AI call failed", e);
             }
+            log.error("All Cloudflare workers failed after trying {} endpoints", baseUrls.size(), lastFailure);
+            throw new AppException(ErrorCode.AI_TOO_MANY_REQUESTS);
+        } catch (RuntimeException e) {
+            creditTransactionService.refundTransaction(creditTransaction.getId());
+            throw e;
         }
-        throw new RuntimeException("All workers failed", lastFailure);
     }
 
     private String extractJson(String raw) {

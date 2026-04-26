@@ -94,11 +94,18 @@ export const getSentenceVocabularyHints = (
     }
 
     if (!response.ok) {
+      let errorMessage: string | undefined;
       try {
-        throw await response.json();
+        const errorBody = await response.json() as {
+          message?: string;
+          error?: string;
+          result?: { message?: string };
+        };
+        errorMessage = errorBody?.message ?? errorBody?.result?.message ?? errorBody?.error;
       } catch {
-        throw new Error(`Vocabulary hints request failed: ${response.status}`);
+        // Ignore parse error and fallback to status-based message.
       }
+      throw new Error(errorMessage || `Vocabulary hints request failed: ${response.status}`);
     }
 
     if (!response.body) {
@@ -270,11 +277,18 @@ export const getAnswerPreview = (
     }
 
     if (!response.ok) {
+      let errorMessage: string | undefined;
       try {
-        throw await response.json();
+        const errorBody = await response.json() as {
+          message?: string;
+          error?: string;
+          result?: { message?: string };
+        };
+        errorMessage = errorBody?.message ?? errorBody?.result?.message ?? errorBody?.error;
       } catch {
-        throw new Error(`Preview request failed: ${response.status}`);
+        // Ignore parse error and fallback to status-based message.
       }
+      throw new Error(errorMessage || `Preview request failed: ${response.status}`);
     }
 
     if (!response.body) {
