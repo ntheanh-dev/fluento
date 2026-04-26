@@ -1,67 +1,25 @@
 import type { CommunityScoreBand, VocabularyHint } from "@/entities/paragraphSentence/schema";
-import { Bookmark, BookmarkCheck, Loader2, Sparkles, Users, Volume2 } from "lucide-react";
+import { Bookmark, Loader2, Sparkles, Users, Volume2 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { motion } from "motion/react";
 import { useCommunityTranslations } from "../../hooks/useUserPractice";
 import { useTranslation } from "react-i18next";
 import type { TargetLanguage } from "@/shared/constants/target-language";
-
-const COMMUNITY_SCORE_BANDS: { band: CommunityScoreBand; label: string }[] = [
-    { band: "LE7", label: "6" },
-    { band: "RANGE_7_8", label: "7" },
-    { band: "GE8", label: "8" },
-];
-
-function aiScoreCircleClass(score: number): string {
-    if (score >= 8) {
-        return "bg-emerald-500 text-white shadow-[0_1px_2px_rgba(16,185,129,0.45)] ring-2 ring-emerald-200/90 dark:bg-emerald-600 dark:ring-emerald-900/50";
-    }
-    if (score >= 6.5) {
-        return "bg-blue-500 text-white shadow-[0_1px_2px_rgba(59,130,246,0.45)] ring-2 ring-blue-200/90 dark:bg-blue-600 dark:ring-blue-900/50";
-    }
-    if (score >= 5) {
-        return "bg-amber-500 text-white shadow-[0_1px_2px_rgba(245,158,11,0.45)] ring-2 ring-amber-200/90 dark:bg-amber-600 dark:ring-amber-900/50";
-    }
-    if (score >= 3.5) {
-        return "bg-orange-500 text-white shadow-[0_1px_2px_rgba(249,115,22,0.45)] ring-2 ring-orange-200/90 dark:bg-orange-600 dark:ring-orange-900/50";
-    }
-    return "bg-red-500 text-white shadow-[0_1px_2px_rgba(239,68,68,0.45)] ring-2 ring-red-200/90 dark:bg-red-600 dark:ring-red-900/50";
-}
-
-const getColorByType = (type: string) => {
-    switch (type) {
-        case 'verb':
-            return 'bg-blue-50 text-blue-600 dark:bg-blue-950/50 dark:text-blue-400';
-        case 'noun':
-            return 'bg-green-50 text-green-600 dark:bg-green-950/50 dark:text-green-400';
-        case 'noun phrase':
-            return 'bg-indigo-50 text-indigo-600 dark:bg-indigo-950/50 dark:text-indigo-400';
-        case 'noun clause':
-            return 'bg-emerald-50 text-emerald-600 dark:bg-emerald-950/50 dark:text-emerald-400';
-        case 'adjective':
-            return 'bg-amber-50 text-amber-600 dark:bg-amber-950/50 dark:text-amber-400';
-        case 'adverb':
-            return 'bg-red-50 text-red-600 dark:bg-red-950/50 dark:text-red-400';
-        case 'determiner':
-            return 'bg-purple-50 text-purple-600 dark:bg-purple-950/50 dark:text-purple-400';
-        case 'relative pronoun':
-            return 'bg-violet-50 text-violet-600 dark:bg-violet-950/50 dark:text-violet-400';
-        case 'relative adverb':
-            return 'bg-rose-50 text-rose-600 dark:bg-rose-950/50 dark:text-rose-400';
-        case 'relative adjective':
-            return 'bg-yellow-50 text-yellow-600 dark:bg-yellow-950/50 dark:text-yellow-400';
-        case 'relative adverb clause':
-            return 'bg-pink-50 text-pink-600 dark:bg-pink-950/50 dark:text-pink-400';
-        case 'preposition':
-            return 'bg-teal-50 text-teal-600 dark:bg-teal-950/50 dark:text-teal-400';
-        case 'conjunction':
-            return 'bg-sky-50 text-sky-600 dark:bg-sky-950/50 dark:text-sky-400';
-        case 'pronoun':
-            return 'bg-slate-50 text-slate-600 dark:bg-slate-800 dark:text-slate-400';
-        default:
-            return 'bg-gray-50 text-gray-600 dark:bg-gray-900/50 dark:text-gray-400';
-    }
-};
+import { message } from "antd";
+import { useMyDecksQuery } from "@/features/deck/query";
+import {
+    useCreateDeckMutation,
+    useSaveVocabularyToDeckMutation,
+} from "@/features/deck/mutation";
+import { showApiError } from "@/shared/api/showApiError";
+import { DeckPickerModal, type DeckOption } from "@/features/deck/ui/DeckPickerModal";
+import {
+    COMMUNITY_SCORE_BANDS,
+    SPEECH_LANG_BY_TARGET,
+    VOCABULARY_ALREADY_IN_DECK_CODE,
+} from "../../constants";
+import type { HintsTab, PendingVocabulary } from "../../schema";
+import { aiScoreCircleClass, getVocabularyTypeColor } from "../../utilities";
 
 const VocabularyItem = ({
     word,
@@ -70,6 +28,7 @@ const VocabularyItem = ({
     onSpeak,
     isSpeaking,
     isSaved,
+    savedDeckName,
     onToggleSave,
 }: {
     word: string,
@@ -78,9 +37,10 @@ const VocabularyItem = ({
     onSpeak: (word: string) => void,
     isSpeaking: boolean,
     isSaved: boolean,
-    onToggleSave: (word: string) => void,
+    savedDeckName?: string,
+    onToggleSave: (payload: PendingVocabulary) => void,
 }) => {
-    const typeClasses = useMemo(() => getColorByType(type), [type]);
+    const typeClasses = useMemo(() => getVocabularyTypeColor(type), [type]);
 
     return (
         <li className="bg-white dark:bg-slate-900/90 sm:p-3 py-2">
@@ -107,15 +67,11 @@ const VocabularyItem = ({
                             ? "text-amber-600 bg-amber-50 hover:bg-amber-100 dark:text-amber-400 dark:bg-amber-950/30 dark:hover:bg-amber-900/40"
                             : "text-slate-500 hover:text-amber-600 hover:bg-amber-50 dark:hover:text-amber-400 dark:hover:bg-amber-950/30"
                             }`}
-                        onClick={() => onToggleSave(word)}
+                        onClick={() => onToggleSave({ text: word, partOfSpeech: type, pronunciation })}
                         aria-label={isSaved ? `Unsave ${word}` : `Save ${word}`}
-                        title={isSaved ? "Saved" : "Save vocabulary"}
+                        title={isSaved ? (savedDeckName ? `Saved in ${savedDeckName}` : "Saved") : "Save vocabulary"}
                     >
-                        {isSaved ? (
-                            <BookmarkCheck className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                        ) : (
-                            <Bookmark className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                        )}
+                        <Bookmark className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                     </button>
                 </div>
             </div>
@@ -124,14 +80,6 @@ const VocabularyItem = ({
             </div>
         </li>
     );
-};
-
-type HintsTab = "vocabulary" | "community";
-
-const SPEECH_LANG_BY_TARGET: Record<"EN" | "ZH" | "KO", string> = {
-    EN: "en-US",
-    ZH: "zh-CN",
-    KO: "ko-KR",
 };
 
 export const VocabularyHintsAside = ({
@@ -150,6 +98,12 @@ export const VocabularyHintsAside = ({
     const [communityScoreBand, setCommunityScoreBand] = useState<CommunityScoreBand>("LE7");
     const [speakingWord, setSpeakingWord] = useState<string | null>(null);
     const [savedVocabulary, setSavedVocabulary] = useState<Set<string>>(new Set());
+    const [savedDeckByVocabulary, setSavedDeckByVocabulary] = useState<Record<string, string>>({});
+    const [decks, setDecks] = useState<DeckOption[]>([]);
+    const [isDeckModalOpen, setIsDeckModalOpen] = useState(false);
+    const [pendingVocabulary, setPendingVocabulary] = useState<PendingVocabulary | null>(null);
+    const [selectedDeckId, setSelectedDeckId] = useState<number | null>(null);
+    const [newDeckName, setNewDeckName] = useState("");
     const [visibleVocabularyCount, setVisibleVocabularyCount] = useState(0);
     const [visibleVocabularyRowCount, setVisibleVocabularyRowCount] = useState(0);
     const [visibleCommunityCount, setVisibleCommunityCount] = useState(0);
@@ -159,6 +113,14 @@ export const VocabularyHintsAside = ({
         isLoading: isLoadingCommunity,
         isError: isCommunityError,
     } = useCommunityTranslations(sentenceId, hintsTab === "community", communityScoreBand, targetLanguage);
+    const {
+        data: deckItems = [],
+        isFetching: isFetchingDecks,
+        isError: isDeckQueryError,
+        error: deckQueryError,
+    } = useMyDecksQuery(targetLanguage, isDeckModalOpen);
+    const createDeckMutation = useCreateDeckMutation(targetLanguage);
+    const saveVocabularyToDeckMutation = useSaveVocabularyToDeckMutation();
 
     useEffect(() => {
         setHintsTab("vocabulary");
@@ -167,7 +129,27 @@ export const VocabularyHintsAside = ({
         setVisibleVocabularyRowCount(0);
         setVisibleCommunityCount(0);
         setSavedVocabulary(new Set());
+        setSavedDeckByVocabulary({});
+        setIsDeckModalOpen(false);
+        setPendingVocabulary(null);
+        setSelectedDeckId(null);
+        setNewDeckName("");
     }, [sentenceId]);
+
+    useEffect(() => {
+        if (!isDeckModalOpen) return;
+        const options = deckItems.map((deck) => ({ id: deck.id, name: deck.name, icon: deck.icon }));
+        setDecks(options);
+        setSelectedDeckId((current) => {
+            if (current && options.some((deck) => deck.id === current)) return current;
+            return options[0]?.id ?? null;
+        });
+    }, [deckItems, isDeckModalOpen]);
+
+    useEffect(() => {
+        if (!isDeckModalOpen || !isDeckQueryError) return;
+        showApiError(deckQueryError, "Không tải được danh sách deck");
+    }, [deckQueryError, isDeckModalOpen, isDeckQueryError]);
 
     useEffect(() => {
         return () => {
@@ -290,23 +272,108 @@ export const VocabularyHintsAside = ({
         synth.speak(utterance);
     }, [speakingWord, targetLanguage]);
 
-    const handleToggleSaveVocabulary = useCallback((word: string) => {
-        const normalized = word.trim().toLowerCase();
-        setSavedVocabulary((prev) => {
-            const next = new Set(prev);
-            if (next.has(normalized)) {
-                next.delete(normalized);
+    const createDeckFromInput = useCallback(async (icon: string) => {
+        const trimmed = newDeckName.trim();
+        if (!trimmed) {
+            message.warning("Nhập tên bộ từ vựng trước khi tạo");
+            return null;
+        }
+
+        const duplicated = decks.some((deck) => deck.name.trim().toLowerCase() === trimmed.toLowerCase());
+        if (duplicated) {
+            message.warning("Bộ từ vựng đã tồn tại");
+            return null;
+        }
+
+        try {
+            const created = await createDeckMutation.mutateAsync({ name: trimmed, icon, targetLanguage });
+            const nextDeck: DeckOption = { id: created.id, name: created.name, icon: created.icon };
+            setDecks((prev) => [...prev, nextDeck]);
+            setSelectedDeckId(nextDeck.id);
+            setNewDeckName("");
+            message.success(`Đã tạo bộ từ vựng "${nextDeck.name}"`);
+            return nextDeck;
+        } catch (error) {
+            showApiError(error, "Không tạo được bộ từ vựng");
+            return null;
+        }
+    }, [createDeckMutation, decks, newDeckName, targetLanguage]);
+
+    const handleConfirmSaveToDeck = useCallback(async () => {
+        if (!pendingVocabulary) return;
+
+        let chosenDeckId = selectedDeckId;
+        if (!chosenDeckId && newDeckName.trim()) {
+            const created = await createDeckFromInput("book-open");
+            chosenDeckId = created?.id ?? null;
+        }
+
+        if (!chosenDeckId) {
+            message.warning("Chọn bộ từ vựng hoặc tạo bộ mới để lưu từ");
+            return;
+        }
+
+        const normalizedWord = pendingVocabulary.text.trim().toLowerCase();
+        const deckName = decks.find((deck) => deck.id === chosenDeckId)?.name ?? "Bộ từ vựng";
+        try {
+            await saveVocabularyToDeckMutation.mutateAsync({
+                deckId: chosenDeckId,
+                payload: {
+                    text: pendingVocabulary.text,
+                    partOfSpeech: pendingVocabulary.partOfSpeech,
+                    pronunciation: pendingVocabulary.pronunciation,
+                    meaning: pendingVocabulary.meaning,
+                    targetLanguage,
+                },
+            });
+            setSavedVocabulary((prev) => {
+                const next = new Set(prev);
+                next.add(normalizedWord);
+                return next;
+            });
+            setSavedDeckByVocabulary((prev) => ({ ...prev, [normalizedWord]: String(chosenDeckId) }));
+            message.success(`Đã lưu "${pendingVocabulary.text}" vào bộ từ vựng "${deckName}"`);
+            setIsDeckModalOpen(false);
+            setPendingVocabulary(null);
+            setSelectedDeckId(null);
+        } catch (error) {
+            const apiCode = (error as { response?: { data?: { code?: number } } })?.response?.data?.code;
+            if (apiCode === VOCABULARY_ALREADY_IN_DECK_CODE) {
+                message.warning("Từ vựng này đã có trong bộ từ vựng đã chọn");
             } else {
-                next.add(normalized);
+                showApiError(error, "Không lưu được từ vựng");
             }
-            return next;
-        });
-    }, []);
+        }
+    }, [createDeckFromInput, decks, newDeckName, pendingVocabulary, saveVocabularyToDeckMutation, selectedDeckId, targetLanguage]);
+
+    const handleToggleSaveVocabulary = useCallback((payload: PendingVocabulary) => {
+        const normalized = payload.text.trim().toLowerCase();
+        if (savedVocabulary.has(normalized)) {
+            setSavedVocabulary((prev) => {
+                const next = new Set(prev);
+                next.delete(normalized);
+                return next;
+            });
+            setSavedDeckByVocabulary((prev) => {
+                if (!(normalized in prev)) return prev;
+                const next = { ...prev };
+                delete next[normalized];
+                return next;
+            });
+            return;
+        }
+
+        setPendingVocabulary(payload);
+        setSelectedDeckId((current) => current ?? decks[0]?.id ?? null);
+        setNewDeckName("");
+        setIsDeckModalOpen(true);
+    }, [decks, savedVocabulary]);
 
     if (!vocabularyHints) return null;
     let streamedRowCursor = 0;
     return (
-        <div className="flex flex-col flex-1 min-h-0 bg-white dark:bg-slate-900/90">
+        <>
+            <div className="flex flex-col flex-1 min-h-0 bg-white dark:bg-slate-900/90">
             <div className="shrink-0 overflow-hidden rounded-t-[0.65rem] bg-white dark:bg-slate-900" role="tablist" aria-label={t("practice.hints.hintTypesAria")}>
                 <div className="flex min-h-[2.75rem]">
                     <button
@@ -388,7 +455,13 @@ export const VocabularyHintsAside = ({
                                             onSpeak={handleSpeak}
                                             isSpeaking={speakingWord === word.text}
                                             isSaved={savedVocabulary.has(word.text.trim().toLowerCase())}
-                                            onToggleSave={handleToggleSaveVocabulary}
+                                            savedDeckName={decks.find(
+                                                (deck) => String(deck.id) === savedDeckByVocabulary[word.text.trim().toLowerCase()],
+                                            )?.name}
+                                            onToggleSave={(payload) => handleToggleSaveVocabulary({
+                                                ...payload,
+                                                meaning: hint.sourceText,
+                                            })}
                                         />
                                     ))}
                                 </motion.ul>
@@ -474,7 +547,31 @@ export const VocabularyHintsAside = ({
                     </div>
                 )}
             </div>
-        </div>
+            </div>
+            <DeckPickerModal
+                open={isDeckModalOpen}
+                pendingVocabularyText={pendingVocabulary?.text}
+                decks={decks}
+                selectedDeckId={selectedDeckId}
+                newDeckName={newDeckName}
+                isLoadingDecks={isFetchingDecks}
+                isSavingVocabulary={saveVocabularyToDeckMutation.isPending}
+                onClose={() => {
+                    setIsDeckModalOpen(false);
+                    setPendingVocabulary(null);
+                    setSelectedDeckId(null);
+                    setNewDeckName("");
+                }}
+                onConfirm={() => {
+                    void handleConfirmSaveToDeck();
+                }}
+                onSelectDeck={setSelectedDeckId}
+                onNewDeckNameChange={setNewDeckName}
+                onCreateDeck={async (icon) => {
+                    await createDeckFromInput(icon);
+                }}
+            />
+        </>
 
     )
 }

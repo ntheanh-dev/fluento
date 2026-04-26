@@ -26,8 +26,7 @@ import coinRewardAudioSrc from "@/assets/audio/chieuk-coin-257878.mp3";
 import type { TargetLanguage } from "@/shared/constants/target-language";
 import { TARGET_LANGUAGE_FLAG } from "@/shared/constants/target-language";
 import { upperFirstCharactor } from "@/shared/utilities";
-
-export type RenderAsideType = "hints" | "markdownFeedback" | null;
+import type { RenderAsideType } from "../../schema";
 
 const SentencePracticePage = () => {
   const { t } = useTranslation();

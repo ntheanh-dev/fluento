@@ -1,5 +1,9 @@
 import { z } from "zod";
+import type { TargetLanguage } from "@/shared/constants/target-language";
+import type { SentenceFeedback } from "@/entities/userPracticeAnswer/schema";
+import type { VocabularyHint } from "@/entities/paragraphSentence/schema";
 import { PRACTICE_TYPES, TOPIC_GROUPS, LEVELS, SENTENCE_COUNTS, TONES } from "./constants";
+import { SINGLE_SENTENCE_MIX_VALUES } from "./constants";
 
 const practiceTypeValues = [
     ...PRACTICE_TYPES.map((type) => type.value),
@@ -38,5 +42,35 @@ export const answerPreviewInputSchema = z.object({
 
 export type AnswerPreviewInput = z.infer<typeof answerPreviewInputSchema>;
 export { practiceSetupSchema };
+
+export type SingleSentenceMixOption = (typeof SINGLE_SENTENCE_MIX_VALUES)[number];
+export type RenderAsideType = "hints" | "markdownFeedback" | null;
+export type HintsTab = "vocabulary" | "community";
+
+export type PendingVocabulary = {
+    text: string;
+    partOfSpeech: string;
+    pronunciation: string;
+    meaning?: string;
+};
+
+export type DetailedSuggestionCardProps = {
+    feedback: Partial<SentenceFeedback> | null;
+    userTranslation?: string;
+    isStreaming?: boolean;
+    targetLanguage: TargetLanguage;
+};
+
+export type AsideProps = {
+    isLoadingAnswerPreview: boolean;
+    isLoadingVocabularyHints: boolean;
+    vocabularyHints: VocabularyHint[] | null;
+    hintsSentenceId: number;
+    renderAsideType: RenderAsideType;
+    feedback: SentenceFeedback | null;
+    userTranslation?: string;
+    streamingFeedback?: Partial<SentenceFeedback> | null;
+    targetLanguage: TargetLanguage;
+};
 
 

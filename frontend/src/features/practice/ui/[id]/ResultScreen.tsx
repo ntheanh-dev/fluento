@@ -16,7 +16,7 @@ import { formatElapsed } from '@/utils/utils';
 import { message, Modal, Spin } from 'antd';
 import { LoadingOutlined } from '@ant-design/icons';
 import { showApiError } from '@/shared/api/showApiError';
-import { renderWordDiff } from '../../fnc';
+import { renderWordDiff } from '../../utilities';
 import { useTranslation } from 'react-i18next';
 
 export default function ResultScreen() {

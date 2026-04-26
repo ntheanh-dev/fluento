@@ -1,3 +1,24 @@
+import type { CommunityScoreBand } from "@/entities/paragraphSentence/schema";
+import type { LucideIcon } from "lucide-react";
+import {
+  Brain,
+  Briefcase,
+  Building2,
+  Cpu,
+  Dumbbell,
+  Globe,
+  GraduationCap,
+  HeartPulse,
+  Home,
+  Landmark,
+  MapPin,
+  Microscope,
+  Plane,
+  Tv,
+  UsersRound,
+  UtensilsCrossed,
+} from "lucide-react";
+
 export const TOPIC_GROUPS = [
   {
     group: 1,
@@ -65,3 +86,52 @@ export const LEVELS = [
   { value: "B2" },
   { value: "C1" },
 ];
+
+export const SENTENCE_COUNT_NUMBER: Record<string, number> = {
+  TEN: 10,
+  FIFTEEN: 15,
+  TWENTY: 20,
+  MAX: 30,
+};
+
+export const TOPIC_ICONS: Record<string, LucideIcon> = {
+  LIFE: Home,
+  TECHNOLOGY: Cpu,
+  CULTURE: UsersRound,
+  FOOD: UtensilsCrossed,
+  HEALTH: HeartPulse,
+  EDUCATION: GraduationCap,
+  FITNESS: Dumbbell,
+  MENTAL_HEALTH: Brain,
+  TRAVEL: Plane,
+  TOURISM: MapPin,
+  COUNTRIES: Globe,
+  LANDMARKS: Landmark,
+  BUSINESS: Briefcase,
+  SCIENCE: Microscope,
+  ENTERTAINMENT: Tv,
+  SOCIETY: Building2,
+};
+
+export const SINGLE_SENTENCE_MIX_VALUES = [
+  "STATEMENT",
+  "QUESTION",
+  "REQUEST",
+  "PAST",
+  "PRESENT",
+  "FUTURE",
+] as const;
+
+export const COMMUNITY_SCORE_BANDS: { band: CommunityScoreBand; label: string }[] = [
+  { band: "LE7", label: "6" },
+  { band: "RANGE_7_8", label: "7" },
+  { band: "GE8", label: "8" },
+];
+
+export const VOCABULARY_ALREADY_IN_DECK_CODE = 4005;
+
+export const SPEECH_LANG_BY_TARGET: Record<"EN" | "ZH" | "KO", string> = {
+  EN: "en-US",
+  ZH: "zh-CN",
+  KO: "ko-KR",
+};

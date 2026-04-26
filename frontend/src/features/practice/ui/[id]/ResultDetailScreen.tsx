@@ -11,7 +11,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useUserPracticeData } from '../../hooks/useUserPractice';
 import { Spin } from 'antd';
 import { LoadingOutlined } from '@ant-design/icons';
-import { renderWordDiff } from '../../fnc';
+import { renderWordDiff } from '../../utilities';
 import { useTranslation } from 'react-i18next';
 
 export default function ReviewScreen() {

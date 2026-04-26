@@ -1,25 +1,9 @@
-import type { SentenceFeedback } from "@/entities/userPracticeAnswer/schema";
-import type { VocabularyHint } from "@/entities/paragraphSentence/schema";
 import { Analyzing } from "./Analyzing";
 import { VocabularyHintsAside } from "./HintsAside";
 import { DetailedSuggestionCard } from "./DetailedSuggestionCard";
 import { Lightbulb } from "lucide-react";
-import type { RenderAsideType } from ".";
 import { useTranslation } from "react-i18next";
-import type { TargetLanguage } from "@/shared/constants/target-language";
-
-type AsideProps = {
-  isLoadingAnswerPreview: boolean;
-  isLoadingVocabularyHints: boolean;
-  vocabularyHints: VocabularyHint[] | null;
-  /** Câu đang luyện — dùng để tải bản dịch cộng đồng. */
-  hintsSentenceId: number;
-  renderAsideType: RenderAsideType;
-  feedback: SentenceFeedback | null;
-  userTranslation?: string;
-  streamingFeedback?: Partial<SentenceFeedback> | null;
-  targetLanguage: TargetLanguage;
-};
+import type { AsideProps } from "../../schema";
 
 export const Aside = ({
   isLoadingAnswerPreview,

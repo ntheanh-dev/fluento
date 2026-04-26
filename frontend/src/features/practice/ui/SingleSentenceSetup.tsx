@@ -1,75 +1,29 @@
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import type { LucideIcon } from "lucide-react";
 import {
-  Brain,
-  Briefcase,
   Filter,
-  Building2,
-  Cpu,
-  Dumbbell,
-  Globe,
-  GraduationCap,
-  HeartPulse,
-  Home,
-  Landmark,
   Loader2,
-  MapPin,
-  Microscope,
-  Plane,
   Rocket,
   Sparkles,
-  Tv,
-  UtensilsCrossed,
-  UsersRound,
 } from "lucide-react";
-import { LEVELS, TOPIC_GROUPS, SENTENCE_COUNTS, TONES } from "../constants";
+import {
+  LEVELS,
+  SENTENCE_COUNT_NUMBER,
+  SENTENCE_COUNTS,
+  SINGLE_SENTENCE_MIX_VALUES,
+  TONES,
+  TOPIC_GROUPS,
+  TOPIC_ICONS,
+} from "../constants";
 import { useCreateUserPracticeMutation } from "../mutation";
-import type { PracticeSetupInput } from "../schema";
+import type { PracticeSetupInput, SingleSentenceMixOption } from "../schema";
 import { Button, Drawer, message, Select, Spin } from "antd";
 import { useTranslation } from "react-i18next";
 import { TARGET_LANGUAGE_ITEMS, type TargetLanguage } from "@/shared/constants/target-language";
 import { CollapsibleChecklistSection } from "@/shared/components/CollapsibleChecklistSection";
 
-const SENTENCE_COUNT_NUMBER: Record<string, number> = {
-  TEN: 10,
-  FIFTEEN: 15,
-  TWENTY: 20,
-  MAX: 30,
-};
-
-const TOPIC_ICONS: Record<string, LucideIcon> = {
-  LIFE: Home,
-  TECHNOLOGY: Cpu,
-  CULTURE: UsersRound,
-  FOOD: UtensilsCrossed,
-  HEALTH: HeartPulse,
-  EDUCATION: GraduationCap,
-  FITNESS: Dumbbell,
-  MENTAL_HEALTH: Brain,
-  TRAVEL: Plane,
-  TOURISM: MapPin,
-  COUNTRIES: Globe,
-  LANDMARKS: Landmark,
-  BUSINESS: Briefcase,
-  SCIENCE: Microscope,
-  ENTERTAINMENT: Tv,
-  SOCIETY: Building2,
-};
-
 const panelClassName =
   "rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900/90";
-
-const SINGLE_SENTENCE_MIX_VALUES = [
-  "STATEMENT",
-  "QUESTION",
-  "REQUEST",
-  "PAST",
-  "PRESENT",
-  "FUTURE",
-] as const;
-
-type SingleSentenceMixOption = (typeof SINGLE_SENTENCE_MIX_VALUES)[number];
 
 const SingleSentenceSetup = () => {
   const { t } = useTranslation();

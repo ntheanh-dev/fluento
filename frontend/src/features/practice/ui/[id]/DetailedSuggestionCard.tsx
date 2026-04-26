@@ -1,16 +1,13 @@
-import type { SentenceFeedback } from "@/entities/userPracticeAnswer/schema";
 import { Copy, Loader2, Sparkles } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { renderBacktickHighlight, renderWordDiff } from "../../fnc";
-import type { TargetLanguage } from "@/shared/constants/target-language";
-
-export type DetailedSuggestionCardProps = {
-  feedback: Partial<SentenceFeedback> | null;
-  userTranslation?: string;
-  isStreaming?: boolean;
-  targetLanguage: TargetLanguage;
-};
+import type { DetailedSuggestionCardProps } from "../../schema";
+import {
+  isStableChunk,
+  renderBacktickHighlight,
+  renderWordDiff,
+  splitStableAndPendingText,
+} from "../../utilities";
 
 export function DetailedSuggestionCard({
   feedback,
@@ -73,35 +70,6 @@ export function DetailedSuggestionCard({
       }, 40);
     }, 700);
   };
-  const isStableChunk = (value: string): boolean => {
-    const trimmed = value.trim();
-    if (!trimmed) return false;
-    return /[.!?。！？]$/.test(trimmed);
-  };
-
-  const splitStableAndPendingText = (value: string): { stable: string; pending: string } => {
-    if (!isStreaming) {
-      return { stable: value, pending: "" };
-    }
-    const normalized = value ?? "";
-    if (!normalized) {
-      return { stable: "", pending: "" };
-    }
-    if (isStableChunk(normalized)) {
-      return { stable: normalized, pending: "" };
-    }
-
-    const match = normalized.match(/^(.*[.!?。！？]\s*)([^.!?。！？]*)$/s);
-    if (!match) {
-      return { stable: "", pending: normalized };
-    }
-
-    return {
-      stable: match[1] ?? "",
-      pending: match[2] ?? "",
-    };
-  };
-
   return (
     <div className="flex flex-col p-4 gap-4 text-[11px] leading-relaxed text-slate-800 dark:text-slate-100 overflow-y-auto scrollbar-thin scrollbar-thumb-slate-200">
       {/* Score chip */}
@@ -158,7 +126,7 @@ export function DetailedSuggestionCard({
           {t("practice.feedback.correctionHeading")}
           <span className="ml-1 font-semibold text-slate-800 dark:text-slate-100">
             {(() => {
-              const { stable, pending } = splitStableAndPendingText(correction);
+              const { stable, pending } = splitStableAndPendingText(correction, isStreaming);
               if (isStreaming) {
                 return (
                   <>
@@ -201,7 +169,7 @@ export function DetailedSuggestionCard({
           <p className="font-bold text-emerald-600 mb-1">{t("practice.feedback.commentLabel")}</p>
           <p className="text-[12px] text-slate-700 dark:text-slate-300">
             {(() => {
-              const { stable, pending } = splitStableAndPendingText(summary);
+              const { stable, pending } = splitStableAndPendingText(summary, isStreaming);
               if (!isStreaming) {
                 return renderBacktickHighlight(summary);
               }
