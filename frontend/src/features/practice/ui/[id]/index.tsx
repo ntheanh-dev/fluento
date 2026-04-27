@@ -65,6 +65,7 @@ const SentencePracticePage = () => {
   const [feedback, setFeedback] = useState<SentenceFeedback | null>(null);
   const [streamingFeedback, setStreamingFeedback] = useState<Partial<SentenceFeedback> | null>(null);
   const [streamingVocabularyHints, setStreamingVocabularyHints] = useState<VocabularyHint[] | null>(null);
+  const [vocabularyHintsBySentenceId, setVocabularyHintsBySentenceId] = useState<Record<number, VocabularyHint[]>>({});
   const [coinBurstCount, setCoinBurstCount] = useState(0);
 
   const {
@@ -97,6 +98,14 @@ const SentencePracticePage = () => {
     if (data && !errorUserPracticeData) {
       const sentences = data.paragraph.sentences ?? [];
       setVietNameseSentences(sentences);
+      setVocabularyHintsBySentenceId(
+        sentences.reduce<Record<number, VocabularyHint[]>>((acc, sentence) => {
+          if ((sentence.vocabularyHints?.length ?? 0) > 0) {
+            acc[sentence.id] = sentence.vocabularyHints!;
+          }
+          return acc;
+        }, {})
+      );
       setEnglishTranslations(data.sentenceAnswers?.map((a) => a.userTranslation) ?? []);
       setCurrentVietNameseSentence(sentences[data.sentenceAnswers?.length ?? 0] ?? null);
       if (startedAtRef.current === null) {
@@ -112,6 +121,10 @@ const SentencePracticePage = () => {
       }
     }
   }, [id, data, errorUserPracticeData]);
+
+  useEffect(() => {
+    setStreamingVocabularyHints(null);
+  }, [currentVietNameseSentence?.id]);
 
   /** Hiển thị lỗi khi lấy feedback thất bại. */
   useEffect(() => {
@@ -153,7 +166,7 @@ const SentencePracticePage = () => {
   const handleGetVocabularyHints = useCallback(async () => {
     if (currentVietNameseSentence == null) return;
     setRenderAsideType("hints");
-    if (currentVietNameseSentence?.vocabularyHints) {
+    if ((vocabularyHintsBySentenceId[currentVietNameseSentence.id]?.length ?? 0) > 0) {
       setStreamingVocabularyHints(null);
       return;
     }
@@ -163,10 +176,11 @@ const SentencePracticePage = () => {
         targetLanguage: (data?.targetLanguage ?? "EN") as TargetLanguage,
         onPartialHints: (partial) => setStreamingVocabularyHints(partial),
       });
-      setCurrentVietNameseSentence(sentenceWithHints);
-      setVietNameseSentences((prev) =>
-        prev.map((sentence) => (sentence.id === sentenceWithHints.id ? sentenceWithHints : sentence))
-      );
+      const nextHints = sentenceWithHints.vocabularyHints ?? [];
+      setVocabularyHintsBySentenceId((prev) => ({
+        ...prev,
+        [currentVietNameseSentence.id]: nextHints,
+      }));
       setStreamingVocabularyHints(null);
       await refetchCredits();
     } catch (error) {
@@ -174,7 +188,7 @@ const SentencePracticePage = () => {
       setRenderAsideType(null);
       showApiError(error);
     }
-  }, [currentVietNameseSentence, getVocabularyHints, refetchCredits]);
+  }, [currentVietNameseSentence, vocabularyHintsBySentenceId, getVocabularyHints, refetchCredits, data?.targetLanguage]);
 
   /** Chuẩn hóa bản dịch, gửi lên để xem feedback, mở aside markdown. */
   const handleGetAnswerPreview = useCallback(async () => {
@@ -517,7 +531,14 @@ const SentencePracticePage = () => {
               renderAsideType={renderAsideType}
               isLoadingAnswerPreview={isLoadingAnswerPreview}
               isLoadingVocabularyHints={isLoadingVocabularyHints}
-              vocabularyHints={currentVietNameseSentence?.vocabularyHints ?? streamingVocabularyHints}
+              vocabularyHints={
+                streamingVocabularyHints
+                ?? (
+                  currentVietNameseSentence?.id != null
+                    ? (vocabularyHintsBySentenceId[currentVietNameseSentence.id] ?? null)
+                    : null
+                )
+              }
               hintsSentenceId={currentVietNameseSentence?.id ?? 0}
               targetLanguage={targetLanguage}
               feedback={feedback}
