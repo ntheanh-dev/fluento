@@ -25,6 +25,14 @@ spring:
     username: ${DB_USERNAME:root}
     password: ${DB_PASSWORD:}
     driverClassName: com.mysql.cj.jdbc.Driver
+    hikari:
+      # Tune for 2GB VPS: enough concurrency without overloading MySQL/RAM.
+      maximum-pool-size: ${DB_MAX_POOL_SIZE:12}
+      minimum-idle: ${DB_MIN_IDLE:3}
+      connection-timeout: ${DB_CONNECTION_TIMEOUT_MS:30000}
+      idle-timeout: ${DB_IDLE_TIMEOUT_MS:600000}
+      max-lifetime: ${DB_MAX_LIFETIME_MS:1800000}
+      validation-timeout: ${DB_VALIDATION_TIMEOUT_MS:5000}
   jackson:
     time-zone: UTC
   jpa:

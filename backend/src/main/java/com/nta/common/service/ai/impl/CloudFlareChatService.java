@@ -37,6 +37,7 @@ public class CloudFlareChatService implements ChatService {
 
     private static final List<String> CLOUDFLARE_WORKER_BASE_URLS = List.of(
             "https://fluento.anhthenguyen-work.workers.dev/",
+            "https://luyenviet.theanhmgt66.workers.dev/",
             "https://luyenviet.hoangthithanh04051980.workers.dev/",
             "https://luyenviet.thamnguyen38vv.workers.dev/",
             "https://luyenviet.2151013002anh.workers.dev/",

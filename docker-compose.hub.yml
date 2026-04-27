@@ -1,14 +1,12 @@
 # Variable substitution (${VAR}) uses the shell and a file named `.env` in this directory by default.
 # If you keep secrets in `.env.production`, run:
 #   docker compose --env-file .env.production -f docker-compose.hub.yml up -d
-version: '3.8'
-
 services:
   mysql:
     image: mysql:8.0
     container_name: luyenviet-mysql-hub
     restart: unless-stopped
-    mem_limit: 512m
+    mem_limit: 384m
     command: >
       --innodb-buffer-pool-size=256M
       --performance-schema=OFF
@@ -21,8 +19,6 @@ services:
     environment:
       TZ: ${TZ:-Asia/Ho_Chi_Minh}
       MYSQL_DATABASE: ${MYSQL_DATABASE:-luyenviet}
-      MYSQL_USER: ${MYSQL_USER:-app_user}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
     volumes:
       - ./mysql_data_hub:/var/lib/mysql
@@ -34,6 +30,11 @@ services:
       retries: 10
       interval: 30s
       start_period: 30s
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
 
   backend:
     image: ${DOCKERHUB_USERNAME:-theanhn28}/luyenviet-backend:${IMAGE_TAG:-latest}
@@ -43,7 +44,7 @@ services:
     expose:
       - "8080"
     environment:
-      JAVA_TOOL_OPTIONS: ${JAVA_TOOL_OPTIONS:--XX:MaxRAMPercentage=70.0 -XX:+ExitOnOutOfMemoryError} -Duser.timezone=${APP_TIME_ZONE:-Asia/Ho_Chi_Minh}
+      JAVA_TOOL_OPTIONS: ${JAVA_TOOL_OPTIONS:--XX:InitialRAMPercentage=20.0 -XX:MaxRAMPercentage=60.0 -XX:+ExitOnOutOfMemoryError} -Duser.timezone=${APP_TIME_ZONE:-Asia/Ho_Chi_Minh}
       TZ: ${TZ:-Asia/Ho_Chi_Minh}
       APP_TIME_ZONE: ${APP_TIME_ZONE:-Asia/Ho_Chi_Minh}
       SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-hub}
@@ -86,21 +87,59 @@ services:
       - luyenviet
     volumes:
       - ./logs:/var/log/luyenviet
+    logging:
+      driver: json-file
+      options:
+        max-size: "20m"
+        max-file: "5"
 
-  frontend:
+  frontend-builder:
     image: ${DOCKERHUB_USERNAME:-theanhn28}/luyenviet-frontend:${IMAGE_TAG:-latest}
-    container_name: luyenviet-frontend-hub
-    restart: unless-stopped
-    mem_limit: 256m
-    expose:
-      - "80"
-    ports:
-      - "80:80"
+    container_name: luyenviet-frontend-builder-hub
+    restart: "no"
+    mem_limit: 96m
     environment:
       TZ: ${TZ:-Asia/Ho_Chi_Minh}
+    command: >
+      sh -c "rm -rf /static/* && cp -r /app/dist/. /static && echo 'Static assets copied to /static'"
+    volumes:
+      - frontend_static:/static
+    networks:
+      - luyenviet
+    healthcheck:
+      test: ["CMD", "test", "-f", "/app/dist/index.html"]
+      timeout: 5s
+      retries: 3
+      interval: 10s
+      start_period: 5s
+    logging:
+      driver: json-file
+      options:
+        max-size: "5m"
+        max-file: "2"
+
+  nginx:
+    image: ${DOCKERHUB_USERNAME:-theanhn28}/luyenviet-nginx:${IMAGE_TAG:-latest}
+    container_name: luyenviet-nginx-hub
+    restart: unless-stopped
+    mem_limit: 128m
+    expose:
+      - "80"
+      - "443"
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      TZ: ${TZ:-Asia/Ho_Chi_Minh}
+      NGINX_SERVER_NAME: ${NGINX_SERVER_NAME:-luyenviet.online www.luyenviet.online localhost}
     depends_on:
       backend:
         condition: service_healthy
+      frontend-builder:
+        condition: service_completed_successfully
+    volumes:
+      - frontend_static:/usr/share/nginx/html:ro
+      - ./nginx/certs:/etc/nginx/certs:ro
     networks:
       - luyenviet
     healthcheck:
@@ -109,6 +148,11 @@ services:
       retries: 12
       interval: 10s
       start_period: 10s
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
 
 networks:
   luyenviet:
@@ -116,5 +160,7 @@ networks:
 
 volumes:
   mysql_data_hub:
+    driver: local
+  frontend_static:
     driver: local
 
