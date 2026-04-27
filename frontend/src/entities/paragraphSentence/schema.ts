@@ -2,6 +2,7 @@ export interface ParagraphSentence {
   id: number;
   orderIndex: number;
   content: string;
+  translatableVocabularies?: string[];
   vocabularyHints?: VocabularyHint[] | null;
 }
 

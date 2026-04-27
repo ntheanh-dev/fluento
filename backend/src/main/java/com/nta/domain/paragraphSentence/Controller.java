@@ -21,6 +21,7 @@ import com.nta.common.enums.ErrorCode;
 import com.nta.common.exception.AppException;
 import com.nta.domain.paragraphSentence.dto.response.CommunityTranslationResponse;
 import com.nta.domain.paragraphSentence.enums.CommunityScoreBand;
+import com.nta.domain.paragraphSentenceHint.ParagraphSentenceHint;
 import com.nta.domain.paragraphSentenceHint.enums.TargetLanguage;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -51,7 +52,7 @@ public class Controller {
         SecurityContext securityContext = SecurityContextHolder.getContext();
         Runnable streamTask = () -> {
             try {
-                ParagraphSentence sentence = service.getOrCreateVocabularyHints(id, targetLanguage, chunk -> {
+                ParagraphSentenceHint sentenceHint = service.getOrCreateVocabularyHints(id, targetLanguage, chunk -> {
                     try {
                         emitter.send(SseEmitter.event()
                                 .name("vocabulary-hints-chunk")
@@ -60,8 +61,8 @@ public class Controller {
                         throw new UncheckedIOException(ioException);
                     }
                 });
-                ApiResponse<ParagraphSentence> responseBody = ApiResponse.<ParagraphSentence>builder()
-                        .result(sentence)
+                ApiResponse<ParagraphSentenceHint> responseBody = ApiResponse.<ParagraphSentenceHint>builder()
+                        .result(sentenceHint)
                         .build();
                 emitter.send(SseEmitter.event().name("vocabulary-hints").data(responseBody));
                 emitter.complete();

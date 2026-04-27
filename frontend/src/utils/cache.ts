@@ -1,3 +1,10 @@
+import { LOCAL_STORAGE_KEYS } from "@/shared/storage/keys";
+import {
+    getLocalStorageItem,
+    removeLocalStorageItem,
+    setLocalStorageItem,
+} from "@/shared/storage/local-storage";
+
 /**
  * Cache utility for vocabulary data
  */
@@ -10,7 +17,7 @@ export interface CacheItem<T> {
 
 export class VocabularyCache {
     private static readonly CACHE_KEYS = {
-        NOTE_TYPES: 'noteTypes',
+        NOTE_TYPES: LOCAL_STORAGE_KEYS.cache.noteTypes,
     } as const;
 
     private static readonly DEFAULT_TTL = 5 * 60 * 1000; // 5 minutes
@@ -20,7 +27,7 @@ export class VocabularyCache {
      */
     static get<T>(key: string): T | null {
         try {
-            const cached = localStorage.getItem(key);
+            const cached = getLocalStorageItem(key);
             if (!cached) return null;
 
             const cacheItem: CacheItem<T> = JSON.parse(cached);
@@ -48,7 +55,7 @@ export class VocabularyCache {
                 timestamp: Date.now(),
                 ttl: ttl || this.DEFAULT_TTL,
             };
-            localStorage.setItem(key, JSON.stringify(cacheItem));
+            setLocalStorageItem(key, JSON.stringify(cacheItem));
         } catch (error) {
             // Silently fail if cache cannot be set
         }
@@ -58,7 +65,7 @@ export class VocabularyCache {
      * Remove cached data
      */
     static remove(key: string): void {
-        localStorage.removeItem(key);
+        removeLocalStorageItem(key);
     }
 
     /**
@@ -90,7 +97,7 @@ export class VocabularyCache {
      */
     static isValid(key: string): boolean {
         try {
-            const cached = localStorage.getItem(key);
+            const cached = getLocalStorageItem(key);
             if (!cached) return false;
 
             const cacheItem: CacheItem<any> = JSON.parse(cached);

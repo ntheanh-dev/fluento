@@ -13,11 +13,11 @@ import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useUserPracticeData } from '../../hooks/useUserPractice';
 import { formatElapsed } from '@/utils/utils';
-import { message, Modal, Spin } from 'antd';
-import { LoadingOutlined } from '@ant-design/icons';
+import { message, Modal } from 'antd';
 import { showApiError } from '@/shared/api/showApiError';
 import { renderWordDiff } from '../../utilities';
 import { useTranslation } from 'react-i18next';
+import { AppSpinner } from '@/shared/components/AppSpinner';
 
 export default function ResultScreen() {
     const { t } = useTranslation();
@@ -27,7 +27,7 @@ export default function ResultScreen() {
     const { data, error: errorUserPracticeData, isLoading: isLoadingUserPracticeData } = useUserPracticeData(Number(id));
 
     if (isLoadingUserPracticeData) {
-        return <Spin indicator={<LoadingOutlined spin />} />;
+        return <AppSpinner />;
     }
 
     const paragraphSentences = data?.paragraph.sentences ?? [];
@@ -237,6 +237,9 @@ export default function ResultScreen() {
                 open={confirmRetryOpen}
                 title={t('practice.result.retryTitle')}
                 centered
+                destroyOnClose
+                transitionName=""
+                maskTransitionName=""
                 onCancel={() => setConfirmRetryOpen(false)}
                 onOk={() => {
                     setConfirmRetryOpen(false);

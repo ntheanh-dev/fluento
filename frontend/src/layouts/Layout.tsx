@@ -6,6 +6,7 @@ import {
     BookOpen,
     History,
     Trophy,
+    LibraryBig,
     Shield,
     LogOut,
     Languages,
@@ -40,6 +41,7 @@ const Layout = () => {
             const base = [
                 { key: PRACTICE_NAV_KEY, label: t("nav.practice"), to: "/paragraphs", icon: BookOpen },
                 { label: t("nav.history"), to: "/history", icon: History },
+                { label: t("nav.decks"), to: "/decks", icon: LibraryBig },
                 { label: t("nav.rankings"), to: "/rankings", icon: Trophy },
             ];
             if (!isAdmin) return base;

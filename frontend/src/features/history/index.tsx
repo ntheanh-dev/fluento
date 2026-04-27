@@ -7,14 +7,13 @@ import {
     BarChart2,
     ArrowRight,
     History,
-    Loader2,
     RotateCcw,
     Clock,
     Filter,
     X,
 } from "lucide-react";
 import { Link, useSearchParams } from "react-router-dom";
-import { Pagination, Input, Spin, Select, Button, Drawer } from "antd";
+import { Pagination, Input, Select, Button, Drawer } from "antd";
 import { motion } from "motion/react";
 import { useQuery } from "@tanstack/react-query";
 import { getHistory, type GetHistoryParams } from "./api";
@@ -27,6 +26,7 @@ import type { TFunction } from "i18next";
 import type { TargetLanguage } from "@/shared/constants/target-language";
 import { TARGET_LANGUAGE_FLAG } from "@/shared/constants/target-language";
 import { CollapsibleChecklistSection } from "@/shared/components/CollapsibleChecklistSection";
+import { AppSpinner } from "@/shared/components/AppSpinner";
 
 const PAGE_SIZE = 9;
 
@@ -459,7 +459,7 @@ const PracticeHistory = () => {
                     </div>
                     {isPending && (
                         <div className="flex flex-col items-center justify-center py-20 gap-4">
-                            <Spin size="large" indicator={<Loader2 className="w-10 h-10 text-[#198de6] animate-spin" />} />
+                            <AppSpinner className="py-0" />
                             <span className="text-slate-500 dark:text-slate-400 text-sm">{t("history.loading")}</span>
                         </div>
                     )}

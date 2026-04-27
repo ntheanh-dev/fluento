@@ -1,6 +1,6 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { useState, useEffect, useRef } from "react";
-import { Box, CircularProgress, Typography, Alert, Button } from "@mui/material";
+import { Box, Typography, Alert, Button } from "@mui/material";
 import { message } from "antd";
 import Cookies from "js-cookie";
 import { useOAuthAuthenticateMutation } from "../mutation";
@@ -9,6 +9,7 @@ import { ACCESS_TOKEN_EXPIRE_TIME } from "../constant";
 import { PROFILE_EMBED_PRACTICESTATS, useProfileData } from "../../profile/query";
 import { useTranslation } from "react-i18next";
 import i18n from "@/i18n";
+import { AppSpinner } from "@/shared/components/AppSpinner";
 
 export default function Authenticate() {
   const { t } = useTranslation();
@@ -164,7 +165,7 @@ export default function Authenticate() {
         height: "100vh",
       }}
     >
-      <CircularProgress />
+      <AppSpinner className="py-0" size="default" />
       <Typography>{t("oauth.authenticating")}</Typography>
     </Box>
   );

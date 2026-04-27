@@ -5,6 +5,7 @@ import {
   BookOpen,
   History,
   Trophy,
+  LibraryBig,
   Shield,
   User,
   X,
@@ -130,6 +131,12 @@ const Sidebar = ({
           label={t("nav.history")}
           to="/history"
           active={activePath === "/history"}
+        />
+        <SidebarItem
+          icon={LibraryBig}
+          label={t("nav.decks")}
+          to="/decks"
+          active={activePath.startsWith("/decks")}
         />
         <SidebarItem
           icon={Trophy}

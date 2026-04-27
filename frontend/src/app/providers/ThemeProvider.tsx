@@ -7,14 +7,14 @@ import {
   useState,
   type PropsWithChildren,
 } from "react";
+import { LOCAL_STORAGE_KEYS } from "@/shared/storage/keys";
+import { getLocalStorageItem, setLocalStorageItem } from "@/shared/storage/local-storage";
 
 export type ThemeMode = "light" | "dark";
 
-const STORAGE_KEY = "luyenviet-theme";
-
 function readStoredTheme(): ThemeMode {
   if (typeof window === "undefined") return "light";
-  const stored = localStorage.getItem(STORAGE_KEY);
+  const stored = getLocalStorageItem(LOCAL_STORAGE_KEYS.theme);
   if (stored === "light" || stored === "dark") return stored;
   return window.matchMedia("(prefers-color-scheme: dark)").matches
     ? "dark"
@@ -41,11 +41,7 @@ export function ThemeProvider({ children }: PropsWithChildren) {
 
   const setTheme = useCallback((mode: ThemeMode) => {
     setThemeState(mode);
-    try {
-      localStorage.setItem(STORAGE_KEY, mode);
-    } catch {
-      /* ignore quota / private mode */
-    }
+    setLocalStorageItem(LOCAL_STORAGE_KEYS.theme, mode);
     applyDomTheme(mode);
   }, []);
 

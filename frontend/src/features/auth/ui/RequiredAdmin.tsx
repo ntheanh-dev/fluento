@@ -1,8 +1,8 @@
 import React from "react";
 import { Navigate } from "react-router-dom";
-import { Spin } from "antd";
 
 import { useProfile } from "@/stores/profile";
+import { AppSpinner } from "@/shared/components/AppSpinner";
 
 const ADMIN_ROLE = "ADMIN";
 
@@ -10,7 +10,7 @@ export default function RequiredAdmin({ children }: { children: React.ReactNode 
   const { profile } = useProfile();
 
   if (!profile) {
-    return <Spin fullscreen />;
+    return <AppSpinner fullscreen />;
   }
 
   const roles = profile.roles ?? [];

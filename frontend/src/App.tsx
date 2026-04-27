@@ -1,8 +1,8 @@
 import { Routes, Route, BrowserRouter, Navigate } from "react-router-dom";
 import { ConfigProvider, Spin, theme as antdTheme } from "antd";
+import { LoadingOutlined } from "@ant-design/icons";
 import enUS from "antd/locale/en_US";
 import viVN from "antd/locale/vi_VN";
-import { LoadingOutlined } from "@ant-design/icons";
 import { useTranslation } from "react-i18next";
 import "./index.css";
 import { ReactQueryProvider } from "@/app/providers/ReactQueryProvider.tsx";
@@ -24,6 +24,9 @@ const SentencePracticePage = lazy(() => import("@/features/practice/ui/[id]"));
 // History / Ranking / Profile
 const History = lazy(() => import("@/features/history"));
 const Rankings = lazy(() => import("@/features/ranking"));
+const DeckManagement = lazy(() => import("@/features/deck/ui"));
+const DeckDetail = lazy(() => import("@/features/deck/ui/[id]"));
+const DeckPracticeModePage = lazy(() => import("@/features/deck/ui/practice/PracticeModeRouter"));
 const Profile = lazy(() => import("@/features/profile/ui"));
 const ProfileDetailsSection = lazy(() =>
   import("@/features/profile/ui/ProfileDetails").then((m) => ({
@@ -46,6 +49,9 @@ import LandingPage from "@/features/landing/index.tsx";
 import NotFoundPage from "@/features/NotFoundPage";
 import Home from "@/features/home/ui/index.tsx";
 import { SupportFacebookBubble } from "@/components/SupportFacebookBubble";
+import { AppSpinner } from "@/shared/components/AppSpinner";
+
+Spin.setDefaultIndicator(<LoadingOutlined spin className="text-[#198de6]" />);
 
 function AntdThemeConfig({ children }: PropsWithChildren) {
   const { theme } = useTheme();
@@ -77,7 +83,7 @@ function App() {
         <ReactQueryProvider>
           <BrowserRouter>
             <SupportFacebookBubble />
-            <Suspense fallback={<Spin fullscreen indicator={<LoadingOutlined spin />} />}>
+            <Suspense fallback={<AppSpinner fullscreen />}>
               <Routes>
                 <Route
                   element={
@@ -93,6 +99,9 @@ function App() {
                   <Route path="practice/:id/result" element={<ResultScreen />} />
                   <Route path="practice/:id/result/detail" element={<ResultDetailScreen />} />
                   <Route path="history" element={<History />} />
+                  <Route path="decks" element={<DeckManagement />} />
+                  <Route path="decks/:id" element={<DeckDetail />} />
+                  <Route path="decks/practice/:mode" element={<DeckPracticeModePage />} />
                   <Route path="rankings" element={<Rankings />} />
                   <Route path="profile" element={<Profile />}>
                     <Route

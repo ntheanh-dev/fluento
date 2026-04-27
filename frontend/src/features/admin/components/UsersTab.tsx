@@ -223,6 +223,9 @@ const UsersTab = () => {
         open={creditOpen}
         title={t("admin.users.modalCreditsTitle")}
         onCancel={() => setCreditOpen(false)}
+        destroyOnClose
+        transitionName=""
+        maskTransitionName=""
         onOk={() => {
           if (creditTargetId == null || creditValue == null) return;
           updateUserMutation.mutate({

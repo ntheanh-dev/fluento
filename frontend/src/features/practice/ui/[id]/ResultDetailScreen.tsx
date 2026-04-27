@@ -9,10 +9,9 @@ import {
 } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useUserPracticeData } from '../../hooks/useUserPractice';
-import { Spin } from 'antd';
-import { LoadingOutlined } from '@ant-design/icons';
 import { renderWordDiff } from '../../utilities';
 import { useTranslation } from 'react-i18next';
+import { AppSpinner } from '@/shared/components/AppSpinner';
 
 export default function ReviewScreen() {
     const { t } = useTranslation();
@@ -23,7 +22,7 @@ export default function ReviewScreen() {
     const [selectedSentenceIndex, setSelectedSentenceIndex] = useState(1);
 
     if (isLoadingUserPracticeData) {
-        return <Spin indicator={<LoadingOutlined spin />} />;
+        return <AppSpinner />;
     }
 
     if (errorUserPracticeData) {

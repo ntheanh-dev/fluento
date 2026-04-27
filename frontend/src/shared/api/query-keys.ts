@@ -8,6 +8,8 @@ export const OK = {
   communityTranslations: (sentenceId: number, score: string, targetLanguage: string) =>
     ["communityTranslations", sentenceId, score, targetLanguage] as const,
   usePracticeAnswerPreview: (id: number, orderIndex: number) => ["usePracticeAnswerPreview", id, orderIndex] as const,
+  myDecks: (targetLanguage?: string) => ["myDecks", targetLanguage ?? null] as const,
+  myDeckDetail: (deckId: number) => ["myDeckDetail", deckId] as const,
   RANKINGS: "rankings",
   historyList: (params: Record<string, unknown>) => ["historyList", params] as const,
 };

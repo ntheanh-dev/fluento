@@ -2,7 +2,6 @@ import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Filter,
-  Loader2,
   Rocket,
   Sparkles,
 } from "lucide-react";
@@ -17,10 +16,11 @@ import {
 } from "../constants";
 import { useCreateUserPracticeMutation } from "../mutation";
 import type { PracticeSetupInput, SingleSentenceMixOption } from "../schema";
-import { Button, Drawer, message, Select, Spin } from "antd";
+import { Button, Drawer, message, Select } from "antd";
 import { useTranslation } from "react-i18next";
 import { TARGET_LANGUAGE_ITEMS, type TargetLanguage } from "@/shared/constants/target-language";
 import { CollapsibleChecklistSection } from "@/shared/components/CollapsibleChecklistSection";
+import { AppSpinner } from "@/shared/components/AppSpinner";
 
 const panelClassName =
   "rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900/90";
@@ -251,11 +251,7 @@ const SingleSentenceSetup = () => {
       </Drawer>
 
       {isPending && (
-        <Spin
-          indicator={<Loader2 className="h-4 w-4 animate-spin" size={28} />}
-          description={t("practice.setup.creating")}
-          fullscreen
-        />
+        <AppSpinner fullscreen text={t("practice.setup.creating")} />
       )}
     </div>
   );

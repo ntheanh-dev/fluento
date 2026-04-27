@@ -46,15 +46,15 @@ public class Service {
     com.nta.domain.userSentenceAnswer.Repository userSentenceAnswerRepository;
     CommonUserService commonUserService;
 
-    public ParagraphSentence getOrCreateVocabularyHints(Long sentenceId) {
+    public ParagraphSentenceHint getOrCreateVocabularyHints(Long sentenceId) {
         return getOrCreateVocabularyHints(sentenceId, DEFAULT_TARGET_LANGUAGE, null);
     }
 
-    public ParagraphSentence getOrCreateVocabularyHints(Long sentenceId, Consumer<String> onChunk) {
+    public ParagraphSentenceHint getOrCreateVocabularyHints(Long sentenceId, Consumer<String> onChunk) {
         return getOrCreateVocabularyHints(sentenceId, DEFAULT_TARGET_LANGUAGE, onChunk);
     }
 
-    public ParagraphSentence getOrCreateVocabularyHints(
+    public ParagraphSentenceHint getOrCreateVocabularyHints(
             Long sentenceId, TargetLanguage targetLanguage, Consumer<String> onChunk) {
         ParagraphSentence sentence =
                 repository.findById(sentenceId).orElseThrow(() -> new AppException(ErrorCode.RESOURCE_NOT_FOUND));
@@ -62,8 +62,7 @@ public class Service {
 
         var existingHint = hintRepository.findByParagraphSentenceIdAndTargetLanguage(sentenceId, language);
         if (existingHint.isPresent()) {
-            sentence.setVocabularyHints(existingHint.get().getHintsJson());
-            return sentence;
+            return existingHint.get();
         }
 
         PromptMessage prompt = promptFactory.buildHintTranslationPrompt(
@@ -80,9 +79,7 @@ public class Service {
                 .targetLanguage(language)
                 .hintsJson(vocabularyHints)
                 .build();
-        hintRepository.save(hint);
-        sentence.setVocabularyHints(vocabularyHints);
-        return sentence;
+        return hintRepository.save(hint);
     }
 
     public List<CommunityTranslationResponse> getCommunityTranslations(

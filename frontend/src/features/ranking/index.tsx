@@ -1,10 +1,11 @@
 import React, { useMemo, useState } from "react";
 import { Trophy, Flame, Search, Clock, User } from "lucide-react";
-import { Avatar, Spin, Pagination } from "antd";
+import { Avatar, Pagination } from "antd";
 import { useRankings } from "./query";
 import { useDebounce } from "../../shared/hooks/useDebounce";
 import { formatTotalHours } from "@/utils/utils";
 import { useTranslation } from "react-i18next";
+import { AppSpinner } from "@/shared/components/AppSpinner";
 
 const Rankings: React.FC = () => {
   const { t, i18n } = useTranslation();
@@ -57,7 +58,7 @@ const Rankings: React.FC = () => {
         {podiumLoading || podiumError || !first ? (
           <div className="py-10 flex justify-center items-center w-full">
             {podiumLoading ? (
-              <Spin />
+              <AppSpinner className="py-0" size="default" />
             ) : (
               <span className="text-sm text-red-500">{t("ranking.loadTop3Error")}</span>
             )}
@@ -202,7 +203,7 @@ const Rankings: React.FC = () => {
         </div>
         {isLoading ? (
           <div className="py-10 flex justify-center items-center">
-            <Spin />
+            <AppSpinner className="py-0" size="default" />
           </div>
         ) : isError ? (
           <div className="py-10 text-center text-sm text-red-500">

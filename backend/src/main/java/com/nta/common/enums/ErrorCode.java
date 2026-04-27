@@ -66,6 +66,8 @@ public enum ErrorCode {
     THIS_MODEL_NOT_ENOUGH_CREDITS(4002, "Model này đã hết credit", HttpStatus.BAD_REQUEST),
     NOT_ENOUGH_COINS(4003, "Không đủ coin để đổi", HttpStatus.BAD_REQUEST),
     COIN_EXCHANGE_INVALID(4004, "Gói đổi coin không hợp lệ", HttpStatus.BAD_REQUEST),
+    VOCABULARY_ALREADY_IN_DECK(4005, "Từ vựng đã tồn tại trong deck", HttpStatus.BAD_REQUEST),
+    DECK_ALREADY_EXISTS(4006, "Bộ từ vựng đã tồn tại", HttpStatus.BAD_REQUEST),
 
     // Generic errors (90xx)
     THIS_METHOD_DOES_NOTE_SUPPORT_YET(9001, "Phương thức này không được hỗ trợ", HttpStatus.BAD_REQUEST);

@@ -196,6 +196,9 @@ const ParagraphSentencesTab = () => {
         onCancel={() => setDetailOpen(false)}
         footer={null}
         width={860}
+        destroyOnClose
+        transitionName=""
+        maskTransitionName=""
       >
         {selectedSentence ? (
           <div className="space-y-4">
@@ -272,6 +275,9 @@ const ParagraphSentencesTab = () => {
         open={editOpen}
         title={t("admin.paragraphSentences.editContentModalTitle")}
         onCancel={() => setEditOpen(false)}
+        destroyOnClose
+        transitionName=""
+        maskTransitionName=""
         onOk={() => {
           if (editTargetId == null) return;
           const next = editValue;

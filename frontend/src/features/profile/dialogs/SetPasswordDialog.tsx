@@ -78,6 +78,8 @@ export default function SetPasswordDialog({ open, onClose, noPassword }: SetPass
             onCancel={handleCancel}
             footer={null}
             destroyOnClose
+            transitionName=""
+            maskTransitionName=""
         >
             {noPassword && (
                 <p className="text-slate-500 text-sm mb-4">

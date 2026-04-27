@@ -28,6 +28,7 @@ import com.nta.domain.paragraph.enums.Tone;
 import com.nta.domain.paragraph.enums.Topic;
 import com.nta.domain.paragraph.enums.Type;
 import com.nta.domain.paragraphSentence.ParagraphSentence;
+import com.nta.domain.paragraphSentenceHint.ParagraphSentenceHint;
 import com.nta.domain.paragraphSentenceHint.enums.TargetLanguage;
 import com.nta.domain.role.Role;
 import com.nta.domain.user.User;
@@ -313,15 +314,14 @@ public class DataInitializer {
             for (ParagraphSentence sentence : targets) {
                 Long sentenceId = sentence.getId();
                 tasks.add(() -> {
-                    ParagraphSentence saved =
+                    ParagraphSentenceHint saved =
                             generateSentenceHintsWithRetries(paragraphSentenceService, sentenceId, maxRetriesPerItem);
                     if (saved != null) {
                         done.incrementAndGet();
                         log.info(
-                                "Sentence AI init: sentenceId={} orderIndex={} hint={}",
-                                saved.getId(),
-                                saved.getOrderIndex(),
-                                saved.getVocabularyHints());
+                                "Sentence AI init: sentenceId={} orderIndex={}",
+                                saved.getParagraphSentence().getId(),
+                                saved.getParagraphSentence().getOrderIndex());
                     } else {
                         failed.incrementAndGet();
                     }
@@ -361,7 +361,7 @@ public class DataInitializer {
                     failed.get());
         }
 
-        private ParagraphSentence generateSentenceHintsWithRetries(
+        private ParagraphSentenceHint generateSentenceHintsWithRetries(
                 com.nta.domain.paragraphSentence.Service paragraphSentenceService,
                 Long sentenceId,
                 int maxRetriesPerItem) {

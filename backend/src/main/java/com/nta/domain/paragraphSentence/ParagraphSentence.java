@@ -1,7 +1,5 @@
 package com.nta.domain.paragraphSentence;
 
-import java.util.List;
-
 import jakarta.persistence.*;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -34,7 +32,4 @@ public class ParagraphSentence {
 
     @Column(columnDefinition = "TEXT", nullable = false)
     private String content;
-
-    @Transient
-    private List<VocabularyHint> vocabularyHints;
 }

@@ -340,6 +340,9 @@ const ParagraphsTab = () => {
         onCancel={() => setDetailOpen(false)}
         footer={null}
         width={1000}
+        destroyOnClose
+        transitionName=""
+        maskTransitionName=""
       >
         {selectedParagraph ? (
           <div className="space-y-5">
@@ -391,6 +394,9 @@ const ParagraphsTab = () => {
         open={createOpen}
         title={t("admin.paragraphs.createModalTitle")}
         onCancel={() => setCreateOpen(false)}
+        destroyOnClose
+        transitionName=""
+        maskTransitionName=""
         onOk={() => {
           createParagraphMutation.mutate(payload, { onSuccess: () => setCreateOpen(false) });
         }}
@@ -446,6 +452,9 @@ const ParagraphsTab = () => {
         open={editTitleOpen}
         title={t("admin.paragraphs.editTitleModal")}
         onCancel={() => setEditTitleOpen(false)}
+        destroyOnClose
+        transitionName=""
+        maskTransitionName=""
         onOk={() => {
           if (editTitleTargetId == null) return;
           updateTitleMutation.mutate({ id: editTitleTargetId, title: editTitleValue });

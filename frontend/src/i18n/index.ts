@@ -3,11 +3,12 @@ import { initReactI18next } from "react-i18next";
 import LanguageDetector from "i18next-browser-languagedetector";
 import en from "@/locales/en.json";
 import vi from "@/locales/vi.json";
+import { LOCAL_STORAGE_KEYS } from "@/shared/storage/keys";
 
 export const SUPPORTED_LANGUAGES = ["vi", "en"] as const;
 export type AppLanguage = (typeof SUPPORTED_LANGUAGES)[number];
 
-export const LANGUAGE_STORAGE_KEY = "i18nextLng";
+export const LANGUAGE_STORAGE_KEY = LOCAL_STORAGE_KEYS.language;
 
 void i18n
   .use(LanguageDetector)

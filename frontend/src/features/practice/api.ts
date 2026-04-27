@@ -18,6 +18,15 @@ const PARAGRAPH_SENTENCE_BASE = "/paragraphSentence";
 const runtimeEnv = getRuntimeEnv();
 const API_BASE_URL = runtimeEnv.VITE_API_URL || import.meta.env.VITE_API_URL || "http://localhost:8080/api";
 
+type ParagraphSentenceHintResponse = {
+  paragraphSentence?: {
+    id: number;
+    orderIndex: number;
+    content: string;
+  } | null;
+  hintsJson?: VocabularyHint[] | null;
+};
+
 const refreshAccessTokenForStream = async (): Promise<string> => {
   const res = await fetch(`${API_BASE_URL}/auth/refresh`, {
     method: "POST",
@@ -199,9 +208,14 @@ export const getSentenceVocabularyHints = (
 
         if (ssePayload) {
           try {
-            const parsed = JSON.parse(ssePayload) as ApiResponse<ParagraphSentence>;
+            const parsed = JSON.parse(ssePayload) as ApiResponse<ParagraphSentenceHintResponse>;
             if (parsed?.result) {
-              return parsed.result;
+              return {
+                id: parsed.result.paragraphSentence?.id ?? sentenceId,
+                orderIndex: parsed.result.paragraphSentence?.orderIndex ?? 0,
+                content: parsed.result.paragraphSentence?.content ?? "",
+                vocabularyHints: parsed.result.hintsJson ?? [],
+              };
             }
           } catch {
             // chunk payload

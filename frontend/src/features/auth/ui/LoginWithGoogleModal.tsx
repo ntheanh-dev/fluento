@@ -29,7 +29,7 @@ export default function LoginWithGoogleModal({ open, onCancel }: LoginWithGoogle
   };
 
   return (
-    <Modal open={open} onCancel={onCancel} footer={null} centered>
+    <Modal open={open} onCancel={onCancel} footer={null} centered destroyOnClose transitionName="" maskTransitionName="">
       <div className="flex flex-col items-center justify-center">
         <img src={logo} alt="logo" className="w-32 h-32 mb-4" />
         <p className="text-sm text-slate-500 mb-4">{t("auth.orContinue")}</p>
