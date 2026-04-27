@@ -24,7 +24,6 @@ export function CreateDeckForm({
 }: CreateDeckFormProps) {
   const { t } = useTranslation();
   const {
-    register,
     control,
     handleSubmit,
     reset,
@@ -56,7 +55,7 @@ export function CreateDeckForm({
       title={t("deck.createModalTitle")}
       onCancel={onClose}
       onOk={() => void handleSubmit((values) => onSubmit(values))()}
-      okText={t("deck.createDeck")}
+      okText={t("common.create")}
       cancelText={t("practice.result.retryCancel")}
       okButtonProps={{ loading: isSubmitting }}
       destroyOnClose
@@ -68,11 +67,18 @@ export function CreateDeckForm({
           <p className="mb-1.5 text-xs font-medium text-slate-500 dark:text-slate-400">
             {t("deck.deckName")}
           </p>
-          <Input
-            {...register("name")}
-            placeholder={t("deck.deckNamePlaceholder")}
-            onPressEnter={() => void handleSubmit((values) => onSubmit(values))()}
-            status={errors.name ? "error" : ""}
+          <Controller
+            control={control}
+            name="name"
+            render={({ field }) => (
+              <Input
+                {...field}
+                value={field.value ?? ""}
+                placeholder={t("deck.deckNamePlaceholder")}
+                onPressEnter={() => void handleSubmit((values) => onSubmit(values))()}
+                status={errors.name ? "error" : ""}
+              />
+            )}
           />
           {errors.name && (
             <p className="mt-1 text-xs text-red-500">{errors.name.message}</p>

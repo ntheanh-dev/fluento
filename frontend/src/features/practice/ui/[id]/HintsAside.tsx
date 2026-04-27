@@ -46,8 +46,7 @@ const VocabularyItem = ({
         <li className="bg-white dark:bg-slate-900/90 sm:p-3 py-2">
             <div className="flex items-center justify-between gap-2 mb-1">
                 <div className="flex items-center gap-2">
-
-                    <span className="relative pl-1 text-slate-800 dark:text-slate-100 text-[12px] font-semibold truncate before:content-['•'] before:absolute before:left-0 before:text-white">
+                    <span className="relative pl-1 text-slate-800 dark:text-slate-100 text-[12px] font-semibold truncate">
                         {word.toLowerCase()}
                     </span>
                     <span className={`shrink-0 px-1.5 py-0.5 rounded-lg text-[8px] font-bold uppercase tracking-wide ${typeClasses}`}>{type}</span>
@@ -374,179 +373,179 @@ export const VocabularyHintsAside = ({
     return (
         <>
             <div className="flex flex-col flex-1 min-h-0 bg-white dark:bg-slate-900/90">
-            <div className="shrink-0 overflow-hidden rounded-t-[0.65rem] bg-white dark:bg-slate-900" role="tablist" aria-label={t("practice.hints.hintTypesAria")}>
-                <div className="flex min-h-[2.75rem]">
-                    <button
-                        type="button"
-                        role="tab"
-                        aria-selected={hintsTab === "vocabulary"}
-                        id="hints-tab-vocabulary"
-                        className={`
+                <div className="shrink-0 overflow-hidden rounded-t-[0.65rem] bg-white dark:bg-slate-900" role="tablist" aria-label={t("practice.hints.hintTypesAria")}>
+                    <div className="flex min-h-[2.75rem]">
+                        <button
+                            type="button"
+                            role="tab"
+                            aria-selected={hintsTab === "vocabulary"}
+                            id="hints-tab-vocabulary"
+                            className={`
                 flex flex-1 items-center justify-center gap-2 px-2 py-2.5 text-center text-sm font-medium transition-colors
                 border-r border-slate-200 dark:border-slate-600
                 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-blue-400/50
                 ${hintsTab === "vocabulary"
-                                ? "bg-blue-50 text-blue-700 dark:bg-blue-950/45 dark:text-blue-400 border-b-[3px] border-b-blue-600"
-                                : "border-b border-slate-200 bg-white text-slate-600 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-400 hover:bg-slate-50/90 dark:hover:bg-slate-800/80"
-                            }
+                                    ? "bg-blue-50 text-blue-700 dark:bg-blue-950/45 dark:text-blue-400 border-b-[3px] border-b-blue-600"
+                                    : "border-b border-slate-200 bg-white text-slate-600 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-400 hover:bg-slate-50/90 dark:hover:bg-slate-800/80"
+                                }
               `}
-                        onClick={() => setHintsTab("vocabulary")}
-                    >
-                        <Sparkles className="size-3.5 shrink-0 opacity-90" aria-hidden />
-                        <span className="truncate">{t("practice.hints.vocabulary")}</span>
-                    </button>
-                    <button
-                        type="button"
-                        role="tab"
-                        aria-selected={hintsTab === "community"}
-                        id="hints-tab-community"
-                        className={`
+                            onClick={() => setHintsTab("vocabulary")}
+                        >
+                            <Sparkles className="size-3.5 shrink-0 opacity-90" aria-hidden />
+                            <span className="truncate">{t("practice.hints.vocabulary")}</span>
+                        </button>
+                        <button
+                            type="button"
+                            role="tab"
+                            aria-selected={hintsTab === "community"}
+                            id="hints-tab-community"
+                            className={`
                 flex flex-1 items-center justify-center gap-2 px-2 py-2.5 text-center text-sm font-medium transition-colors
                 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-blue-400/50
                 ${hintsTab === "community"
-                                ? "bg-blue-50 text-blue-700 dark:bg-blue-950/45 dark:text-blue-400 border-b-[3px] border-b-blue-600"
-                                : "border-b border-slate-200 bg-white text-slate-600 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-400 hover:bg-slate-50/90 dark:hover:bg-slate-800/80"
-                            }
+                                    ? "bg-blue-50 text-blue-700 dark:bg-blue-950/45 dark:text-blue-400 border-b-[3px] border-b-blue-600"
+                                    : "border-b border-slate-200 bg-white text-slate-600 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-400 hover:bg-slate-50/90 dark:hover:bg-slate-800/80"
+                                }
               `}
-                        onClick={() => setHintsTab("community")}
-                    >
-                        <Users className="size-3.5 shrink-0 opacity-90" aria-hidden />
-                        <span className="truncate">{t("practice.hints.community")}</span>
-                    </button>
-                </div>
-            </div>
-
-            <div
-                className="min-h-0 flex-1 overflow-y-auto px-3 py-3 sm:p-4"
-                role="tabpanel"
-                aria-labelledby={hintsTab === "vocabulary" ? "hints-tab-vocabulary" : "hints-tab-community"}
-            >
-                {hintsTab === "vocabulary" && (
-                    <div className="space-y-2">
-                        {isStreamingVocabularyHints && (vocabularyHints?.length ?? 0) === 0 && (
-                            <div className="flex items-center justify-center rounded-lg border border-dashed border-slate-200/90 px-2 py-2 text-[11px] text-slate-500 dark:border-slate-700 dark:text-slate-400">
-                                <Loader2 className="size-3.5 animate-spin" aria-hidden />
-                            </div>
-                        )}
-                        {vocabularyHints.slice(0, visibleVocabularyCount).map((hint, index) => (
-                            <div className="group pb-2 last:pb-0" key={`${hint.sourceText}-${index}`}>
-                                <div className="flex items-center gap-2 mb-2">
-                                    <h3 className="text-[12px] sm:text-xs text-slate-500 dark:text-slate-400 truncate">{hint.sourceText.toLocaleLowerCase()}</h3>
-                                    <div className="h-px bg-slate-200 dark:bg-slate-700 flex-1 min-w-0" />
-                                </div>
-                                <motion.ul
-                                    initial={isStreamingVocabularyHints ? false : { opacity: 0, y: 10 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    exit={isStreamingVocabularyHints ? undefined : { opacity: 0, y: -10 }}
-                                    transition={isStreamingVocabularyHints ? { duration: 0 } : { duration: 0.1 }}
-                                >
-                                    {(isStreamingVocabularyHints
-                                        ? hint.translations.filter(() => {
-                                            streamedRowCursor += 1;
-                                            return streamedRowCursor <= visibleVocabularyRowCount;
-                                        })
-                                        : hint.translations
-                                    ).map((word, idx) => (
-                                        <VocabularyItem
-                                            key={`${word.text}-${word.partsOfSpeech}-${idx}`}
-                                            word={word.text}
-                                            type={word.partsOfSpeech}
-                                            pronunciation={word.pronunciation}
-                                            onSpeak={handleSpeak}
-                                            isSpeaking={speakingWord === word.text}
-                                            isSaved={savedVocabulary.has(word.text.trim().toLowerCase())}
-                                            savedDeckName={decks.find(
-                                                (deck) => String(deck.id) === savedDeckByVocabulary[word.text.trim().toLowerCase()],
-                                            )?.name}
-                                            onToggleSave={(payload) => handleToggleSaveVocabulary({
-                                                ...payload,
-                                                meaning: hint.sourceText,
-                                            })}
-                                        />
-                                    ))}
-                                </motion.ul>
-                            </div>
-                        ))}
-                    </div>
-                )}
-
-                {hintsTab === "community" && (
-                    <div>
-                        <div
-                            className="mb-3 flex flex-wrap items-center justify-center gap-1 rounded-2xl bg-slate-100/95 p-1 dark:bg-slate-800/90"
-                            role="tablist"
-                            aria-label={t("practice.hints.filterByAiScore")}
+                            onClick={() => setHintsTab("community")}
                         >
-                            {COMMUNITY_SCORE_BANDS.map(({ band, label }) => {
-                                const active = communityScoreBand === band;
-                                return (
-                                    <button
-                                        key={band}
-                                        type="button"
-                                        role="tab"
-                                        aria-selected={active}
-                                        onClick={() => setCommunityScoreBand(band)}
-                                        className={`
+                            <Users className="size-3.5 shrink-0 opacity-90" aria-hidden />
+                            <span className="truncate">{t("practice.hints.community")}</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div
+                    className="min-h-0 flex-1 overflow-y-auto px-3 py-3 sm:p-4"
+                    role="tabpanel"
+                    aria-labelledby={hintsTab === "vocabulary" ? "hints-tab-vocabulary" : "hints-tab-community"}
+                >
+                    {hintsTab === "vocabulary" && (
+                        <div className="space-y-2">
+                            {isStreamingVocabularyHints && (vocabularyHints?.length ?? 0) === 0 && (
+                                <div className="flex items-center justify-center rounded-lg border border-dashed border-slate-200/90 px-2 py-2 text-[11px] text-slate-500 dark:border-slate-700 dark:text-slate-400">
+                                    <Loader2 className="size-3.5 animate-spin" aria-hidden />
+                                </div>
+                            )}
+                            {vocabularyHints.slice(0, visibleVocabularyCount).map((hint, index) => (
+                                <div className="group pb-2 last:pb-0" key={`${hint.sourceText}-${index}`}>
+                                    <div className="flex items-center gap-2 mb-2">
+                                        <h3 className="text-[12px] sm:text-xs text-slate-500 dark:text-slate-400 truncate">{hint.sourceText.toLocaleLowerCase()}</h3>
+                                        <div className="h-px bg-slate-200 dark:bg-slate-700 flex-1 min-w-0" />
+                                    </div>
+                                    <motion.ul
+                                        initial={isStreamingVocabularyHints ? false : { opacity: 0, y: 10 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        exit={isStreamingVocabularyHints ? undefined : { opacity: 0, y: -10 }}
+                                        transition={isStreamingVocabularyHints ? { duration: 0 } : { duration: 0.1 }}
+                                    >
+                                        {(isStreamingVocabularyHints
+                                            ? hint.translations.filter(() => {
+                                                streamedRowCursor += 1;
+                                                return streamedRowCursor <= visibleVocabularyRowCount;
+                                            })
+                                            : hint.translations
+                                        ).map((word, idx) => (
+                                            <VocabularyItem
+                                                key={`${word.text}-${word.partsOfSpeech}-${idx}`}
+                                                word={word.text}
+                                                type={word.partsOfSpeech}
+                                                pronunciation={word.pronunciation}
+                                                onSpeak={handleSpeak}
+                                                isSpeaking={speakingWord === word.text}
+                                                isSaved={savedVocabulary.has(word.text.trim().toLowerCase())}
+                                                savedDeckName={decks.find(
+                                                    (deck) => String(deck.id) === savedDeckByVocabulary[word.text.trim().toLowerCase()],
+                                                )?.name}
+                                                onToggleSave={(payload) => handleToggleSaveVocabulary({
+                                                    ...payload,
+                                                    meaning: hint.sourceText,
+                                                })}
+                                            />
+                                        ))}
+                                    </motion.ul>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+
+                    {hintsTab === "community" && (
+                        <div>
+                            <div
+                                className="mb-3 flex flex-wrap items-center justify-center gap-1 rounded-2xl bg-slate-100/95 p-1 dark:bg-slate-800/90"
+                                role="tablist"
+                                aria-label={t("practice.hints.filterByAiScore")}
+                            >
+                                {COMMUNITY_SCORE_BANDS.map(({ band, label }) => {
+                                    const active = communityScoreBand === band;
+                                    return (
+                                        <button
+                                            key={band}
+                                            type="button"
+                                            role="tab"
+                                            aria-selected={active}
+                                            onClick={() => setCommunityScoreBand(band)}
+                                            className={`
                       min-h-[2.25rem] flex-1 whitespace-nowrap rounded-full px-2.5 py-1.5 text-center text-[11px] font-semibold transition-all sm:px-3 sm:text-xs
                       ${active
-                                                ? "bg-blue-600 text-white shadow-sm ring-2 ring-blue-600 ring-offset-2 ring-offset-slate-100 dark:bg-blue-600 dark:ring-blue-500 dark:ring-offset-slate-900"
-                                                : "text-slate-700 hover:bg-white/70 dark:text-slate-200 dark:hover:bg-slate-700/60"
-                                            }
+                                                    ? "bg-blue-600 text-white shadow-sm ring-2 ring-blue-600 ring-offset-2 ring-offset-slate-100 dark:bg-blue-600 dark:ring-blue-500 dark:ring-offset-slate-900"
+                                                    : "text-slate-700 hover:bg-white/70 dark:text-slate-200 dark:hover:bg-slate-700/60"
+                                                }
                     `}
-                                    >
-                                        {label}
-                                    </button>
-                                );
-                            })}
-                        </div>
-                        <div className="flex items-center justify-center gap-2 mb-3">
-                            {isLoadingCommunity && (
-                                <Loader2 className="size-3.5 animate-spin text-slate-400 shrink-0" aria-hidden />
+                                        >
+                                            {label}
+                                        </button>
+                                    );
+                                })}
+                            </div>
+                            <div className="flex items-center justify-center gap-2 mb-3">
+                                {isLoadingCommunity && (
+                                    <Loader2 className="size-3.5 animate-spin text-slate-400 shrink-0" aria-hidden />
+                                )}
+                            </div>
+                            {isCommunityError && (
+                                <p className="text-xs text-amber-700 dark:text-amber-400/90 mb-2">
+                                    {t("practice.hints.communityLoadError")}
+                                </p>
+                            )}
+                            {!isLoadingCommunity && !isCommunityError && (communityList?.length ?? 0) === 0 && (
+                                <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                                    {t("practice.hints.communityEmpty")}
+                                </p>
+                            )}
+                            {!isCommunityError && communityList && communityList.length > 0 && (
+                                <ul className="space-y-2">
+                                    {communityList.slice(0, visibleCommunityCount).map((item, i) => (
+                                        <li
+                                            key={`${i}-${item.translation.slice(0, 24)}`}
+                                            className="rounded-xl border border-slate-200/90 dark:border-slate-700 bg-slate-50/85 dark:bg-slate-800/50 px-3 py-2.5 text-xs text-slate-800 dark:text-slate-100 whitespace-pre-wrap break-words"
+                                        >
+                                            <div className="flex flex-wrap items-center gap-x-2 gap-y-1 mb-2">
+                                                <span className="text-[11px] font-semibold text-slate-700 dark:text-slate-200 truncate max-w-full">
+                                                    {item.translatorName?.trim() || t("practice.hints.learner")}
+                                                </span>
+                                                {typeof item.score === "number" && (
+                                                    <span
+                                                        className={`inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[8px] font-bold tabular-nums leading-none ${aiScoreCircleClass(item.score)}`}
+                                                        title={t("practice.hints.aiScoreTooltip", { score: item.score.toFixed(1) })}
+                                                    >
+                                                        {item.score.toFixed(1)}
+                                                    </span>
+                                                )}
+                                            </div>
+                                            {item.translation.replace(/\\n/g, "\n\n")}
+                                        </li>
+                                    ))}
+                                </ul>
+                            )}
+                            {!isCommunityError && (communityList?.length ?? 0) > 0 && visibleCommunityCount < (communityList?.length ?? 0) && (
+                                <div className="mt-2 flex items-center justify-center rounded-lg border border-dashed border-slate-200/90 px-2 py-2 text-[11px] text-slate-500 dark:border-slate-700 dark:text-slate-400">
+                                    <Loader2 className="size-3.5 animate-spin" aria-hidden />
+                                </div>
                             )}
                         </div>
-                        {isCommunityError && (
-                            <p className="text-xs text-amber-700 dark:text-amber-400/90 mb-2">
-                                {t("practice.hints.communityLoadError")}
-                            </p>
-                        )}
-                        {!isLoadingCommunity && !isCommunityError && (communityList?.length ?? 0) === 0 && (
-                            <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-                                {t("practice.hints.communityEmpty")}
-                            </p>
-                        )}
-                        {!isCommunityError && communityList && communityList.length > 0 && (
-                            <ul className="space-y-2">
-                                {communityList.slice(0, visibleCommunityCount).map((item, i) => (
-                                    <li
-                                        key={`${i}-${item.translation.slice(0, 24)}`}
-                                        className="rounded-xl border border-slate-200/90 dark:border-slate-700 bg-slate-50/85 dark:bg-slate-800/50 px-3 py-2.5 text-xs text-slate-800 dark:text-slate-100 whitespace-pre-wrap break-words"
-                                    >
-                                        <div className="flex flex-wrap items-center gap-x-2 gap-y-1 mb-2">
-                                            <span className="text-[11px] font-semibold text-slate-700 dark:text-slate-200 truncate max-w-full">
-                                                {item.translatorName?.trim() || t("practice.hints.learner")}
-                                            </span>
-                                            {typeof item.score === "number" && (
-                                                <span
-                                                    className={`inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-[8px] font-bold tabular-nums leading-none ${aiScoreCircleClass(item.score)}`}
-                                                    title={t("practice.hints.aiScoreTooltip", { score: item.score.toFixed(1) })}
-                                                >
-                                                    {item.score.toFixed(1)}
-                                                </span>
-                                            )}
-                                        </div>
-                                        {item.translation.replace(/\\n/g, "\n\n")}
-                                    </li>
-                                ))}
-                            </ul>
-                        )}
-                        {!isCommunityError && (communityList?.length ?? 0) > 0 && visibleCommunityCount < (communityList?.length ?? 0) && (
-                            <div className="mt-2 flex items-center justify-center rounded-lg border border-dashed border-slate-200/90 px-2 py-2 text-[11px] text-slate-500 dark:border-slate-700 dark:text-slate-400">
-                                <Loader2 className="size-3.5 animate-spin" aria-hidden />
-                            </div>
-                        )}
-                    </div>
-                )}
-            </div>
+                    )}
+                </div>
             </div>
             <DeckPickerModal
                 open={isDeckModalOpen}

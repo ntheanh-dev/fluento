@@ -169,6 +169,8 @@
   },
   "common": {
     "all": "Tất cả",
+    "back": "Quay lại",
+    "create": "Tạo",
     "save": "Lưu",
     "supportOnFacebook": "Hỗ trợ trên Facebook",
     "brand": "Luyenviet",
@@ -731,7 +733,7 @@
   "deck": {
     "managementTitle": "Quản lý bộ từ vựng",
     "managementSubtitle": "Xây dựng lộ trình ôn tập theo từng chủ đề của bạn.",
-    "createDeck": "Tạo bộ từ mới",
+    "createDeck": "Tạo",
     "searchDeckPlaceholder": "Tìm kiếm bộ từ vựng của bạn...",
     "targetLanguageLabel": "Ngôn ngữ",
     "emptyDecks": "Chưa có bộ từ vựng phù hợp. Hãy tạo bộ mới để bắt đầu.",
@@ -747,8 +749,8 @@
     "deckName": "Tên bộ từ vựng",
     "deckNamePlaceholder": "Ví dụ: Từ vựng chuyên ngành IT...",
     "pickIcon": "Chọn biểu tượng",
-    "saveChanges": "Lưu thay đổi",
-    "saveWord": "Lưu từ",
+    "saveChanges": "Lưu",
+    "saveWord": "Lưu",
     "saveWordToDeck": "Lưu \"{{word}}\" vào bộ từ vựng",
     "chooseDeck": "Chọn bộ từ vựng",
     "pickDeckPlaceholder": "Chọn bộ từ vựng",

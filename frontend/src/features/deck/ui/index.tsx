@@ -63,7 +63,7 @@ export default function DeckManagementPage() {
                 icon: payload.icon,
                 targetLanguage,
             });
-            message.success(t("deck.createDeck"));
+            message.success(t("common.create"));
             setIsCreateModalOpen(false);
         } catch (error) {
             showApiError(error, t("errors.default"));
@@ -172,7 +172,7 @@ export default function DeckManagementPage() {
                     icon={<Plus className="h-4 w-4" />}
                     onClick={() => setIsCreateModalOpen(true)}
                 >
-                    {t("deck.createDeck")}
+                    {t("common.create")}
                 </Button>
             </div>
 

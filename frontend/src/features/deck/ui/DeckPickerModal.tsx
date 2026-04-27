@@ -88,8 +88,8 @@ export function DeckPickerModal({
     ? (formMode === "edit" ? t("deck.editModalTitle") : t("deck.createModalTitle"))
     : (pendingVocabularyText ? t("deck.saveWordToDeck", { word: pendingVocabularyText }) : t("deck.saveWord"));
 
-  const okText = mode === "create" ? (formMode === "edit" ? t("common.save") : t("deck.createDeck")) : t("deck.saveWord");
-  const cancelText = mode === "create" ? (createOnly ? t("practice.result.retryCancel") : t("practice.detail.backToSummary")) : t("practice.result.retryCancel");
+  const okText = mode === "create" ? (formMode === "edit" ? t("common.save") : t("common.create")) : t("deck.saveWord");
+  const cancelText = t("common.back");
 
   return (
     <Modal
@@ -155,7 +155,7 @@ export function DeckPickerModal({
                   setMode("create");
                 }}
               >
-                + {t("deck.createFirstDeck")}
+                + {t("common.create")}
               </button>
             </div>
           </>

@@ -169,6 +169,8 @@
   },
   "common": {
     "all": "All",
+    "back": "Back",
+    "create": "Create",
     "save": "Save",
     "supportOnFacebook": "Support on Facebook",
     "brand": "Luyenviet",
@@ -731,7 +733,7 @@
   "deck": {
     "managementTitle": "Deck management",
     "managementSubtitle": "Build your own review journey by topics.",
-    "createDeck": "Create deck",
+    "createDeck": "Create",
     "searchDeckPlaceholder": "Search your decks...",
     "targetLanguageLabel": "Target language",
     "emptyDecks": "No matching decks yet. Create your first one to get started.",
@@ -747,8 +749,8 @@
     "deckName": "Deck name",
     "deckNamePlaceholder": "Example: IT vocabulary...",
     "pickIcon": "Choose icon",
-    "saveChanges": "Save changes",
-    "saveWord": "Save word",
+    "saveChanges": "Save",
+    "saveWord": "Save",
     "saveWordToDeck": "Save \"{{word}}\" to a deck",
     "chooseDeck": "Choose a deck",
     "pickDeckPlaceholder": "Select a deck",
