@@ -2,40 +2,55 @@
 <html lang="vi">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/png" href="/src/assets/image/logo2.png" />
+    <link rel="icon" type="image/svg+xml" href="/og-image.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1" />
     <meta name="author" content="LuyenViet" />
     <meta name="theme-color" content="#ffffff" />
-    <meta name="description" content="LuyenViet giup ban luyen tap tieng Viet moi ngay voi bai tap thong minh, goi y theo trinh do va lo trinh hoc ca nhan hoa." />
-    <meta name="keywords" content="luyen viet, hoc tieng viet, tieng viet online, luyen tap tieng viet, language learning" />
-    <link id="seo-canonical" rel="canonical" href="/home" />
-    <link id="seo-alternate-vi" rel="alternate" href="/home" hreflang="vi-VN" />
-    <link id="seo-alternate-default" rel="alternate" href="/home" hreflang="x-default" />
+    <meta name="description" content="LuyenViet giup ban luyen viet moi ngay voi bai tap thong minh, goi y theo trinh do va lo trinh ca nhan hoa." />
+    <meta name="keywords" content="luyen viet, luyen viet online, luyen chu dep, bai tap luyen viet, viet dung chinh ta" />
+    <link id="seo-canonical" rel="canonical" href="https://luyenviet.online/" />
+    <link id="seo-alternate-vi" rel="alternate" href="https://luyenviet.online/" hreflang="vi-VN" />
+    <link id="seo-alternate-default" rel="alternate" href="https://luyenviet.online/" hreflang="x-default" />
+    <link rel="manifest" href="/site.webmanifest" />
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="LuyenViet" />
-    <meta property="og:title" content="LuyenViet - Nen tang luyen tap tieng Viet" />
-    <meta property="og:description" content="LuyenViet giup ban luyen tap tieng Viet moi ngay voi bai tap thong minh va lo trinh hoc ca nhan hoa." />
-    <meta id="seo-og-url" property="og:url" content="/home" />
-    <meta id="seo-og-image" property="og:image" content="/src/assets/image/logo2.png" />
+    <meta property="og:title" content="LuyenViet - Nen tang luyen viet moi ngay" />
+    <meta property="og:description" content="LuyenViet giup ban luyen viet moi ngay voi bai tap thong minh va lo trinh ca nhan hoa." />
+    <meta id="seo-og-url" property="og:url" content="https://luyenviet.online/" />
+    <meta property="og:locale" content="vi_VN" />
+    <meta id="seo-og-image" property="og:image" content="https://luyenviet.online/og-image.svg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="LuyenViet - Luyen viet hieu qua moi ngay" />
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="LuyenViet - Nen tang luyen tap tieng Viet" />
-    <meta name="twitter:description" content="LuyenViet giup ban luyen tap tieng Viet moi ngay voi bai tap thong minh va lo trinh hoc ca nhan hoa." />
-    <meta id="seo-twitter-image" name="twitter:image" content="/src/assets/image/logo2.png" />
+    <meta name="twitter:title" content="LuyenViet - Nen tang luyen viet moi ngay" />
+    <meta name="twitter:description" content="LuyenViet giup ban luyen viet moi ngay voi bai tap thong minh va lo trinh ca nhan hoa." />
+    <meta id="seo-twitter-image" name="twitter:image" content="https://luyenviet.online/og-image.svg" />
+    <meta name="twitter:image:alt" content="LuyenViet - Luyen viet hieu qua moi ngay" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"/>
 
-    <title>LuyenViet | Luyen tap tieng Viet hieu qua moi ngay</title>
+    <title>LuyenViet | Nen tang luyen viet hieu qua moi ngay</title>
     <script id="seo-structured-data" type="application/ld+json">
       {
         "@context": "https://schema.org",
         "@type": "WebSite",
         "name": "LuyenViet",
-        "url": "/",
+        "url": "https://luyenviet.online/",
         "inLanguage": "vi-VN",
-        "description": "LuyenViet giup ban luyen tap tieng Viet moi ngay voi bai tap thong minh va lo trinh hoc ca nhan hoa."
+        "description": "LuyenViet giup ban luyen viet moi ngay voi bai tap thong minh va lo trinh ca nhan hoa."
+      }
+    </script>
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        "name": "LuyenViet",
+        "url": "https://luyenviet.online/",
+        "logo": "https://luyenviet.online/og-image.svg"
       }
     </script>
     <script>
@@ -45,12 +60,12 @@
             window.__ENV__.VITE_SITE_URL &&
             String(window.__ENV__.VITE_SITE_URL).trim()) ||
           "";
-        var origin = runtimeSiteUrl || window.location.origin || "";
+        var origin = runtimeSiteUrl || "https://luyenviet.online";
         var normalizedOrigin = origin.replace(/\/+$/, "");
         var homeUrl = normalizedOrigin ? normalizedOrigin + "/" : "/";
         var imageUrl = normalizedOrigin
-          ? normalizedOrigin + "/src/assets/image/logo2.png"
-          : "/src/assets/image/logo2.png";
+          ? normalizedOrigin + "/og-image.svg"
+          : "https://luyenviet.online/og-image.svg";
 
         var canonicalEl = document.getElementById("seo-canonical");
         var alternateViEl = document.getElementById("seo-alternate-vi");
@@ -75,7 +90,7 @@
             url: homeUrl,
             inLanguage: "vi-VN",
             description:
-              "LuyenViet giup ban luyen tap tieng Viet moi ngay voi bai tap thong minh va lo trinh hoc ca nhan hoa.",
+              "LuyenViet giup ban luyen viet moi ngay voi bai tap thong minh va lo trinh ca nhan hoa.",
           });
         }
       })();

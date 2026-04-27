@@ -8,6 +8,7 @@ import type { PracticeWord } from "../shared/types";
 type TypeWordModeProps = {
   word: PracticeWord;
   canKnowThis: boolean;
+  speechLanguage: string;
   speakOnRender: boolean;
   speakOnCheck: boolean;
   onStillLearning: () => void;
@@ -17,6 +18,7 @@ type TypeWordModeProps = {
 export function TypeWordMode({
   word,
   canKnowThis,
+  speechLanguage,
   speakOnRender,
   speakOnCheck,
   onStillLearning,
@@ -122,7 +124,7 @@ export function TypeWordMode({
     if (typeof window === "undefined" || !("speechSynthesis" in window) || !word.text.trim()) return;
     window.speechSynthesis.cancel();
     const utterance = new SpeechSynthesisUtterance(word.text);
-    utterance.lang = "en-US";
+    utterance.lang = speechLanguage;
     utterance.rate = 0.95;
     window.speechSynthesis.speak(utterance);
   };

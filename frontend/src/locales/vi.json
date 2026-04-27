@@ -731,7 +731,7 @@
     }
   },
   "deck": {
-    "managementTitle": "Quản lý bộ từ vựng",
+    "managementTitle": "Bộ từ vựng",
     "managementSubtitle": "Xây dựng lộ trình ôn tập theo từng chủ đề của bạn.",
     "createDeck": "Tạo",
     "searchDeckPlaceholder": "Tìm kiếm bộ từ vựng của bạn...",
@@ -739,7 +739,7 @@
     "emptyDecks": "Chưa có bộ từ vựng phù hợp. Hãy tạo bộ mới để bắt đầu.",
     "deckLanguage": "Ngôn ngữ",
     "cards": "{{count}} thẻ",
-    "reviewNow": "Ôn ngay",
+    "review": "Ôn tập",
     "editDeckAria": "Chỉnh sửa bộ từ vựng",
     "deleteDeckAria": "Xóa bộ từ vựng",
     "deleteConfirmTitle": "Xóa bộ từ vựng?",
@@ -766,7 +766,7 @@
     "deleteWordFailed": "Không xóa được từ vựng",
     "wordUpdated": "Đã cập nhật từ vựng",
     "updateWordFailed": "Không cập nhật được từ vựng",
-    "noWordForPractice": "Không có từ vựng nào để luyện tập",
+    "noWordForReview": "Không có từ vựng nào để ôn tập",
     "deleteWordTitle": "Xóa từ vựng?",
     "deleteWordBody": "Bạn có chắc muốn xóa \"{{word}}\" khỏi bộ này?",
     "practiceModeTitle": "Chọn chế độ luyện tập",
@@ -807,7 +807,7 @@
       "flipHint": "Lật thẻ"
     },
     "typeWord": {
-      "completed": "Bạn đã thuộc hết từ trong mode Gõ từ!",
+      "completed": "Bạn đã thuộc hết từ trong bộ từ vựng này!",
       "placeholder": "Nhập từ bạn nghe được...",
       "hintButton": "Gợi ý ({{step}}/3)",
       "keyHint": "Gợi ý",

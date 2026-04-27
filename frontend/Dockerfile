@@ -5,9 +5,9 @@ WORKDIR /app
 
 ENV VITE_API_URL=/api
 ENV VITE_GOOGLE_CLIENT_ID=940316326175-8jma9br9b2j1cjgqu992v3a693euvr6c.apps.googleusercontent.com
-ENV VITE_GOOGLE_REDIRECT_URI=https://luyenviet.io.vn/oauth/authenticate
+ENV VITE_GOOGLE_REDIRECT_URI=https://luyenviet.online/oauth/authenticate
 ENV VITE_GOOGLE_AUTH_URI=https://accounts.google.com/o/oauth2/v2/auth
-ENV VITE_SITE_URL=https://luyenviet.io.vn
+ENV VITE_SITE_URL=https://luyenviet.online
 
 COPY package*.json ./
 RUN npm ci

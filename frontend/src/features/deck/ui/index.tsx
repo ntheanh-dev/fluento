@@ -322,7 +322,7 @@ function DeckCard({
                             onReview();
                         }}
                     >
-                        {t("deck.reviewNow")}
+                        {t("deck.review")}
                     </Button>
 
                     <button

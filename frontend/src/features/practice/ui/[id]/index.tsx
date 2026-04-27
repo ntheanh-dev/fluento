@@ -478,12 +478,13 @@ const SentencePracticePage = () => {
                   onClick={handleGetAnswerPreview}
                   className="inline-flex items-center gap-2 rounded-lg border-0 bg-blue-600 px-4 py-1.5 font-bold text-white shadow-sm transition-colors hover:bg-blue-700 disabled:opacity-30 disabled:cursor-not-allowed sm:px-5 sm:py-2 sm:text-sm md:px-6 text-xs"
                 >
+                  {t("practice.session.check")}
+
                   {isLoadingAnswerPreview ? (
                     <Loader2 size={16} className="size-4 shrink-0 animate-spin" />
                   ) : (
                     <Check size={16} className="size-4 shrink-0" />
                   )}
-                  {t("practice.session.check")}
                 </button>
                 {feedback && (
                   <button
@@ -496,12 +497,13 @@ const SentencePracticePage = () => {
                     onClick={handleNextSentence}
                     className="inline-flex items-center gap-2 rounded-lg border-0 bg-blue-600 px-4 py-1.5 font-bold text-white shadow-sm transition-colors hover:bg-blue-700 disabled:opacity-30 disabled:cursor-not-allowed sm:px-5 sm:py-2 sm:text-sm md:px-6 text-xs"
                   >
+                    {t("practice.session.next")}
+
                     {isLoadingSubmitUserSentence ? (
                       <Loader2 size={16} className="size-4 shrink-0 animate-spin" />
                     ) : (
                       <ArrowRight size={16} className="size-4 shrink-0" />
                     )}
-                    {t("practice.session.next")}
                   </button>
                 )}
 

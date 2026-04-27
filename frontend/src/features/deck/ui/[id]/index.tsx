@@ -96,7 +96,7 @@ export default function DeckDetailPage() {
         : pagedWords;
 
     if (selectedWords.length === 0) {
-      message.warning(t("deck.noWordForPractice"));
+      message.warning(t("deck.noWordForReview"));
       return;
     }
 
@@ -198,7 +198,7 @@ export default function DeckDetailPage() {
         </div>
         <div className="flex items-center gap-2">
           <Button type="primary" onClick={openPracticeConfirm}>
-            {t("deck.practice")}
+            {t("deck.review")}
           </Button>
         </div>
       </div>

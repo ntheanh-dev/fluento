@@ -9,6 +9,7 @@ type FlashcardModeProps = {
   canKnowThis: boolean;
   onStillLearning: () => void;
   onKnowThis: () => void;
+  speechLanguage: string;
   initialFace?: "front" | "back";
   speakOnFlip?: boolean;
 };
@@ -18,6 +19,7 @@ export function FlashcardMode({
   canKnowThis,
   onStillLearning,
   onKnowThis,
+  speechLanguage,
   initialFace = "front",
   speakOnFlip = false,
 }: FlashcardModeProps) {
@@ -46,21 +48,20 @@ export function FlashcardMode({
   }, []);
 
   const handleSpeakCurrent = useCallback(() => {
-    // Keep behavior aligned with setting: only speak front side.
     if (!isFlipped) {
-      speakText(word.text, "en-US");
+      speakText(word.text, speechLanguage);
     }
-  }, [isFlipped, speakText, word.text]);
+  }, [isFlipped, speechLanguage, speakText, word.text]);
 
   const handleFlipCard = useCallback(() => {
     const nextIsFlipped = !isFlipped;
     setIsFlipped(nextIsFlipped);
     if (speakOnFlip) {
       if (!nextIsFlipped) {
-        speakText(word.text, "en-US");
+        speakText(word.text, speechLanguage);
       }
     }
-  }, [isFlipped, speakOnFlip, speakText, word.text]);
+  }, [isFlipped, speechLanguage, speakOnFlip, speakText, word.text]);
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
@@ -103,7 +104,7 @@ export function FlashcardMode({
       <button
         type="button"
         onClick={handleFlipCard}
-        className="relative flex min-h-0 flex-1 [perspective:1200px]"
+        className="relative flex min-h-0 flex-1 [perspective:1200px] outline-none focus:outline-none focus-visible:outline-none"
       >
         <div
           className={`relative h-full w-full rounded-2xl transition-transform duration-500 [transform-style:preserve-3d] sm:rounded-3xl ${isFlipped ? "[transform:rotateY(180deg)]" : ""

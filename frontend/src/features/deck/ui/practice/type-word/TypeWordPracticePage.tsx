@@ -69,6 +69,7 @@ export default function TypeWordPracticePage() {
 
   const currentWord = typeWordQueue[0];
   const progressPercent = Math.round((knownCount / Math.max(words.length, 1)) * 100);
+  const speakLanguage = state?.targetLanguage === "ZH" ? "zh-CN" : state?.targetLanguage === "KO" ? "ko-KR" : "en-US";
 
   return (
     <div className="mx-auto flex h-[calc(100vh-84px)] max-w-6xl min-h-0 flex-col gap-3 overflow-hidden px-4 py-3 sm:px-6 lg:px-8">
@@ -149,6 +150,7 @@ export default function TypeWordPracticePage() {
         {currentWord ? (
           <TypeWordMode
             word={currentWord}
+            speechLanguage={speakLanguage}
             speakOnRender={speakOnRender}
             speakOnCheck={speakOnCheck}
             canKnowThis={typeWordQueue.length > 0}
@@ -156,8 +158,11 @@ export default function TypeWordPracticePage() {
             onKnowThis={handleKnowThis}
           />
         ) : (
-          <div className="mx-auto flex h-full w-full max-w-5xl flex-1 items-center justify-center rounded-3xl border border-slate-200 bg-white p-8 dark:border-slate-700 dark:bg-slate-900">
+          <div className="mx-auto flex h-full w-full max-w-4xl flex-1 flex-col items-center justify-center gap-4 rounded-3xl border border-slate-200 bg-white p-8 dark:border-slate-700 dark:bg-slate-900">
             <p className="text-2xl font-semibold text-[#198de6]">{t("deck.typeWord.completed")}</p>
+            <Button type="primary" onClick={() => navigate("/decks")}>
+              {t("deck.practiceCommon.backToDecks")}
+            </Button>
           </div>
         )}
       </div>

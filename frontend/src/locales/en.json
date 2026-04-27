@@ -731,7 +731,7 @@
     }
   },
   "deck": {
-    "managementTitle": "Deck management",
+    "managementTitle": "Deck",
     "managementSubtitle": "Build your own review journey by topics.",
     "createDeck": "Create",
     "searchDeckPlaceholder": "Search your decks...",
@@ -739,7 +739,7 @@
     "emptyDecks": "No matching decks yet. Create your first one to get started.",
     "deckLanguage": "Language",
     "cards": "{{count}} cards",
-    "reviewNow": "Review now",
+    "review": "Review",
     "editDeckAria": "Edit deck",
     "deleteDeckAria": "Delete deck",
     "deleteConfirmTitle": "Delete this deck?",
@@ -766,7 +766,7 @@
     "deleteWordFailed": "Could not delete word",
     "wordUpdated": "Word updated",
     "updateWordFailed": "Could not update word",
-    "noWordForPractice": "No words available for practice",
+    "noWordForReview": "No words available for review",
     "deleteWordTitle": "Delete this word?",
     "deleteWordBody": "Are you sure you want to remove \"{{word}}\" from this deck?",
     "practiceModeTitle": "Choose practice mode",
@@ -807,7 +807,7 @@
       "flipHint": "Flip"
     },
     "typeWord": {
-      "completed": "You have mastered all words in Type Word mode!",
+      "completed": "You have mastered all words in this deck!",
       "placeholder": "Type the word here...",
       "hintButton": "Hint ({{step}}/3)",
       "keyHint": "Hint",
