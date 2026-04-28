@@ -78,7 +78,7 @@ public class SocialService {
                         .username(userInfo.getEmail())
                         .fullName(fullName)
                         .urlAvatar(userInfo.getPicture())
-                        .credits(0)
+                        .credits(30)
                         .coins(0)
                         .createdAt(LocalDateTime.now())
                         .currentStreak(0)
