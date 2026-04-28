@@ -21,10 +21,16 @@ type SubscriptionPlanTabProps = {
   localeNum: string;
 };
 
-export function SubscriptionPlanTab({ coins, localeNum }: SubscriptionPlanTabProps) {
+export function SubscriptionPlanTab({
+  coins,
+  localeNum,
+}: SubscriptionPlanTabProps) {
   const { t } = useTranslation();
-  const { mutate: runCoinExchange, isPending: isExchanging, variables: exchangingCoins } =
-    useExchangeCoins();
+  const {
+    mutate: runCoinExchange,
+    isPending: isExchanging,
+    variables: exchangingCoins,
+  } = useExchangeCoins();
 
   return (
     <div className="space-y-8">
@@ -87,12 +93,16 @@ export function SubscriptionPlanTab({ coins, localeNum }: SubscriptionPlanTabPro
                   </p>
                   <p className="flex items-center gap-1.5 text-base font-bold text-slate-900 dark:text-slate-50">
                     {t("profile.subscriptionPage.pro.name")}
-                    <Crown size={16} className="shrink-0 text-amber-500 dark:text-amber-400" strokeWidth={2} />
+                    <Crown
+                      size={16}
+                      className="shrink-0 text-amber-500 dark:text-amber-400"
+                      strokeWidth={2}
+                    />
                   </p>
                 </div>
                 <p className="max-w-[min(100%,11rem)] text-right text-xs font-bold leading-tight tabular-nums text-violet-700 dark:text-violet-300 sm:text-sm">
                   {t("profile.subscriptionPage.proSubscriptionPrice", {
-                    price: formatVnd(PRO_PRICE_VND),
+                    price: `???.000`,
                   })}
                 </p>
               </div>
@@ -111,7 +121,11 @@ export function SubscriptionPlanTab({ coins, localeNum }: SubscriptionPlanTabPro
               <p className="mb-3 line-clamp-2 flex-1 text-xs leading-snug text-slate-600 dark:text-slate-400">
                 {t("profile.subscriptionPage.pro.desc")}
               </p>
-              <Button disabled type="default" className="mt-auto h-9 w-full rounded-lg text-sm font-semibold">
+              <Button
+                disabled
+                type="default"
+                className="mt-auto h-9 w-full rounded-lg text-sm font-semibold"
+              >
                 {t("profile.subscriptionPage.emptyStateHint")}
               </Button>
             </div>
@@ -149,10 +163,11 @@ export function SubscriptionPlanTab({ coins, localeNum }: SubscriptionPlanTabPro
             return (
               <div
                 key={pack.coins}
-                className={`relative flex flex-col rounded-xl border p-4 transition-all ${highlight
-                  ? "border-amber-400 bg-white/95 shadow-md shadow-amber-900/10 ring-2 ring-amber-300/60 dark:border-amber-500 dark:bg-slate-900/95 dark:ring-amber-600/40"
-                  : "border-amber-200/90 bg-white/80 hover:border-amber-300 hover:shadow-md dark:border-amber-900/50 dark:bg-slate-900/70 dark:hover:border-amber-700"
-                  }`}
+                className={`relative flex flex-col rounded-xl border p-4 transition-all ${
+                  highlight
+                    ? "border-amber-400 bg-white/95 shadow-md shadow-amber-900/10 ring-2 ring-amber-300/60 dark:border-amber-500 dark:bg-slate-900/95 dark:ring-amber-600/40"
+                    : "border-amber-200/90 bg-white/80 hover:border-amber-300 hover:shadow-md dark:border-amber-900/50 dark:bg-slate-900/70 dark:hover:border-amber-700"
+                }`}
               >
                 {highlight && (
                   <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-gradient-to-r from-amber-600 to-orange-600 px-3 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white shadow-md">
@@ -181,7 +196,9 @@ export function SubscriptionPlanTab({ coins, localeNum }: SubscriptionPlanTabPro
                 </div>
                 <div className="mt-3 w-full">
                   {!canAfford ? (
-                    <Tooltip title={t("profile.subscriptionPage.insufficientCoins")}>
+                    <Tooltip
+                      title={t("profile.subscriptionPage.insufficientCoins")}
+                    >
                       <span className="block w-full">
                         <Button block disabled className={exchangeBtnClass}>
                           {t("profile.subscriptionPage.exchangeNow")}
