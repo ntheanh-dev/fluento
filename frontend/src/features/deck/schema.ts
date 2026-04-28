@@ -93,10 +93,10 @@ export const DECK_ICONS: Record<string, ComponentType<{ className?: string }>> =
   education: GraduationCap,
 };
 
-export const LANGUAGE_FLAG: Record<VocabularyTargetLanguage, string> = {
-  EN: "🇺🇸",
-  ZH: "🇨🇳",
-  KO: "🇰🇷",
+export const LANGUAGE_COUNTRY_CODE: Record<VocabularyTargetLanguage, "US" | "CN" | "KR"> = {
+  EN: "US",
+  ZH: "CN",
+  KO: "KR",
 };
 
 export const DECK_HEADER_STYLES = [

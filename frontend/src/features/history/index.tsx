@@ -3,7 +3,6 @@ import {
     Type,
     FileText,
     Search,
-    CheckCircle,
     BarChart2,
     ArrowRight,
     History,
@@ -12,7 +11,7 @@ import {
     Filter,
     X,
 } from "lucide-react";
-import { Link, useSearchParams } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { Pagination, Input, Select, Button, Drawer } from "antd";
 import { motion } from "motion/react";
 import { useQuery } from "@tanstack/react-query";
@@ -24,7 +23,8 @@ import { useDebounce } from "@/shared/hooks/useDebounce";
 import { useTranslation } from "react-i18next";
 import type { TFunction } from "i18next";
 import type { TargetLanguage } from "@/shared/constants/target-language";
-import { TARGET_LANGUAGE_FLAG } from "@/shared/constants/target-language";
+import { FlagIcon, getTargetLanguageCountryCode } from "@/shared/utilities/flag";
+import { Globe2 } from "lucide-react";
 import { CollapsibleChecklistSection } from "@/shared/components/CollapsibleChecklistSection";
 import { AppSpinner } from "@/shared/components/AppSpinner";
 
@@ -141,6 +141,7 @@ function parsePage(value: string | null): number {
 
 const PracticeHistory = () => {
     const { t, i18n } = useTranslation();
+    const navigate = useNavigate();
     const [searchParams, setSearchParams] = useSearchParams();
 
     const viewMode = (searchParams.get(VIEW) === "single" ? "single" : "paragraph") as "single" | "paragraph";
@@ -277,15 +278,21 @@ const PracticeHistory = () => {
             <CollapsibleChecklistSection
                 title={t("history.language")}
                 items={[
-                    { value: "", label: t("common.all"), flag: "🌐" },
-                    { value: "EN", label: t("history.targetLanguage.EN"), flag: "🇺🇸" },
-                    { value: "ZH", label: t("history.targetLanguage.ZH"), flag: "🇨🇳" },
-                    { value: "KO", label: t("history.targetLanguage.KO"), flag: "🇰🇷" },
+                    { value: "", label: t("common.all"), countryCode: null },
+                    { value: "EN", label: t("history.targetLanguage.EN"), countryCode: "US" as const },
+                    { value: "ZH", label: t("history.targetLanguage.ZH"), countryCode: "CN" as const },
+                    { value: "KO", label: t("history.targetLanguage.KO"), countryCode: "KR" as const },
                 ].map((item) => ({
                     key: item.value || "all",
                     label: (
                         <span className="inline-flex items-center gap-2">
-                            <span>{item.flag}</span>
+                            <span>
+                                {item.countryCode ? (
+                                    <FlagIcon countryCode={item.countryCode} className="h-3.5 w-5 rounded-[2px]" />
+                                ) : (
+                                    <Globe2 className="h-3.5 w-3.5 text-slate-500" />
+                                )}
+                            </span>
                             <span>{item.label}</span>
                         </span>
                     ),
@@ -513,16 +520,29 @@ const PracticeHistory = () => {
                                     const vietnamese = paragraphSentences.join(" ").replace("\\n", " ");
                                     const english = item.sentenceAnswers?.[0]?.userTranslation?.replace("\\n", " ") ?? "";
                                     const targetTextLabel = targetLanguageLabel(item.targetLanguage, t);
+                                    const targetCountryCode = getTargetLanguageCountryCode(item.targetLanguage ?? "EN");
                                     const score = item.score ?? (item.sentenceAnswers?.length ? item.sentenceAnswers.reduce((a, s) => a + (s.score ?? 0), 0) / item.sentenceAnswers.length : 0);
-                                    const corrections = item.sentenceAnswers?.filter((a) => a.feedback).length ?? 0;
+                                    const totalSentences = Math.max(paragraphSentences.length, 1);
+                                    const completedSentences = Math.min(item.sentenceAnswers?.length ?? 0, totalSentences);
+                                    const progressPercent = Math.round((completedSentences / totalSentences) * 100);
                                     const isFinished = paragraphSentences.length === item.sentenceAnswers?.length;
+                                    const practiceHref = isFinished ? `/practice/${item.id}/result` : `/practice/${item.id}`;
                                     return (
                                         <motion.div
                                             key={item.id}
                                             initial={{ opacity: 0, y: 20 }}
                                             animate={{ opacity: 1, y: 0 }}
                                             transition={{ duration: 0.1 }}
-                                            className="group bg-white dark:bg-slate-900/90 rounded-lg border border-slate-200 dark:border-slate-700 hover:border-[#198de6]/30 hover:shadow-md transition-all duration-300 overflow-hidden flex flex-col"
+                                            onClick={() => navigate(practiceHref)}
+                                            onKeyDown={(event) => {
+                                                if (event.key === "Enter" || event.key === " ") {
+                                                    event.preventDefault();
+                                                    navigate(practiceHref);
+                                                }
+                                            }}
+                                            role="link"
+                                            tabIndex={0}
+                                            className="group bg-white dark:bg-slate-900/90 rounded-lg border border-slate-200 dark:border-slate-700 hover:border-[#198de6]/30 hover:shadow-md transition-all duration-300 overflow-hidden flex flex-col cursor-pointer"
                                         >
                                             <div className="p-4 flex-1 flex flex-col">
                                                 <div className="flex justify-between items-start mb-3">
@@ -567,7 +587,7 @@ const PracticeHistory = () => {
                                                         <div className={isParagraph ? "" : "pl-2 border-l-2 border-[#198de6]/20"}>
                                                             <label className="text-[9px] font-bold text-slate-400 uppercase tracking-wider block mb-0.5">
                                                                 <span className="inline-flex items-center gap-1">
-                                                                    <span>🇻🇳</span>
+                                                                    <FlagIcon countryCode="VN" className="h-3 w-5 rounded-[2px]" />
                                                                     <span>{t("history.vietnamese")}</span>
                                                                 </span>
                                                             </label>
@@ -580,7 +600,7 @@ const PracticeHistory = () => {
                                                         <div className={isParagraph ? "" : "pl-2 border-l-2 border-purple-500/20"}>
                                                             <label className="text-[9px] font-bold text-slate-400 uppercase tracking-wider block mb-0.5">
                                                                 <span className="inline-flex items-center gap-1">
-                                                                    <span>{TARGET_LANGUAGE_FLAG[item.targetLanguage ?? "EN"]}</span>
+                                                                    <FlagIcon countryCode={targetCountryCode} className="h-3 w-5 rounded-[2px]" />
                                                                     <span>{targetTextLabel}</span>
                                                                 </span>
                                                             </label>
@@ -594,26 +614,31 @@ const PracticeHistory = () => {
                                                 </div>
                                             </div>
 
-                                            <div className="px-4 py-2 bg-slate-50 dark:bg-slate-950/50 border-t border-slate-100 dark:border-slate-800 flex justify-between items-center mt-auto">
-
+                                            <div className="px-4 py-2 bg-slate-50 dark:bg-slate-950/50 border-t border-slate-100 dark:border-slate-800 grid grid-cols-[auto_1fr_auto] items-center gap-3 mt-auto">
                                                 <div className="flex gap-3">
                                                     <span className="text-[10px] text-slate-400 flex items-center gap-1">
                                                         <Clock className="w-3 h-3" /> {formatLearningTime(item.learningTime)}
                                                     </span>
-                                                    <span className="text-[10px] text-slate-400 flex items-center gap-1">
-                                                        <CheckCircle className="w-3 h-3" /> {corrections || "0"}
-                                                    </span>
+
+                                                </div>
+                                                <div className="h-1.5 rounded-full bg-slate-200 dark:bg-slate-800 overflow-hidden">
+                                                    <div
+                                                        className="h-full rounded-full bg-[#198de6] transition-all duration-300"
+                                                        style={{ width: `${progressPercent}%` }}
+                                                    />
                                                 </div>
                                                 {isFinished ? (
                                                     <Link
-                                                        to={`/practice/${item.id}/result`}
+                                                        to={practiceHref}
+                                                        onClick={(event) => event.stopPropagation()}
                                                         className="text-[#198de6] text-[10px] font-bold uppercase hover:underline flex items-center gap-1"
                                                     >
                                                         {t("history.viewResult")}{" "}
                                                         <BarChart2 className="w-3 h-3" />
                                                     </Link>
                                                 ) : (<Link
-                                                    to={`/practice/${item.id}`}
+                                                    to={practiceHref}
+                                                    onClick={(event) => event.stopPropagation()}
                                                     className="text-[#198de6] text-[10px] font-bold uppercase hover:underline flex items-center gap-1"
                                                 >
                                                     {t("history.continuePractice")}{" "}

@@ -41,7 +41,7 @@ public class SecurityConfig {
         "/auth/outbound/authentication",
     };
     private final String[] PUBLIC_GET_ENDPOINTS = {
-        "/docs/**", "/swagger-ui/**", "/v3/api-docs/**", "/actuator/health", "/actuator/health/**", "/paragraphs/**",
+        "/docs/**", "/swagger-ui/**", "/v3/api-docs/**", "/actuator/health", "/actuator/health/**",
     };
 
     @Value("${app.cors.allowed-origins:*}")

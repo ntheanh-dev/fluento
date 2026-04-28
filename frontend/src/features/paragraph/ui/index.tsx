@@ -15,6 +15,7 @@ import { TARGET_LANGUAGE_ITEMS, type TargetLanguage } from "@/shared/constants/t
 import { CollapsibleChecklistSection } from "@/shared/components/CollapsibleChecklistSection";
 import Cookies from "js-cookie";
 import LoginWithGoogleModal from "@/features/auth/ui/LoginWithGoogleModal";
+import { FlagIcon } from "@/shared/utilities/flag";
 
 const DESKTOP_PAGE_SIZE = 9;
 const MOBILE_PAGE_SIZE = 6;
@@ -26,11 +27,11 @@ const SENTENCE_COUNT_LABEL: Record<string, string> = {
 };
 const DEFAULT_PARAGRAPH_TYPE = PRACTICE_TYPES[0]?.value;
 
-const TARGET_LANGUAGE_OPTIONS: Array<{ value: TargetLanguage; label: string; flag: string }> =
+const TARGET_LANGUAGE_OPTIONS: Array<{ value: TargetLanguage; label: string; countryCode: "US" | "CN" | "KR" }> =
   TARGET_LANGUAGE_ITEMS.map((item) => ({
     value: item.value,
     label: `${item.name} (${item.value})`,
-    flag: item.flag,
+    countryCode: item.countryCode,
   }));
 
 
@@ -161,7 +162,7 @@ const ParagraphLibraryPage = () => {
           key: item.value,
           label: (
             <span className="inline-flex items-center gap-2">
-              <span>{item.flag}</span>
+              <FlagIcon countryCode={item.countryCode} className="h-3.5 w-5 rounded-[2px]" />
               <span>{item.label}</span>
             </span>
           ),
@@ -346,8 +347,12 @@ const ParagraphLibraryPage = () => {
                             {t("paragraphLibrary.card.sentenceCount", { count: item.sentences?.length ?? 0 })}
                           </span>
 
-                          <span className="text-lg">
-                            {TARGET_LANGUAGE_ITEMS.find((item) => item.value === targetLanguage)?.flag}
+                          <span>
+                            {(() => {
+                              const selectedLanguage = TARGET_LANGUAGE_ITEMS.find((item) => item.value === targetLanguage);
+                              if (!selectedLanguage) return null;
+                              return <FlagIcon countryCode={selectedLanguage.countryCode} className="h-4 w-6 rounded-[2px]" />;
+                            })()}
                           </span>
                         </div>
                       </div>

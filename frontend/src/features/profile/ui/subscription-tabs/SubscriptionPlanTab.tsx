@@ -6,15 +6,10 @@ import {
   COIN_EXCHANGE_PACKS,
   FREE_CREDITS_PER_DAY,
   PRO_CREDITS_PER_DAY,
-  PRO_PRICE_VND,
 } from "../../constant";
 import { SUBSCRIPTION_ANCHOR } from "../../subscriptionAnchors";
 import { useExchangeCoins } from "@/features/credits/useExchangeCoins";
 import { showApiError } from "@/shared/api/showApiError";
-
-function formatVnd(n: number) {
-  return `${n.toLocaleString("vi-VN")}đ`;
-}
 
 type SubscriptionPlanTabProps = {
   coins: number;
@@ -163,11 +158,10 @@ export function SubscriptionPlanTab({
             return (
               <div
                 key={pack.coins}
-                className={`relative flex flex-col rounded-xl border p-4 transition-all ${
-                  highlight
+                className={`relative flex flex-col rounded-xl border p-4 transition-all ${highlight
                     ? "border-amber-400 bg-white/95 shadow-md shadow-amber-900/10 ring-2 ring-amber-300/60 dark:border-amber-500 dark:bg-slate-900/95 dark:ring-amber-600/40"
                     : "border-amber-200/90 bg-white/80 hover:border-amber-300 hover:shadow-md dark:border-amber-900/50 dark:bg-slate-900/70 dark:hover:border-amber-700"
-                }`}
+                  }`}
               >
                 {highlight && (
                   <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-gradient-to-r from-amber-600 to-orange-600 px-3 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white shadow-md">

@@ -24,7 +24,7 @@ import { useTranslation } from "react-i18next";
 import { subscriptionHref } from "@/features/profile/subscriptionAnchors";
 import coinRewardAudioSrc from "@/assets/audio/chieuk-coin-257878.mp3";
 import type { TargetLanguage } from "@/shared/constants/target-language";
-import { TARGET_LANGUAGE_FLAG } from "@/shared/constants/target-language";
+import { FlagIcon, getTargetLanguageCountryCode } from "@/shared/utilities/flag";
 import { upperFirstCharactor } from "@/shared/utilities";
 import type { RenderAsideType } from "../../schema";
 
@@ -292,7 +292,7 @@ const SentencePracticePage = () => {
   const targetLanguage: TargetLanguage = (data?.targetLanguage ?? "EN") as TargetLanguage;
   const targetLanguageLabel =
     targetLanguage === "ZH" ? "Chinese" : targetLanguage === "KO" ? "Korean" : "English";
-  const targetLanguageFlag = TARGET_LANGUAGE_FLAG[targetLanguage];
+  const targetCountryCode = getTargetLanguageCountryCode(targetLanguage);
   const translationPlaceholder = t("practice.session.placeholderWithTarget", { language: targetLanguageLabel });
 
   if (!idValid || practiceNotFound) {
@@ -314,7 +314,7 @@ const SentencePracticePage = () => {
             </div>
           )}
           <div className="flex flex-row items-center gap-1.5 sm:gap-4">
-            {data?.paragraph.type === "DIARIES" && (
+            {(data?.paragraph.type === "DIARIES" || data?.paragraph.type === "SINGLE_SENTENCE") && (
               <div className="hidden lg:flex flex-row items-center gap-1.5 sm:gap-4">
                 <div className="flex flex-col items-start">
                   <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">{t("practice.result.topic")}</span>
@@ -323,14 +323,14 @@ const SentencePracticePage = () => {
               </div>
             )}
 
-            {data?.paragraph.type === "DIARIES" && (
+            {(data?.paragraph.type === "DIARIES" || data?.paragraph.type === "SINGLE_SENTENCE") && (
               <div className="hidden lg:block h-8 w-px shrink-0 bg-slate-100 dark:bg-slate-700"></div>
             )}
             {data && (
               <div className="flex flex-col items-start">
                 <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">{t("history.language")}</span>
                 <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-700 dark:text-slate-200">
-                  <span>{targetLanguageFlag}</span>
+                  <FlagIcon countryCode={targetCountryCode} className="h-3 w-5 rounded-[2px]" />
                   <span>{targetLanguageLabel}</span>
                 </span>
               </div>

@@ -4,6 +4,7 @@ import {
     Menu,
     User,
     BookOpen,
+    FileText,
     History,
     Trophy,
     LibraryBig,
@@ -12,6 +13,7 @@ import {
     Languages,
     Moon,
     Sun,
+    Type,
 } from "lucide-react";
 import Sidebar from "./Sidebar";
 import { useProfile, useProfileStore } from "@/stores/profile";
@@ -78,8 +80,8 @@ const Layout = () => {
     };
     const practiceMenuItems = useMemo<MenuProps["items"]>(
         () => [
-            { key: "paragraph", label: t("practice.setup.modeParagraphCardTitle") },
-            { key: "single-sentence", label: t("practice.setup.modeSentenceCardTitle") },
+            { key: "paragraph", label: t("practice.setup.modeParagraphCardTitle"), icon: <FileText size={16} /> },
+            { key: "single-sentence", label: t("practice.setup.modeSentenceCardTitle"), icon: <Type size={16} /> },
         ],
         [t],
     );
@@ -107,7 +109,7 @@ const Layout = () => {
         [t, i18n.language],
     );
 
-    const handleUserMenuClick: MenuProps["onClick"] = async ({ key }) => {
+    const handleUserMenuClick: MenuProps["onClick"] = ({ key }) => {
         if (key === "profile") {
             navigate("/profile");
             return;
@@ -119,8 +121,13 @@ const Layout = () => {
         }
 
         if (key === "logout") {
-            await logout(Cookies.get("accessToken") || "");
-            navigate("/");
+            const accessToken = Cookies.get("accessToken") || "";
+            Cookies.remove("accessToken");
+            setProfile(null);
+            navigate("/", { replace: true });
+            void logout(accessToken).catch(() => {
+                // Ignore logout API failures because user already signed out locally.
+            });
         }
     };
 

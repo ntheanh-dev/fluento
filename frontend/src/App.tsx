@@ -99,6 +99,7 @@ function App() {
                   <Route path="practice/:id/result" element={<ResultScreen />} />
                   <Route path="practice/:id/result/detail" element={<ResultDetailScreen />} />
                   <Route path="history" element={<History />} />
+                  <Route path="paragraphs" element={<ParagraphLibraryPage />} />
                   <Route path="decks" element={<DeckManagement />} />
                   <Route path="decks/:id" element={<DeckDetail />} />
                   <Route path="decks/practice/:mode" element={<DeckPracticeModePage />} />
@@ -140,7 +141,6 @@ function App() {
                 <Route path="/oauth/authenticate" element={<Authenticate />} />
                 <Route path="/" element={<Layout />}>
                   <Route index element={<LandingPage />} />
-                  <Route path="paragraphs" element={<ParagraphLibraryPage />} />
                 </Route>
               </Routes>
             </Suspense>

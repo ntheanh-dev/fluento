@@ -21,6 +21,7 @@ import { useTranslation } from "react-i18next";
 import { TARGET_LANGUAGE_ITEMS, type TargetLanguage } from "@/shared/constants/target-language";
 import { CollapsibleChecklistSection } from "@/shared/components/CollapsibleChecklistSection";
 import { AppSpinner } from "@/shared/components/AppSpinner";
+import { FlagIcon } from "@/shared/utilities/flag";
 
 const panelClassName =
   "rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900/90";
@@ -108,7 +109,7 @@ const SingleSentenceSetup = () => {
             key: item.value,
             label: (
               <span className="inline-flex items-center gap-2">
-                <span>{item.flag}</span>
+                <FlagIcon countryCode={item.countryCode} className="h-3.5 w-5 rounded-[2px]" />
                 <span>{item.name} ({item.value})</span>
               </span>
             ),

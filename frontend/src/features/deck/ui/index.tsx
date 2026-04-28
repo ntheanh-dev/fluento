@@ -16,7 +16,7 @@ import {
     DECK_PRACTICE_ROUTE_MODE,
     DECK_HEADER_STYLES,
     DECK_ICONS,
-    LANGUAGE_FLAG,
+    LANGUAGE_COUNTRY_CODE,
     type DeckPracticeMode,
     type DeckPracticePageState,
     type DeckItem,
@@ -27,6 +27,7 @@ import { useTranslation } from "react-i18next";
 import { CreateDeckForm } from "@/features/deck/ui/CreateDeckForm";
 import { EditDeckForm } from "@/features/deck/ui/EditDeckForm";
 import { PracticeConfirmModal } from "@/features/deck/ui/[id]/PracticeConfirmModal";
+import { FlagIcon } from "@/shared/utilities/flag";
 
 export default function DeckManagementPage() {
     const { t } = useTranslation();
@@ -189,9 +190,33 @@ export default function DeckManagementPage() {
                     onChange={setTargetLanguage}
                     className="min-w-[150px]"
                     options={[
-                        { value: "EN", label: `🇺🇸 ${t("history.targetLanguage.EN")}` },
-                        { value: "ZH", label: `🇨🇳 ${t("history.targetLanguage.ZH")}` },
-                        { value: "KO", label: `🇰🇷 ${t("history.targetLanguage.KO")}` },
+                        {
+                            value: "EN",
+                            label: (
+                                <span className="inline-flex items-center gap-2">
+                                    <FlagIcon countryCode="US" className="h-3.5 w-5 rounded-[2px]" />
+                                    <span>{t("history.targetLanguage.EN")}</span>
+                                </span>
+                            ),
+                        },
+                        {
+                            value: "ZH",
+                            label: (
+                                <span className="inline-flex items-center gap-2">
+                                    <FlagIcon countryCode="CN" className="h-3.5 w-5 rounded-[2px]" />
+                                    <span>{t("history.targetLanguage.ZH")}</span>
+                                </span>
+                            ),
+                        },
+                        {
+                            value: "KO",
+                            label: (
+                                <span className="inline-flex items-center gap-2">
+                                    <FlagIcon countryCode="KR" className="h-3.5 w-5 rounded-[2px]" />
+                                    <span>{t("history.targetLanguage.KO")}</span>
+                                </span>
+                            ),
+                        },
                     ]}
                 />
             </div>
@@ -307,7 +332,7 @@ function DeckCard({
                     <div className="text-right flex flex-row justify-end items-center gap-1">
                         <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-400">{t("deck.deckLanguage")}</p>
                         <p className="text-[10px] font-bold text-slate-800 dark:text-slate-100">
-                            {LANGUAGE_FLAG[deck.targetLanguage]}
+                            <FlagIcon countryCode={LANGUAGE_COUNTRY_CODE[deck.targetLanguage]} className="h-3 w-5 rounded-[2px]" />
                         </p>
                     </div>
                 </div>

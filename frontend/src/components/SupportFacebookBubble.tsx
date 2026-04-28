@@ -1,9 +1,16 @@
 import { useTranslation } from "react-i18next";
+import { useLocation } from "react-router-dom";
 import { getSupportFacebookUrl } from "@/shared/config/runtime-env";
 
 export function SupportFacebookBubble() {
     const { t } = useTranslation();
+    const location = useLocation();
     const href = getSupportFacebookUrl() || "https://www.facebook.com/share/1EWSTCPa5N/?mibextid=wwXIfr";
+    const isLandingPage = location.pathname === "/";
+
+    if (isLandingPage) {
+        return null;
+    }
 
     return (
         <a

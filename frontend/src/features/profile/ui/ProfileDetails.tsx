@@ -7,6 +7,7 @@ import { PROFILE_EMBED_PRACTICESTATS, useProfileData } from "../query";
 import { useTranslation } from "react-i18next";
 import type { AppLanguage } from "@/i18n";
 import { useTheme, type ThemeMode } from "@/app/providers/ThemeProvider";
+import { FlagIcon } from "@/shared/utilities/flag";
 
 export function ProfileDetailsSection() {
   const { t, i18n } = useTranslation();
@@ -110,8 +111,24 @@ export function ProfileDetailsSection() {
               onChange={(lng) => void i18n.changeLanguage(lng)}
               className="w-full font-medium"
               options={[
-                { value: "vi", label: "🇻🇳 Vietnamese" },
-                { value: "en", label: "🇺🇸 English" },
+                {
+                  value: "vi",
+                  label: (
+                    <span className="inline-flex items-center gap-2">
+                      <FlagIcon countryCode="VN" className="h-3.5 w-5 rounded-[2px]" />
+                      <span>Vietnamese</span>
+                    </span>
+                  ),
+                },
+                {
+                  value: "en",
+                  label: (
+                    <span className="inline-flex items-center gap-2">
+                      <FlagIcon countryCode="US" className="h-3.5 w-5 rounded-[2px]" />
+                      <span>English</span>
+                    </span>
+                  ),
+                },
               ]}
             />
           </div>

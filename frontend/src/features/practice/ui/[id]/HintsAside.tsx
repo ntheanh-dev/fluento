@@ -369,6 +369,7 @@ export const VocabularyHintsAside = ({
     }, [decks, savedVocabulary]);
 
     if (!vocabularyHints) return null;
+    const isStreamingVocabularyInProgress = isStreamingVocabularyHints;
     let streamedRowCursor = 0;
     return (
         <>
@@ -422,11 +423,6 @@ export const VocabularyHintsAside = ({
                 >
                     {hintsTab === "vocabulary" && (
                         <div className="space-y-2">
-                            {isStreamingVocabularyHints && (vocabularyHints?.length ?? 0) === 0 && (
-                                <div className="flex items-center justify-center rounded-lg border border-dashed border-slate-200/90 px-2 py-2 text-[11px] text-slate-500 dark:border-slate-700 dark:text-slate-400">
-                                    <Loader2 className="size-3.5 animate-spin" aria-hidden />
-                                </div>
-                            )}
                             {vocabularyHints.slice(0, visibleVocabularyCount).map((hint, index) => (
                                 <div className="group pb-2 last:pb-0" key={`${hint.sourceText}-${index}`}>
                                     <div className="flex items-center gap-2 mb-2">
@@ -466,6 +462,16 @@ export const VocabularyHintsAside = ({
                                     </motion.ul>
                                 </div>
                             ))}
+                            {isStreamingVocabularyInProgress && (
+                                <div className="mt-1 flex items-center justify-center px-2 py-2 text-[11px] text-slate-500 dark:text-slate-400">
+                                    <span className="sr-only">Loading hints</span>
+                                    <div className="flex items-end gap-1" aria-hidden>
+                                        <span className="h-1.5 w-1.5 rounded-full bg-slate-400 dark:bg-slate-500 animate-bounce [animation-delay:0ms]" />
+                                        <span className="h-1.5 w-1.5 rounded-full bg-slate-400 dark:bg-slate-500 animate-bounce [animation-delay:120ms]" />
+                                        <span className="h-1.5 w-1.5 rounded-full bg-slate-400 dark:bg-slate-500 animate-bounce [animation-delay:240ms]" />
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     )}
 
