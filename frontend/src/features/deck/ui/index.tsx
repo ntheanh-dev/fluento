@@ -87,7 +87,7 @@ export default function DeckManagementPage() {
             content: t("deck.deleteConfirmBody"),
             okText: t("admin.delete"),
             cancelText: t("practice.result.retryCancel"),
-            okButtonProps: { danger: true, loading: deleteDeckMutation.isPending && deleteDeckMutation.variables === deck.id },
+            okButtonProps: { loading: deleteDeckMutation.isPending && deleteDeckMutation.variables === deck.id },
             transitionName: "",
             maskTransitionName: "",
             className:
@@ -170,7 +170,6 @@ export default function DeckManagementPage() {
                 </div>
                 <Button
                     type="primary"
-                    icon={<Plus className="h-4 w-4" />}
                     onClick={() => setIsCreateModalOpen(true)}
                 >
                     {t("common.create")}
@@ -368,7 +367,7 @@ function DeckCard({
                             event.stopPropagation();
                             onDelete();
                         }}
-                        className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-red-100 text-red-400 transition hover:bg-red-50 hover:text-red-600 dark:border-red-900/40 dark:hover:bg-red-950/40 dark:hover:text-red-300"
+                        className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200 text-slate-400 transition hover:bg-slate-100 hover:text-slate-600 dark:border-slate-700 dark:hover:bg-slate-800 dark:hover:text-slate-200"
                         aria-label={t("deck.deleteDeckAria")}
                     >
                         <Trash2 className="h-4 w-4" />

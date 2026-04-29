@@ -172,14 +172,12 @@ const ParagraphsTab = () => {
             </Button>
             <Button
               size="small"
-              danger
               loading={deleteParagraphMutation.isPending}
               onClick={(e) => {
                 e.stopPropagation();
                 confirm({
                   title: t("admin.paragraphs.confirmDeleteTitle"),
                   icon: <ExclamationCircleFilled />,
-                  okType: "danger",
                   onOk: () => deleteParagraphMutation.mutate(record.id),
                 });
               }}
@@ -202,7 +200,6 @@ const ParagraphsTab = () => {
               {t("admin.paragraphs.createButton")}
             </Button>
             <Button
-              danger
               disabled={selectedRowKeys.length === 0}
               loading={deleteSelectedParagraphsMutation.isPending}
               onClick={() => {
@@ -211,7 +208,6 @@ const ParagraphsTab = () => {
                 confirm({
                   title: `Delete ${ids.length} selected paragraph(s)?`,
                   icon: <ExclamationCircleFilled />,
-                  okType: "danger",
                   onOk: () => deleteSelectedParagraphsMutation.mutate(ids),
                 });
               }}

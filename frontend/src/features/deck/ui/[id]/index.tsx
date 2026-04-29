@@ -64,7 +64,7 @@ export default function DeckDetailPage() {
       content: t("deck.deleteWordBody", { word: record.text }),
       okText: t("admin.delete"),
       cancelText: t("practice.result.retryCancel"),
-      okButtonProps: { danger: true },
+      okButtonProps: {},
       transitionName: "",
       maskTransitionName: "",
       className:

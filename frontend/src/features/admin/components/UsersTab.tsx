@@ -163,13 +163,11 @@ const UsersTab = () => {
               </Button>
               <Button
                 size="small"
-                danger
                 onClick={() =>
                   confirm({
                     title: t("admin.users.confirmDeleteTitle"),
                     icon: <ExclamationCircleFilled />,
                     content: t("admin.users.confirmDeleteContent", { username: record.username }),
-                    okType: "danger",
                     onOk: () => deleteUserMutation.mutate(record.id),
                   })
                 }

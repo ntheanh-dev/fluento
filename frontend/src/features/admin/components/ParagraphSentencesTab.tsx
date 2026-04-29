@@ -122,13 +122,11 @@ const ParagraphSentencesTab = () => {
             </Button>
             <Button
               size="small"
-              danger
               onClick={(e) => {
                 e.stopPropagation();
                 confirm({
                   title: t("admin.paragraphSentences.confirmDeleteSentence"),
                   icon: <ExclamationCircleFilled />,
-                  okType: "danger",
                   onOk: () => deleteSentenceMutation.mutate(record.id),
                 });
               }}

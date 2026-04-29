@@ -19,11 +19,20 @@
   scrollbar-width: none;  /* Firefox */
 }
 
-/* Ensure body and html don't have default margins/padding */
-html, body {
+/* Keep the app locked to viewport width on mobile */
+html, body, #root {
   margin: 0;
   padding: 0;
-  overflow-x: hidden;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: clip;
+}
+
+/* Fallback for browsers that do not fully support overflow-x: clip */
+@supports not (overflow: clip) {
+  html, body, #root {
+    overflow-x: hidden;
+  }
 }
 
 html.dark body {
@@ -34,6 +43,14 @@ html.dark body {
 /* Prevent horizontal scroll on all elements */
 * {
   box-sizing: border-box;
+}
+
+/* Prevent media from pushing layout wider than viewport */
+img,
+svg,
+video,
+canvas {
+  max-width: 100%;
 }
 
 /* Ensure smooth scrolling behavior */
