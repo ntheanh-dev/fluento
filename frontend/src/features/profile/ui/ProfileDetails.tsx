@@ -60,7 +60,7 @@ export function ProfileDetailsSection() {
               className="font-medium rounded-lg"
             />
           </div>
-          <div className="flex gap-2 items-end">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-end">
             <div className="flex-1">
               <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">
                 {t("profile.fullName")}

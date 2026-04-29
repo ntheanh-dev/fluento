@@ -305,7 +305,7 @@ const Rankings: React.FC = () => {
                 )}
                 <div className="min-w-0">
                   <p className="text-[11px] uppercase tracking-wide text-slate-500 dark:text-slate-400">
-                    {t("ranking.colLearner")}
+                    {t("ranking.yourRank")}
                   </p>
                   <p className="font-semibold text-slate-900 dark:text-slate-100 truncate">
                     {myRanking.fullName || t("ranking.anonymous")}

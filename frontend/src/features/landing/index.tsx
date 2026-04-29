@@ -1,15 +1,22 @@
-import { Target, FileText, CheckCircle, ArrowDown, Languages, Check } from "lucide-react";
+import { Target, FileText, CheckCircle, ArrowDown, ArrowUp, Languages, Check } from "lucide-react";
 import { motion } from "motion/react";
 import home from "../../assets/image/home.png";
 import useAppVideo from "../../assets/video/use-app.mp4";
 import { useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
 import { useTranslation, Trans } from "react-i18next";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { getCoverImage } from "@/shared/constants/practice-covers";
 import { FlagIcon, type FlagCountryCode } from "@/shared/utilities/flag";
 import LoginWithGoogleModal from "@/features/auth/ui/LoginWithGoogleModal";
 import { getRuntimeEnv } from "@/shared/config/runtime-env";
+
+const sectionRevealProps = {
+  initial: { opacity: 0, y: 28 },
+  whileInView: { opacity: 1, y: 0 },
+  viewport: { once: true, amount: 0.2 },
+  transition: { duration: 0.55, ease: "easeOut" as const },
+};
 
 const Hero = () => {
   const { t } = useTranslation();
@@ -22,8 +29,16 @@ const Hero = () => {
       navigate("/login");
     }
   };
+
+  const handleScrollToIntro = () => {
+    document.getElementById("use-app-showcase")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
   return (
-    <section className="relative overflow-hidden pt-16 pb-20 lg:pt-24 lg:pb-32 bg-white dark:bg-slate-950">
+    <motion.section
+      className="relative overflow-hidden pt-16 pb-20 lg:pt-24 lg:pb-32 bg-white dark:bg-slate-950"
+      {...sectionRevealProps}
+    >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           <div className="flex flex-col gap-8">
@@ -49,6 +64,7 @@ const Hero = () => {
               </motion.button>
               <button
                 type="button"
+                onClick={handleScrollToIntro}
                 className="px-8 py-4 bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-100 font-bold rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors text-lg font-display"
               >
                 {t("landing.ctaIntro")}
@@ -71,14 +87,14 @@ const Hero = () => {
           </div>
         </div>
       </div>
-    </section>
+    </motion.section>
   );
 };
 
 const Features = () => {
   const { t } = useTranslation();
   return (
-    <section className="py-24 bg-[#f3f4f6] dark:bg-slate-950" id="features">
+    <motion.section className="py-24 bg-[#f3f4f6] dark:bg-slate-950" id="features" {...sectionRevealProps}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center max-w-3xl mx-auto mb-16 space-y-4">
           <h2 className="text-3xl font-bold tracking-tight sm:text-4xl font-display text-slate-900 dark:text-slate-100">
@@ -120,7 +136,7 @@ const Features = () => {
           </motion.div>
         </div>
       </div>
-    </section>
+    </motion.section>
   );
 };
 
@@ -132,7 +148,7 @@ const UseAppShowcase = () => {
   );
 
   return (
-    <section className="bg-slate-50 py-20 dark:bg-slate-950">
+    <motion.section id="use-app-showcase" className="bg-slate-50 py-20 dark:bg-slate-950" {...sectionRevealProps}>
       <div className="mx-auto grid max-w-7xl gap-10 px-4 sm:px-6 lg:grid-cols-[1.15fr_1fr] lg:items-center lg:px-8">
         <div className="relative">
           <div className="overflow-hidden rounded-2xl border border-slate-300 bg-white shadow-2xl dark:border-slate-700 dark:bg-slate-900">
@@ -183,7 +199,7 @@ const UseAppShowcase = () => {
           <p className="text-sm text-slate-500 dark:text-slate-400">{t("landing.useAppCaption")}</p>
         </div>
       </div>
-    </section>
+    </motion.section>
   );
 };
 
@@ -202,7 +218,7 @@ const MultilingualSpotlight = () => {
   const bullets = useMemo(() => [t("landing.multiBullet1"), t("landing.multiBullet2")], [t]);
 
   return (
-    <section className="py-24 bg-white dark:bg-slate-950">
+    <motion.section className="py-24 bg-white dark:bg-slate-950" {...sectionRevealProps}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid gap-10 lg:grid-cols-[1.05fr_1fr] lg:items-center">
 
@@ -245,7 +261,7 @@ const MultilingualSpotlight = () => {
 
         </div>
       </div>
-    </section>
+    </motion.section>
   );
 };
 
@@ -260,7 +276,7 @@ const AIFeedback = () => {
     [t],
   );
   return (
-    <section className="py-24 bg-white dark:bg-slate-950 overflow-hidden">
+    <motion.section className="py-24 bg-white dark:bg-slate-950 overflow-hidden" {...sectionRevealProps}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="bg-slate-900 rounded-3xl p-8 lg:p-16 flex flex-col lg:flex-row items-center gap-12 relative">
           <div className="flex-1 space-y-6 z-10">
@@ -322,7 +338,7 @@ const AIFeedback = () => {
           </div>
         </div>
       </div>
-    </section>
+    </motion.section>
   );
 };
 
@@ -339,7 +355,7 @@ const HowItWorks = () => {
   );
 
   return (
-    <section className="py-24 bg-[#f6f7f8] dark:bg-slate-950">
+    <motion.section className="py-24 bg-[#f6f7f8] dark:bg-slate-950" {...sectionRevealProps}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-20">
           <h2 className="text-3xl font-bold tracking-tight mb-4 font-display text-slate-900 dark:text-slate-100">
@@ -369,7 +385,7 @@ const HowItWorks = () => {
           ))}
         </div>
       </div>
-    </section>
+    </motion.section>
   );
 };
 
@@ -881,7 +897,7 @@ const LandingParagraphSections = () => {
   );
 
   return (
-    <section className="py-20 bg-[#f6f7f8] dark:bg-slate-950">
+    <motion.section className="py-20 bg-[#f6f7f8] dark:bg-slate-950" {...sectionRevealProps}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
         {paragraphSections.map((section) => (
           <div key={section.key}>
@@ -961,7 +977,57 @@ const LandingParagraphSections = () => {
         ))}
       </div>
       <LoginWithGoogleModal open={isLoginModalOpen} onCancel={() => setIsLoginModalOpen(false)} />
-    </section>
+    </motion.section>
+  );
+};
+
+const ScrollToTopBubble = () => {
+  const [isVisible, setIsVisible] = useState(false);
+  const scrollElementRef = useRef<HTMLElement | null>(null);
+
+  useEffect(() => {
+    const detectScrollElement = () =>
+      (document.querySelector("main.flex-1.overflow-y-auto") as HTMLElement | null) ?? null;
+
+    scrollElementRef.current = detectScrollElement();
+
+    const handleScroll = () => {
+      const currentScrollTop =
+        scrollElementRef.current?.scrollTop ?? window.scrollY ?? document.documentElement.scrollTop ?? 0;
+      setIsVisible(currentScrollTop > 320);
+    };
+
+    handleScroll();
+    const scrollTarget = scrollElementRef.current ?? window;
+    scrollTarget.addEventListener("scroll", handleScroll, { passive: true });
+    return () => scrollTarget.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  const handleScrollTop = () => {
+    if (scrollElementRef.current) {
+      scrollElementRef.current.scrollTo({ top: 0, behavior: "smooth" });
+      return;
+    }
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  return (
+    <motion.button
+      type="button"
+      aria-label="Scroll to top"
+      onClick={handleScrollTop}
+      initial={false}
+      animate={{
+        opacity: isVisible ? 1 : 0,
+        y: isVisible ? 0 : 12,
+        scale: isVisible ? 1 : 0.96,
+      }}
+      transition={{ duration: 0.2, ease: "easeOut" }}
+      className="fixed right-5 bottom-5 z-50 inline-flex size-12 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-700 shadow-xl shadow-slate-300/60 transition-colors hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#137fec]/50 disabled:pointer-events-none dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 dark:shadow-black/40 dark:hover:bg-slate-700"
+      disabled={!isVisible}
+    >
+      <ArrowUp className="size-5" />
+    </motion.button>
   );
 };
 
@@ -1080,6 +1146,7 @@ export default function LandingPage() {
         <AIFeedback />
         <HowItWorks />
       </main>
+      <ScrollToTopBubble />
       <footer className="border-t border-slate-200 px-4 py-6 text-center text-sm text-slate-500 dark:border-slate-700 dark:text-slate-400 sm:px-6 lg:px-8">
         {t("profile.subscriptionPage.footer.copyright", {
           year: new Date().getFullYear(),

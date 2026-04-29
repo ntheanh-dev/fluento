@@ -576,6 +576,7 @@
     "colSentences": "Số câu",
     "colTime": "Tổng thời gian",
     "colStreak": "Chuỗi ngày",
+    "yourRank": "Xếp hạng của bạn",
     "learnerCount": "{{count}} người học"
   },
   "apiKeys": {

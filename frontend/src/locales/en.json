@@ -576,6 +576,7 @@
     "colSentences": "Sentences",
     "colTime": "Total time",
     "colStreak": "Day streak",
+    "yourRank": "Your rank",
     "learnerCount": "{{count}} learners"
   },
   "apiKeys": {
