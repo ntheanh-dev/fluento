@@ -94,6 +94,7 @@ export function DeckPickerModal({
   return (
     <Modal
       open={open}
+      closable={false}
       centered
       title={modalTitle}
       onCancel={mode === "create" && !createOnly

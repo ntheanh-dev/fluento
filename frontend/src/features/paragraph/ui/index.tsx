@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Button, Drawer, Grid, message, Pagination, Select, Spin } from "antd";
+import { Button, Drawer, Grid, message, Modal, Pagination, Select } from "antd";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import {
@@ -16,6 +16,7 @@ import { CollapsibleChecklistSection } from "@/shared/components/CollapsibleChec
 import Cookies from "js-cookie";
 import LoginWithGoogleModal from "@/features/auth/ui/LoginWithGoogleModal";
 import { FlagIcon } from "@/shared/utilities/flag";
+import { AppSpinner } from "@/shared/components/AppSpinner";
 
 const DESKTOP_PAGE_SIZE = 9;
 const MOBILE_PAGE_SIZE = 6;
@@ -62,7 +63,8 @@ const ParagraphLibraryPage = () => {
   });
   const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
-  const [targetLanguage, setTargetLanguage] = useState<TargetLanguage>("EN");
+  const [isLanguageDialogOpen, setIsLanguageDialogOpen] = useState(false);
+  const [pendingParagraphId, setPendingParagraphId] = useState<number | null>(null);
   const screens = Grid.useBreakpoint();
   const pageSize = screens.md ? DESKTOP_PAGE_SIZE : MOBILE_PAGE_SIZE;
 
@@ -135,19 +137,29 @@ const ParagraphLibraryPage = () => {
   }, [type, tone, topic, level, sentenceCount, sort, page, pageSize, searchParams, setSearchParams]);
 
   const { mutateAsync: createUserPractice, isPending } = useCreateUserPracticeMutation();
+  const isInitialLoading = isLoading && !data;
 
-  const handlePractice = async (paragraphId: number) => {
+  const handlePractice = (paragraphId: number) => {
     const isAuthenticated = Cookies.get("accessToken") !== undefined;
     if (!isAuthenticated) {
       setIsLoginModalOpen(true);
       return;
     }
 
+    setPendingParagraphId(paragraphId);
+    setIsLanguageDialogOpen(true);
+  };
+
+  const handleStartPracticeWithLanguage = async (language: TargetLanguage) => {
+    if (pendingParagraphId === null) return;
+
     try {
       const data = await createUserPractice({
-        paragraphId,
-        targetLanguage,
+        paragraphId: pendingParagraphId,
+        targetLanguage: language,
       });
+      setIsLanguageDialogOpen(false);
+      setPendingParagraphId(null);
       navigate(`/practice/${data.id}`);
     } catch (error) {
       message.error(error as string);
@@ -156,23 +168,6 @@ const ParagraphLibraryPage = () => {
 
   const filterPanel = (
     <div className="space-y-5">
-      <CollapsibleChecklistSection
-        title={t("paragraphLibrary.filters.language")}
-        items={TARGET_LANGUAGE_OPTIONS.map((item) => ({
-          key: item.value,
-          label: (
-            <span className="inline-flex items-center gap-2">
-              <FlagIcon countryCode={item.countryCode} className="h-3.5 w-5 rounded-[2px]" />
-              <span>{item.label}</span>
-            </span>
-          ),
-          selected: targetLanguage === item.value,
-          onClick: () => setTargetLanguage(item.value),
-        }))}
-      />
-
-      <div className="h-px bg-slate-200 dark:bg-slate-700" />
-
       <CollapsibleChecklistSection
         title={`${t("paragraphLibrary.filters.type")} (${PRACTICE_TYPES.length})`}
         items={PRACTICE_TYPES.map((item) => ({
@@ -272,7 +267,6 @@ const ParagraphLibraryPage = () => {
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-6 md:px-6 md:py-8">
-      <Spin spinning={isPending}></Spin>
       <div className="grid grid-cols-1 xl:grid-cols-[280px_1fr] gap-5">
         <aside className="hidden xl:block bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-700 rounded-2xl p-5 h-fit shadow-sm space-y-5">
           <div className="flex items-center gap-2 text-slate-900 dark:text-slate-100">
@@ -306,8 +300,15 @@ const ParagraphLibraryPage = () => {
             </div>
           </div>
 
-          <Spin spinning={isLoading || isFetching}>
-            {data?.content?.length ? (
+          {isInitialLoading ? (
+            <AppSpinner className="min-h-[45vh] py-0" />
+          ) : data?.content?.length ? (
+            <>
+              {isFetching && (
+                <div className="flex justify-center py-2">
+                  <AppSpinner size="small" className="py-0" />
+                </div>
+              )}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {data.content.map((item) => {
                   const preview =
@@ -341,18 +342,10 @@ const ParagraphLibraryPage = () => {
                         <p className="text-sm text-slate-600 dark:text-slate-300 mt-2 line-clamp-3 min-h-[60px]">
                           {preview}
                         </p>
-                        <div className="mt-4 flex items-center justify-between gap-2 text-xs text-slate-500 dark:text-slate-400">
+                        <div className="mt-4 flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
                           <span className="inline-flex items-center gap-1">
                             <ListChecks className="w-3.5 h-3.5" />
                             {t("paragraphLibrary.card.sentenceCount", { count: item.sentences?.length ?? 0 })}
-                          </span>
-
-                          <span>
-                            {(() => {
-                              const selectedLanguage = TARGET_LANGUAGE_ITEMS.find((item) => item.value === targetLanguage);
-                              if (!selectedLanguage) return null;
-                              return <FlagIcon countryCode={selectedLanguage.countryCode} className="h-4 w-6 rounded-[2px]" />;
-                            })()}
                           </span>
                         </div>
                       </div>
@@ -361,12 +354,12 @@ const ParagraphLibraryPage = () => {
                   );
                 })}
               </div>
-            ) : (
+            </>
+          ) : (
               <div className="rounded-2xl border border-dashed border-slate-300 dark:border-slate-700 p-10 text-center text-slate-500">
                 {t("paragraphLibrary.empty")}
               </div>
             )}
-          </Spin>
 
           <div className="flex justify-end pt-2">
             <Pagination
@@ -389,6 +382,62 @@ const ParagraphLibraryPage = () => {
       >
         {filterPanel}
       </Drawer>
+      <Modal
+        title={
+          <div className="text-center">
+            <h3 className="text-[30px] font-semibold leading-tight text-slate-900 dark:text-slate-100">Select Practice Language</h3>
+          </div>
+        }
+        open={isLanguageDialogOpen}
+        onCancel={() => {
+          setIsLanguageDialogOpen(false);
+          setPendingParagraphId(null);
+        }}
+        centered
+        width={520}
+        style={{
+          borderRadius: 16,
+          boxShadow: "0 16px 36px rgba(15, 23, 42, 0.18)",
+          background: "linear-gradient(180deg, #ffffff 0%, #f8fafc 100%)",
+        }}
+        footer={null}
+        wrapClassName="practice-language-modal"
+        styles={{
+          header: {
+            background: "transparent",
+            paddingBottom: 8,
+          },
+          body: {
+            paddingTop: 4,
+          },
+          footer: {
+            borderTop: "none",
+            paddingTop: 8,
+          },
+        }}
+      >
+        <p className="mb-5 text-center text-base text-slate-500 dark:text-slate-400">
+          Choose your target language before starting practice.
+        </p>
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+          {TARGET_LANGUAGE_OPTIONS.map((item) => {
+            return (
+              <button
+                key={item.value}
+                type="button"
+                disabled={isPending}
+                onClick={() => handleStartPracticeWithLanguage(item.value)}
+                className="relative flex min-h-[98px] flex-col items-center justify-center gap-2 rounded-xl bg-white px-3 py-3 text-center text-slate-700 transition-all hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60 dark:bg-slate-800 dark:text-slate-200"
+              >
+                <FlagIcon countryCode={item.countryCode} className="h-5 w-7 rounded-[2px]" />
+                <div className="flex flex-col">
+                  <span className="text-base font-semibold leading-none">{item.label}</span>
+                </div>
+              </button>
+            );
+          })}
+        </div>
+      </Modal>
       <LoginWithGoogleModal open={isLoginModalOpen} onCancel={() => setIsLoginModalOpen(false)} />
     </div>
   );

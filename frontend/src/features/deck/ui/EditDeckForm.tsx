@@ -55,6 +55,7 @@ export function EditDeckForm({
   return (
     <Modal
       open={open}
+      closable={false}
       centered
       title={t("deck.editModalTitle")}
       onCancel={onClose}

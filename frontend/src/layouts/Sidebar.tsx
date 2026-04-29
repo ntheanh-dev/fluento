@@ -3,6 +3,8 @@ import { useState } from "react";
 import {
   LayoutDashboard,
   BookOpen,
+  FileText,
+  Pencil,
   History,
   Trophy,
   LibraryBig,
@@ -25,20 +27,27 @@ const SidebarItem = ({
   label,
   to,
   active,
+  compact = false,
 }: {
   icon: React.ComponentType<{ size?: number; strokeWidth?: number }>;
   label: string;
   to: string;
   active: boolean;
+  compact?: boolean;
 }) => (
   <Link
     to={to}
-    className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 ${active
-        ? "bg-blue-600 text-white shadow-md shadow-blue-200 dark:shadow-blue-900/40"
+    className={`flex items-center transition-all duration-200 ${
+      compact ? "gap-2.5 px-3 py-2 rounded-lg text-sm" : "gap-3 px-4 py-3 rounded-xl"
+    } ${
+      active
+        ? compact
+          ? "bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300"
+          : "bg-blue-600 text-white shadow-md shadow-blue-200 dark:shadow-blue-900/40"
         : "text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-100"
-      }`}
+    }`}
   >
-    <Icon size={20} strokeWidth={active ? 2.5 : 2} />
+    <Icon size={compact ? 18 : 20} strokeWidth={active ? 2.3 : 2} />
     <span className="font-medium">{label}</span>
   </Link>
 );
@@ -84,7 +93,7 @@ const Sidebar = ({
         )}
       </div>
 
-      <nav className="flex-1 px-4 space-y-2 mt-4 overflow-y-auto">
+      <nav className="flex-1 px-4 space-y-2 mt-2 overflow-y-auto">
         <SidebarItem
           icon={LayoutDashboard}
           label={t("nav.dashboard")}
@@ -110,18 +119,20 @@ const Sidebar = ({
             />
           </button>
           {isPracticeExpanded && (
-            <div className="ml-3 pl-3 border-l border-slate-200 dark:border-slate-700 space-y-1">
+            <div className="ml-4 mt-1 pl-3 border-l border-slate-200/80 dark:border-slate-700/80 space-y-1.5">
               <SidebarItem
-                icon={BookOpen}
+                icon={FileText}
                 label={t("practice.setup.modeParagraphCardTitle")}
                 to="/paragraphs"
                 active={activePath.startsWith("/paragraphs")}
+                compact
               />
               <SidebarItem
-                icon={BookOpen}
+                icon={Pencil}
                 label={t("practice.setup.modeSentenceCardTitle")}
                 to="/practice/single-sentence"
                 active={activePath.startsWith("/practice/single-sentence")}
+                compact
               />
             </div>
           )}

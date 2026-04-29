@@ -51,6 +51,7 @@ export function CreateDeckForm({
   return (
     <Modal
       open={open}
+      closable={false}
       centered
       title={t("deck.createModalTitle")}
       onCancel={onClose}

@@ -1,6 +1,6 @@
 import { useMemo, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Grid, message } from "antd";
+import { Grid, message, Modal } from "antd";
 import { Link, useNavigate } from "react-router-dom";
 import { ChevronLeft, ChevronRight, Loader2, PauseCircle } from "lucide-react";
 import { useTranslation } from "react-i18next";
@@ -12,6 +12,8 @@ import { useCreateUserPracticeMutation } from "@/features/paragraph/mutation";
 import type { ParagraphItem } from "@/features/paragraph/schema";
 import type { UserPractice } from "@/entities/userPractice/schema";
 import type { TargetLanguage } from "@/shared/constants/target-language";
+import { TARGET_LANGUAGE_ITEMS } from "@/shared/constants/target-language";
+import { FlagIcon } from "@/shared/utilities/flag";
 
 type SliderCard = {
     id: string;
@@ -73,15 +75,19 @@ function Home() {
     const sliderRef = useRef<HTMLDivElement | null>(null);
     const [activeSlide, setActiveSlide] = useState(0);
     const [startingParagraphId, setStartingParagraphId] = useState<number | null>(null);
+    const [isLanguageDialogOpen, setIsLanguageDialogOpen] = useState(false);
+    const [pendingParagraphId, setPendingParagraphId] = useState<number | null>(null);
     const { mutateAsync: createUserPractice } = useCreateUserPracticeMutation();
 
-    const handleStartParagraph = async (paragraphId: number) => {
+    const handleStartParagraph = async (paragraphId: number, language: TargetLanguage) => {
         setStartingParagraphId(paragraphId);
         try {
             const data = await createUserPractice({
                 paragraphId,
-                targetLanguage,
+                targetLanguage: language,
             });
+            setIsLanguageDialogOpen(false);
+            setPendingParagraphId(null);
             navigate(`/practice/${data.id}`);
         } catch (error) {
             message.error(error as string);
@@ -90,19 +96,29 @@ function Home() {
         }
     };
 
+    const handleOpenLanguageModal = (paragraphId: number) => {
+        setPendingParagraphId(paragraphId);
+        setIsLanguageDialogOpen(true);
+    };
+
+    const handlePickLanguage = (language: TargetLanguage) => {
+        if (pendingParagraphId === null) return;
+        void handleStartParagraph(pendingParagraphId, language);
+    };
+
     const { data: paragraphData } = useParagraphs({
         sort: "most_practiced",
         page: 0,
         size: 16,
     });
-    const { data: ieltsTask1Data } = useParagraphs({
-        type: "IELTS_TASK1",
+    const { data: storyData } = useParagraphs({
+        type: "STORY",
         sort: "desc",
         page: 0,
         size: 4,
     });
-    const { data: ieltsTask2Data } = useParagraphs({
-        type: "IELTS_TASK2",
+    const { data: essaysData } = useParagraphs({
+        type: "ESSAYS",
         sort: "desc",
         page: 0,
         size: 4,
@@ -132,14 +148,14 @@ function Home() {
     const paragraphSections = useMemo(() => {
         return [
             {
-                key: "IELTS_TASK1",
-                title: t("home.sections.ieltsTask1"),
-                items: ieltsTask1Data?.content ?? [],
+                key: "STORY",
+                title: t("practice.type.STORY"),
+                items: storyData?.content ?? [],
             },
             {
-                key: "IELTS_TASK2",
-                title: t("home.sections.ieltsTask2"),
-                items: ieltsTask2Data?.content ?? [],
+                key: "ESSAYS",
+                title: t("practice.type.ESSAYS"),
+                items: essaysData?.content ?? [],
             },
             {
                 key: "EMAIL",
@@ -147,7 +163,7 @@ function Home() {
                 items: emailData?.content ?? [],
             },
         ];
-    }, [emailData?.content, ieltsTask1Data?.content, ieltsTask2Data?.content, t]);
+    }, [emailData?.content, essaysData?.content, storyData?.content, t]);
 
     const maxSlide = Math.max(sliderCards.length - 1, 0);
 
@@ -346,7 +362,7 @@ function Home() {
                                             </div>
                                             <button
                                                 type="button"
-                                                onClick={() => void handleStartParagraph(item.id)}
+                                                onClick={() => handleOpenLanguageModal(item.id)}
                                                 disabled={startingParagraphId === item.id}
                                                 aria-busy={startingParagraphId === item.id}
                                                 className="line-clamp-2 w-full text-left text-lg font-semibold leading-tight text-slate-900 transition hover:text-[#198de6] focus-visible:rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#198de6]/50 dark:text-slate-100 dark:hover:text-blue-300 disabled:cursor-wait disabled:opacity-70"
@@ -378,6 +394,56 @@ function Home() {
                     </div>
                 ))}
             </section>
+            <Modal
+                title={
+                    <div className="text-center">
+                        <h3 className="text-[30px] font-semibold leading-tight text-slate-900 dark:text-slate-100">Select Practice Language</h3>
+                    </div>
+                }
+                open={isLanguageDialogOpen}
+                onCancel={() => {
+                    setIsLanguageDialogOpen(false);
+                    setPendingParagraphId(null);
+                }}
+                centered
+                width={520}
+                style={{
+                    borderRadius: 16,
+                    boxShadow: "0 16px 36px rgba(15, 23, 42, 0.18)",
+                    background: "linear-gradient(180deg, #ffffff 0%, #f8fafc 100%)",
+                }}
+                footer={null}
+                styles={{
+                    header: {
+                        background: "transparent",
+                        paddingBottom: 8,
+                    },
+                    body: {
+                        paddingTop: 4,
+                    },
+                }}
+            >
+                <p className="mb-5 text-center text-base text-slate-500 dark:text-slate-400">
+                    Choose your target language before starting practice.
+                </p>
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+                    {TARGET_LANGUAGE_ITEMS.map((item) => (
+                        <button
+                            key={item.value}
+                            type="button"
+                            disabled={startingParagraphId !== null}
+                            onClick={() => handlePickLanguage(item.value as TargetLanguage)}
+                            className="relative flex min-h-[98px] flex-col items-center justify-center gap-2 rounded-xl bg-white px-3 py-3 text-center text-slate-700 transition-all hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60 dark:bg-slate-800 dark:text-slate-200"
+                        >
+                            <FlagIcon countryCode={item.countryCode} className="h-5 w-7 rounded-[2px]" />
+                            <div className="flex flex-col">
+                                <span className="text-base font-semibold leading-none">{item.name}</span>
+                                <span className="mt-1 text-xs tracking-wide text-slate-500 dark:text-slate-400">{item.value}</span>
+                            </div>
+                        </button>
+                    ))}
+                </div>
+            </Modal>
 
             <footer className="mt-12 border-t border-slate-200 pt-6 text-center text-sm text-slate-500 dark:border-slate-700 dark:text-slate-400">
                 {t("profile.subscriptionPage.footer.copyright", {

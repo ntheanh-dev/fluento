@@ -271,6 +271,7 @@ const ParagraphSentencesTab = () => {
 
       <Modal
         open={editOpen}
+        closable={false}
         title={t("admin.paragraphSentences.editContentModalTitle")}
         onCancel={() => setEditOpen(false)}
         destroyOnClose

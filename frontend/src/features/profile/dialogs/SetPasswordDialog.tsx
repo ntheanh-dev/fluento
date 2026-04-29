@@ -75,6 +75,7 @@ export default function SetPasswordDialog({ open, onClose, noPassword }: SetPass
             centered
             title={noPassword ? t("profile.dialogs.setPassword.titleCreate") : t("profile.dialogs.setPassword.titleChange")}
             open={open}
+            closable={false}
             onCancel={handleCancel}
             footer={null}
             destroyOnClose

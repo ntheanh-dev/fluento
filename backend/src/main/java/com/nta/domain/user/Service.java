@@ -26,6 +26,7 @@ import com.nta.domain.user.dto.response.CreditBalanceResponse;
 import com.nta.domain.user.dto.response.UserMeEmbeddedResponse;
 import com.nta.domain.user.dto.response.UserRankingResponse;
 import com.nta.domain.user.dto.response.UserResponse;
+import com.nta.domain.user.projection.CurrentUserRankingProjection;
 import com.nta.domain.user.projection.UserRankingProjection;
 
 import io.sentry.Sentry;
@@ -206,9 +207,9 @@ public class Service {
         return userResponse;
     }
 
-    public Page<UserRankingResponse> getRankings(int page, int size, String keyword) {
+    public Page<UserRankingResponse> getRankings(int page, int size) {
         PageRequest pageable = PageRequest.of(page, size);
-        Page<UserRankingProjection> rawPage = repository.findUserRankings(keyword, pageable);
+        Page<UserRankingProjection> rawPage = repository.findUserRankings(pageable);
 
         List<UserRankingResponse> content = new ArrayList<>();
         long startRank = (long) rawPage.getNumber() * rawPage.getSize() + 1;
@@ -228,5 +229,23 @@ public class Service {
         }
 
         return new PageImpl<>(content, rawPage.getPageable(), rawPage.getTotalElements());
+    }
+
+    public UserRankingResponse getCurrentUserRanking() {
+        Long userId = commonUserService.getCurrentUserIdFromContext();
+        CurrentUserRankingProjection ranking = repository.findCurrentUserRanking(userId);
+        if (ranking == null) {
+            throw new AppException(ErrorCode.USER_NOT_EXISTED);
+        }
+
+        return UserRankingResponse.builder()
+                .rank(ranking.getUserRank())
+                .fullName(ranking.getFullName())
+                .urlAvatar(ranking.getUrlAvatar())
+                .avgScore(ranking.getAvgScore())
+                .totalUserSentenceAnswers(ranking.getTotalUserSentenceAnswers())
+                .currentStreak(ranking.getCurrentStreak())
+                .totalLearningTime(ranking.getTotalLearningTime())
+                .build();
     }
 }

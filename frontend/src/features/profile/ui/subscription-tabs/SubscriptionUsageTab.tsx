@@ -4,6 +4,7 @@ import { ArrowDown, ArrowUp, ChevronsUpDown } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useSubscriptionUsage } from "../../query";
 import type { UsageSortDir, UsageSortField } from "../../api";
+import { AppSpinner } from "@/shared/components/AppSpinner";
 
 export function SubscriptionUsageTab() {
   const { t, i18n } = useTranslation();
@@ -38,7 +39,7 @@ export function SubscriptionUsageTab() {
   if (isLoading) {
     return (
       <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-slate-200 bg-slate-50/50 px-6 py-16 text-center dark:border-slate-700 dark:bg-slate-900/40">
-        <p className="text-sm text-slate-500 dark:text-slate-400">{t("profile.subscriptionPage.usage.loading")}</p>
+        <AppSpinner className="py-0" />
       </div>
     );
   }

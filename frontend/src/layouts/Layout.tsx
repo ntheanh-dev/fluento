@@ -13,7 +13,7 @@ import {
     Languages,
     Moon,
     Sun,
-    Type,
+    Pencil,
 } from "lucide-react";
 import Sidebar from "./Sidebar";
 import { useProfile, useProfileStore } from "@/stores/profile";
@@ -81,7 +81,7 @@ const Layout = () => {
     const practiceMenuItems = useMemo<MenuProps["items"]>(
         () => [
             { key: "paragraph", label: t("practice.setup.modeParagraphCardTitle"), icon: <FileText size={16} /> },
-            { key: "single-sentence", label: t("practice.setup.modeSentenceCardTitle"), icon: <Type size={16} /> },
+            { key: "single-sentence", label: t("practice.setup.modeSentenceCardTitle"), icon: <Pencil size={16} /> },
         ],
         [t],
     );

@@ -42,6 +42,7 @@ export function EditVocabularyFormModal({
   return (
     <Modal
       open={open}
+      closable={false}
       centered
       title={t("deck.vocabularyModal.title")}
       onCancel={onClose}

@@ -152,7 +152,7 @@ export function FlashcardMode({
         <div className="flex flex-col items-center">
           <Button
             size="large"
-            className="!h-11 !rounded-xl !border-2 !border-slate-400 !bg-white !px-4 !text-base !font-semibold !text-slate-800 dark:!border-slate-600 dark:!bg-slate-800 dark:!text-slate-100 sm:!h-14 sm:!rounded-2xl sm:!px-5 sm:!text-2xl"
+            className="!h-10 !min-w-[112px] !rounded-lg !border-2 !border-slate-400 !bg-white !px-4 !text-sm !font-semibold !text-slate-800 dark:!border-slate-600 dark:!bg-slate-800 dark:!text-slate-100 sm:!h-11 sm:!min-w-[136px] sm:!rounded-xl sm:!px-5 sm:!text-base lg:!h-12 lg:!min-w-[160px] lg:!rounded-2xl lg:!text-lg"
             onClick={onStillLearning}
           >
             <span className="inline-flex items-center gap-1.5 whitespace-nowrap sm:gap-2">
@@ -167,7 +167,7 @@ export function FlashcardMode({
           <Button
             type="primary"
             size="large"
-            className="!h-11 !rounded-xl !border-0 !bg-[#198de6] !px-4 !text-base !font-semibold sm:!h-14 sm:!rounded-2xl sm:!px-5 sm:!text-2xl"
+            className="!h-10 !min-w-[112px] !rounded-lg !border-0 !bg-[#198de6] !px-4 !text-sm !font-semibold sm:!h-11 sm:!min-w-[136px] sm:!rounded-xl sm:!px-5 sm:!text-base lg:!h-12 lg:!min-w-[160px] lg:!rounded-2xl lg:!text-lg"
             onClick={onKnowThis}
             disabled={!canKnowThis}
           >

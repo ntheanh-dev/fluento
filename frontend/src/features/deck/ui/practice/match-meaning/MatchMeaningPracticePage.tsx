@@ -88,6 +88,7 @@ export default function MatchMeaningPracticePage() {
 
       <Modal
         open={isExitWarningOpen}
+        closable={false}
         onCancel={() => setIsExitWarningOpen(false)}
         title={<span className="text-base font-bold text-slate-800 dark:text-slate-100">{t("deck.practiceCommon.exitTitle")}</span>}
         centered
@@ -101,7 +102,6 @@ export default function MatchMeaningPracticePage() {
           <Button
             key="confirm"
             type="primary"
-            danger
             onClick={() => {
               setIsExitWarningOpen(false);
               navigate(-1);

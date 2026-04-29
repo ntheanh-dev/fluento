@@ -235,6 +235,7 @@ export default function ResultScreen() {
 
             <Modal
                 open={confirmRetryOpen}
+                closable={false}
                 title={t('practice.result.retryTitle')}
                 centered
                 destroyOnClose

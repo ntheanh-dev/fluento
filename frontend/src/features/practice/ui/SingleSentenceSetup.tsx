@@ -2,7 +2,6 @@ import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Filter,
-  Rocket,
   Sparkles,
 } from "lucide-react";
 import {
@@ -16,7 +15,7 @@ import {
 } from "../constants";
 import { useCreateUserPracticeMutation } from "../mutation";
 import type { PracticeSetupInput, SingleSentenceMixOption } from "../schema";
-import { Button, Drawer, message, Select } from "antd";
+import { Button, Drawer, message, Modal, Select } from "antd";
 import { useTranslation } from "react-i18next";
 import { TARGET_LANGUAGE_ITEMS, type TargetLanguage } from "@/shared/constants/target-language";
 import { CollapsibleChecklistSection } from "@/shared/components/CollapsibleChecklistSection";
@@ -46,10 +45,10 @@ const SingleSentenceSetup = () => {
   );
 
   const { mutateAsync: createUserPractice, isPending } = useCreateUserPracticeMutation();
-  const [targetLanguage, setTargetLanguage] = useState<TargetLanguage>("EN");
   const [mobileSetupOpen, setMobileSetupOpen] = useState(false);
+  const [isLanguageDialogOpen, setIsLanguageDialogOpen] = useState(false);
 
-  const [topic, setTopic] = useState<string>("LIFE");
+  const [topic, setTopic] = useState<string | undefined>(undefined);
   const [tone, setTone] = useState<string>("FORMAL");
   const [level, setLevel] = useState<string>("B1");
   const [sentenceCount, setSentenceCount] = useState<string>("TEN");
@@ -57,9 +56,13 @@ const SingleSentenceSetup = () => {
     SINGLE_SENTENCE_MIX_VALUES.map((item) => item),
   );
 
-  const handleStart = async () => {
+  const handleStart = async (language: TargetLanguage) => {
     if (singleSentenceMix.length === 0) {
       message.warning("Please choose at least one mix option.");
+      return;
+    }
+    if (!topic) {
+      message.warning(t("practice.setup.topicSectionTitle"));
       return;
     }
 
@@ -70,8 +73,10 @@ const SingleSentenceSetup = () => {
       level,
       sentenceCount,
       singleSentenceMix,
-      targetLanguage,
+      targetLanguage: language,
     };
+
+    setIsLanguageDialogOpen(false);
 
     try {
       const { id } = await createUserPractice(payload);
@@ -94,97 +99,71 @@ const SingleSentenceSetup = () => {
 
   const setupPanel = (
     <div className="space-y-5">
-        <div>
-          <h1 className="text-xl font-bold text-slate-900 dark:text-slate-100">
-            {t("practice.setup.modeSentenceCardTitle")}
-          </h1>
-          <p className="mt-1.5 text-xs leading-relaxed text-slate-500 dark:text-slate-400">
-            {t("practice.setup.modeSentenceCardDesc")}
-          </p>
-        </div>
+      <div>
+        <h1 className="text-xl font-bold text-slate-900 dark:text-slate-100">
+          {t("practice.setup.modeSentenceCardTitle")}
+        </h1>
+        <p className="mt-1.5 text-xs leading-relaxed text-slate-500 dark:text-slate-400">
+          {t("practice.setup.modeSentenceCardDesc")}
+        </p>
+      </div>
 
-        <CollapsibleChecklistSection
-          title={t("paragraphLibrary.filters.language")}
-          items={TARGET_LANGUAGE_ITEMS.map((item) => ({
-            key: item.value,
-            label: (
-              <span className="inline-flex items-center gap-2">
-                <FlagIcon countryCode={item.countryCode} className="h-3.5 w-5 rounded-[2px]" />
-                <span>{item.name} ({item.value})</span>
-              </span>
-            ),
-            selected: targetLanguage === item.value,
-            onClick: () => setTargetLanguage(item.value as TargetLanguage),
+      <CollapsibleChecklistSection
+        title={t("paragraphLibrary.filters.level")}
+        items={LEVELS.map((item) => ({
+          key: item.value,
+          label: t(`practice.level.${item.value}`),
+          selected: level === item.value,
+          onClick: () => setLevel(item.value),
+        }))}
+      />
+
+      <div className="h-px bg-slate-200 dark:bg-slate-700" />
+
+      <section className="space-y-2.5">
+        <h3 className="text-slate-800 dark:text-slate-100 font-semibold uppercase tracking-wide text-xs">
+          {t("paragraphLibrary.filters.sentenceLength")}
+        </h3>
+        <Select
+          className="w-full"
+          value={sentenceCount}
+          onChange={(value) => setSentenceCount(value)}
+          options={SENTENCE_COUNTS.map((item) => ({
+            value: item.value,
+            label: `${SENTENCE_COUNT_NUMBER[item.value] ?? item.value}`,
           }))}
         />
+      </section>
 
-        <div className="h-px bg-slate-200 dark:bg-slate-700" />
+      <div className="h-px bg-slate-200 dark:bg-slate-700" />
 
-        <CollapsibleChecklistSection
-          title={t("paragraphLibrary.filters.level")}
-          items={LEVELS.map((item) => ({
-            key: item.value,
-            label: t(`practice.level.${item.value}`),
-            selected: level === item.value,
-            onClick: () => setLevel(item.value),
+      <section className="space-y-2.5">
+        <h3 className="text-slate-800 dark:text-slate-100 font-semibold uppercase tracking-wide text-xs">
+          {t("paragraphLibrary.filters.tone")}
+        </h3>
+        <Select
+          className="w-full"
+          value={tone}
+          onChange={(value) => setTone(value)}
+          options={TONES.map((item) => ({
+            value: item.value,
+            label: t(`practice.tone.${item.value}`),
           }))}
         />
+      </section>
 
-        <div className="h-px bg-slate-200 dark:bg-slate-700" />
+      <div className="h-px bg-slate-200 dark:bg-slate-700" />
 
-        <section className="space-y-2.5">
-          <h3 className="text-slate-800 dark:text-slate-100 font-semibold uppercase tracking-wide text-xs">
-            {t("paragraphLibrary.filters.sentenceLength")}
-          </h3>
-          <Select
-            className="w-full"
-            value={sentenceCount}
-            onChange={(value) => setSentenceCount(value)}
-            options={SENTENCE_COUNTS.map((item) => ({
-              value: item.value,
-              label: `${SENTENCE_COUNT_NUMBER[item.value] ?? item.value}`,
-            }))}
-          />
-        </section>
+      <CollapsibleChecklistSection
+        title="Sentence mix"
+        items={singleSentenceMixOptions.map((option) => ({
+          key: option.value,
+          label: option.label,
+          selected: singleSentenceMix.includes(option.value),
+          onClick: () => toggleMixOption(option.value, !singleSentenceMix.includes(option.value)),
+        }))}
+      />
 
-        <div className="h-px bg-slate-200 dark:bg-slate-700" />
-
-        <section className="space-y-2.5">
-          <h3 className="text-slate-800 dark:text-slate-100 font-semibold uppercase tracking-wide text-xs">
-            {t("paragraphLibrary.filters.tone")}
-          </h3>
-          <Select
-            className="w-full"
-            value={tone}
-            onChange={(value) => setTone(value)}
-            options={TONES.map((item) => ({
-              value: item.value,
-              label: t(`practice.tone.${item.value}`),
-            }))}
-          />
-        </section>
-
-        <div className="h-px bg-slate-200 dark:bg-slate-700" />
-
-        <CollapsibleChecklistSection
-          title="Sentence mix"
-          items={singleSentenceMixOptions.map((option) => ({
-            key: option.value,
-            label: option.label,
-            selected: singleSentenceMix.includes(option.value),
-            onClick: () => toggleMixOption(option.value, !singleSentenceMix.includes(option.value)),
-          }))}
-        />
-
-        <button
-          type="button"
-          onClick={handleStart}
-          disabled={isPending}
-          className="mt-1 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-blue-600 px-4 py-3 text-sm font-bold text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
-        >
-          <Rocket className="h-4 w-4" />
-          {t("practice.setup.start")}
-        </button>
     </div>
   );
 
@@ -194,7 +173,7 @@ const SingleSentenceSetup = () => {
         {setupPanel}
       </aside>
 
-      <section className={`${panelClassName} space-y-4`}>
+      <section className={`${panelClassName} h-fit self-start space-y-4`}>
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-2 text-slate-900 dark:text-slate-100">
             <Sparkles className="h-5 w-5 text-amber-500" />
@@ -218,7 +197,10 @@ const SingleSentenceSetup = () => {
               <button
                 key={value}
                 type="button"
-                onClick={() => setTopic(value)}
+                onClick={() => {
+                  setTopic(value);
+                  setIsLanguageDialogOpen(true);
+                }}
                 className={`flex min-h-[96px] flex-col items-center justify-center gap-2 rounded-xl border p-3 text-center transition-colors ${active
                   ? "border-blue-500 bg-blue-50 text-blue-700 dark:border-blue-400 dark:bg-blue-950/30 dark:text-blue-200"
                   : "border-slate-200 bg-slate-50 text-slate-600 hover:border-slate-300 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300"
@@ -230,15 +212,6 @@ const SingleSentenceSetup = () => {
             );
           })}
         </div>
-        <button
-          type="button"
-          onClick={handleStart}
-          disabled={isPending}
-          className="xl:hidden mt-2 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-blue-600 px-4 py-3 text-sm font-bold text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
-        >
-          <Rocket className="h-4 w-4" />
-          {t("practice.setup.start")}
-        </button>
       </section>
       <Drawer
         title={t("paragraphLibrary.filters.title")}
@@ -250,6 +223,63 @@ const SingleSentenceSetup = () => {
       >
         {setupPanel}
       </Drawer>
+      <Modal
+        title={
+          <div className="text-center">
+            <h3 className="text-[30px] font-semibold leading-tight text-slate-900 dark:text-slate-100">Select Practice Language</h3>
+          </div>
+        }
+        open={isLanguageDialogOpen}
+        onCancel={() => {
+          setIsLanguageDialogOpen(false);
+          setTopic(undefined);
+        }}
+        centered
+        width={520}
+        style={{
+          borderRadius: 16,
+          boxShadow: "0 16px 36px rgba(15, 23, 42, 0.18)",
+          background: "linear-gradient(180deg, #ffffff 0%, #f8fafc 100%)",
+        }}
+        footer={null}
+        wrapClassName="practice-language-modal"
+        styles={{
+          header: {
+            background: "transparent",
+            paddingBottom: 8,
+          },
+          body: {
+            paddingTop: 4,
+          },
+          footer: {
+            borderTop: "none",
+            paddingTop: 8,
+          },
+        }}
+      >
+        <p className="mb-5 text-center text-base text-slate-500 dark:text-slate-400">
+          Choose your target language before starting practice.
+        </p>
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+          {TARGET_LANGUAGE_ITEMS.map((item) => {
+            return (
+              <button
+                key={item.value}
+                type="button"
+                disabled={isPending}
+                onClick={() => handleStart(item.value as TargetLanguage)}
+                className="relative flex min-h-[98px] flex-col items-center justify-center gap-2 rounded-xl bg-white px-3 py-3 text-center text-slate-700 transition-all hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-60 dark:bg-slate-800 dark:text-slate-200"
+              >
+                <FlagIcon countryCode={item.countryCode} className="h-5 w-7 rounded-[2px]" />
+                <div className="flex flex-col">
+                  <span className="text-base font-semibold leading-none">{item.name}</span>
+                  <span className="mt-1 text-xs tracking-wide text-slate-500 dark:text-slate-400">{item.value}</span>
+                </div>
+              </button>
+            );
+          })}
+        </div>
+      </Modal>
 
       {isPending && (
         <AppSpinner fullscreen text={t("practice.setup.creating")} />

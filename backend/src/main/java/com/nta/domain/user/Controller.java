@@ -75,11 +75,15 @@ public class Controller {
 
     @GetMapping("/rankings")
     ApiResponse<Page<UserRankingResponse>> getRankings(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size,
-            @RequestParam(required = false) String keyword) {
-        return ApiResponse.<Page<UserRankingResponse>>builder()
-                .result(service.getRankings(page, size, keyword))
+            @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
+        Page<UserRankingResponse> rankings = service.getRankings(page, size);
+        return ApiResponse.<Page<UserRankingResponse>>builder().result(rankings).build();
+    }
+
+    @GetMapping("/rankings/me")
+    ApiResponse<UserRankingResponse> getCurrentUserRanking() {
+        return ApiResponse.<UserRankingResponse>builder()
+                .result(service.getCurrentUserRanking())
                 .build();
     }
 }

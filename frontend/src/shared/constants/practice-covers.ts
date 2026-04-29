@@ -1,5 +1,30 @@
 const FALLBACK_COVER =
   "https://images.unsplash.com/photo-1516979187457-637abb4f9353?auto=format&fit=crop&w=1200&q=80";
+const UNIVERSAL_COVER_POOL: string[] = [
+  "https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=1200&q=80",
+  "https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=1200&q=80",
+  "https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?auto=format&fit=crop&w=1200&q=80",
+  "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1200&q=80",
+  "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?auto=format&fit=crop&w=1200&q=80",
+  "https://images.unsplash.com/photo-1470770903676-69b98201ea1c?auto=format&fit=crop&w=1200&q=80",
+  "https://images.unsplash.com/photo-1472214103451-9374bd1c798e?auto=format&fit=crop&w=1200&q=80",
+  "https://images.unsplash.com/photo-1473116763249-2faaef81ccda?auto=format&fit=crop&w=1200&q=80",
+  "https://images.unsplash.com/photo-1475274047050-1d0c0975c63e?auto=format&fit=crop&w=1200&q=80",
+  "https://images.unsplash.com/photo-1482192505345-5655af888cc4?auto=format&fit=crop&w=1200&q=80",
+  "https://images.unsplash.com/photo-1483356256511-b48749959172?auto=format&fit=crop&w=1200&q=80",
+  "https://images.unsplash.com/photo-1483721310020-03333e577078?auto=format&fit=crop&w=1200&q=80",
+  "https://images.unsplash.com/photo-1489515217757-5fd1be406fef?auto=format&fit=crop&w=1400&q=80",
+  "https://images.unsplash.com/photo-1493246507139-91e8fad9978e?auto=format&fit=crop&w=1200&q=80",
+  "https://images.unsplash.com/photo-1493612276216-ee3925520721?auto=format&fit=crop&w=1200&q=80",
+  "https://images.unsplash.com/photo-1494253109108-2e30c049369b?auto=format&fit=crop&w=1200&q=80",
+  "https://images.unsplash.com/photo-1494526585095-c41746248156?auto=format&fit=crop&w=1200&q=80",
+  "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=1400&q=80",
+  "https://images.unsplash.com/photo-1495195134817-aeb325a55b65?auto=format&fit=crop&w=1200&q=80",
+  "https://images.unsplash.com/photo-1495567720989-cebdbdd97913?auto=format&fit=crop&w=1200&q=80",
+  "https://images.unsplash.com/photo-1496307653780-42ee777d4833?auto=format&fit=crop&w=1200&q=80",
+  "https://images.unsplash.com/photo-1496483648148-47c686dc86a8?auto=format&fit=crop&w=1200&q=80",
+  "https://images.unsplash.com/photo-1497493292307-31c376b6e479?auto=format&fit=crop&w=1200&q=80",
+];
 
 const TOPIC_COVER_MAP: Record<string, string[]> = {
   LIFE: [
@@ -175,6 +200,10 @@ const TYPE_COVER_MAP: Record<string, string[]> = {
 
 function pickStableIndex(seed: string, length: number): number {
   if (length <= 1) return 0;
+  const numericSeed = Number(seed);
+  if (Number.isInteger(numericSeed) && numericSeed >= 0) {
+    return numericSeed % length;
+  }
   let hash = 0;
   for (let i = 0; i < seed.length; i += 1) {
     hash = (hash << 5) - hash + seed.charCodeAt(i);
@@ -185,8 +214,14 @@ function pickStableIndex(seed: string, length: number): number {
 
 export function getCoverImage(topic: string | undefined, type: string | undefined, seed: string): string {
   const topicPool = topic ? TOPIC_COVER_MAP[topic] : undefined;
-  if (topicPool?.length) return topicPool[pickStableIndex(seed, topicPool.length)];
+  if (topicPool?.length) {
+    const combinedPool = topicPool.concat(UNIVERSAL_COVER_POOL);
+    return combinedPool[pickStableIndex(seed, combinedPool.length)];
+  }
   const typePool = type ? TYPE_COVER_MAP[type] : undefined;
-  if (typePool?.length) return typePool[pickStableIndex(seed, typePool.length)];
-  return FALLBACK_COVER;
+  if (typePool?.length) {
+    const combinedPool = typePool.concat(UNIVERSAL_COVER_POOL);
+    return combinedPool[pickStableIndex(seed, combinedPool.length)];
+  }
+  return UNIVERSAL_COVER_POOL[pickStableIndex(seed, UNIVERSAL_COVER_POOL.length)] ?? FALLBACK_COVER;
 }

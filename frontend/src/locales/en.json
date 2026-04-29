@@ -194,7 +194,7 @@
     }
   },
   "nav": {
-    "dashboard": "Dashboard",
+    "dashboard": "Home",
     "practice": "Practice",
     "history": "History",
     "decks": "Vocabulary",
@@ -339,7 +339,14 @@
     "step3Title": "Write your answer",
     "step3Desc": "Translate or compose naturally in the editor, sentence by sentence.",
     "step4Title": "Review AI feedback",
-    "step4Desc": "Get corrections, explanations, and suggestions to improve your next attempt."
+    "step4Desc": "Get corrections, explanations, and suggestions to improve your next attempt.",
+    "useAppBadge": "Product walkthrough",
+    "useAppTitle": "Practice dictation directly inside the app",
+    "useAppDescription": "Watch how learners go through short listening segments, type their answers, and receive real-time AI feedback in one focused workflow.",
+    "useAppBullet1": "Listen in bite-sized chunks for better focus",
+    "useAppBullet2": "Type what you hear to build active recall",
+    "useAppBullet3": "Get instant corrections after each attempt",
+    "useAppCaption": "Fully supports light/dark themes and seamless Vietnamese/English switching."
   },
   "practice": {
     "groups": {
@@ -808,7 +815,7 @@
     },
     "typeWord": {
       "completed": "You have mastered all words in this deck!",
-      "placeholder": "Type the word here...",
+      "placeholder": "Type the word...",
       "hintButton": "Hint ({{step}}/3)",
       "keyHint": "Hint",
       "keyCheck": "Check"

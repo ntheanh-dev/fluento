@@ -467,7 +467,6 @@ const PracticeHistory = () => {
                     {isPending && (
                         <div className="flex flex-col items-center justify-center py-20 gap-4">
                             <AppSpinner className="py-0" />
-                            <span className="text-slate-500 dark:text-slate-400 text-sm">{t("history.loading")}</span>
                         </div>
                     )}
                     {isError && (

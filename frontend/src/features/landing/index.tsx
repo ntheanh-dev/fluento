@@ -1,6 +1,7 @@
 import { Target, FileText, CheckCircle, ArrowDown, Languages, Check } from "lucide-react";
 import { motion } from "motion/react";
 import home from "../../assets/image/home.png";
+import useAppVideo from "../../assets/video/use-app.mp4";
 import { useNavigate } from "react-router-dom";
 import Cookies from "js-cookie";
 import { useTranslation, Trans } from "react-i18next";
@@ -123,6 +124,69 @@ const Features = () => {
   );
 };
 
+const UseAppShowcase = () => {
+  const { t } = useTranslation();
+  const bullets = useMemo(
+    () => [t("landing.useAppBullet1"), t("landing.useAppBullet2"), t("landing.useAppBullet3")],
+    [t],
+  );
+
+  return (
+    <section className="bg-slate-50 py-20 dark:bg-slate-950">
+      <div className="mx-auto grid max-w-7xl gap-10 px-4 sm:px-6 lg:grid-cols-[1.15fr_1fr] lg:items-center lg:px-8">
+        <div className="relative">
+          <div className="overflow-hidden rounded-2xl border border-slate-300 bg-white shadow-2xl dark:border-slate-700 dark:bg-slate-900">
+            <div className="flex h-11 items-center justify-between border-b border-slate-200 bg-slate-100 px-4 dark:border-slate-700 dark:bg-slate-800">
+              <div className="flex items-center gap-2">
+                <span className="size-3 rounded-full bg-[#ff5f57]" />
+                <span className="size-3 rounded-full bg-[#febc2e]" />
+                <span className="size-3 rounded-full bg-[#28c840]" />
+              </div>
+              <p className="text-xs font-medium text-slate-500 dark:text-slate-400">LuyenViet App</p>
+              <div className="w-12" />
+            </div>
+            <div>
+              <video
+                className="block h-auto w-full"
+                src={useAppVideo}
+                autoPlay
+                muted
+                loop
+                playsInline
+                poster={home}
+              />
+            </div>
+          </div>
+          <div className="pointer-events-none absolute -inset-3 -z-10 rounded-[32px] bg-gradient-to-r from-[#137fec]/20 via-sky-400/10 to-violet-500/20 blur-2xl" />
+        </div>
+
+        <div className="space-y-5">
+          <p className="inline-flex w-fit rounded-md bg-[#137fec]/10 px-3 py-1 text-xs font-semibold text-[#137fec]">
+            {t("landing.useAppBadge")}
+          </p>
+          <h3 className="text-3xl font-black leading-tight text-slate-900 sm:text-4xl dark:text-slate-100">
+            {t("landing.useAppTitle")}
+          </h3>
+          <p className="text-base leading-relaxed text-slate-600 dark:text-slate-300">
+            {t("landing.useAppDescription")}
+          </p>
+          <ul className="space-y-3 text-slate-700 dark:text-slate-200">
+            {bullets.map((item) => (
+              <li key={item} className="flex items-center gap-3">
+                <span className="inline-flex size-5 items-center justify-center rounded-full border border-emerald-400/60 bg-emerald-500/10 text-emerald-600 dark:text-emerald-300">
+                  <Check className="size-3" />
+                </span>
+                <span>{item}</span>
+              </li>
+            ))}
+          </ul>
+          <p className="text-sm text-slate-500 dark:text-slate-400">{t("landing.useAppCaption")}</p>
+        </div>
+      </div>
+    </section>
+  );
+};
+
 const MultilingualSpotlight = () => {
   const { t } = useTranslation();
   const languageCards = useMemo(
@@ -141,19 +205,6 @@ const MultilingualSpotlight = () => {
     <section className="py-24 bg-white dark:bg-slate-950">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid gap-10 lg:grid-cols-[1.05fr_1fr] lg:items-center">
-          <div className="grid grid-cols-2 gap-4">
-            {languageCards.map((item) => (
-              <div
-                key={item.label}
-                className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-6 text-center dark:border-slate-700 dark:bg-slate-900/70"
-              >
-                <FlagIcon countryCode={item.countryCode} className="mx-auto h-7 w-10 rounded-[3px]" />
-                <p className="mt-3 text-xs font-bold uppercase tracking-[0.16em] text-slate-600 dark:text-slate-300">
-                  {item.label}
-                </p>
-              </div>
-            ))}
-          </div>
 
           <div className="space-y-6">
             <p className="inline-flex items-center gap-2 rounded-full bg-[#137fec]/10 px-3 py-1 text-xs font-bold uppercase tracking-wider text-[#137fec]">
@@ -178,6 +229,20 @@ const MultilingualSpotlight = () => {
               ))}
             </ul>
           </div>
+          <div className="grid grid-cols-2 gap-4">
+            {languageCards.map((item) => (
+              <div
+                key={item.label}
+                className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-6 text-center dark:border-slate-700 dark:bg-slate-900/70"
+              >
+                <FlagIcon countryCode={item.countryCode} className="mx-auto h-7 w-10 rounded-[3px]" />
+                <p className="mt-3 text-xs font-bold uppercase tracking-[0.16em] text-slate-600 dark:text-slate-300">
+                  {item.label}
+                </p>
+              </div>
+            ))}
+          </div>
+
         </div>
       </div>
     </section>
@@ -855,34 +920,34 @@ const LandingParagraphSections = () => {
                 });
 
                 return displayedItems.map((item, index) => {
-                const title = item.title || item.sentences?.[0] || t("home.common.untitled");
-                const preview = item.sentences?.slice(0, 2).join(" ").replace("\\n", " ") || "";
-                const cover = covers[index];
+                  const title = item.title || item.sentences?.[0] || t("home.common.untitled");
+                  const preview = item.sentences?.slice(0, 2).join(" ").replace("\\n", " ") || "";
+                  const cover = covers[index];
 
-                return (
-                  <article
-                    key={item.id}
-                    className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-900/90"
-                  >
-                    <img src={cover} alt={title} className="h-32 w-full object-cover" />
-                    <div className="space-y-3 p-4">
-                      <div className="flex items-center justify-between gap-2 text-xs text-slate-500 dark:text-slate-400">
-                        <span className="rounded-full bg-slate-100 px-2 py-1 dark:bg-slate-800">
-                          {t("home.common.sentenceCount", { count: item.sentences?.length ?? 0 })}
-                        </span>
-                        <span className="line-clamp-1">{t(`common.topic.${item.topic}`)}</span>
+                  return (
+                    <article
+                      key={item.id}
+                      className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-900/90"
+                    >
+                      <img src={cover} alt={title} className="h-32 w-full object-cover" />
+                      <div className="space-y-3 p-4">
+                        <div className="flex items-center justify-between gap-2 text-xs text-slate-500 dark:text-slate-400">
+                          <span className="rounded-full bg-slate-100 px-2 py-1 dark:bg-slate-800">
+                            {t("home.common.sentenceCount", { count: item.sentences?.length ?? 0 })}
+                          </span>
+                          <span className="line-clamp-1">{t(`common.topic.${item.topic}`)}</span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => handleViewMore(section.key)}
+                          className="line-clamp-2 w-full text-left text-lg font-semibold leading-tight text-slate-900 transition hover:text-[#198de6] focus-visible:rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#198de6]/50 dark:text-slate-100 dark:hover:text-blue-300"
+                        >
+                          {title}
+                        </button>
+                        <p className="line-clamp-2 text-sm text-slate-500 dark:text-slate-400">{preview}</p>
                       </div>
-                      <button
-                        type="button"
-                        onClick={() => handleViewMore(section.key)}
-                        className="line-clamp-2 w-full text-left text-lg font-semibold leading-tight text-slate-900 transition hover:text-[#198de6] focus-visible:rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#198de6]/50 dark:text-slate-100 dark:hover:text-blue-300"
-                      >
-                        {title}
-                      </button>
-                      <p className="line-clamp-2 text-sm text-slate-500 dark:text-slate-400">{preview}</p>
-                    </div>
-                  </article>
-                );
+                    </article>
+                  );
                 });
               })()}
 
@@ -1009,6 +1074,7 @@ export default function LandingPage() {
       <main className="flex-1">
         <Hero />
         <Features />
+        <UseAppShowcase />
         <MultilingualSpotlight />
         <LandingParagraphSections />
         <AIFeedback />

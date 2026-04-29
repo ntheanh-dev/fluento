@@ -3,6 +3,7 @@ import type { InputRef } from "antd";
 import { CheckCircle2, Lightbulb, RotateCcw, Volume2 } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import matchCorrectSound from "@/assets/audio/match-correct.mp3";
 import type { PracticeWord } from "../shared/types";
 
 type TypeWordModeProps = {
@@ -30,6 +31,7 @@ export function TypeWordMode({
   const [hintStep, setHintStep] = useState(0);
   const inputRef = useRef<InputRef | null>(null);
   const skipNextEnterRef = useRef(false);
+  const correctAudioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
     setValue("");
@@ -48,6 +50,18 @@ export function TypeWordMode({
       window.clearTimeout(timeoutId);
     };
   }, [word.id]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const audio = new Audio(matchCorrectSound);
+    audio.preload = "auto";
+    audio.volume = 1;
+    correctAudioRef.current = audio;
+    return () => {
+      audio.pause();
+      correctAudioRef.current = null;
+    };
+  }, []);
 
   const shuffledAlphaIndexes = useMemo(() => {
     const chars = word.text.split("");
@@ -107,6 +121,14 @@ export function TypeWordMode({
 
   const handleSubmitAnswer = () => {
     if (isChecked) return;
+    const isCorrect = value.trim().toLowerCase() === word.text.trim().toLowerCase();
+    if (isCorrect) {
+      const audio = correctAudioRef.current;
+      if (audio) {
+        audio.currentTime = 0;
+        audio.play().catch(() => undefined);
+      }
+    }
     if (speakOnCheck) {
       speakWord();
     }
@@ -250,7 +272,7 @@ export function TypeWordMode({
           <div className="mt-4 flex items-start justify-center gap-2 sm:mt-5 sm:gap-2.5 lg:mt-6 lg:gap-3">
             <div className="flex flex-col items-center">
               <Button
-                className="!h-10 !rounded-lg !border-2 !border-slate-300 !bg-white !px-4 !text-sm !font-semibold !text-slate-700 dark:!border-slate-600 dark:!bg-slate-800 dark:!text-slate-100 sm:!h-11 sm:!rounded-xl sm:!px-5 sm:!text-base lg:!h-12 lg:!rounded-2xl lg:!text-lg"
+                className="!h-10 !min-w-[112px] !rounded-lg !border-2 !border-slate-300 !bg-white !px-4 !text-sm !font-semibold !text-slate-700 dark:!border-slate-600 dark:!bg-slate-800 dark:!text-slate-100 sm:!h-11 sm:!min-w-[136px] sm:!rounded-xl sm:!px-5 sm:!text-base lg:!h-12 lg:!min-w-[160px] lg:!rounded-2xl lg:!text-lg"
                 onClick={onStillLearning}
               >
                 <span className="inline-flex items-center gap-1.5 whitespace-nowrap sm:gap-2">
@@ -263,7 +285,7 @@ export function TypeWordMode({
             <div className="flex flex-col items-center">
               <Button
                 type="primary"
-                className="!h-10 !rounded-lg !border-0 !bg-[#198de6] !px-4 !text-sm !font-semibold sm:!h-11 sm:!rounded-xl sm:!px-5 sm:!text-base lg:!h-12 lg:!rounded-2xl lg:!text-lg"
+                className="!h-10 !min-w-[112px] !rounded-lg !border-0 !bg-[#198de6] !px-4 !text-sm !font-semibold sm:!h-11 sm:!min-w-[136px] sm:!rounded-xl sm:!px-5 sm:!text-base lg:!h-12 lg:!min-w-[160px] lg:!rounded-2xl lg:!text-lg"
                 onClick={onKnowThis}
                 disabled={!canKnowThis}
               >

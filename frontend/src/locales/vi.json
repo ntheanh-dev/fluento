@@ -194,7 +194,7 @@
     }
   },
   "nav": {
-    "dashboard": "Home",
+    "dashboard": "Trang chủ",
     "practice": "Luyện tập",
     "history": "Lịch sử",
     "decks": "Bộ từ vựng",
@@ -339,7 +339,14 @@
     "step3Title": "Viết câu trả lời",
     "step3Desc": "Dịch hoặc tự viết từng câu trong trình soạn thảo.",
     "step4Title": "Xem phản hồi AI",
-    "step4Desc": "Nhận sửa lỗi, giải thích và gợi ý để cải thiện lần viết tiếp theo."
+    "step4Desc": "Nhận sửa lỗi, giải thích và gợi ý để cải thiện lần viết tiếp theo.",
+    "useAppBadge": "Trải nghiệm thực tế",
+    "useAppTitle": "Luyện nghe - gõ chính tả trực tiếp trên ứng dụng",
+    "useAppDescription": "Theo dõi video mô phỏng cách người học luyện tập với các đoạn nghe ngắn, nhập câu trả lời và nhận phản hồi AI theo thời gian thực ngay trong một màn hình.",
+    "useAppBullet1": "Nghe theo từng đoạn nhỏ để tập trung tốt hơn",
+    "useAppBullet2": "Gõ lại nội dung để tăng ghi nhớ và phản xạ ngôn ngữ",
+    "useAppBullet3": "Nhận sửa lỗi tức thì để cải thiện sau mỗi lượt",
+    "useAppCaption": "Hỗ trợ đầy đủ giao diện sáng/tối và chuyển đổi ngôn ngữ Việt/Anh linh hoạt."
   },
   "practice": {
     "groups": {
@@ -808,7 +815,7 @@
     },
     "typeWord": {
       "completed": "Bạn đã thuộc hết từ trong bộ từ vựng này!",
-      "placeholder": "Nhập từ bạn nghe được...",
+      "placeholder": "Nhập từ vựng...",
       "hintButton": "Gợi ý ({{step}}/3)",
       "keyHint": "Gợi ý",
       "keyCheck": "Kiểm tra"

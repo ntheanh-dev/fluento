@@ -1,8 +1,7 @@
 import React, { useMemo, useState } from "react";
-import { Trophy, Flame, Search, Clock, User } from "lucide-react";
+import { Trophy, Flame, Clock, User } from "lucide-react";
 import { Avatar, Pagination } from "antd";
-import { useRankings } from "./query";
-import { useDebounce } from "../../shared/hooks/useDebounce";
+import { useCurrentUserRanking, useRankings } from "./query";
 import { formatTotalHours } from "@/utils/utils";
 import { useTranslation } from "react-i18next";
 import { AppSpinner } from "@/shared/components/AppSpinner";
@@ -13,17 +12,11 @@ const Rankings: React.FC = () => {
     () => (i18n.language.startsWith("en") ? "en-US" : "vi-VN"),
     [i18n.language],
   );
-  const [keyword, setKeyword] = useState("");
   const [page, setPage] = useState(0);
   const size = 10;
 
-  const debouncedKeyword = useDebounce(keyword, 400);
-
-  const { data, isLoading, isError } = useRankings({
-    page,
-    size,
-    keyword: debouncedKeyword || undefined,
-  });
+  const { data, isLoading, isError } = useRankings({ page, size });
+  const { data: myRanking } = useCurrentUserRanking();
 
   const rows = data?.content ?? [];
   const totalElements = data?.totalElements ?? 0;
@@ -42,7 +35,7 @@ const Rankings: React.FC = () => {
   const third = podium[2] ?? podium[0];
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 dark:text-slate-100">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-28 dark:text-slate-100">
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-end gap-3 mb-8 sm:mb-10">
         <div className="text-center sm:text-left">
           <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-slate-100 mb-2">
@@ -184,22 +177,6 @@ const Rankings: React.FC = () => {
           <h2 className="font-bold text-base sm:text-lg text-slate-800 dark:text-slate-100">
             {t("ranking.detailTitle")}
           </h2>
-          <div className="relative w-full sm:w-auto">
-            <Search
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
-              size={16}
-            />
-            <input
-              type="text"
-              placeholder={t("ranking.searchPlaceholder")}
-              value={keyword}
-              onChange={(e) => {
-                setKeyword(e.target.value);
-                setPage(0);
-              }}
-              className="w-full sm:w-64 pl-9 pr-4 py-2 text-sm border border-slate-200 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:border-primary"
-            />
-          </div>
         </div>
         {isLoading ? (
           <div className="py-10 flex justify-center items-center">
@@ -304,6 +281,51 @@ const Rankings: React.FC = () => {
           </>
         )}
       </div>
+
+      {myRanking && (
+        <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 w-[calc(100%-1.5rem)] sm:w-auto sm:min-w-[560px] max-w-3xl">
+          <div className="rounded-2xl border border-primary/20 bg-white/95 dark:bg-slate-900/95 backdrop-blur shadow-2xl px-4 py-3 sm:px-5 sm:py-3.5">
+            <div className="flex items-center justify-between gap-3 sm:gap-5">
+              <div className="flex items-center gap-3 min-w-0">
+                <span className="inline-flex items-center justify-center rounded-full bg-primary/10 text-primary font-bold text-sm h-9 px-3">
+                  #{myRanking.rank}
+                </span>
+                {myRanking.urlAvatar ? (
+                  <img
+                    src={myRanking.urlAvatar}
+                    alt={myRanking.fullName || t("ranking.anonymous")}
+                    className="w-9 h-9 rounded-full border border-slate-200 dark:border-slate-700 object-cover shrink-0"
+                  />
+                ) : (
+                  <Avatar
+                    size={36}
+                    icon={<User size={16} />}
+                    className="shrink-0 border border-slate-200 dark:border-slate-700"
+                  />
+                )}
+                <div className="min-w-0">
+                  <p className="text-[11px] uppercase tracking-wide text-slate-500 dark:text-slate-400">
+                    {t("ranking.colLearner")}
+                  </p>
+                  <p className="font-semibold text-slate-900 dark:text-slate-100 truncate">
+                    {myRanking.fullName || t("ranking.anonymous")}
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3 sm:gap-4 text-xs sm:text-sm text-slate-600 dark:text-slate-300">
+                <span>{t("ranking.avgShort", { score: myRanking.avgScore?.toFixed(1) ?? "0.0" })}</span>
+                <span className="hidden sm:inline">
+                  {myRanking.totalUserSentenceAnswers?.toLocaleString(numLocale) ?? 0}{" "}
+                  {t("ranking.sentences")}
+                </span>
+                <span className="hidden sm:inline-flex items-center gap-1 text-orange-500 font-semibold">
+                  <Flame size={14} /> {myRanking.currentStreak ?? 0}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

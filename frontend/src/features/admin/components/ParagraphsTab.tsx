@@ -388,6 +388,7 @@ const ParagraphsTab = () => {
 
       <Modal
         open={createOpen}
+        closable={false}
         title={t("admin.paragraphs.createModalTitle")}
         onCancel={() => setCreateOpen(false)}
         destroyOnClose
@@ -446,6 +447,7 @@ const ParagraphsTab = () => {
 
       <Modal
         open={editTitleOpen}
+        closable={false}
         title={t("admin.paragraphs.editTitleModal")}
         onCancel={() => setEditTitleOpen(false)}
         destroyOnClose

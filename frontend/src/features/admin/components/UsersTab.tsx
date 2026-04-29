@@ -219,6 +219,7 @@ const UsersTab = () => {
 
       <Modal
         open={creditOpen}
+        closable={false}
         title={t("admin.users.modalCreditsTitle")}
         onCancel={() => setCreditOpen(false)}
         destroyOnClose
