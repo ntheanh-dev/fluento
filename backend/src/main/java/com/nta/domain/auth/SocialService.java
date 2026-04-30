@@ -37,6 +37,10 @@ public class SocialService {
     com.nta.domain.role.Repository roleRepository;
 
     @NonFinal
+    @Value("${app.credits.daily-reset:36}")
+    private int dailyResetCredits;
+
+    @NonFinal
     @Value("${spring.security.client.registration.google.client-id}")
     protected String GOOGLE_CLIENT_ID;
 
@@ -78,7 +82,7 @@ public class SocialService {
                         .username(userInfo.getEmail())
                         .fullName(fullName)
                         .urlAvatar(userInfo.getPicture())
-                        .credits(30)
+                        .credits(dailyResetCredits)
                         .coins(0)
                         .createdAt(LocalDateTime.now())
                         .currentStreak(0)

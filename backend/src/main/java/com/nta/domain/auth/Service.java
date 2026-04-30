@@ -48,6 +48,10 @@ public class Service {
     Repository invalidatedTokenRepository;
 
     @NonFinal
+    @Value("${app.credits.daily-reset:36}")
+    private int dailyResetCredits;
+
+    @NonFinal
     @Value("${spring.security.oauth2.resourceserver.jwt.signer-key}")
     protected String SIGNER_KEY;
 
@@ -67,7 +71,8 @@ public class Service {
         PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
         User u = userMapper.toUser(request);
         u.setPassword(passwordEncoder.encode(request.getPassword()));
-        u.setCredits(0);
+        u.setCredits(dailyResetCredits);
+        u.setCoins(0);
         u.setCreatedAt(LocalDateTime.now());
         HashSet<Role> roles = new HashSet<>();
         roleRepository.findById(PredefinedRole.USER_ROLE).ifPresent(roles::add);
