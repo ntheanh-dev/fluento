@@ -359,7 +359,7 @@ Use logical transitions. If there are distinct points, separate them with the li
 			- correction: Câu ở ngôn ngữ đích đã CHỈNH SỬA, dạng gợi ý tổng quát giống như phần "Suggestion".
 			+ Viết lại toàn bộ câu theo bản dịch đúng và tự nhiên hơn.
 			- improved: Câu ở ngôn ngữ đích dùng từ ngữ, cấu trúc, thì, từ vựng tốt hơn.
-			- suggestions: Danh sách 2–5 gợi ý chi tiết bằng tiếng Việt, mỗi phần tử là MỘT câu hoàn chỉnh.
+			- suggestions: Danh sách 2–5 gợi ý chi tiết bằng tiếng Việt, mỗi phần tử là MỘT câu hoàn chỉnh, không đánh số, không liệt kê mà viết như nhận xét bình thường.
 			+ Giải thích ngắn gọn từng lỗi (thì, số ít/số nhiều, từ vựng, cấu trúc câu...).
 			+ Có thể dùng `backtick` để làm nổi bật từ/cụm từ ở ngôn ngữ đích hoặc thuật ngữ ngữ pháp.
 			- summary: 1 đoạn nhận xét ngắn gọn bằng tiếng Việt (1–3 câu) chỉ tổng kết lại các lỗi chính và lời khuyên chung.

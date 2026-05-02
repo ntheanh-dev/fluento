@@ -11,7 +11,13 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "paragraph_sentences")
+@Table(
+        name = "paragraph_sentences",
+        uniqueConstraints = {
+            @UniqueConstraint(
+                    name = "uq_paragraph_order",
+                    columnNames = {"paragraph_id", "order_index"})
+        })
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
