@@ -49,6 +49,12 @@ public class CreateParagraphRequest {
             example = "[\"STATEMENT\",\"QUESTION\",\"PAST\",\"PRESENT\"]")
     private List<String> singleSentenceMix;
 
+    @Schema(
+            description =
+                    "Raw Vietnamese text for USER_INPUT type; split into sentences by new lines and . ! ? boundaries",
+            example = "Hôm nay trời đẹp. Tôi đi học.")
+    private String rawContent;
+
     @Schema(description = "Target translation language", example = "EN")
     private TargetLanguage targetLanguage;
 }

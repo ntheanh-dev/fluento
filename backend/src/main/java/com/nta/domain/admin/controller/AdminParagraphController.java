@@ -64,7 +64,7 @@ public class AdminParagraphController {
 
         PageRequest pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
         Page<Paragraph> result = paragraphRepository.findWithOptionalFilters(
-                typeEnum, toneEnum, topicEnum, levelEnum, sentenceCountEnum, maxSentenceCount, pageable);
+                typeEnum, toneEnum, topicEnum, levelEnum, sentenceCountEnum, maxSentenceCount, false, pageable);
         return ApiResponse.<Page<Paragraph>>builder().result(result).build();
     }
 

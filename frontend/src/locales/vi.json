@@ -363,7 +363,8 @@
       "EMAIL": "Viết Email",
       "STORY": "Viết Câu chuyện",
       "ESSAYS": "Viết luận",
-      "SINGLE_SENTENCE": "Dịch theo câu"
+      "SINGLE_SENTENCE": "Dịch theo câu",
+      "USER_INPUT": "Tự nhập nội dung"
     },
     "level": {
       "A2": "Sơ cấp",
@@ -407,6 +408,21 @@
       "modeParagraphCardDesc": "Luyện đọc hiểu và diễn đạt mạch lạc qua các đoạn văn ngắn.",
       "modeSentenceCardTitle": "Câu đơn lẻ",
       "modeSentenceCardDesc": "Luyện cấu trúc ngữ pháp và từ vựng trong từng câu độc lập.",
+      "modeCustomCardTitle": "Tự nhập nội dung",
+      "modeCustomCardDesc": "Dán hoặc gõ nội dung tiếng Việt. Mỗi dòng mới hoặc câu kết thúc bằng . ! ? thành một câu luyện (tối đa 30 câu).",
+      "customContentPageTitle": "Dán đoạn văn của bạn vào đây",
+      "customContentStartPractice": "Bắt đầu luyện tập",
+      "customContentLabel": "Nội dung tiếng Việt",
+      "customContentPlaceholder": "Ví dụ: Tiếng Anh không chỉ là một ngôn ngữ, mà còn là cánh cửa mở ra thế giới kiến thức rộng lớn…",
+      "customContentHint": "Tối đa 12.000 ký tự và 30 câu.",
+      "customContentRequired": "Vui lòng nhập nội dung tiếng Việt để luyện tập.",
+      "customContentMaxLength": "Nội dung tối đa {{max}} ký tự.",
+      "customContentNoSentences": "Cần ít nhất một câu hợp lệ. Xuống dòng hoặc kết thúc câu bằng . ! ?",
+      "customContentTooManySentences": "Quá nhiều câu ({{count}}). Tối đa {{max}} câu.",
+      "customPreviewHeading": "Xem trước",
+      "customPreviewSub": "Xem trước nhanh (tách câu chính xác khi bạn bắt đầu).",
+      "customPreviewEmpty": "Nội dung sẽ hiển thị tại đây.",
+      "creatingCustom": "Đang chuẩn bị bài luyện…",
       "topicHeading": "Chủ đề",
       "topicSectionTitle": "Chủ đề bài học",
       "topicSectionSubtitle": "Chọn một chủ đề làm trọng tâm cho buổi luyện tập.",
@@ -537,7 +553,8 @@
       "DIARIES": "Nhật ký",
       "IELTS_TASK1": "IELTS Task 1",
       "IELTS_TASK2": "IELTS Task 2",
-      "ESSAYS": "Bài luận"
+      "ESSAYS": "Bài luận",
+      "USER_INPUT": "Tự nhập"
     },
     "sortNewest": "Mới nhất trước",
     "sortOldest": "Cũ nhất trước",

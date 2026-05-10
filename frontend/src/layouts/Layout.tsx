@@ -8,6 +8,7 @@ import {
     History,
     Trophy,
     LibraryBig,
+    PenLine,
     Shield,
     LogOut,
     Languages,
@@ -82,6 +83,7 @@ const Layout = () => {
         () => [
             { key: "paragraph", label: t("practice.setup.modeParagraphCardTitle"), icon: <FileText size={16} /> },
             { key: "single-sentence", label: t("practice.setup.modeSentenceCardTitle"), icon: <Pencil size={16} /> },
+            { key: "custom", label: t("practice.setup.modeCustomCardTitle"), icon: <PenLine size={16} /> },
         ],
         [t],
     );
@@ -93,6 +95,10 @@ const Layout = () => {
         }
         if (key === "single-sentence") {
             navigate("/practice/single-sentence");
+            return;
+        }
+        if (key === "custom") {
+            navigate("/practice/custom");
         }
     };
 

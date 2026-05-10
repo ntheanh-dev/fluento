@@ -363,7 +363,8 @@
       "EMAIL": "Email writing",
       "STORY": "Story writing",
       "ESSAYS": "Essay writing",
-      "SINGLE_SENTENCE": "Single sentence"
+      "SINGLE_SENTENCE": "Single sentence",
+      "USER_INPUT": "Your text"
     },
     "level": {
       "A2": "Beginner",
@@ -407,6 +408,21 @@
       "modeParagraphCardDesc": "Practice reading comprehension and coherent expression through short paragraphs.",
       "modeSentenceCardTitle": "Single sentence",
       "modeSentenceCardDesc": "Focus on grammar structures and vocabulary in standalone sentences.",
+      "modeCustomCardTitle": "Your own text",
+      "modeCustomCardDesc": "Paste or type Vietnamese content. Each line or sentence ending with . ! ? becomes one practice sentence (up to 30).",
+      "customContentPageTitle": "Paste your paragraph here",
+      "customContentStartPractice": "Start practicing",
+      "customContentLabel": "Vietnamese source text",
+      "customContentPlaceholder": "Example: English is not just a language—it also opens the door to a vast world of knowledge…",
+      "customContentHint": "Maximum 12,000 characters and 30 sentences.",
+      "customContentRequired": "Please enter some Vietnamese text to practice.",
+      "customContentMaxLength": "Text must be at most {{max}} characters.",
+      "customContentNoSentences": "Add at least one real sentence. Use line breaks or end sentences with . ! ?",
+      "customContentTooManySentences": "Too many sentences ({{count}}). Maximum is {{max}}.",
+      "customPreviewHeading": "Preview",
+      "customPreviewSub": "Rough preview of your text (final splitting is done when you start).",
+      "customPreviewEmpty": "Your text will appear here.",
+      "creatingCustom": "Preparing your practice…",
       "topicHeading": "Topic",
       "topicSectionTitle": "Lesson topic",
       "topicSectionSubtitle": "Pick a topic to anchor your practice session.",
@@ -537,7 +553,8 @@
       "DIARIES": "Diaries",
       "IELTS_TASK1": "IELTS Task 1",
       "IELTS_TASK2": "IELTS Task 2",
-      "ESSAYS": "Essays"
+      "ESSAYS": "Essays",
+      "USER_INPUT": "Your text"
     },
     "sortNewest": "Newest first",
     "sortOldest": "Oldest first",

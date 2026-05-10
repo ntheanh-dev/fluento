@@ -36,6 +36,7 @@ public class ParagraphPromptFactory {
             case DIARIES -> buildDiariesPrompt(request);
             case STORY, EMAIL, IELTS_TASK1, IELTS_TASK2, ESSAYS -> buildWritingPrompt(request);
             case SINGLE_SENTENCE -> buildSingleSentencePrompt(request);
+            case USER_INPUT -> throw new IllegalStateException("USER_INPUT does not use AI paragraph generation");
         };
     }
 
@@ -283,6 +284,8 @@ Use logical transitions. If there are distinct points, separate them with the li
                 + "B2: upper-intermediate vocabulary for abstract ideas\n"
                 + "C1: advanced nuanced vocabulary\n"
                 + "C2: academic/professional vocabulary\n\n"
+                + "Avoid extracting low-learning-value grammar words.\n"
+                + "Prefer meaningful vocabulary chunks over isolated grammatical words.\n"
                 + "Return ONLY a valid JSON array with this item schema:\n"
                 + "[\n"
                 + "    {\n"

@@ -171,6 +171,7 @@ public class DataInitializer {
             List<Callable<Void>> tasks = new ArrayList<>();
             for (Type type : Type.values()) {
                 if (type == Type.SINGLE_SENTENCE
+                        || type == Type.USER_INPUT
                         || type == Type.EMAIL
                         || type == Type.IELTS_TASK1
                         || type == Type.IELTS_TASK2

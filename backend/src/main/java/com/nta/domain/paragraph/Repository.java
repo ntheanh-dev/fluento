@@ -47,6 +47,7 @@ public interface Repository extends JpaRepository<Paragraph, Long> {
 			AND (:level IS NULL OR p.level = :level)
 			AND (:sentenceCount IS NULL OR p.sentenceCount = :sentenceCount)
 			AND (:maxSentenceCount IS NULL OR SIZE(p.sentences) <= :maxSentenceCount)
+			AND (:excludeUserInput = false OR p.type <> com.nta.domain.paragraph.enums.Type.USER_INPUT)
 			""",
             countQuery =
                     """
@@ -57,6 +58,7 @@ public interface Repository extends JpaRepository<Paragraph, Long> {
 			AND (:level IS NULL OR p.level = :level)
 			AND (:sentenceCount IS NULL OR p.sentenceCount = :sentenceCount)
 			AND (:maxSentenceCount IS NULL OR SIZE(p.sentences) <= :maxSentenceCount)
+			AND (:excludeUserInput = false OR p.type <> com.nta.domain.paragraph.enums.Type.USER_INPUT)
 			""")
     Page<Paragraph> findWithOptionalFilters(
             @Param("type") Type type,
@@ -65,6 +67,7 @@ public interface Repository extends JpaRepository<Paragraph, Long> {
             @Param("level") Level level,
             @Param("sentenceCount") SentenceCount sentenceCount,
             @Param("maxSentenceCount") Integer maxSentenceCount,
+            @Param("excludeUserInput") boolean excludeUserInput,
             Pageable pageable);
 
     @Query(
@@ -78,6 +81,7 @@ public interface Repository extends JpaRepository<Paragraph, Long> {
 			AND (:topic IS NULL OR p.topic = :topic)
 			AND (:level IS NULL OR p.level = :level)
 			AND (:sentenceCount IS NULL OR p.sentenceCount = :sentenceCount)
+			AND (:excludeUserInput = false OR p.type <> com.nta.domain.paragraph.enums.Type.USER_INPUT)
 			GROUP BY p
 			""",
             countQuery =
@@ -88,6 +92,7 @@ public interface Repository extends JpaRepository<Paragraph, Long> {
 			AND (:topic IS NULL OR p.topic = :topic)
 			AND (:level IS NULL OR p.level = :level)
 			AND (:sentenceCount IS NULL OR p.sentenceCount = :sentenceCount)
+			AND (:excludeUserInput = false OR p.type <> com.nta.domain.paragraph.enums.Type.USER_INPUT)
 			""")
     Page<Object[]> findWithOptionalFiltersAndPracticeCount(
             @Param("type") Type type,
@@ -95,6 +100,7 @@ public interface Repository extends JpaRepository<Paragraph, Long> {
             @Param("topic") Topic topic,
             @Param("level") Level level,
             @Param("sentenceCount") SentenceCount sentenceCount,
+            @Param("excludeUserInput") boolean excludeUserInput,
             Pageable pageable);
 
     @Query(
@@ -108,6 +114,7 @@ public interface Repository extends JpaRepository<Paragraph, Long> {
 			AND (:topic IS NULL OR p.topic = :topic)
 			AND (:level IS NULL OR p.level = :level)
 			AND (:sentenceCount IS NULL OR p.sentenceCount = :sentenceCount)
+			AND (:excludeUserInput = false OR p.type <> com.nta.domain.paragraph.enums.Type.USER_INPUT)
 			GROUP BY p
 			ORDER BY COUNT(up) DESC, p.createdAt DESC
 			""",
@@ -119,6 +126,7 @@ public interface Repository extends JpaRepository<Paragraph, Long> {
 			AND (:topic IS NULL OR p.topic = :topic)
 			AND (:level IS NULL OR p.level = :level)
 			AND (:sentenceCount IS NULL OR p.sentenceCount = :sentenceCount)
+			AND (:excludeUserInput = false OR p.type <> com.nta.domain.paragraph.enums.Type.USER_INPUT)
 			""")
     Page<Object[]> findWithOptionalFiltersAndPracticeCountOrderByMostPracticed(
             @Param("type") Type type,
@@ -126,5 +134,6 @@ public interface Repository extends JpaRepository<Paragraph, Long> {
             @Param("topic") Topic topic,
             @Param("level") Level level,
             @Param("sentenceCount") SentenceCount sentenceCount,
+            @Param("excludeUserInput") boolean excludeUserInput,
             Pageable pageable);
 }

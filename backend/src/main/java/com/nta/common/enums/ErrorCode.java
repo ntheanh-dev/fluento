@@ -68,6 +68,9 @@ public enum ErrorCode {
     COIN_EXCHANGE_INVALID(4004, "Gói đổi coin không hợp lệ", HttpStatus.BAD_REQUEST),
     VOCABULARY_ALREADY_IN_DECK(4005, "Từ vựng đã tồn tại trong deck", HttpStatus.BAD_REQUEST),
     DECK_ALREADY_EXISTS(4006, "Bộ từ vựng đã tồn tại", HttpStatus.BAD_REQUEST),
+    USER_INPUT_CONTENT_EMPTY(4007, "Không tách được câu hợp lệ từ nội dung", HttpStatus.BAD_REQUEST),
+    USER_INPUT_CONTENT_TOO_LONG(4008, "Nội dung vượt quá giới hạn ký tự cho phép", HttpStatus.BAD_REQUEST),
+    USER_INPUT_TOO_MANY_SENTENCES(4009, "Vượt quá số câu cho phép (tối đa 30)", HttpStatus.BAD_REQUEST),
 
     // Generic errors (90xx)
     THIS_METHOD_DOES_NOTE_SUPPORT_YET(9001, "Phương thức này không được hỗ trợ", HttpStatus.BAD_REQUEST);

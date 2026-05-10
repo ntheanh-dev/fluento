@@ -305,7 +305,7 @@ const SentencePracticePage = () => {
       {/* Top Bar for Task Info */}
       <div className="flex items-center justify-between md:py-4 mb-2 shrink-0 px-1 sm:px-0 gap-4">
         <div className="flex-[10] flex flex-row items-center justify-between gap-4">
-          {data?.paragraph.type !== "DIARIES" && data?.paragraph.type !== "SINGLE_SENTENCE" && (
+          {data?.paragraph.type !== "DIARIES" && data?.paragraph.type !== 'USER_INPUT' && data?.paragraph.type !== "SINGLE_SENTENCE" && (
             <div>
               <p className="text-lg font-bold text-slate-900 dark:text-slate-100 mb-2">{data?.paragraph.type}</p>
               <p className="text-slate-600 dark:text-slate-400 text-xs max-w-xl">

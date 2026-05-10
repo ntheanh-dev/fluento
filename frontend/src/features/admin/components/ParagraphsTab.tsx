@@ -8,7 +8,7 @@ import { useTranslation } from "react-i18next";
 
 import type { Paragraph } from "@/entities/paragraph/schema";
 import type { ParagraphSentence } from "@/entities/paragraphSentence/schema";
-import type { PracticeSetupInput } from "@/features/practice/schema";
+import type { AiPracticeSetupInput } from "@/features/practice/schema";
 import { LEVELS, PRACTICE_TYPES, SENTENCE_COUNTS, TONES, TOPIC_GROUPS } from "@/features/practice/constants";
 import {
   adminCreateParagraph,
@@ -82,7 +82,7 @@ const ParagraphsTab = () => {
   });
 
   const createParagraphMutation = useMutation({
-    mutationFn: (payload: PracticeSetupInput) => adminCreateParagraph(payload),
+    mutationFn: (payload: AiPracticeSetupInput) => adminCreateParagraph(payload),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["adminParagraphs"] }),
   });
 
@@ -99,12 +99,12 @@ const ParagraphsTab = () => {
   });
 
   const [createOpen, setCreateOpen] = useState(false);
-  const [payload, setPayload] = useState<PracticeSetupInput>({
-    type: "DIARIES" as never,
-    topic: "LIFE" as never,
-    level: "A2" as never,
-    tone: "FORMAL" as never,
-    sentenceCount: "TEN" as never,
+  const [payload, setPayload] = useState<AiPracticeSetupInput>({
+    type: "DIARIES",
+    topic: "LIFE",
+    level: "A2",
+    tone: "FORMAL",
+    sentenceCount: "TEN",
   });
 
   const topicOptions = useMemo(

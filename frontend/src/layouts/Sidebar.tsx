@@ -37,15 +37,13 @@ const SidebarItem = ({
 }) => (
   <Link
     to={to}
-    className={`flex items-center transition-all duration-200 ${
-      compact ? "gap-2.5 px-3 py-2 rounded-lg text-sm" : "gap-3 px-4 py-3 rounded-xl"
-    } ${
-      active
+    className={`flex items-center transition-all duration-200 ${compact ? "gap-2.5 px-3 py-2 rounded-lg text-sm" : "gap-3 px-4 py-3 rounded-xl"
+      } ${active
         ? compact
           ? "bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300"
           : "bg-blue-600 text-white shadow-md shadow-blue-200 dark:shadow-blue-900/40"
         : "text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-100"
-    }`}
+      }`}
   >
     <Icon size={compact ? 18 : 20} strokeWidth={active ? 2.3 : 2} />
     <span className="font-medium">{label}</span>
@@ -105,8 +103,8 @@ const Sidebar = ({
             type="button"
             onClick={() => setIsPracticeExpanded((prev) => !prev)}
             className={`w-full flex items-center justify-between px-4 py-3 rounded-xl transition-all duration-200 ${activePath.startsWith("/paragraphs") || activePath.startsWith("/practice")
-                ? "bg-blue-600 text-white shadow-md shadow-blue-200 dark:shadow-blue-900/40"
-                : "text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-100"
+              ? "bg-blue-600 text-white shadow-md shadow-blue-200 dark:shadow-blue-900/40"
+              : "text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-100"
               }`}
           >
             <span className="inline-flex items-center gap-3">
@@ -132,6 +130,13 @@ const Sidebar = ({
                 label={t("practice.setup.modeSentenceCardTitle")}
                 to="/practice/single-sentence"
                 active={activePath.startsWith("/practice/single-sentence")}
+                compact
+              />
+              <SidebarItem
+                icon={PenLine}
+                label={t("practice.setup.modeCustomCardTitle")}
+                to="/practice/custom"
+                active={activePath.startsWith("/practice/custom")}
                 compact
               />
             </div>

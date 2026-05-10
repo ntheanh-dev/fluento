@@ -9,7 +9,8 @@ public enum Type {
     EMAIL("EMAIL", "Email"),
     STORY("STORY", "Story"),
     ESSAYS("ESSAYS", "Essays"),
-    SINGLE_SENTENCE("SINGLE_SENTENCE", "Single Sentence");
+    SINGLE_SENTENCE("SINGLE_SENTENCE", "Single Sentence"),
+    USER_INPUT("USER_INPUT", "User input");
 
     private final String code;
     private final String displayName;

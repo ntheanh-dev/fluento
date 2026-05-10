@@ -38,6 +38,7 @@ const PARAGRAPH_TYPE_KEYS = [
     "IELTS_TASK1",
     "IELTS_TASK2",
     "ESSAYS",
+    "USER_INPUT",
 ] as const;
 
 const TOPIC_KEYS = [
