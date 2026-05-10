@@ -321,11 +321,17 @@ const ParagraphLibraryPage = () => {
                       onClick={() => handlePractice(item.id)}
                       style={{ cursor: "pointer" }}
                     >
-                      <img
-                        src={getCoverImage(item.topic, item.type, String(item.id))}
-                        alt={item.title || item.topic}
-                        className="h-36 w-full object-cover"
-                      />
+                      <div className="relative">
+                        <img
+                          src={getCoverImage(item.topic, item.type, String(item.id))}
+                          alt={item.title || item.topic}
+                          className="h-36 w-full object-cover"
+                        />
+                        <span className="absolute top-2 right-2 inline-flex items-center gap-1 rounded-full bg-slate-900/75 px-2 py-1 text-xs font-semibold text-white">
+                          <ListChecks className="w-3.5 h-3.5" />
+                          {t("paragraphLibrary.card.sentenceCount", { count: item.sentences?.length ?? 0 })}
+                        </span>
+                      </div>
                       <div className="p-4">
                         <div className="flex items-center justify-between text-xs mb-3">
                           <span className="px-2 py-1 rounded-full bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-200 font-semibold">
@@ -342,12 +348,6 @@ const ParagraphLibraryPage = () => {
                         <p className="text-sm text-slate-600 dark:text-slate-300 mt-2 line-clamp-3 min-h-[60px]">
                           {preview}
                         </p>
-                        <div className="mt-4 flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
-                          <span className="inline-flex items-center gap-1">
-                            <ListChecks className="w-3.5 h-3.5" />
-                            {t("paragraphLibrary.card.sentenceCount", { count: item.sentences?.length ?? 0 })}
-                          </span>
-                        </div>
                       </div>
 
                     </article>
@@ -356,10 +356,10 @@ const ParagraphLibraryPage = () => {
               </div>
             </>
           ) : (
-              <div className="rounded-2xl border border-dashed border-slate-300 dark:border-slate-700 p-10 text-center text-slate-500">
-                {t("paragraphLibrary.empty")}
-              </div>
-            )}
+            <div className="rounded-2xl border border-dashed border-slate-300 dark:border-slate-700 p-10 text-center text-slate-500">
+              {t("paragraphLibrary.empty")}
+            </div>
+          )}
 
           <div className="flex justify-end pt-2">
             <Pagination
@@ -385,7 +385,9 @@ const ParagraphLibraryPage = () => {
       <Modal
         title={
           <div className="text-center">
-            <h3 className="text-[30px] font-semibold leading-tight text-slate-900 dark:text-slate-100">Select Practice Language</h3>
+            <h3 className="text-[30px] font-semibold leading-tight text-slate-900 dark:text-slate-100">
+              {t("practice.setup.languageModalTitle")}
+            </h3>
           </div>
         }
         open={isLanguageDialogOpen}
@@ -417,7 +419,7 @@ const ParagraphLibraryPage = () => {
         }}
       >
         <p className="mb-5 text-center text-base text-slate-500 dark:text-slate-400">
-          Choose your target language before starting practice.
+          {t("practice.setup.languageModalDescription")}
         </p>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
           {TARGET_LANGUAGE_OPTIONS.map((item) => {

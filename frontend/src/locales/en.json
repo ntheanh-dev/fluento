@@ -429,6 +429,9 @@
       "continue": "Continue",
       "backToStep2": "Back to step 2",
       "start": "Start",
+      "mixOptionRequired": "Please choose at least one mix option.",
+      "languageModalTitle": "Select Practice Language",
+      "languageModalDescription": "Choose your target language before starting practice.",
       "creating": "AI is generating your practice…",
       "needApiKey": "Add an API key in your profile to use this feature.",
       "createFailed": "Could not create the practice. Please try again."
@@ -512,6 +515,7 @@
     }
   },
   "history": {
+    "title": "Practice history",
     "all": "All",
     "sentence": "Sentence",
     "type": "Type",

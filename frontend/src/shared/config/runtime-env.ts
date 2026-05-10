@@ -11,11 +11,3 @@ export function getRuntimeEnv(): RuntimeEnv {
     const w = window as unknown as { __ENV__?: RuntimeEnv };
     return w.__ENV__ ?? {};
 }
-
-export function getSupportFacebookUrl(): string {
-    const env = getRuntimeEnv();
-    const fromWindow = env.VITE_SUPPORT_FACEBOOK_URL?.trim();
-    const fromVite = (import.meta.env.VITE_SUPPORT_FACEBOOK_URL as string | undefined)?.trim();
-    return fromWindow || fromVite || "";
-}
-

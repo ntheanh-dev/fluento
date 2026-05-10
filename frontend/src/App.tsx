@@ -48,7 +48,6 @@ import { Suspense } from "react";
 import LandingPage from "@/features/landing/index.tsx";
 import NotFoundPage from "@/features/NotFoundPage";
 import Home from "@/features/home/ui/index.tsx";
-import { SupportFacebookBubble } from "@/components/SupportFacebookBubble";
 import { AppSpinner } from "@/shared/components/AppSpinner";
 
 Spin.setDefaultIndicator(<LoadingOutlined spin className="text-[#198de6]" />);
@@ -82,7 +81,6 @@ function App() {
       <AntdThemeConfig>
         <ReactQueryProvider>
           <BrowserRouter>
-            <SupportFacebookBubble />
             <Suspense fallback={<AppSpinner fullscreen />}>
               <Routes>
                 <Route

@@ -58,7 +58,7 @@ const SingleSentenceSetup = () => {
 
   const handleStart = async (language: TargetLanguage) => {
     if (singleSentenceMix.length === 0) {
-      message.warning("Please choose at least one mix option.");
+      message.warning(t("practice.setup.mixOptionRequired"));
       return;
     }
     if (!topic) {
@@ -226,7 +226,9 @@ const SingleSentenceSetup = () => {
       <Modal
         title={
           <div className="text-center">
-            <h3 className="text-[30px] font-semibold leading-tight text-slate-900 dark:text-slate-100">Select Practice Language</h3>
+            <h3 className="text-[30px] font-semibold leading-tight text-slate-900 dark:text-slate-100">
+              {t("practice.setup.languageModalTitle")}
+            </h3>
           </div>
         }
         open={isLanguageDialogOpen}
@@ -258,7 +260,7 @@ const SingleSentenceSetup = () => {
         }}
       >
         <p className="mb-5 text-center text-base text-slate-500 dark:text-slate-400">
-          Choose your target language before starting practice.
+          {t("practice.setup.languageModalDescription")}
         </p>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
           {TARGET_LANGUAGE_ITEMS.map((item) => {

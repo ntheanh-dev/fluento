@@ -48,7 +48,7 @@ public class Service {
     Repository invalidatedTokenRepository;
 
     @NonFinal
-    @Value("${app.credits.daily-reset:36}")
+    @Value("${app.credits.daily-reset:30}")
     private int dailyResetCredits;
 
     @NonFinal

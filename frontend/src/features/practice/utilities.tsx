@@ -94,18 +94,28 @@ export function getVocabularyTypeColor(type: string): string {
     case "adjective":
       return "bg-amber-50 text-amber-600 dark:bg-amber-950/50 dark:text-amber-400";
     case "adverb":
+    case "adverb phrase":
+    case "adverb clause":
+    case "adverbial phrase":
+    case "modal verb":
       return "bg-red-50 text-red-600 dark:bg-red-950/50 dark:text-red-400";
     case "determiner":
       return "bg-purple-50 text-purple-600 dark:bg-purple-950/50 dark:text-purple-400";
     case "relative pronoun":
+    case "gerund phrase":
+    case "gerund":
       return "bg-violet-50 text-violet-600 dark:bg-violet-950/50 dark:text-violet-400";
     case "relative adverb":
+    case "relative adverb phrase":
+    case "verb phrase":
       return "bg-rose-50 text-rose-600 dark:bg-rose-950/50 dark:text-rose-400";
     case "relative adjective":
       return "bg-yellow-50 text-yellow-600 dark:bg-yellow-950/50 dark:text-yellow-400";
     case "relative adverb clause":
       return "bg-pink-50 text-pink-600 dark:bg-pink-950/50 dark:text-pink-400";
     case "preposition":
+    case "preposition phrase":
+    case "prepositional phrase":
       return "bg-teal-50 text-teal-600 dark:bg-teal-950/50 dark:text-teal-400";
     case "conjunction":
       return "bg-sky-50 text-sky-600 dark:bg-sky-950/50 dark:text-sky-400";
@@ -144,3 +154,5 @@ export function splitStableAndPendingText(value: string, isStreaming: boolean): 
     pending: match[2] ?? "",
   };
 }
+
+

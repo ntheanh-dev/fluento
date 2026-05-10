@@ -429,6 +429,9 @@
       "continue": "Tiếp tục",
       "backToStep2": "Quay lại bước 2",
       "start": "Bắt đầu",
+      "mixOptionRequired": "Vui lòng chọn ít nhất một kiểu câu.",
+      "languageModalTitle": "Chọn ngôn ngữ luyện tập",
+      "languageModalDescription": "Chọn ngôn ngữ mục tiêu trước khi bắt đầu luyện tập.",
       "creating": "AI đang tạo bài luyện tập",
       "needApiKey": "Bạn cần thêm API key trong profile để sử dụng tính năng này",
       "createFailed": "Tạo bài dịch thất bại. Vui lòng thử lại"
@@ -512,6 +515,7 @@
     }
   },
   "history": {
+    "title": "Lịch sử luyện tập",
     "all": "Tất cả",
     "sentence": "Câu",
     "type": "Loại",
