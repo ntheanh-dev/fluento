@@ -12,6 +12,7 @@ import {
   User,
   X,
   ChevronDown,
+  Cog,
 } from "lucide-react";
 import { LogOut } from "lucide-react";
 import { useLogoutMutation } from "@/features/auth/mutation";
@@ -133,7 +134,7 @@ const Sidebar = ({
                 compact
               />
               <SidebarItem
-                icon={PenLine}
+                icon={Cog}
                 label={t("practice.setup.modeCustomCardTitle")}
                 to="/practice/custom"
                 active={activePath.startsWith("/practice/custom")}

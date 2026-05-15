@@ -286,6 +286,7 @@ Use logical transitions. If there are distinct points, separate them with the li
                 + "C2: academic/professional vocabulary\n\n"
                 + "Avoid extracting low-learning-value grammar words.\n"
                 + "Prefer meaningful vocabulary chunks over isolated grammatical words.\n"
+                + "Avoid extracting proper nouns, names, or specialized terms unless they provide meaningful learning value.\n"
                 + "Return ONLY a valid JSON array with this item schema:\n"
                 + "[\n"
                 + "    {\n"
