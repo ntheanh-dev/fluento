@@ -13,6 +13,7 @@ import com.nta.domain.paragraph.enums.SentenceCount;
 import com.nta.domain.paragraph.enums.Tone;
 import com.nta.domain.paragraph.enums.Topic;
 import com.nta.domain.paragraph.enums.Type;
+import com.nta.domain.paragraphSentence.ParagraphSentence;
 
 @org.springframework.stereotype.Repository("paragraphRepository")
 public interface Repository extends JpaRepository<Paragraph, Long> {
@@ -103,6 +104,10 @@ public interface Repository extends JpaRepository<Paragraph, Long> {
             @Param("excludeUserInput") boolean excludeUserInput,
             Pageable pageable);
 
+    // Thêm một query để fetch sentences riêng cho danh sách IDs
+    @Query("SELECT DISTINCT p FROM Paragraph p JOIN FETCH p.sentences WHERE p IN :paragraphs")
+    List<Paragraph> fetchSentences(@Param("paragraphs") List<Paragraph> paragraphs);
+
     @Query(
             value =
                     """
@@ -136,4 +141,44 @@ public interface Repository extends JpaRepository<Paragraph, Long> {
             @Param("sentenceCount") SentenceCount sentenceCount,
             @Param("excludeUserInput") boolean excludeUserInput,
             Pageable pageable);
+
+    @Query(
+            value =
+                    """
+					SELECT p, COUNT(up)
+					FROM Paragraph p
+					LEFT JOIN p.practices up
+					WHERE (:type IS NULL OR p.type = :type)
+					AND (:tone IS NULL OR p.tone = :tone)
+					AND (:topic IS NULL OR p.topic = :topic)
+					AND (:level IS NULL OR p.level = :level)
+					AND (:sentenceCount IS NULL OR p.sentenceCount = :sentenceCount)
+					GROUP BY p
+				""",
+            countQuery =
+                    """
+					SELECT count(p)
+					FROM Paragraph p
+					WHERE (:type IS NULL OR p.type = :type)
+					AND (:tone IS NULL OR p.tone = :tone)
+					AND (:topic IS NULL OR p.topic = :topic)
+					AND (:level IS NULL OR p.level = :level)
+					AND (:sentenceCount IS NULL OR p.sentenceCount = :sentenceCount)
+				""")
+    Page<Object[]> findPageWithPracticeCount(
+            @Param("type") Type type,
+            @Param("tone") Tone tone,
+            @Param("topic") Topic topic,
+            @Param("level") Level level,
+            @Param("sentenceCount") SentenceCount sentenceCount,
+            Pageable pageable);
+
+    @Query(
+            """
+				SELECT ps
+				FROM ParagraphSentence ps
+				WHERE ps.paragraph.id IN :ids
+				ORDER BY ps.paragraph.id, ps.orderIndex
+			""")
+    List<ParagraphSentence> fetchSentencesByParagraphIds(@Param("ids") List<Long> ids);
 }

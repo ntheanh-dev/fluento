@@ -1,6 +1,9 @@
 package com.nta.domain.paragraph;
 
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -41,11 +44,15 @@ public class Controller {
         Tone toneEnum = tone != null && !tone.isBlank() ? Tone.fromString(tone) : null;
         Topic topicEnum = topic != null && !topic.isBlank() ? Topic.fromString(topic) : null;
         Level levelEnum = level != null && !level.isBlank() ? Level.fromString(level) : null;
-        SentenceCount sentenceCountEnum =
-                sentenceCount != null && !sentenceCount.isBlank() ? SentenceCount.fromString(sentenceCount) : null;
-        Page<ParagraphResponse> paragraphs =
-                service.getAllFiltered(typeEnum, toneEnum, topicEnum, levelEnum, sentenceCountEnum, sort, page, size);
+        Pageable pageable = PageRequest.of(
+                page,
+                size,
+                "asc".equalsIgnoreCase(sort)
+                        ? Sort.by("createdAt").ascending()
+                        : Sort.by("createdAt").descending());
 
+        Page<ParagraphResponse> paragraphs = service.getAllFiltered(
+                typeEnum, toneEnum, topicEnum, levelEnum, SentenceCount.fromString(sentenceCount), pageable);
         return ApiResponse.<Page<ParagraphResponse>>builder().result(paragraphs).build();
     }
 }

@@ -2,14 +2,16 @@ package com.nta.domain.paragraph;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 import jakarta.transaction.Transactional;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Pageable;
 
 import com.nta.common.enums.ErrorCode;
 import com.nta.common.exception.AppException;
@@ -52,26 +54,47 @@ public class Service {
     }
 
     public Page<ParagraphResponse> getAllFiltered(
-            Type type,
-            Tone tone,
-            Topic topic,
-            Level level,
-            SentenceCount sentenceCount,
-            String sort,
-            int page,
-            int size) {
-        PageRequest pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
-        Page<Object[]> paragraphsWithCount;
-        if ("most_practiced".equalsIgnoreCase(sort)) {
-            paragraphsWithCount = repository.findWithOptionalFiltersAndPracticeCountOrderByMostPracticed(
-                    type, tone, topic, level, sentenceCount, true, pageable);
-        } else {
-            Sort.Direction direction = "asc".equalsIgnoreCase(sort) ? Sort.Direction.ASC : Sort.Direction.DESC;
-            pageable = PageRequest.of(page, size, Sort.by(direction, "createdAt"));
-            paragraphsWithCount = repository.findWithOptionalFiltersAndPracticeCount(
-                    type, tone, topic, level, sentenceCount, true, pageable);
-        }
-        return paragraphsWithCount.map(row -> toResponse((Paragraph) row[0], (Long) row[1]));
+            Type type, Tone tone, Topic topic, Level level, SentenceCount sentenceCount, Pageable pageable) {
+
+        Page<Object[]> pageData =
+                repository.findPageWithPracticeCount(type, tone, topic, level, sentenceCount, pageable);
+
+        // 1. extract paragraph list
+        List<Paragraph> paragraphs =
+                pageData.stream().map(row -> (Paragraph) row[0]).toList();
+
+        // 2. lấy ids
+        List<Long> ids = paragraphs.stream().map(Paragraph::getId).toList();
+
+        // 3. load sentences 1 lần
+        List<ParagraphSentence> allSentences = repository.fetchSentencesByParagraphIds(ids);
+
+        // 4. group theo paragraphId
+        Map<Long, List<ParagraphSentence>> sentenceMap = allSentences.stream()
+                .collect(Collectors.groupingBy(ps -> ps.getParagraph().getId()));
+
+        // 5. map response
+        return pageData.map(row -> {
+            Paragraph p = (Paragraph) row[0];
+            Long practiceCount = (Long) row[1];
+
+            List<String> sentences = sentenceMap.getOrDefault(p.getId(), List.of()).stream()
+                    .map(ParagraphSentence::getContent)
+                    .toList();
+
+            return ParagraphResponse.builder()
+                    .id(p.getId())
+                    .title(p.getTitle())
+                    .type(p.getType())
+                    .tone(p.getTone())
+                    .topic(p.getTopic())
+                    .level(p.getLevel())
+                    .sentenceCount(p.getSentenceCount())
+                    .createdAt(p.getCreatedAt())
+                    .practiceCount(practiceCount)
+                    .sentences(sentences)
+                    .build();
+        });
     }
 
     public Paragraph findOrcreate(CreateParagraphRequest request) {
@@ -228,20 +251,5 @@ public class Service {
         }
         String stripped = sentence.replace("\n", "").replace("\r", "").replace("\\n", "");
         return stripped.isBlank();
-    }
-
-    private ParagraphResponse toResponse(Paragraph paragraph, Long practiceCount) {
-        return ParagraphResponse.builder()
-                .id(paragraph.getId())
-                .title(paragraph.getTitle())
-                .type(paragraph.getType())
-                .tone(paragraph.getTone())
-                .topic(paragraph.getTopic())
-                .level(paragraph.getLevel())
-                .sentenceCount(paragraph.getSentenceCount())
-                .practiceCount(practiceCount != null ? practiceCount : 0L)
-                .createdAt(paragraph.getCreatedAt())
-                .sentences(paragraph.getSentenceContents())
-                .build();
     }
 }
