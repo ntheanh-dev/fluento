@@ -71,7 +71,7 @@ spring:
 app:
   time-zone: Asia/Ho_Chi_Minh
   credits:
-    daily-reset: 30
+    daily-reset: 50
   data-init:
     paragraph-sentence-fixer:
       enabled: false

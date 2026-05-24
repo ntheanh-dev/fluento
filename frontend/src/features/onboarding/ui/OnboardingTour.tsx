@@ -168,7 +168,7 @@ export default function OnboardingTour() {
         prevBtnText: t("onboarding.prevBtn") || "Back",
         doneBtnText: t("onboarding.doneBtn") || "Done",
         steps: steps,
-        onHighlightStarted: async (element, step) => {
+        onHighlightStarted: async (_element, step) => {
           if (step.element === ".onboarding-lang-modal .ant-modal-content") {
             const firstCard = document.getElementById("library-first-card") as HTMLElement;
 

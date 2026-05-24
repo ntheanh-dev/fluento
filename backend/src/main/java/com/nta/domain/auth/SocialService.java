@@ -37,7 +37,7 @@ public class SocialService {
     com.nta.domain.role.Repository roleRepository;
 
     @NonFinal
-    @Value("${app.credits.daily-reset:30}")
+    @Value("${app.credits.daily-reset:50}")
     private int dailyResetCredits;
 
     @NonFinal

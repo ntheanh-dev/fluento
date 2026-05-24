@@ -18,7 +18,7 @@ public class CreditResetJob {
 
     private final com.nta.domain.user.Repository userRepository;
 
-    @Value("${app.credits.daily-reset:30}")
+    @Value("${app.credits.daily-reset:50}")
     private int dailyResetCredits;
 
     @Scheduled(cron = "0 0 0 * * *", zone = "${app.time-zone:Asia/Ho_Chi_Minh}")

@@ -90,7 +90,7 @@ spring:
 app:
   time-zone: Asia/Ho_Chi_Minh
   credits:
-    daily-reset: 30
+    daily-reset: 50
   api-key-encryption-secret: ${API_KEY_ENCRYPTION_SECRET:}
   cors:
     allowed-origins: ${CORS_ALLOWED_ORIGINS:${FRONTEND_DOMAIN:http://localhost:1234}}
