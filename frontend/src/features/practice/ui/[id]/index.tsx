@@ -27,6 +27,7 @@ import type { TargetLanguage } from "@/shared/constants/target-language";
 import { FlagIcon, getTargetLanguageCountryCode } from "@/shared/utilities/flag";
 import { upperFirstCharactor } from "@/shared/utilities";
 import type { RenderAsideType } from "../../schema";
+import PracticeTour from "@/features/onboarding/ui/PracticeTour";
 
 const SentencePracticePage = () => {
   const { t } = useTranslation();
@@ -303,10 +304,13 @@ const SentencePracticePage = () => {
   return (
     <div className="h-[calc(100vh-130px+4rem)] max-md:h-auto max-md:min-h-screen max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col overflow-hidden max-md:overflow-visible dark:text-slate-100">
       {/* Top Bar for Task Info */}
+
+      <PracticeTour />
+
       <div className="flex items-center justify-between md:py-4 mb-2 shrink-0 px-1 sm:px-0 gap-4">
         <div className="flex-[10] flex flex-row items-center justify-between gap-4">
           {data?.paragraph.type !== "DIARIES" && data?.paragraph.type !== 'USER_INPUT' && data?.paragraph.type !== "SINGLE_SENTENCE" && (
-            <div>
+            <div id="practice-title-section">
               <p className="text-lg font-bold text-slate-900 dark:text-slate-100 mb-2">{data?.paragraph.type}</p>
               <p className="text-slate-600 dark:text-slate-400 text-xs max-w-xl">
                 {data?.paragraph.title}
@@ -327,7 +331,7 @@ const SentencePracticePage = () => {
               <div className="hidden lg:block h-8 w-px shrink-0 bg-slate-100 dark:bg-slate-700"></div>
             )}
             {data && (
-              <div className="flex flex-col items-start">
+              <div id="practice-lang" className="flex flex-col items-start">
                 <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">{t("history.language")}</span>
                 <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-700 dark:text-slate-200">
                   <FlagIcon countryCode={targetCountryCode} className="h-3 w-5 rounded-[2px]" />
@@ -337,7 +341,7 @@ const SentencePracticePage = () => {
             )}
             {data && <div className="h-8 w-px shrink-0 bg-slate-100 dark:bg-slate-700"></div>}
             {data && (
-              <div className="flex flex-col items-start">
+              <div id="practice-time" className="flex flex-col items-start">
                 <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">{t("practice.session.time")}</span>
                 <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-700 dark:text-slate-200">
                   <Clock size={14} className="text-slate-500 dark:text-slate-400" />
@@ -349,6 +353,7 @@ const SentencePracticePage = () => {
               <>
                 <div className="h-8 w-px bg-slate-100 dark:bg-slate-700"></div>
                 <Link
+                  id="practice-credits"
                   to={subscriptionHref("topup")}
                   className="group flex flex-col items-start rounded-md px-1 -mx-1 py-0.5 outline-none transition-colors hover:bg-slate-100/80 dark:hover:bg-slate-800/60 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-900"
                 >
@@ -366,6 +371,7 @@ const SentencePracticePage = () => {
               <>
                 <div className="h-8 w-px bg-slate-100 dark:bg-slate-700"></div>
                 <Link
+                  id="practice-coins"
                   to={subscriptionHref("coin")}
                   className="group flex flex-col items-start rounded-md px-1 -mx-1 py-0.5 outline-none transition-colors hover:bg-slate-100/80 dark:hover:bg-slate-800/60 focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-900"
                 >
@@ -383,7 +389,7 @@ const SentencePracticePage = () => {
           </div>
         </div>
         <div className="h-8 w-px bg-slate-100 dark:bg-slate-700"></div>
-        <div className="flex-[2] hidden md:flex items-center gap-4 lg:gap-6 w-full">
+        <div id="practice-progress-section" className="flex-[2] hidden md:flex items-center gap-4 lg:gap-6 w-full">
           <span className="text-xs md:text-sm font-medium text-slate-500 dark:text-slate-400 whitespace-nowrap">
             {t("practice.session.sentenceProgress", {
               current: currentVietNameseSentence?.orderIndex ?? 0,

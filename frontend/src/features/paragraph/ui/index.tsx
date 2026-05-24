@@ -13,7 +13,6 @@ import { useCreateUserPracticeMutation } from "@/features/paragraph/mutation";
 import { getCoverImage } from "@/shared/constants/practice-covers";
 import { TARGET_LANGUAGE_ITEMS, type TargetLanguage } from "@/shared/constants/target-language";
 import { CollapsibleChecklistSection } from "@/shared/components/CollapsibleChecklistSection";
-import Cookies from "js-cookie";
 import LoginWithGoogleModal from "@/features/auth/ui/LoginWithGoogleModal";
 import { FlagIcon } from "@/shared/utilities/flag";
 import { AppSpinner } from "@/shared/components/AppSpinner";
@@ -140,12 +139,6 @@ const ParagraphLibraryPage = () => {
   const isInitialLoading = isLoading && !data;
 
   const handlePractice = (paragraphId: number) => {
-    const isAuthenticated = Cookies.get("accessToken") !== undefined;
-    if (!isAuthenticated) {
-      setIsLoginModalOpen(true);
-      return;
-    }
-
     setPendingParagraphId(paragraphId);
     setIsLanguageDialogOpen(true);
   };
@@ -268,7 +261,7 @@ const ParagraphLibraryPage = () => {
   return (
     <div className="max-w-7xl mx-auto px-4 py-6 md:px-6 md:py-8">
       <div className="grid grid-cols-1 xl:grid-cols-[280px_1fr] gap-5">
-        <aside className="hidden xl:block bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-700 rounded-2xl p-5 h-fit shadow-sm space-y-5">
+        <aside id="library-filters" className="hidden xl:block bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-700 rounded-2xl p-5 h-fit shadow-sm space-y-5">
           <div className="flex items-center gap-2 text-slate-900 dark:text-slate-100">
             <Filter className="w-4 h-4 text-slate-500 dark:text-slate-400" />
             <h2 className="font-bold text-xl leading-none">{t("paragraphLibrary.filters.title")}</h2>
@@ -310,14 +303,15 @@ const ParagraphLibraryPage = () => {
                 </div>
               )}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {data.content.map((item) => {
+                {data.content.map((item, index) => {
                   const preview =
                     item.sentences?.slice(0, 2).join(" ").replace("\\n", " ") ||
                     t("paragraphLibrary.card.emptyPreview");
                   return (
                     <article
                       key={item.id}
-                      className="overflow-hidden bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm"
+                      id={index === 0 ? "library-first-card" : undefined}
+                      className="overflow-hidden bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm hover:border-blue-400 dark:hover:border-blue-500 transition-colors"
                       onClick={() => handlePractice(item.id)}
                       style={{ cursor: "pointer" }}
                     >
@@ -349,7 +343,6 @@ const ParagraphLibraryPage = () => {
                           {preview}
                         </p>
                       </div>
-
                     </article>
                   );
                 })}
@@ -395,6 +388,7 @@ const ParagraphLibraryPage = () => {
           setIsLanguageDialogOpen(false);
           setPendingParagraphId(null);
         }}
+        getContainer={false}
         centered
         width={520}
         style={{
@@ -403,7 +397,7 @@ const ParagraphLibraryPage = () => {
           background: "linear-gradient(180deg, #ffffff 0%, #f8fafc 100%)",
         }}
         footer={null}
-        wrapClassName="practice-language-modal"
+        wrapClassName="practice-language-modal onboarding-lang-modal"
         styles={{
           header: {
             background: "transparent",
@@ -421,7 +415,7 @@ const ParagraphLibraryPage = () => {
         <p className="mb-5 text-center text-base text-slate-500 dark:text-slate-400">
           {t("practice.setup.languageModalDescription")}
         </p>
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+        <div id="onboarding-language-options" className="grid grid-cols-1 gap-3 sm:grid-cols-3">
           {TARGET_LANGUAGE_OPTIONS.map((item) => {
             return (
               <button

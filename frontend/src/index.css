@@ -8,19 +8,19 @@
   --color-background-light: #f6f7f8;
 }
 
-/* Hide scrollbar for Chrome, Safari and Opera */
 ::-webkit-scrollbar {
   display: none;
 }
 
-/* Hide scrollbar for IE, Edge and Firefox */
 * {
-  -ms-overflow-style: none;  /* IE and Edge */
-  scrollbar-width: none;  /* Firefox */
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  box-sizing: border-box;
 }
 
-/* Keep the app locked to viewport width on mobile */
-html, body, #root {
+html,
+body,
+#root {
   margin: 0;
   padding: 0;
   width: 100%;
@@ -28,9 +28,11 @@ html, body, #root {
   overflow-x: clip;
 }
 
-/* Fallback for browsers that do not fully support overflow-x: clip */
 @supports not (overflow: clip) {
-  html, body, #root {
+
+  html,
+  body,
+  #root {
     overflow-x: hidden;
   }
 }
@@ -40,12 +42,6 @@ html.dark body {
   color: #f1f5f9;
 }
 
-/* Prevent horizontal scroll on all elements */
-* {
-  box-sizing: border-box;
-}
-
-/* Prevent media from pushing layout wider than viewport */
 img,
 svg,
 video,
@@ -53,7 +49,191 @@ canvas {
   max-width: 100%;
 }
 
-/* Ensure smooth scrolling behavior */
 html {
   scroll-behavior: smooth;
+}
+
+.driver-overlay {
+  z-index: 900 !important;
+}
+
+.onboarding-lang-modal {
+  z-index: 1000 !important;
+}
+
+.onboarding-lang-modal .ant-modal {
+  z-index: 1001 !important;
+}
+
+.driver-popover {
+  font-family: "Lexend", sans-serif !important;
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+  border-radius: 24px !important;
+  padding: 24px !important;
+  box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1) !important;
+  border: 1px solid #e2e8f0 !important;
+  max-width: 420px !important;
+  z-index: 1010 !important;
+}
+
+.driver-popover-title {
+  font-size: 1.35rem !important;
+  font-weight: 700 !important;
+  color: #0f172a !important;
+  margin-bottom: 12px !important;
+  line-height: 1.4 !important;
+}
+
+.driver-popover-description {
+  font-size: 0.95rem !important;
+  color: #475569 !important;
+  line-height: 1.6 !important;
+  margin-bottom: 24px !important;
+}
+
+.driver-popover-footer {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+}
+
+.driver-popover-progress-text {
+  font-size: 0.9rem !important;
+  color: #94a3b8 !important;
+  font-weight: 500 !important;
+}
+
+.driver-popover-btn {
+  font-family: "Lexend", sans-serif !important;
+  font-size: 0.9rem !important;
+  font-weight: 600 !important;
+  padding: 8px 18px !important;
+  border-radius: 8px !important;
+  transition: all 0.2s ease !important;
+  text-shadow: none !important;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.driver-popover-next-btn {
+  background-color: #137fec !important;
+  color: #ffffff !important;
+  border: none !important;
+  text-shadow: none !important;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-weight: 600 !important;
+}
+
+.driver-popover-next-btn:hover {
+  background-color: #1d4ed8 !important;
+}
+
+.driver-popover-prev-btn {
+  background-color: transparent !important;
+  color: #64748b !important;
+  border: none !important;
+  text-shadow: none !important;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-weight: 600 !important;
+}
+
+.driver-popover-prev-btn:hover {
+  color: #0f172a !important;
+}
+
+.driver-popover-close-btn {
+  position: absolute !important;
+  top: 16px !important;
+  right: 16px !important;
+  background-color: #f1f5f9 !important;
+  color: #475569 !important;
+  border-radius: 6px !important;
+  padding: 4px !important;
+}
+
+html.dark .driver-popover {
+  background-color: #0b1329 !important;
+  color: #f8fafc !important;
+  border: 1px solid #1e293b !important;
+}
+
+html.dark .driver-popover-title {
+  color: #ffffff !important;
+}
+
+html.dark .driver-popover-description {
+  color: #94a3b8 !important;
+}
+
+html.dark .driver-popover-progress-text {
+  color: #475569 !important;
+}
+
+html.dark .driver-popover-prev-btn {
+  background-color: #1e293b !important;
+  color: #64748b !important;
+}
+
+html.dark .driver-popover-prev-btn:hover {
+  background-color: #334155 !important;
+  color: #cbd5e1 !important;
+}
+
+html.dark .driver-popover-close-btn {
+  background-color: #1e293b !important;
+  color: #94a3b8 !important;
+}
+
+html.dark .driver-popover-close-btn:hover {
+  background-color: #334155 !important;
+  color: #ffffff !important;
+}
+
+
+html.dark body:has(.onboarding-lang-modal) .driver-popover-arrow::before {
+  border-top-color: #0b1329 !important;
+}
+
+html.dark body:has(.onboarding-lang-modal) .driver-popover-arrow::after {
+  border-top-color: #0b1329 !important;
+}
+
+body:has(.onboarding-lang-modal) .driver-popover {
+  top: 57% !important;
+  left: 50% !important;
+  transform: translate(-50%, 80px) !important;
+  padding: 16px 20px !important;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.4), 0 10px 10px -5px rgba(0, 0, 0, 0.4) !important;
+}
+
+body:has(.onboarding-lang-modal) .driver-popover-arrow {
+  display: block !important;
+  top: -10px !important;
+  left: 50% !important;
+  bottom: auto !important;
+  right: auto !important;
+  width: 0 !important;
+  height: 0 !important;
+  transform: translateX(-50%) !important;
+  border-left: 10px solid transparent !important;
+  border-right: 10px solid transparent !important;
+  border-bottom: 10px solid var(--driver-popover-bg, #ffffff) !important;
+  border-top: none !important;
+  background: transparent !important;
+}
+
+/* --- FIX MŨI TÊN CHO DARK MODE --- */
+html.dark body:has(.onboarding-lang-modal) .driver-popover-arrow {
+  /* Đổi màu cạnh đáy tam giác khớp với background màu xanh đêm tối của popover */
+  border-bottom-color: #0b1329 !important;
+}
+
+.onboarding-lang-modal .ant-modal-close,
+.onboarding-lang-modal .ant-modal-close:focus,
+.onboarding-lang-modal .ant-modal-close:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
 }

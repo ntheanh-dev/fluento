@@ -1,6 +1,7 @@
 export const LOCAL_STORAGE_KEYS = {
   theme: "luyenviet-theme",
   language: "i18nextLng",
+  onboardingCompleted: "onboarding",
   cache: {
     noteTypes: "noteTypes",
   },

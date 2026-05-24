@@ -8,7 +8,7 @@ import {
     History,
     Trophy,
     LibraryBig,
-    PenLine,
+    Columns3Cog,
     Shield,
     LogOut,
     Languages,
@@ -28,6 +28,7 @@ import { getLevelLabel } from "@/i18n/labels";
 import { useTranslation } from "react-i18next";
 import LoginWithGoogleModal from "@/features/auth/ui/LoginWithGoogleModal";
 import { useTheme } from "@/app/providers/ThemeProvider";
+import OnboardingTour from "@/features/onboarding/ui/OnboardingTour";
 
 const ADMIN_ROLE = "ADMIN";
 const PRACTICE_NAV_KEY = "practice-nav";
@@ -83,7 +84,7 @@ const Layout = () => {
         () => [
             { key: "paragraph", label: t("practice.setup.modeParagraphCardTitle"), icon: <FileText size={16} /> },
             { key: "single-sentence", label: t("practice.setup.modeSentenceCardTitle"), icon: <Pencil size={16} /> },
-            { key: "custom", label: t("practice.setup.modeCustomCardTitle"), icon: <PenLine size={16} /> },
+            { key: "custom", label: t("practice.setup.modeCustomCardTitle"), icon: <Columns3Cog size={16} /> },
         ],
         [t],
     );
@@ -163,6 +164,7 @@ const Layout = () => {
                         <div className="flex items-center gap-3 md:gap-8 self-stretch">
                             {/* Mobile Toggle */}
                             <button
+                                id="mobile-menu-toggle"
                                 className="md:hidden p-2 -ml-2 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg"
                                 onClick={() => setIsMobileMenuOpen(true)}
                             >
@@ -176,7 +178,7 @@ const Layout = () => {
 
                             {/* Desktop: Luyenviet + horizontal nav */}
                             <div className="hidden md:flex items-center justify-between gap-1 h-full">
-                                <Link to="/home" className="flex items-center gap-2">
+                                <Link id="onboarding-brand" to="/home" className="flex items-center gap-2">
                                     <img src={logo} alt="logo" className="w-10 h-10" />
                                     <span className="text-xl font-bold tracking-tight font-display text-slate-900 dark:text-slate-100">{t("common.brand")}</span>
                                 </Link>
@@ -199,7 +201,7 @@ const Layout = () => {
                                                 placement="bottom"
                                                 overlayStyle={{ minWidth: 200 }}
                                             >
-                                                <button type="button" className={itemClassName}>
+                                                <button id="nav-practice" type="button" className={itemClassName}>
                                                     <Icon
                                                         size={18}
                                                         strokeWidth={isActive(to) ? 2.25 : 2}
@@ -216,6 +218,7 @@ const Layout = () => {
                                         <Link
                                             key={to}
                                             to={to}
+                                            id={`nav-${to.replace("/", "")}`}
                                             className={itemClassName}
                                         >
                                             <Icon
@@ -241,6 +244,7 @@ const Layout = () => {
                                     overlayStyle={{ minWidth: 190 }}
                                 >
                                     <button
+                                        id="nav-profile"
                                         type="button"
                                         className="flex items-center gap-3 cursor-pointer"
                                     >
@@ -303,6 +307,7 @@ const Layout = () => {
                 </main>
             </div>
             <LoginWithGoogleModal open={isLoginModalOpen} onCancel={() => setIsLoginModalOpen(false)} />
+            {isAuthenticated && <OnboardingTour />}
         </main>
     );
 };
