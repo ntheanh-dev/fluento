@@ -1,5 +1,5 @@
 /** Daily credits — must stay aligned with product/backend where applicable. */
-export const FREE_CREDITS_PER_DAY = 30;
+export const FREE_CREDITS_PER_DAY = 50;
 export const PRO_CREDITS_PER_DAY = 500;
 
 /** Pro tier — monthly subscription (VND) */
